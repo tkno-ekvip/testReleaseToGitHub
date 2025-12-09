@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.12">
+  <POU Name="gfdfdfdvdfvdfvdfvfdv" Id="{013a0809-79a9-459d-b994-33c49085e912}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION gfdfdfdvdfvdfvdfvfdv : fdvfdvdvfdv
+VAR_INPUT
+END_VAR
+VAR
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <LineIds Name="gfdfdfdvdfvdfvdfvfdv">
+      <LineId Id="1" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

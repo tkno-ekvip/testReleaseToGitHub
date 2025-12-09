@@ -8,7 +8,7 @@
     <WriteProductVersion>true</WriteProductVersion>
     <GenerateTpy>false</GenerateTpy>
     <Name>CNM_AssertionInterfaceTests</Name>
-    <ProgramVersion>3.1.4024.0</ProgramVersion>
+    <ProgramVersion>3.1.4026.16</ProgramVersion>
     <Application>{97047b2b-d062-4663-9dff-f282a4252282}</Application>
     <TypeSystem>{137e967f-34c4-4473-acdc-625d6068e1f7}</TypeSystem>
     <Implicit_Task_Info>{af4167f4-778b-4faf-ab05-f2d31bbff93d}</Implicit_Task_Info>
@@ -837,6 +837,9 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="AssertionTester\AssertionTests\BinaryAssertions\classes\BinaryAssertionsTests.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="AssertionTester\AssertionTests\BinaryAssertions\classes\gfdfdfdvdfvdfvdfvfdv.TcPOU">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="AssertionTester\AssertionTests\BitNumberAssertions\classes\ByteAssertionTests.TcPOU">
