@@ -1,0 +1,504 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="ObjectAssertions" Id="{6b0104dc-0fa5-4796-b05c-cc0271c4c02e}" SpecialFunc="None">
+    <Declaration><![CDATA[(*
+
+short summary
+=================
+This class provides assert statements for ``CNM_AbstractObject.IObjects``  
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+methods and properties
+=======================
+
+*)
+
+{attribute 'reflection'}
+FUNCTION_BLOCK INTERNAL ObjectAssertions EXTENDS AbstactAssertion IMPLEMENTS IObjectAssertions
+VAR
+	(* injected comperator *)
+	comperator	: CNM_AbstractObject.IComparator;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Property Name="className" Id="{76a4cba8-ada8-4bf0-b8ac-6f3bcb8eeac1}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This abstract property returns the class name of the concrete object, 
+It's for debugging purpose
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+PROPERTY className :CNM_AbstractObject.ClassName]]></Declaration>
+      <Get Name="Get" Id="{01f12f0f-96cc-4167-bb44-c74436b4326a}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[className := 'CNM_AssertionInterfaceLib.ObjectAssertions';
+]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="isAfterInOrderTo" Id="{b7a0129b-14a0-464a-8c6e-3e425c5c2dc8}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if ``object`` is after in order to ``objectToCompare``
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD isAfterInOrderTo
+VAR_INPUT
+	(* object which should be tested *)
+	object			:CNM_AbstractObject.IObject;
+	(* comparative object *)
+	objectToCompare	:CNM_AbstractObject.IObject;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (THIS^.isObjectNull(THIS^.comperator)) THEN
+	IF (THIS^.isObjectValid(object)) THEN
+		IF (object.compareTo(objectToCompare) <> CNM_ReturnTypes.ComparationResult.GREATER) THEN
+			THIS^.assertionWasWrong(message, THIS^.getDebugInfo('isAfterInOrderTo'));
+		END_IF
+	ELSIF (THIS^.isObjectValid(objectToCompare)) THEN
+		IF (objectToCompare.compareTo(object) >= CNM_ReturnTypes.ComparationResult.EQUAL) THEN
+			THIS^.assertionWasWrong(message, THIS^.getDebugInfo('isAfterInOrderTo'));
+		END_IF
+	ELSE	
+		THIS^.assertionWasWrong(message, THIS^.getDebugInfo('isAfterInOrderTo'));
+	END_IF
+ELSIF (
+	THIS^.comperator.compare(object, objectToCompare)
+	<> CNM_ReturnTypes.ComparationResult.GREATER
+) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('isAfterInOrderTo'));
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="isEqualInOrderTo" Id="{11d54115-1f87-4097-98bc-7287b9134de6}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if ``object``
+is at the same position in the sequence as ``objectToCompare``
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD isEqualInOrderTo
+VAR_INPUT
+	(* object which should be tested *)
+	object			:CNM_AbstractObject.IObject;
+	(* comparative object *)
+	objectToCompare	:CNM_AbstractObject.IObject;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (THIS^.isObjectNull(THIS^.comperator)) THEN
+	IF (THIS^.isObjectValid(object)) THEN
+		IF (object.compareTo(objectToCompare) <> CNM_ReturnTypes.ComparationResult.EQUAL) THEN
+			THIS^.assertionWasWrong(message, THIS^.getDebugInfo('isEqualInOrderTo'));
+		END_IF
+	ELSIF (THIS^.isObjectValid(objectToCompare)) THEN
+		IF (objectToCompare.compareTo(object) <> CNM_ReturnTypes.ComparationResult.EQUAL) THEN
+			THIS^.assertionWasWrong(message, THIS^.getDebugInfo('isEqualInOrderTo'));
+		END_IF
+	END_IF
+ELSIF (
+	THIS^.comperator.compare(object, objectToCompare)
+	<> CNM_ReturnTypes.ComparationResult.EQUAL
+) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('isEqualInOrderTo'));
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="isEqualTo" Id="{0684d09c-0456-4ad1-9e66-4e9998502043}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if ``object`` is ``objectToCompare``
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD isEqualTo
+VAR_INPUT
+	(* object which should be tested *)
+	object			:CNM_AbstractObject.IObject;
+	(* comparative object *)
+	objectToCompare	:CNM_AbstractObject.IObject;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (THIS^.isObjectValid(object)) THEN
+	IF (NOT object.isEqual(objectToCompare)) THEN
+		THIS^.assertionWasWrong(message, THIS^.getDebugInfo('isEqualTo'));
+	END_IF
+ELSIF (THIS^.isObjectValid(objectToCompare)) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('isEqualTo'));
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="isNotEqualTo" Id="{db7266fe-1971-4010-8539-fb86bedb9744}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if ``object`` is not ``objectToCompare``
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD isNotEqualTo
+VAR_INPUT
+	(* object which should be tested *)
+	object			:CNM_AbstractObject.IObject;
+	(* comparative object *)
+	objectToCompare	:CNM_AbstractObject.IObject;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (THIS^.isObjectValid(object)) THEN
+	IF (object.isEqual(objectToCompare)) THEN
+		THIS^.assertionWasWrong(message, THIS^.getDebugInfo('isNotEqualTo'));
+	END_IF
+ELSIF (THIS^.isObjectNull(objectToCompare)) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('isNotEqualTo'));
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="objectIsNull" Id="{f4944f04-968a-4e94-8665-33487c8a9b2b}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if ``object`` is NULL
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD objectIsNull
+VAR_INPUT
+	(* object which should be tested *)
+	object	:CNM_AbstractObject.IObject;
+	(* message if the assertion is false *)
+	message	:AssertMessage;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (THIS^.isObjectValid(object)) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('objectIsNull'));
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="objectIsValid" Id="{48a1a2d3-5740-4e3e-9864-08b0175b7f37}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if ``object`` is not NULL
+
+.. attention:: 
+	Validity of the pointer will be proofed for 32 bit systems only.
+	For other systems it's an optimistic estimate.
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD objectIsValid
+VAR_INPUT
+	(* object which should be tested *)
+	object	:CNM_AbstractObject.IObject;
+	(* message if the assertion is false *)
+	message	:AssertMessage;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (THIS^.isObjectNull(object)) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('objectIsValid'));
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="precedesInOrderTo" Id="{ee776579-a813-496b-9c62-857e1ce9e857}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if ``object``
+precedes in sequence to ``objectToCompare``
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD precedesInOrderTo
+VAR_INPUT
+	(* object which should be tested *)
+	object			:CNM_AbstractObject.IObject;
+	(* comparative object *)
+	objectToCompare	:CNM_AbstractObject.IObject;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (THIS^.isObjectNull(THIS^.comperator)) THEN
+	IF (THIS^.isObjectValid(object)) THEN
+		IF (object.compareTo(objectToCompare) <> CNM_ReturnTypes.ComparationResult.SMALLER) THEN
+			THIS^.assertionWasWrong(message, THIS^.getDebugInfo('precedesInOrderTo'));
+		END_IF
+	ELSIF (THIS^.isObjectValid(objectToCompare)) THEN
+		IF (objectToCompare.compareTo(object) <= CNM_ReturnTypes.ComparationResult.EQUAL) THEN
+			THIS^.assertionWasWrong(message, THIS^.getDebugInfo('precedesInOrderTo'));
+		END_IF
+	ELSE	
+		THIS^.assertionWasWrong(message, THIS^.getDebugInfo('precedesInOrderTo'));
+	END_IF
+ELSIF (
+	THIS^.comperator.compare(object, objectToCompare)
+	<> CNM_ReturnTypes.ComparationResult.SMALLER
+) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('precedesInOrderTo'));
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="setComperator" Id="{63bdbad0-6e7b-42cd-b3d0-55596e213964}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This allows you to set your own comperator for the methods
+:ref:`IObjectAssertions.precedesInOrderTo`  
+:ref:`IObjectAssertions.isEqualInOrderTo`  
+:ref:`IObjectAssertions.isAfterInOrderTo`
+to clear the comperator again, just call it with 0: ``foo.setComperator(comperator := 0);``
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD setComperator
+VAR_INPUT
+	(* comperator to inject *)
+	comperator	:CNM_AbstractObject.IComparator := 0;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.comperator := comperator;
+]]></ST>
+      </Implementation>
+    </Method>
+    <LineIds Name="ObjectAssertions">
+      <LineId Id="9" Count="0" />
+    </LineIds>
+    <LineIds Name="ObjectAssertions.className.Get">
+      <LineId Id="5" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="ObjectAssertions.isAfterInOrderTo">
+      <LineId Id="50" Count="0" />
+      <LineId Id="39" Count="4" />
+      <LineId Id="45" Count="2" />
+      <LineId Id="44" Count="0" />
+      <LineId Id="48" Count="0" />
+      <LineId Id="36" Count="0" />
+      <LineId Id="51" Count="1" />
+      <LineId Id="54" Count="2" />
+      <LineId Id="53" Count="0" />
+      <LineId Id="49" Count="0" />
+    </LineIds>
+    <LineIds Name="ObjectAssertions.isEqualInOrderTo">
+      <LineId Id="49" Count="0" />
+      <LineId Id="38" Count="7" />
+      <LineId Id="48" Count="0" />
+      <LineId Id="50" Count="4" />
+      <LineId Id="35" Count="0" />
+      <LineId Id="55" Count="0" />
+    </LineIds>
+    <LineIds Name="ObjectAssertions.isEqualTo">
+      <LineId Id="35" Count="4" />
+      <LineId Id="44" Count="1" />
+      <LineId Id="34" Count="0" />
+    </LineIds>
+    <LineIds Name="ObjectAssertions.isNotEqualTo">
+      <LineId Id="35" Count="6" />
+      <LineId Id="34" Count="0" />
+    </LineIds>
+    <LineIds Name="ObjectAssertions.objectIsNull">
+      <LineId Id="33" Count="2" />
+      <LineId Id="32" Count="0" />
+    </LineIds>
+    <LineIds Name="ObjectAssertions.objectIsValid">
+      <LineId Id="32" Count="0" />
+      <LineId Id="36" Count="0" />
+      <LineId Id="35" Count="0" />
+      <LineId Id="33" Count="0" />
+    </LineIds>
+    <LineIds Name="ObjectAssertions.precedesInOrderTo">
+      <LineId Id="62" Count="0" />
+      <LineId Id="45" Count="16" />
+      <LineId Id="35" Count="0" />
+    </LineIds>
+    <LineIds Name="ObjectAssertions.setComperator">
+      <LineId Id="34" Count="1" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

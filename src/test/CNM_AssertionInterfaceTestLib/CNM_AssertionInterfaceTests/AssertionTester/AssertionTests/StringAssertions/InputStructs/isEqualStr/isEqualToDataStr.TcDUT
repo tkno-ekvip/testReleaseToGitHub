@@ -1,0 +1,37 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="isEqualToDataStr" Id="{13d85a4b-aece-47ef-9b6b-20b1f628f25a}">
+    <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+{warning 'header is generated please add your documentation'}
+TYPE isEqualToDataStr :
+STRUCT
+	StringToTest		: STRING;
+	WStringToTest 		: WSTRING;
+	EqualToString		: STRING;
+	EqualToWString 		: WSTRING;
+	IgnoreCases			: BOOL;
+	ExpectedResult  	: BOOL;
+	typeToTest      	: TypeToTest;		
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

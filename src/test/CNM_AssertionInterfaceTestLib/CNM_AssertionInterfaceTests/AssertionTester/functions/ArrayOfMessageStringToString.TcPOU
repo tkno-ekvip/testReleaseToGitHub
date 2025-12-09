@@ -1,0 +1,57 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="ArrayOfMessageStringToString" Id="{a0a4b286-ac19-4504-bf3b-91c9c14dbc08}" SpecialFunc="None">
+    <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+{warning 'header is generated please add your documentation'}
+FUNCTION ArrayOfMessageStringToString : Tc2_System.T_MaxString
+VAR_IN_OUT
+	message :ARRAY [*] OF STRING;
+END_VAR
+VAR
+	i :INT := 0;
+	tempString :STRING := '';
+END_VAR
+
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[WHILE (message[i] <> '#END') DO
+	tempString := CONCAT(tempString, message[i]);
+	i:= i + 1;
+	IF (i >= 10) THEN
+		EXIT;
+	END_IF
+END_WHILE
+
+ArrayOfMessageStringToString := tempString;]]></ST>
+    </Implementation>
+    <LineIds Name="ArrayOfMessageStringToString">
+      <LineId Id="20" Count="1" />
+      <LineId Id="33" Count="1" />
+      <LineId Id="37" Count="1" />
+      <LineId Id="7" Count="0" />
+      <LineId Id="23" Count="0" />
+      <LineId Id="22" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

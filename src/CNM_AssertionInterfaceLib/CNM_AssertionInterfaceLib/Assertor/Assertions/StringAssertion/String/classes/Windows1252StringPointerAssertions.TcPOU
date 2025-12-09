@@ -1,0 +1,1248 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="Windows1252StringPointerAssertions" Id="{cb82f187-5ce3-4c88-b332-ab462a51823a}" SpecialFunc="None">
+    <Declaration><![CDATA[(*
+
+short summary
+=================
+This class provides assert statements for windows-1252 strings
+
+.. attention:: 
+	All strings are handled as null terminated byte streams.
+	For windows-1252 is end of the string 16#00
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+methods and properties
+=======================
+
+*)
+
+{attribute 'reflection'}
+FUNCTION_BLOCK INTERNAL Windows1252StringPointerAssertions EXTENDS AbstarctStringPointerAssertions IMPLEMENTS IWindows1252StringPointerAssertions
+VAR
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Folder Name="internal" Id="{98a6a8dd-5709-41a8-ac0a-01cbcc13dd40}" />
+    <Property Name="className" Id="{bcad643d-3d6a-4e16-a522-ed618df1830c}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This abstract property returns the class name of the concrete object, 
+It's for debugging purpose
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+PROPERTY className :CNM_AbstractObject.ClassName]]></Declaration>
+      <Get Name="Get" Id="{5e5ee9ba-03cf-4560-95ad-d36813535bdb}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[className := 'CNM_AssertionInterfaceLib.Windows1252StringPointerAssertions';]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="getCopyOfWin1252String" Id="{fe970449-4e99-47e8-91d7-75ba797c08ce}" FolderPath="internal\">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+this methods copy a string and returns the start address of new string
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+:return: start address of the windows-1252 string copy
+
+*)
+
+METHOD PROTECTED getCopyOfWin1252String :POINTER TO BYTE
+VAR_INPUT
+	(* string to copy *)
+	stringAddress		:POINTER TO BYTE;
+	(* length of the string *)
+	stringLength		:UDINT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[getCopyOfWin1252String := __NEW(BYTE, stringLength);
+IF (getCopyOfWin1252String <> 0) THEN
+	Tc2_System.MEMCPY(
+		destAddr := getCopyOfWin1252String,
+		srcAddr := stringAddress,
+		n := stringLength
+	);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="getNewWin1252UpperCaseString" Id="{3172f62d-dc5c-459f-8bfa-bdac4f37f5f0}" FolderPath="internal\">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+this methods copy a string and returns the start address of new string,
+all small letters are capitalized in the new string.
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+:return: start address of the windows-1252 string. 
+If ``createNewUpperCaseString`` is ``TRUE`` then it's a new string
+
+*)
+
+METHOD PROTECTED getNewWin1252UpperCaseString :POINTER TO BYTE; 
+VAR_INPUT
+	(* start address of the string to copy and capitalize *)
+	stringAddress				:POINTER TO BYTE;
+	(* length of the string ``stringAddress`` *)
+	stringLength				:UDINT;
+	(* 
+	``TRUE means meake a copy and capitalize it, 
+	``FALSE`` means return just ``stringAddress``
+	and do nothing else
+	*)
+	createNewUpperCaseString	:BOOL;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (createNewUpperCaseString) THEN
+	getNewWin1252UpperCaseString := THIS^.getCopyOfWin1252String(stringAddress, stringLength);
+	THIS^.win1252UpperCase(getNewWin1252UpperCaseString, stringLength);
+ELSE
+	getNewWin1252UpperCaseString := stringAddress;
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="getWin1252StringLength" Id="{02bcb033-432c-419d-b50d-205d306694d7}" FolderPath="internal\">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+this methods returns the length of a null terminated windows-1252 string
+
+.. attention:: 
+	All strings are handled as null terminated byte streams.
+	For windows-1252 is end of the string 16#00
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+:return: length of the windows-1252 string
+
+*)
+
+METHOD PROTECTED getWin1252StringLength :UDINT
+VAR_INPUT
+	(* Start address of the string for which the length is to be determined *)
+	stringAddress	:POINTER TO BYTE;
+END_VAR
+VAR CONSTANT
+	(* NUL it terminates the string *)
+	END_OF_STRING		:BYTE := 16#00;
+	(* byte counter *)
+	INCREMENT_LENGTH	:UDINT := 1;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[getWin1252StringLength := 0;
+IF (stringAddress = 0) THEN
+	RETURN;
+END_IF
+
+WHILE (stringAddress[getWin1252StringLength] <> END_OF_STRING) DO
+	getWin1252StringLength := getWin1252StringLength + INCREMENT_LENGTH;
+END_WHILE
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="isCharWin1252WhiteSpace" Id="{d56a72ff-8dad-4f6e-87b6-f45cb58e5d60}" FolderPath="internal\">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+this methods checks if an windows-1252 character is a whitespace character
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+:return: ``TRUE`` means ``character`` is whitespace,
+``FALSE`` means ``character`` is no whitespace 
+
+*)
+
+METHOD PROTECTED isCharWin1252WhiteSpace :BOOL
+VAR_INPUT
+	(* character to check if it's whitespace *)
+	character	:BYTE;
+END_VAR
+VAR CONSTANT
+	SPACE			:BYTE := 16#20;
+	HORIZONTAL_TAB	:BYTE := 16#09;
+	LINE_FEED		:BYTE := 16#0A;
+	VERTICAL_TAB	:BYTE := 16#0B;
+	FROM_FEED		:BYTE := 16#0C;
+	CARRIAGE_RETURN	:BYTE := 16#0D;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[CASE character OF
+HORIZONTAL_TAB .. CARRIAGE_RETURN,
+SPACE:
+	isCharWin1252WhiteSpace := TRUE;
+ELSE
+	isCharWin1252WhiteSpace := FALSE;	
+END_CASE
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="win1252Contains" Id="{d28033c9-d27e-4f11-9265-f0e7e8c18cf6}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method for windows-1252 strings checks if the current string ``stringToCheck`` contains the search string ``searchString``
+
+.. attention:: 
+	All strings are handled as null terminated byte streams.
+	For windows-1252 is end of the string 16#00
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD win1252Contains
+VAR_INPUT
+	(* current string to check *)
+	stringToCheck	:POINTER TO BYTE;
+	(* string must be found in ``stringToCheck`` *)
+	searchString	:POINTER TO BYTE;
+	(* ``TRUE`` means ignore cases; ``FALSE`` means cases must be equal too *)
+	ignoreCases		:BOOL;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+VAR
+	(* length of current string to check *)
+	lenghtStringToCheck	:UDINT;
+	(* length of ``searchString`` *)
+	lengthSearchString	:UDINT;
+	(* string address we use to compare, if it's case sensitive it's equal to ``stringToCheck`` *)
+	usedStringToCheck	:POINTER TO BYTE;
+	(* seacrch string address we use to compare, if it's case sensitive it's equal to ``searchString`` *)
+	usedSearchString	:POINTER TO BYTE;
+	(* character index for the comperation *)
+	character			:UDINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[lenghtStringToCheck := THIS^.getWin1252StringLength(stringToCheck);
+lengthSearchString := THIS^.getWin1252StringLength(searchString);
+
+IF (
+	NOT THIS^.isContainsCheckNecessary(
+		stringToCheck		:= stringToCheck,
+		searchString		:= searchString,
+		lenghtStringToCheck	:= lenghtStringToCheck,
+		lengthSearchString	:= lengthSearchString,
+		additionalText		:= THIS^.getDebugInfo('win1252Contains'),
+		message				:= message
+	)
+) THEN
+	RETURN;
+END_IF
+
+usedStringToCheck := THIS^.getNewWin1252UpperCaseString(stringToCheck, lenghtStringToCheck, ignoreCases);
+usedSearchString := THIS^.getNewWin1252UpperCaseString(searchString, lengthSearchString, ignoreCases);
+
+FOR (character := 0) TO (lenghtStringToCheck - lengthSearchString) BY 1 DO
+	IF (Tc2_System.MEMCMP(
+			ADR(usedStringToCheck[character]),
+			usedSearchString, 
+			lengthSearchString
+		) = CNM_ReturnTypes.ComparationResult.EQUAL
+	) THEN
+		THIS^.win1252FreeMemory(usedStringToCheck, ignoreCases);
+		THIS^.win1252FreeMemory(usedSearchString, ignoreCases);		
+		RETURN; //assert is true
+	END_IF; 
+END_FOR
+
+THIS^.assertionWasWrong(message, THIS^.getDebugInfo('win1252Contains'));
+THIS^.win1252FreeMemory(usedStringToCheck, ignoreCases);
+THIS^.win1252FreeMemory(usedSearchString, ignoreCases);		
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="win1252ContainsNo" Id="{04d3fe97-afb0-47a3-b6bb-58d835ad06b3}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method for windows-1252 strings checks if the current string ``stringToCheck`` contains not the search string ``searchString``
+
+.. attention:: 
+	All strings are handled as null terminated byte streams.
+	For windows-1252 is end of the string 16#00
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD win1252ContainsNo
+VAR_INPUT
+	(* current string to check *)
+	stringToCheck	:POINTER TO BYTE;
+	(* string must be found in ``stringToCheck`` *)
+	searchString	:POINTER TO BYTE;
+	(* ``TRUE`` means ignore cases; ``FALSE`` means cases must be equal too *)
+	ignoreCases		:BOOL;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+VAR
+	(* length of current string to check *)
+	lenghtStringToCheck	:UDINT;
+	(* length of ``searchString`` *)
+	lengthSearchString	:UDINT;
+	(* string address we use to compare, if it's case sensitive it's equal to ``stringToCheck`` *)
+	usedStringToCheck	:POINTER TO BYTE;
+	(* seacrch string address we use to compare, if it's case sensitive it's equal to ``searchString`` *)
+	usedSearchString	:POINTER TO BYTE;
+	(* character index for the comperation *)
+	character			:UDINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[lenghtStringToCheck := THIS^.getWin1252StringLength(stringToCheck);
+lengthSearchString := THIS^.getWin1252StringLength(searchString);
+
+IF (
+	NOT THIS^.isContainsNoCheckNecessary(
+		stringToCheck		:= stringToCheck,
+		searchString		:= searchString,
+		lenghtStringToCheck	:= lenghtStringToCheck,
+		lengthSearchString	:= lengthSearchString,
+		additionalText		:= 'Windows1252StringPointerAssertions.win1252ContainsNo assertion was false',
+		message				:= message
+	)
+) THEN
+	RETURN;
+END_IF
+
+usedStringToCheck := THIS^.getNewWin1252UpperCaseString(stringToCheck, lenghtStringToCheck, ignoreCases);
+usedSearchString := THIS^.getNewWin1252UpperCaseString(searchString, lengthSearchString, ignoreCases);
+
+FOR (character := 0) TO (lenghtStringToCheck - lengthSearchString) BY 1 DO
+	IF (Tc2_System.MEMCMP(
+			ADR(usedStringToCheck[character]),
+			usedSearchString, 
+			lengthSearchString
+		) = CNM_ReturnTypes.ComparationResult.EQUAL
+	) THEN
+		THIS^.assertionWasWrong(message, THIS^.getDebugInfo('win1252ContainsNo'));
+		THIS^.win1252FreeMemory(usedStringToCheck, ignoreCases);
+		THIS^.win1252FreeMemory(usedSearchString, ignoreCases);		
+		RETURN;
+	END_IF; 
+END_FOR
+
+THIS^.win1252FreeMemory(usedStringToCheck, ignoreCases);
+THIS^.win1252FreeMemory(usedSearchString, ignoreCases);		
+
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="win1252EndsWith" Id="{f079c341-a989-4255-99e5-9bb3a15650de}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method for windows-1252 strings checks if the current string ``stringToCheck`` ends with the string ``end``
+
+.. attention:: 
+	All strings are handled as null terminated byte streams.
+	For windows-1252 is end of the string 16#00
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD win1252EndsWith
+VAR_INPUT
+	(* current string to check *)
+	stringToCheck	:POINTER TO BYTE;
+	(* string must be the end of ``stringToCheck`` *)
+	end				:POINTER TO BYTE;
+	(* ``TRUE`` means ignore cases; ``FALSE`` means cases must be equal too *)
+	ignoreCases		:BOOL;
+	(* ``TRUE`` means truncation of spaces on the right side of ``stringToCheck``*)
+	trim			:BOOL;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+VAR
+	(* length of current string to check *)
+	lenghtStringToCheck	:UDINT;
+	(* length of ``end`` *)
+	lengthOfEnd			:UDINT;
+	(* string address we use to compare, if it's case sensitive it's equal to ``stringToCheck`` *)
+	usedStringToCheck	:POINTER TO BYTE;
+	(* seacrch string address we use to compare, if it's case sensitive it's equal to ``end`` *)
+	usedEndString		:POINTER TO BYTE;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[lenghtStringToCheck := THIS^.getWin1252StringLength(stringToCheck);
+lengthOfEnd := THIS^.getWin1252StringLength(end);
+THIS^.win1252TrimRight(stringToCheck, lenghtStringToCheck, trim);
+
+IF (
+	NOT THIS^.isContainsCheckNecessary(
+		stringToCheck		:= stringToCheck,
+		searchString		:= end,
+		lenghtStringToCheck	:= lenghtStringToCheck,
+		lengthSearchString	:= lengthOfEnd,
+		additionalText		:= THIS^.getDebugInfo('win1252EndsWith'),
+		message				:= message
+	)
+) THEN
+	RETURN;
+END_IF
+
+usedStringToCheck := THIS^.getNewWin1252UpperCaseString(stringToCheck, lenghtStringToCheck, ignoreCases);
+usedEndString := THIS^.getNewWin1252UpperCaseString(end, lengthOfEnd, ignoreCases);
+
+IF (Tc2_System.MEMCMP(
+		ADR(usedStringToCheck[lenghtStringToCheck - lengthOfEnd]),
+		usedEndString, 
+		lengthOfEnd
+	) <> CNM_ReturnTypes.ComparationResult.EQUAL
+) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('win1252EndsWith'));
+END_IF;
+
+THIS^.win1252FreeMemory(usedStringToCheck, ignoreCases);
+THIS^.win1252FreeMemory(usedEndString, ignoreCases);		
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="win1252FreeMemory" Id="{b9e187b0-e370-4c2c-8ed4-c8bc27cf2e4d}" FolderPath="internal\">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This method is used to free allocated memory again
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD PROTECTED win1252FreeMemory
+VAR_INPUT
+	(* start address of the memory to free *)
+	stringAddress	:POINTER TO BYTE;
+	(* ``TRUE`` means free the memory, ``FALSE`` means do not free the memory *)
+	freeMemoryAgain	:BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (freeMemoryAgain) THEN
+	__DELETE(stringAddress);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="win1252IsEqualTo" Id="{1109feb9-f2dd-49da-b89d-86bae1d57af1}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method for windows-1252 strings checks if the current string ``stringToCheck`` is equal to the ``expected`` string
+
+.. attention:: 
+	All strings are handled as null terminated byte streams.
+	For windows-1252 is end of the string 16#00
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD win1252IsEqualTo
+VAR_INPUT
+	(* current string to check *)
+	stringToCheck	:POINTER TO BYTE;
+	(* ``stringToCheck`` must be equal to expected *)
+	expected		:POINTER TO BYTE;
+	(* ``TRUE`` means ignore cases; ``FALSE`` means cases must be equal too *)
+	ignoreCases		:BOOL;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+VAR
+	(* length of current string to check *)
+	lenghtStringToCheck		:UDINT;
+	(* length of ``expected`` *)
+	lengthExpectedString	:UDINT;
+	(* string address we use to compare, if it's case sensitive it's equal to ``stringToCheck`` *)
+	usedStringToCheck		:POINTER TO BYTE;
+	(* seacrch string address we use to compare, if it's case sensitive it's equal to ``expected`` *)
+	usedExpectedString		:POINTER TO BYTE;
+END_VAR
+VAR CONSTANT
+	(* length of an empty string to avoid Tc2_System.MEMCMP with length 0 *)
+	EMPTY_STRING_LENGTH		:UDINT := 0;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[lenghtStringToCheck := THIS^.getWin1252StringLength(stringToCheck);
+lengthExpectedString := THIS^.getWin1252StringLength(expected);
+
+IF (lenghtStringToCheck <> lengthExpectedString) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('win1252IsEqualTo'));
+	RETURN;
+ELSIF (lengthExpectedString = EMPTY_STRING_LENGTH) THEN
+	RETURN;
+END_IF
+
+usedStringToCheck := THIS^.getNewWin1252UpperCaseString(stringToCheck, lenghtStringToCheck, ignoreCases);
+usedExpectedString := THIS^.getNewWin1252UpperCaseString(expected, lengthExpectedString, ignoreCases);
+
+IF (Tc2_System.MEMCMP(
+		usedStringToCheck,
+		usedExpectedString, 
+		lengthExpectedString
+	) <> CNM_ReturnTypes.ComparationResult.EQUAL
+) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('win1252IsEqualTo'));
+END_IF;
+
+THIS^.win1252FreeMemory(usedStringToCheck, ignoreCases);
+THIS^.win1252FreeMemory(usedExpectedString, ignoreCases);		
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="win1252IsNotEqualTo" Id="{b3a2c22b-be48-4d93-9549-ca2958a4749c}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method for windows-1252 strings checks if the current string ``stringToCheck`` is not equal to the ``unexpected`` string
+
+.. attention:: 
+	All strings are handled as null terminated byte streams.
+	For windows-1252 is end of the string 16#00
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD win1252IsNotEqualTo
+VAR_INPUT
+	(* current string to check *)
+	stringToCheck	:POINTER TO BYTE;
+	(* ``stringToCheck`` must be not equal to expected *)
+	unexpected		:POINTER TO BYTE;
+	(* ``TRUE`` means ignore cases; ``FALSE`` means cases must be equal too *)
+	ignoreCases		:BOOL;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+VAR
+	(* length of current string to check *)
+	lenghtStringToCheck		:UDINT;
+	(* length of ``unexpected`` *)
+	lengthUnexpectedString	:UDINT;
+	(* string address we use to compare, if it's case sensitive it's equal to ``stringToCheck`` *)
+	usedStringToCheck		:POINTER TO BYTE;
+	(* seacrch string address we use to compare, if it's case sensitive it's equal to ``expected`` *)
+	usedUnexpectedString	:POINTER TO BYTE;
+END_VAR
+VAR CONSTANT
+	(* length of an empty string to avoid Tc2_System.MEMCMP with length 0 *)
+	EMPTY_STRING_LENGTH		:UDINT := 0;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[lenghtStringToCheck := THIS^.getWin1252StringLength(stringToCheck);
+lengthUnexpectedString := THIS^.getWin1252StringLength(unexpected);
+
+IF ((lenghtStringToCheck = EMPTY_STRING_LENGTH) AND (lengthUnexpectedString = EMPTY_STRING_LENGTH)) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('win1252IsNotEqualTo'));
+	RETURN;
+END_IF
+
+usedStringToCheck := THIS^.getNewWin1252UpperCaseString(stringToCheck, lenghtStringToCheck, ignoreCases);
+usedUnexpectedString := THIS^.getNewWin1252UpperCaseString(unexpected, lengthUnexpectedString, ignoreCases);
+
+IF (Tc2_System.MEMCMP(
+		usedStringToCheck,
+		usedUnexpectedString, 
+		lengthUnexpectedString
+	) = CNM_ReturnTypes.ComparationResult.EQUAL
+) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('win1252IsNotEqualTo'));
+END_IF;
+
+THIS^.win1252FreeMemory(usedStringToCheck, ignoreCases);
+THIS^.win1252FreeMemory(usedUnexpectedString, ignoreCases);		
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="win1252LenghtIsExact" Id="{076ca34b-c184-4328-903c-b3264ac89a08}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current string ``stringToCheck`` is length
+is equal to ``expectedLength``
+
+.. attention:: 
+	All strings are handled as null terminated byte streams.
+	For windows-1252 is end of the string 16#00
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD win1252LenghtIsExact
+VAR_INPUT
+	(* current string to check *)
+	stringToCheck	:POINTER TO BYTE;
+	(* expected length of ``stringToCheck`` *)
+	expectedLength	:UDINT;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (THIS^.getWin1252StringLength(stringToCheck) <> expectedLength) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('win1252LenghtIsExact'));
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="win1252LenghtIsMax" Id="{7ec1ad30-5850-49ca-8daf-60970a15ebb8}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current string ``stringToCheck`` is length
+is equal or less than to ``maxLength``
+
+.. attention:: 
+	All strings are handled as null terminated byte streams.
+	For windows-1252 is end of the string 16#00
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD win1252LenghtIsMax
+VAR_INPUT
+	(* current string to check *)
+	stringToCheck	:POINTER TO BYTE;
+	(* upper limit of the length of ``stringToCheck`` *)
+	maxLength		:UDINT;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (THIS^.getWin1252StringLength(stringToCheck) > maxLength) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('win1252LenghtIsMax'));
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="win1252LenghtIsMin" Id="{2228c8d0-532c-4ed7-a3d1-7b24dc5b7a5a}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current string ``stringToCheck`` is length
+is equal or grater than to ``minLength``
+
+.. attention:: 
+	All strings are handled as null terminated byte streams.
+	For windows-1252 is end of the string 16#00
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD win1252LenghtIsMin
+VAR_INPUT
+	(* current string to check *)
+	stringToCheck	:POINTER TO BYTE;
+	(* lower limit of the length of ``stringToCheck`` *)
+	minLength		:UDINT;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (THIS^.getWin1252StringLength(stringToCheck) < minLength) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('win1252LenghtIsMin'));
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="win1252LengthIsBetween" Id="{e4774f52-7020-4a71-944c-26309d956ea6}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current string ``stringToCheck`` is length
+is equal or grater than ``minLength`` and equal or less than ``maxLength``
+
+.. attention:: 
+	All strings are handled as null terminated byte streams.
+	For windows-1252 is end of the string 16#00
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD win1252LengthIsBetween
+VAR_INPUT
+	(* current string to check *)
+	stringToCheck	:POINTER TO BYTE;
+	(* lower limit of the string length *)
+	minLenght		:UDINT;
+	(* upper limit of the string length *)
+	maxLenght		:UDINT;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+VAR
+	(* length of ``stringToCheck`` *)
+	lenghtStringToCheck	:UDINT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (minLenght > maxLenght) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('win1252LengthIsBetween'));
+	RETURN;
+END_IF
+
+lenghtStringToCheck := THIS^.getWin1252StringLength(stringToCheck);
+
+IF (
+	(lenghtStringToCheck < minLenght)
+	OR (lenghtStringToCheck > maxLenght)
+) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('win1252LengthIsBetween'));
+END_IF;
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="win1252StartsWith" Id="{60d93f78-0afb-49c5-b59a-3824bbad9bc0}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current string ``stringToCheck`` starts with ``start``
+
+.. attention:: 
+	All strings are handled as null terminated byte streams.
+	For windows-1252 is end of the string 16#00
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD win1252StartsWith
+VAR_INPUT
+	(* current string to check *)
+	stringToCheck	:POINTER TO BYTE;
+	(* expected start of ``stringToCheck`` *)
+	start			:POINTER TO BYTE;
+	(* ``TRUE`` means ignore cases; ``FALSE`` means cases must be equal too *)
+	ignoreCases		:BOOL;
+	(* ``TRUE`` means truncation of spaces on the left side of ``stringToCheck``*)
+	trim			:BOOL;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+VAR
+	(* length of current string to check *)
+	lenghtStringToCheck	:UDINT;
+	(* length of ``start`` *)
+	lengthOfStart		:UDINT;
+	(* string address we use to compare, if it's case sensitive it's equal to ``stringToCheck`` *)
+	usedStringToCheck	:POINTER TO BYTE;
+	(* seacrch string address we use to compare, if it's case sensitive it's equal to ``start`` *)
+	usedStartString		:POINTER TO BYTE;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[lenghtStringToCheck := THIS^.getWin1252StringLength(stringToCheck);
+lengthOfStart := THIS^.getWin1252StringLength(start);
+
+THIS^.win1252TrimLeft(stringToCheck, lenghtStringToCheck, trim);
+
+IF (
+	NOT THIS^.isContainsCheckNecessary(
+		stringToCheck		:= stringToCheck,
+		searchString		:= start,
+		lenghtStringToCheck	:= lenghtStringToCheck,
+		lengthSearchString	:= lengthOfStart,
+		additionalText		:= THIS^.getDebugInfo('win1252StartsWith'),
+		message				:= message
+	)
+) THEN
+	RETURN;
+END_IF
+
+usedStringToCheck := THIS^.getNewWin1252UpperCaseString(stringToCheck, lenghtStringToCheck, ignoreCases);
+usedStartString := THIS^.getNewWin1252UpperCaseString(start, lengthOfStart, ignoreCases);
+
+IF (Tc2_System.MEMCMP(
+		usedStringToCheck,
+		usedStartString, 
+		lengthOfStart
+	) <> CNM_ReturnTypes.ComparationResult.EQUAL
+) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('win1252StartsWith'));
+END_IF;
+
+THIS^.win1252FreeMemory(usedStringToCheck, ignoreCases);
+THIS^.win1252FreeMemory(usedStartString, ignoreCases);		
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="win1252TrimLeft" Id="{fed3d8b0-4ac1-4374-bc05-c59e888a3a22}" FolderPath="internal\">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This method is used to remove the whitespace from the start of the string.
+It does not really remove it, it just moves the start address and decreases
+the string length
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD PROTECTED win1252TrimLeft
+VAR_IN_OUT
+	(* start address of the string *)
+	stringAddress	:POINTER TO BYTE;
+	(* length of the string ``stringAddress`` *)
+	stringLength	:UDINT;
+END_VAR
+VAR_INPUT
+	(* ``TRUE`` means remove the whitespace, ``FALSE`` means do not remove the whitespace *)
+	trimString		:BOOL;
+END_VAR
+VAR
+	(* index of the current character *)
+	character		:UDINT;
+	(* counter of the whitspace characters *)
+	whitespaceCount	:UDINT := 0;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF ((stringAddress = 0) OR (stringLength <= 0) OR (NOT trimString)) THEN
+	RETURN;
+END_IF
+
+FOR character := 0 TO (stringLength-1) BY 1 DO
+	IF (THIS^.isCharWin1252WhiteSpace(stringAddress[character])) THEN
+		whitespaceCount := whitespaceCount + 1;
+	ELSE
+		EXIT;
+	END_IF
+END_FOR
+
+stringAddress := ADR(stringAddress[whitespaceCount]);
+stringLength := stringLength - whitespaceCount;
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="win1252TrimRight" Id="{da1bb8a1-269c-45df-9d33-71f891a5b401}" FolderPath="internal\">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This method is used to remove the whitespace from the end of the string.
+It does not really remove it, it just decreases the string length.
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD PROTECTED win1252TrimRight
+VAR_INPUT
+	(* start address of the string *)
+	stringAddress	:POINTER TO BYTE;
+END_VAR
+VAR_IN_OUT
+	(* length of the string ``stringAddress`` *)
+	stringLength	:UDINT;
+END_VAR
+VAR_INPUT
+	(* ``TRUE`` means remove the whitespace, ``FALSE`` means do not remove the whitespace *)
+	trimString		:BOOL;
+END_VAR
+VAR
+	(* index of the current character *)
+	character	:LINT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF ((stringAddress = 0) OR (stringLength <= 0) OR (NOT trimString)) THEN
+	RETURN;
+END_IF
+
+FOR character := (stringLength-1) TO 0 BY -1 DO
+	IF (THIS^.isCharWin1252WhiteSpace(stringAddress[character])) THEN
+		stringLength := stringLength-1;
+	ELSE
+		RETURN;
+	END_IF
+END_FOR
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="win1252UpperCase" Id="{6eef73c9-af99-419c-a35d-58da42c04978}" FolderPath="internal\">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This method converts the lowercase letters in an 8 bit windows-1252 string to uppercase letters.
+
+.. attention:: 
+	All strings are handled as null terminated byte streams.
+	For windows-1252 is end of the string 16#00
+
+.. attention::
+	Sharp S ß (16#DF) will not converted
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD PROTECTED win1252UpperCase
+VAR_INPUT
+	(* string to ucase *)
+	stringAddress		:POINTER TO BYTE;
+	(* length of the string *)
+	stringLength		:UDINT;
+END_VAR
+VAR
+	(* index of the current character *)
+	character			:UDINT := 0;
+END_VAR
+VAR CONSTANT
+	(* NUL: $00 *)
+	END_OF_STRING							:BYTE := 16#00;
+	(* a *)                             	
+	LOWERCASE_A								:BYTE := 16#61;
+	(* z *)                             	
+	LOWERCASE_Z								:BYTE := 16#7A;
+	(* ß *)                             	
+	LOWERCASE_SHARP_S						:BYTE := 16#DF;
+	(* ÿ *)                             	
+	LOWERCASE_Y_WITH_DIAERESIS				:BYTE := 16#FF;
+	(* Ÿ *)                             	
+	UPPERCASE_Y_WITH_DIAERESIS				:BYTE := 16#9F;
+	(* à *)                             	
+	LOWERCASE_A_WITH_GRAVE					:BYTE := 16#E0;
+	(* ö *)                             	
+	LOWERCASE_O_WITH_DIAERESIS				:BYTE := 16#F6;
+	(* ø *)                             	
+	LOWERCASE_O_WITH_SLASH					:BYTE := 16#F8;
+	(* þ *)                             	
+	LOWERCASE_THORN							:BYTE := 16#FE;
+	(* š *)                             	
+	LOWERCASE_S_WITH_CARON					:BYTE := 16#9A;
+	(* œ *)                             	
+	LOWERCASE_OE							:BYTE := 16#9C;
+	(* ž *)                             	
+	LOWERCASE_Z_WITH_CARON					:BYTE := 16#9E;
+	(* difference between lowercase and uppercase except for š,œ and ž *)
+	DIFFERENCE_LOWERCASE_UPPERCASE			:BYTE := 16#20;
+	(* for š,œ and ž the difference between lowercase and uppercase *)
+	DIFFERENCE_LOWERCASE_UPPERCASE_SPECIAL	:BYTE := 16#10;
+	(* increment for the character index *)
+	INCREMENT_CHARACTER						:UDINT := 1;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (stringAddress = 0) THEN
+	RETURN;
+END_IF
+
+WHILE ((stringAddress[character] <> END_OF_STRING) AND (character <= stringLength)) DO
+	CASE stringAddress[character] OF
+	LOWERCASE_A..LOWERCASE_Z,
+	LOWERCASE_A_WITH_GRAVE..LOWERCASE_O_WITH_DIAERESIS,
+	LOWERCASE_O_WITH_SLASH..LOWERCASE_THORN:
+		stringAddress[character] := stringAddress[character] - DIFFERENCE_LOWERCASE_UPPERCASE;
+	LOWERCASE_S_WITH_CARON,
+	LOWERCASE_OE,
+	LOWERCASE_Z_WITH_CARON:
+		stringAddress[character] := stringAddress[character] - DIFFERENCE_LOWERCASE_UPPERCASE_SPECIAL;
+	LOWERCASE_Y_WITH_DIAERESIS:
+		stringAddress[character] := UPPERCASE_Y_WITH_DIAERESIS;
+	LOWERCASE_SHARP_S:;//for ß do nothing, because there is no capital letter for it
+	ELSE;// do nothing, it's no small letter 
+	END_CASE
+	character := character + INCREMENT_CHARACTER;
+END_WHILE
+]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

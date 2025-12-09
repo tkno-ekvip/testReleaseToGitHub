@@ -1,0 +1,609 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.11">
+  <POU Name="LongTimeAssertions" Id="{b2dffb11-d7c3-4f48-a098-511f1dfa695f}" SpecialFunc="None">
+    <Declaration><![CDATA[(*
+
+short summary
+=================
+This class implements the interface :ref:`I64BitTimeAssertions`. 
+It provides the assert statements for the data type ``LTIME``
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+methods and properties
+=========================
+
+*)
+
+{attribute 'reflection'}
+FUNCTION_BLOCK INTERNAL LongTimeAssertions EXTENDS AbstactAssertion IMPLEMENTS I64BitTimeAssertions
+VAR CONSTANT
+	(* maximum value for the data type ``LTIME`` *)
+	MAX_TIME	:LTIME := TO_LTIME(16#FFFF_FFFF_FFFF_FFFF);
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Property Name="className" Id="{a7a60e8e-a881-4459-87f8-4d07907353b2}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This abstract property returns the class name of the concrete object, 
+It's for debugging purpose
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+PROPERTY className :ClassName]]></Declaration>
+      <Get Name="Get" Id="{2d5466ae-3b32-4ca1-8840-e510a2134017}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[className := 'CNM_AssertionInterfaceLib.LongTimeAssertions';
+]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="getTimePassed" Id="{98cacde6-c133-41f0-a513-7f1463cae644}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This method returns the passed time since the timestamp was created
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+:return: passed time since ``startTime``
+
+*)
+
+METHOD PROTECTED getTimePassed :LTIME
+VAR_INPUT
+	(* timestamp start *)
+	startTime	:LTIME;
+END_VAR
+VAR
+	(* current time to calculate the passed time *)
+	currentTime	:LTIME;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[currentTime := LTIME();
+IF (currentTime > startTime) THEN
+	getTimePassed := (currentTime - startTime);
+ELSE
+	getTimePassed := ((THIS^.MAX_TIME - startTime) + currentTime);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="timeHasExpired" Id="{6891eb87-d5b4-488e-bf83-9d469864b96e}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks whether time has elapsed since the timestamp time
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD timeHasExpired
+VAR_INPUT
+	(* start time you get it with ``LTIME()`` *)
+	timestamp		:LTIME;
+	(* timeout like ``lt#300ms`` *)
+	expiringTime	:LTIME;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+VAR
+	(* measured passed time *)
+	passedTime		:LTIME;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[passedTime := THIS^.getTimePassed(timestamp);
+IF (passedTime < expiringTime) THEN
+	THIS^.assertionWasWrong(
+		message			:= message,
+		additionalText	:= THIS^.getDebugInfo('timeHasExpired')
+	);	
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="timeHasNotExpired" Id="{da85888b-78c7-4d71-80e8-8a55ba4d9390}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks that the time since the timestamp time has not yet elapsed
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD timeHasNotExpired
+VAR_INPUT
+	(* start time you get it with ``LTIME()`` *)
+	timestamp		:LTIME;
+	(* timeout like ``lt#300ms`` *)
+	expiringTime	:LTIME;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+VAR
+	(* measured passed time *)
+	passedTime		:LTIME;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[passedTime := THIS^.getTimePassed(timestamp);
+IF (passedTime >= expiringTime) THEN
+	THIS^.assertionWasWrong(
+		message			:= message,
+		additionalText	:= THIS^.getDebugInfo('timeHasNotExpired')
+	);	
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="valueIsEqualTo" Id="{50e44fd4-63ac-4bb7-a07e-ae12f49aed51}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current value is equal to the expected value
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD valueIsEqualTo
+VAR_INPUT
+	(* current value to check *)
+	currentValue	:LTIME;
+	(* expected value to compare *)
+	expectedValue	:LTIME;
+	(* message if the assertion is false *)
+	message	:AssertMessage;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (currentValue <> expectedValue) THEN
+	THIS^.assertionWasWrong(
+		message			:= message,
+		additionalText	:= THIS^.getDebugInfo('valueIsEqualTo')
+	);	
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="valueIsGreaterThan" Id="{aa0a2c06-f32c-419f-8ebe-46fa6928017c}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current value is greater than the less value
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD valueIsGreaterThan
+VAR_INPUT
+	(* current value to check *)
+	currentValue	:LTIME;
+	(* less than lower limit *)
+	lessValue		:LTIME;
+	(* message if the assertion is false *)
+	message	: AssertMessage;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (currentValue <= lessValue) THEN
+	THIS^.assertionWasWrong(
+		message			:= message,
+		additionalText	:= THIS^.getDebugInfo('valueIsGreaterThan')
+	);	
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="valueIsInRangeOf" Id="{6bbce859-0dae-4859-8d9f-68a3dbabe567}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current value is inside a limit
+
+.. attention:: 
+	limits are included: ``valueIsInRangeOf(t#3ms,t#3ms ,t#3ms)`` is a true assertion
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD valueIsInRangeOf
+VAR_INPUT
+	(* lower limit for the current value *)
+	lowerLimit		:LTIME;
+	(* current value to check *)
+	currentValue	:LTIME;
+	(* upper limit for the current value *)
+	upperLimit		:LTIME;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+VAR
+	(* additional information for the callback function *)
+	additionalText	:Tc2_System.T_MaxString;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF ((currentValue < lowerLimit) OR (currentValue > upperLimit)) THEN
+	THIS^.assertionWasWrong(
+		message			:= message,
+		additionalText	:= THIS^.getDebugInfo('valueIsInRangeOf')
+	);	
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="valueIsLessThan" Id="{13e6d15c-a90d-43e0-8be0-e06fb427ab23}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current value is less than the greater value
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD valueIsLessThan
+VAR_INPUT
+	(* current value to check *)
+	currentValue	:LTIME;
+	(* greater than upper limit *)
+	greaterValue	:LTIME;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (currentValue >= greaterValue) THEN
+	THIS^.assertionWasWrong(
+		message			:= message,
+		additionalText	:= THIS^.getDebugInfo('valueIsLessThan')
+	);	
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="valueIsMax" Id="{e1954234-e88d-495e-aebb-adf539b494bb}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current value is less than or equal to the maximum value
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD valueIsMax
+VAR_INPUT
+	(* current value to check *)
+	currentValue	:LTIME;
+	(* upper limit for the current value *)
+	maximumValue	:LTIME;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (currentValue > maximumValue) THEN
+	THIS^.assertionWasWrong(
+		message			:= message,
+		additionalText	:= THIS^.getDebugInfo('valueIsMax')
+	);	
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="valueIsMin" Id="{e234b0d6-fff0-447a-9b24-0cfdbca2add1}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current value is greater than or equal to the minimum value
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD valueIsMin
+VAR_INPUT
+	(* current value to check *)
+	currentValue	:LTIME;
+	(* lower limit for the current value *)
+	minimumValue	:LTIME;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (currentValue < minimumValue) THEN
+	THIS^.assertionWasWrong(
+		message			:= message,
+		additionalText	:= THIS^.getDebugInfo('valueIsMin')
+	);	
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="valueIsNotEqualTo" Id="{75c749a8-5a23-45bd-b6b5-80fbd9ad34fc}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current value is not equal to the unexpected value
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD valueIsNotEqualTo
+VAR_INPUT
+	(* current value to check *)
+	currentValue	:LTIME;
+	(* unexpected value to compare *)
+	unexpectedValue	:LTIME;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (currentValue = unexpectedValue) THEN
+	THIS^.assertionWasWrong(
+		message			:= message,
+		additionalText	:= THIS^.getDebugInfo('valueIsNotEqualTo')
+	);	
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <LineIds Name="LongTimeAssertions">
+      <LineId Id="9" Count="0" />
+    </LineIds>
+    <LineIds Name="LongTimeAssertions.className.Get">
+      <LineId Id="2" Count="0" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="LongTimeAssertions.getTimePassed">
+      <LineId Id="9" Count="0" />
+      <LineId Id="5" Count="0" />
+      <LineId Id="10" Count="0" />
+      <LineId Id="12" Count="1" />
+      <LineId Id="11" Count="0" />
+      <LineId Id="14" Count="0" />
+    </LineIds>
+    <LineIds Name="LongTimeAssertions.timeHasExpired">
+      <LineId Id="45" Count="0" />
+      <LineId Id="34" Count="0" />
+      <LineId Id="56" Count="0" />
+      <LineId Id="58" Count="2" />
+      <LineId Id="36" Count="0" />
+      <LineId Id="53" Count="0" />
+    </LineIds>
+    <LineIds Name="LongTimeAssertions.timeHasNotExpired">
+      <LineId Id="41" Count="1" />
+      <LineId Id="55" Count="0" />
+      <LineId Id="57" Count="2" />
+      <LineId Id="34" Count="0" />
+      <LineId Id="54" Count="0" />
+    </LineIds>
+    <LineIds Name="LongTimeAssertions.valueIsEqualTo">
+      <LineId Id="39" Count="0" />
+      <LineId Id="55" Count="0" />
+      <LineId Id="57" Count="2" />
+      <LineId Id="42" Count="0" />
+      <LineId Id="34" Count="0" />
+    </LineIds>
+    <LineIds Name="LongTimeAssertions.valueIsGreaterThan">
+      <LineId Id="38" Count="0" />
+      <LineId Id="51" Count="0" />
+      <LineId Id="53" Count="2" />
+      <LineId Id="34" Count="0" />
+      <LineId Id="49" Count="0" />
+    </LineIds>
+    <LineIds Name="LongTimeAssertions.valueIsInRangeOf">
+      <LineId Id="40" Count="0" />
+      <LineId Id="55" Count="0" />
+      <LineId Id="57" Count="2" />
+      <LineId Id="36" Count="0" />
+      <LineId Id="53" Count="0" />
+    </LineIds>
+    <LineIds Name="LongTimeAssertions.valueIsLessThan">
+      <LineId Id="39" Count="0" />
+      <LineId Id="57" Count="0" />
+      <LineId Id="53" Count="2" />
+      <LineId Id="50" Count="0" />
+      <LineId Id="34" Count="0" />
+    </LineIds>
+    <LineIds Name="LongTimeAssertions.valueIsMax">
+      <LineId Id="39" Count="0" />
+      <LineId Id="51" Count="0" />
+      <LineId Id="53" Count="2" />
+      <LineId Id="50" Count="0" />
+      <LineId Id="34" Count="0" />
+    </LineIds>
+    <LineIds Name="LongTimeAssertions.valueIsMin">
+      <LineId Id="39" Count="0" />
+      <LineId Id="51" Count="0" />
+      <LineId Id="53" Count="2" />
+      <LineId Id="50" Count="0" />
+      <LineId Id="34" Count="0" />
+    </LineIds>
+    <LineIds Name="LongTimeAssertions.valueIsNotEqualTo">
+      <LineId Id="39" Count="0" />
+      <LineId Id="45" Count="0" />
+      <LineId Id="47" Count="3" />
+      <LineId Id="34" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

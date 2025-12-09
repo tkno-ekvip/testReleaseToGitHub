@@ -1,0 +1,286 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <GVL Name="isNotEqualToTestDataSet" Id="{ad5fe057-04e8-4d08-8028-3362ccc51617}">
+    <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+{warning 'header is generated please add your documentation'}
+{attribute 'qualified_only'}
+VAR_GLOBAL CONSTANT
+	SIZE_OF_ISNOTEQUALTO_DATASET:USINT := 27;
+END_VAR
+
+VAR_GLOBAL
+	isNotEqualDataSetCommon : ARRAY[0..SIZE_OF_ISNOTEQUALTO_DATASET] OF isEqualToDataStr := [
+		// test number 0
+		( 	StringToTest	:= 'hello',
+			WStringToTest	:= "hello",
+			EqualToString	:= 'hello',
+			EqualToWString	:= "hello",
+			IgnoreCases		:= FALSE,
+			ExpectedResult	:= TRUE,
+			typeToTest		:= TypeToTest.TEST_WSTRING ),
+			
+		// test number 1
+		( 	StringToTest	:= 'Давным-давно, когда тигр курил',
+			WStringToTest	:= "Давным-давно, когда тигр курил",
+			EqualToString	:= 'Давным-давно, когда тигр курил',
+			EqualToWString	:= "Давным-давно, когда тигр курил",
+			IgnoreCases		:= FALSE,
+			ExpectedResult	:= TRUE,
+			typeToTest		:= TypeToTest.TEST_WSTRING ),
+			
+		// test number 2
+		( 	StringToTest	:= 'Давным-давно, когда тигр курил',
+			WStringToTest	:= "Давным-давно, когда тигр курил",
+			EqualToString	:= 'Давным-давно, когда тигр курил',
+			EqualToWString	:= "Давным-давно, когда тигр курил",
+			IgnoreCases		:= FALSE,
+			ExpectedResult	:= TRUE,
+			typeToTest		:= TypeToTest.TEST_STRING ),
+			
+		// test number 3
+		( 	StringToTest	:= 'לאנג צוריק ווען טיגערס פלעגן רייכערן',
+			WStringToTest	:= "לאנג צוריק ווען טיגערס פלעגן רייכערן",
+			EqualToString	:= 'לאנג צוריק ווען טיגערס פלעגן רייכערן',
+			EqualToWString	:= "לאנג צוריק ווען טיגערס פלעגן רייכערן",
+			IgnoreCases		:= FALSE,
+			ExpectedResult	:= TRUE,
+			typeToTest		:= TypeToTest.TEST_WSTRING ),
+			
+		// test number 4
+		( 	StringToTest	:= 'Давным-давно, когда тигркурил',
+			WStringToTest	:= "Давным-давно, когда тигркурил",
+			EqualToString	:= 'Давным-давно, когда тигр курил',
+			EqualToWString	:= "Давным-давно, когда тигр курил",
+			IgnoreCases		:= FALSE,
+			ExpectedResult	:= FALSE,
+			typeToTest		:= TypeToTest.TEST_WSTRING ),
+			
+		// test number 5
+		( 	StringToTest	:= 'לאנג צוריק ווען טיגערס פלעגן רייכערן',
+			WStringToTest	:= "לאנג צוריק ווען טיגערס פלעגן רייכערן",
+			EqualToString	:= 'לאנג צוריק ווען טיגערס פלעגן רייכערן',
+			EqualToWString	:= "לאנג צוריק ווען טיגערס פלעגן רייכערן",
+			IgnoreCases		:= FALSE,
+			ExpectedResult	:= TRUE,
+			typeToTest		:= TypeToTest.TEST_STRING ),
+			
+		// test number 6
+		( 	StringToTest	:= 'Давным-давно, когда тигркурил',
+			WStringToTest	:= "Давным-давно, когда тигркурил",
+			EqualToString	:= 'Давным-давно, когда тигр курил',
+			EqualToWString	:= "Давным-давно, когда тигр курил",
+			IgnoreCases		:= FALSE,
+			ExpectedResult	:= False,
+			typeToTest		:= TypeToTest.TEST_STRING ),
+
+		// test number 7
+		( 	StringToTest	:= '',
+			WStringToTest	:= "",
+			EqualToString	:= '',
+			EqualToWString	:= "",
+			IgnoreCases		:= FALSE,
+			ExpectedResult	:= TRUE,
+			typeToTest		:= TypeToTest.TEST_WSTRING ),
+			
+		// test number 8
+		( 	StringToTest	:= ' ',
+			WStringToTest	:= " ",
+			EqualToString	:= '  ',
+			EqualToWString	:= "  ",
+			IgnoreCases		:= FALSE,
+			ExpectedResult	:= FALSE,
+			typeToTest		:= TypeToTest.TEST_WSTRING ),
+			
+		// test number 9
+		( 	StringToTest	:= 'abc',
+			WStringToTest	:= "abc",
+			EqualToString	:= 'ABC',
+			EqualToWString	:= "ABC",
+			IgnoreCases		:= TRUE,
+			ExpectedResult	:= TRUE,
+			typeToTest		:= TypeToTest.TEST_WSTRING ),
+
+		// test number 10
+		( 	StringToTest	:= 'нефти и газа',
+			WStringToTest	:= "нефти и газа",
+			EqualToString	:= 'НЕФТИ И ГАЗА',
+			EqualToWString	:= "НЕФТИ И ГАЗА",
+			IgnoreCases		:= TRUE,
+			ExpectedResult	:= TRUE,
+			typeToTest		:= TypeToTest.TEST_WSTRING 	),	
+        
+		// test number 11
+		( 	StringToTest	:= 'Давным-давно, когда тигркурил',
+			WStringToTest	:= "Давным-давно, когда тигркурил",
+			EqualToString	:= 'Давным-давно, когда тигр курил',
+			EqualToWString	:= "Давным-давно, когда тигр курил",
+			IgnoreCases		:= FALSE,
+			ExpectedResult	:= False,
+			typeToTest		:= TypeToTest.TEST_STRING ),
+
+		// test number 12
+		( 	StringToTest	:= '',
+			WStringToTest	:= "",
+			EqualToString	:= '',
+			EqualToWString	:= "",
+			IgnoreCases		:= FALSE,
+			ExpectedResult	:= TRUE,
+			typeToTest		:= TypeToTest.TEST_WSTRING ),
+			
+		// test number 13
+		( 	StringToTest	:= ' ',
+			WStringToTest	:= " ",
+			EqualToString	:= '  ',
+			EqualToWString	:= "  ",
+			IgnoreCases		:= FALSE,
+			ExpectedResult	:= FALSE,
+			typeToTest		:= TypeToTest.TEST_WSTRING ),
+			
+		// test number 14
+		( 	StringToTest	:= 'abc',
+			WStringToTest	:= "abc",
+			EqualToString	:= 'ABC',
+			EqualToWString	:= "ABC",
+			IgnoreCases		:= TRUE,
+			ExpectedResult	:= TRUE,
+			typeToTest		:= TypeToTest.TEST_WSTRING ),
+
+		// test number 15
+		( 	StringToTest	:= 'нефти и газа',
+			WStringToTest	:= "нефти и газа",
+			EqualToString	:= 'НЕФТИ И ГАЗА',
+			EqualToWString	:= "НЕФТИ И ГАЗА",
+			IgnoreCases		:= TRUE,
+			ExpectedResult	:= TRUE,
+			typeToTest		:= TypeToTest.TEST_WSTRING ),
+			
+		// test number 16
+		( 	StringToTest	:= '',
+			WStringToTest	:= "🧐",
+			EqualToString	:= '',
+			EqualToWString	:= "🧐",
+			IgnoreCases		:= TRUE,
+			ExpectedResult	:= TRUE,
+			typeToTest		:= TypeToTest.TEST_WSTRING ),
+			
+		// test number 17
+		( 	StringToTest	:= '',
+			WStringToTest	:= "🧐",
+			EqualToString	:= '',
+			EqualToWString	:= "🧐",
+			IgnoreCases		:= FALSE,
+			ExpectedResult	:= TRUE,
+			typeToTest		:= TypeToTest.TEST_WSTRING ),
+			
+		// test number 18
+		( 	StringToTest	:= '',
+			WStringToTest	:= "h🧐",
+			EqualToString	:= '',
+			EqualToWString	:= "h🧐",
+			IgnoreCases		:= TRUE,
+			ExpectedResult	:= TRUE,
+			typeToTest		:= TypeToTest.TEST_WSTRING ),
+			
+		// test number 19
+		( 	StringToTest	:= '',
+			WStringToTest	:= "h🧐",
+			EqualToString	:= '',
+			EqualToWString	:= "h🧐",
+			IgnoreCases		:= FALSE,
+			ExpectedResult	:= TRUE,
+			typeToTest		:= TypeToTest.TEST_WSTRING ),
+			
+		// test number 20
+		( 	StringToTest	:= '',
+			WStringToTest	:= "h🧐",
+			EqualToString	:= '',
+			EqualToWString	:= "h🧐 ",
+			IgnoreCases		:= TRUE,
+			ExpectedResult	:= FALSE,
+			typeToTest		:= TypeToTest.TEST_WSTRING ),
+			
+		// test number 21
+		( 	StringToTest	:= '',
+			WStringToTest	:= "h🧐",
+			EqualToString	:= '',
+			EqualToWString	:= "h🧐 ",
+			IgnoreCases		:= FALSE,
+			ExpectedResult	:= FALSE,
+			typeToTest		:= TypeToTest.TEST_WSTRING ),
+			
+		// test number 22
+		( 	StringToTest	:= '$$00434',
+			WStringToTest	:= "$$00434",
+			EqualToString	:= '$$00434',
+			EqualToWString	:= "$$00434",
+			IgnoreCases		:= FALSE,
+			ExpectedResult	:= TRUE,
+			typeToTest		:= TypeToTest.TEST_WSTRING ),
+			
+		// test number 23
+		( 	StringToTest	:= '$$00434',
+			WStringToTest	:= "$$00434",
+			EqualToString	:= '$$00434',
+			EqualToWString	:= "$$00434",
+			IgnoreCases		:= TRUE,
+			ExpectedResult	:= TRUE,
+			typeToTest		:= TypeToTest.TEST_WSTRING ),
+			
+		// test number 24
+		( 	StringToTest	:= '$$00434',
+			WStringToTest	:= "$$00434",
+			EqualToString	:= '$$00434',
+			EqualToWString	:= "$$00434",
+			IgnoreCases		:= FALSE,
+			ExpectedResult	:= TRUE,
+			typeToTest		:= TypeToTest.TEST_STRING ),
+			
+		// test number 25
+		( 	StringToTest	:= '$$00434',
+			WStringToTest	:= "$$00434",
+			EqualToString	:= '$$00434',
+			EqualToWString	:= "$$00434",
+			IgnoreCases		:= TRUE,
+			ExpectedResult	:= TRUE,
+			typeToTest		:= TypeToTest.TEST_STRING ),
+			
+		// test number 26
+		( 	StringToTest	:= '2',
+			WStringToTest	:= "2",
+			EqualToString	:= '²',
+			EqualToWString	:= "²",
+			IgnoreCases		:= TRUE,
+			ExpectedResult	:= FALSE,
+			typeToTest		:= TypeToTest.TEST_STRING ),
+			
+		// test number 27
+		( 	StringToTest	:= '2',
+			WStringToTest	:= "2",
+			EqualToString	:= '²',
+			EqualToWString	:= "²",
+			IgnoreCases		:= TRUE,
+			ExpectedResult	:= FALSE,
+			typeToTest		:= TypeToTest.TEST_WSTRING )
+						
+	];
+END_VAR]]></Declaration>
+  </GVL>
+</TcPlcObject>

@@ -1,0 +1,280 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.11">
+  <Itf Name="I32BitTodAssertions" Id="{fdb6a884-4156-4d19-b7df-74a1c66e604f}">
+    <Declaration><![CDATA[(*
+
+short summary
+=================
+This interface provides assert statements for 32 bit time of day ``TOD``  
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+methods
+==================
+
+*)
+
+INTERFACE I32BitTodAssertions EXTENDS __SYSTEM.IQueryInterface
+]]></Declaration>
+    <Method Name="valueIsEqualTo" Id="{1ea23821-a9dd-4d59-8acd-f6c65b568834}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current value is equal to the expected value
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD valueIsEqualTo
+VAR_INPUT
+	(* current value to check *)
+	currentValue	:TOD;
+	(* expected value to compare *)
+	expectedValue	:TOD;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="valueIsGreaterThan" Id="{03cb09c7-552f-472d-b44d-2e0ab308fd85}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current value is greater than the less value
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD valueIsGreaterThan
+VAR_INPUT
+	(* current value to check *)
+	currentValue	:TOD;
+	(* less than lower limit *)
+	lessValue		:TOD;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="valueIsInRangeOf" Id="{88de90b9-af3f-4874-9d76-14be6b773e77}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current value is inside a limit
+
+.. attention:: 
+	limits are included: ``valueIsInRangeOf(tod#3:0:0, tod#3:0:0, tod#3:0:0)`` is a true assertion
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD valueIsInRangeOf
+VAR_INPUT
+	(* lower limit for the current value *)
+	lowerLimit		:TOD;
+	(* current value to check *)
+	currentValue	:TOD;
+	(* upper limit for the current value *)
+	upperLimit		:TOD;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="valueIsLessThan" Id="{67770622-9317-4e6b-b1e5-fa320bb4caf0}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current value is less than the greater value
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD valueIsLessThan
+VAR_INPUT
+	(* current value to check *)
+	currentValue	:TOD;
+	(* greater than upper limit *)
+	greaterValue	:TOD;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="valueIsMax" Id="{806ca871-381f-47b0-acbb-646ad3f793b8}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current value is less than or equal to the maximum value
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD valueIsMax
+VAR_INPUT
+	(* current value to check *)
+	currentValue	:TOD;
+	(* upper limit for the current value *)
+	maximumValue	:TOD;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="valueIsMin" Id="{37030d02-7c9f-4359-b3af-436c803c12e4}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current value is greater than or equal to the minimum value
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD valueIsMin
+VAR_INPUT
+	(* current value to check *)
+	currentValue	:TOD;
+	(* lower limit for the current value *)
+	minimumValue	:TOD;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="valueIsNotEqualTo" Id="{09ca0063-f958-4a1d-b592-db72019270ba}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current value is not equal to the unexpected value
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD valueIsNotEqualTo
+VAR_INPUT
+	(* current value to check *)
+	currentValue	:TOD;
+	(* unexpected value to compare *)
+	unexpectedValue	:TOD;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+    </Method>
+  </Itf>
+</TcPlcObject>

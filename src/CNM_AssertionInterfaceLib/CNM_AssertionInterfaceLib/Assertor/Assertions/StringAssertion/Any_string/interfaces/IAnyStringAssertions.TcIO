@@ -1,0 +1,620 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <Itf Name="IAnyStringAssertions" Id="{a1c0bf89-6a74-40d5-b36d-f359e52531d1}">
+    <Declaration><![CDATA[(*
+
+short summary
+=================
+the interface provides assert statements
+for 8-bit windows-1252 and UTF-16 strings with an undifined length.
+
+.. attention:: 
+	All strings are handled as null terminated byte/word streams.
+	For windows-1252 is end of the string 16#00
+	For UTF-16 is end of the string 16#00_00
+
+.. attention:: 
+	The interface :ref:`IAnyStringAssertions` uses ``ANY_STRING``, 
+	for this it's not possible to use literals/constants,
+	because for ``ANY`` types generates the compiler ``__SYSTEM.AnyType``
+	and ``__SYSTEM.AnyType`` contains a pointer  
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+methods
+==================
+
+*)
+
+INTERFACE IAnyStringAssertions EXTENDS __SYSTEM.IQueryInterface
+]]></Declaration>
+    <Method Name="contains" Id="{7ed11b2d-c60e-42e3-9c1b-7cede5518e19}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current string ``stringToCheck`` contains the search string
+
+.. attention:: 
+	All strings are handled as null terminated byte/word streams.
+	For windows-1252 is end of the string 16#00
+	For UTF-16 is end of the string 16#00_00
+
+.. attention:: 
+	Method uses ``ANY_STRING`` and for this it's not possible
+	to use literals/constants, because for ``ANY`` types the
+	compiler generates``__SYSTEM.AnyType`` and 
+	``__SYSTEM.AnyType`` contains a pointer  
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD contains
+VAR_INPUT
+	(* current string to check *)
+	stringToCheck	:ANY_STRING;
+	(* string must be found in ``stringToCheck`` *)
+	searchString	:ANY_STRING;
+	(* ``TRUE`` means ignore cases; ``FALSE`` means cases must be equal too *)
+	ignoreCases		:BOOL;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="containsNo" Id="{84d45fa2-77ab-493a-9075-3f036fdaefe6}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current string ``stringToCheck`` not contains the search string
+
+.. attention:: 
+	All strings are handled as null terminated byte/word streams.
+	For windows-1252 is end of the string 16#00
+	For UTF-16 is end of the string 16#00_00
+
+.. attention:: 
+	Method uses ``ANY_STRING`` and for this it's not possible
+	to use literals/constants, because for ``ANY`` types the
+	compiler generates``__SYSTEM.AnyType`` and 
+	``__SYSTEM.AnyType`` contains a pointer  
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD containsNo
+VAR_INPUT
+	(* current string to check *)
+	stringToCheck	:ANY_STRING;
+	(* string that must not be found in ``stringToCheck`` *)
+	searchString	:ANY_STRING;
+	(* ``TRUE`` means ignore cases; ``FALSE`` means cases must be equal too *)
+	ignoreCases		:BOOL;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="endsWith" Id="{d61b0c08-6514-40ba-bdab-5fe4928d40f4}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current string ``stringToCheck`` ends with ``end``
+
+.. attention:: 
+	All strings are handled as null terminated byte/word streams.
+	For windows-1252 is end of the string 16#00
+	For UTF-16 is end of the string 16#00_00
+
+.. attention:: 
+	Method uses ``ANY_STRING`` and for this it's not possible
+	to use literals/constants, because for ``ANY`` types the
+	compiler generates``__SYSTEM.AnyType`` and 
+	``__SYSTEM.AnyType`` contains a pointer  
+
+.. attention:: 
+	end of the string is **ALWAYS** the right side of the string 
+	even for writings which written from right to left like Hebrew or Arabic
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD endsWith
+VAR_INPUT
+	(* current string to check *)
+	stringToCheck	:ANY_STRING;
+	(* expected end of ``stringToCheck`` *)
+	end				:ANY_STRING;
+	(* ``TRUE`` means ignore cases; ``FALSE`` means cases must be equal too *)
+	ignoreCases		:BOOL;
+	(* ``TRUE`` means truncation of spaces on the right side of ``stringToCheck``*)
+	trim			:BOOL;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="isEmpty" Id="{5abe9e2c-4d38-42ee-b173-a966819cd136}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current string ``stringToCheck`` is empty
+
+.. attention:: 
+	All strings are handled as null terminated byte/word streams.
+	For windows-1252 is end of the string 16#00
+	For UTF-16 is end of the string 16#00_00
+
+.. attention:: 
+	Method uses ``ANY_STRING`` and for this it's not possible
+	to use literals/constants, because for ``ANY`` types the
+	compiler generates``__SYSTEM.AnyType`` and 
+	``__SYSTEM.AnyType`` contains a pointer  
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD isEmpty
+VAR_INPUT
+	(* current string to check *)
+	stringToCheck	:ANY_STRING;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="isEqualTo" Id="{9575189c-7301-42c5-96a7-1c6e90f966c3}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current string ``stringToCheck`` is equal to ``expected``
+
+.. attention:: 
+	All strings are handled as null terminated byte/word streams.
+	For windows-1252 is end of the string 16#00
+	For UTF-16 is end of the string 16#00_00
+
+.. attention:: 
+	Method uses ``ANY_STRING`` and for this it's not possible
+	to use literals/constants, because for ``ANY`` types the
+	compiler generates``__SYSTEM.AnyType`` and 
+	``__SYSTEM.AnyType`` contains a pointer  
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD isEqualTo
+VAR_INPUT
+	(* current string to check *)
+	stringToCheck	:ANY_STRING;
+	(* ``stringToCheck`` must be equal to expected *)
+	expected		:ANY_STRING;
+	(* ``TRUE`` means ignore cases; ``FALSE`` means cases must be equal too *)
+	ignoreCases		:BOOL;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="isNotEmpty" Id="{dff62c4f-219f-4cfe-8436-1d9ca77a2c96}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current string ``stringToCheck`` is not empty
+
+.. attention:: 
+	All strings are handled as null terminated byte/word streams.
+	For windows-1252 is end of the string 16#00
+	For UTF-16 is end of the string 16#00_00
+
+.. attention:: 
+	Method uses ``ANY_STRING`` and for this it's not possible
+	to use literals/constants, because for ``ANY`` types the
+	compiler generates``__SYSTEM.AnyType`` and 
+	``__SYSTEM.AnyType`` contains a pointer  
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD isNotEmpty
+VAR_INPUT
+	(* current string to check *)
+	stringToCheck	:ANY_STRING;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="isNotEqualTo" Id="{83e34e47-8555-463a-b123-110c00d6b9b1}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current string ``stringToCheck`` is not equal to ``unexpected``
+
+.. attention:: 
+	All strings are handled as null terminated byte/word streams.
+	For windows-1252 is end of the string 16#00
+	For UTF-16 is end of the string 16#00_00
+
+.. attention:: 
+	Method uses ``ANY_STRING`` and for this it's not possible
+	to use literals/constants, because for ``ANY`` types the
+	compiler generates``__SYSTEM.AnyType`` and 
+	``__SYSTEM.AnyType`` contains a pointer  
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD isNotEqualTo
+VAR_INPUT
+	(* current string to check *)
+	stringToCheck	:ANY_STRING;
+	(* ``stringToCheck`` must be not equal to expected *)
+	unexpected		:ANY_STRING;
+	(* ``TRUE`` means ignore cases; ``FALSE`` means cases must be equal too *)
+	ignoreCases		:BOOL;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="lenghtIsBetween" Id="{5f5cfafa-ad7f-40be-b772-e35b638b3480}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current string ``stringToCheck`` is length
+is between ``minLenght`` and ``maxLenght``
+
+.. attention:: 
+	All strings are handled as null terminated byte/word streams.
+	For windows-1252 is end of the string 16#00
+	For UTF-16 is end of the string 16#00_00
+
+.. attention:: 
+	Method uses ``ANY_STRING`` and for this it's not possible
+	to use literals/constants, because for ``ANY`` types the
+	compiler generates``__SYSTEM.AnyType`` and 
+	``__SYSTEM.AnyType`` contains a pointer  
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD lenghtIsBetween
+VAR_INPUT
+	(* current string to check *)
+	stringToCheck	:ANY_STRING;
+	(* lower limit of the string length *)
+	minLenght		:UDINT;
+	(* upper limit of the string length *)
+	maxLenght		:UDINT;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="lenghtIsExact" Id="{52291b41-43be-47df-a82e-fe69374021e4}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current string ``stringToCheck`` is length
+is equal to ``expectedLength``
+
+.. attention:: 
+	All strings are handled as null terminated byte/word streams.
+	For windows-1252 is end of the string 16#00
+	For UTF-16 is end of the string 16#00_00
+
+.. attention:: 
+	Method uses ``ANY_STRING`` and for this it's not possible
+	to use literals/constants, because for ``ANY`` types the
+	compiler generates``__SYSTEM.AnyType`` and 
+	``__SYSTEM.AnyType`` contains a pointer  
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD lenghtIsExact
+VAR_INPUT
+	(* current string to check *)
+	stringToCheck	:ANY_STRING;
+	(* expected length of ``stringToCheck`` *)
+	expectedLength	:UDINT;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="lenghtIsMax" Id="{853d4eb0-812f-482b-82f0-608fcba84adb}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current string ``stringToCheck`` is length
+is equal or less than to ``maxLength``
+
+.. attention:: 
+	All strings are handled as null terminated byte/word streams.
+	For windows-1252 is end of the string 16#00
+	For UTF-16 is end of the string 16#00_00
+
+.. attention:: 
+	Method uses ``ANY_STRING`` and for this it's not possible
+	to use literals/constants, because for ``ANY`` types the
+	compiler generates``__SYSTEM.AnyType`` and 
+	``__SYSTEM.AnyType`` contains a pointer  
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD lenghtIsMax
+VAR_INPUT
+	(* current string to check *)
+	stringToCheck	:ANY_STRING;
+	(* upper limit of the length of ``stringToCheck`` *)
+	maxLength		:UDINT;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="lenghtIsMin" Id="{655b4937-de91-49b8-b8e6-efe10e6946c5}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current string ``stringToCheck`` is length
+is equal or grater than to ``minLength``
+
+.. attention:: 
+	All strings are handled as null terminated byte/word streams.
+	For windows-1252 is end of the string 16#00
+	For UTF-16 is end of the string 16#00_00
+
+.. attention:: 
+	Method uses ``ANY_STRING`` and for this it's not possible
+	to use literals/constants, because for ``ANY`` types the
+	compiler generates``__SYSTEM.AnyType`` and 
+	``__SYSTEM.AnyType`` contains a pointer  
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD lenghtIsMin
+VAR_INPUT
+	(* current string to check *)
+	stringToCheck	:ANY_STRING;
+	(* lower limit of the length of ``stringToCheck`` *)
+	minLength		:UDINT;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="startsWith" Id="{5e89f446-3a33-4a31-bd31-8ea678d975f7}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current string ``stringToCheck`` starts with ``start``
+
+.. attention:: 
+	All strings are handled as null terminated byte/word streams.
+	For windows-1252 is end of the string 16#00
+	For UTF-16 is end of the string 16#00_00
+
+.. attention:: 
+	Method uses ``ANY_STRING`` and for this it's not possible
+	to use literals/constants, because for ``ANY`` types the
+	compiler generates``__SYSTEM.AnyType`` and 
+	``__SYSTEM.AnyType`` contains a pointer  
+
+.. attention:: 
+	start of the string is **ALWAYS** the left side of the string 
+	even for writings which written from right to left like Hebrew or Arabic
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD startsWith
+VAR_INPUT
+	(* current string to check *)
+	stringToCheck	:ANY_STRING;
+	(* expected start of ``stringToCheck`` *)
+	start			:ANY_STRING;
+	(* ``TRUE`` means ignore cases; ``FALSE`` means cases must be equal too *)
+	ignoreCases		:BOOL;
+	(* ``TRUE`` means truncation of spaces on the left side of ``stringToCheck``*)
+	trim			:BOOL;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+    </Method>
+  </Itf>
+</TcPlcObject>

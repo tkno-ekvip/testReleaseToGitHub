@@ -1,0 +1,196 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="FloatAssertions" Id="{6f765fb2-52a4-4a47-8cd7-95a9639a21cd}" SpecialFunc="None">
+    <Declaration><![CDATA[(*
+
+short summary
+=================
+| This class provides assert statements for floatings (``REAL`` and ``LREAL``)
+| It implements :ref:`IFloatAssertions`
+| For 32 bit floats (``REAL``) use :ref:`FloatAssertions.single`
+| For 64 bit floats (``LREAL``) use :ref:`FloatAssertions.double`
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+methods
+==================
+
+*)
+
+{attribute 'reflection'}
+FUNCTION_BLOCK INTERNAL FloatAssertions EXTENDS CNM_AbstractObject.Object IMPLEMENTS IFloatAssertions, IAssertCallBacksetter
+VAR
+	(* class to handle assert statements for 32 bit floats *)
+	realAssertions	:RealAssertions();
+	(* class to handle assert statements for 64 bit floats *)
+	lRealAssertions	:LRealAssertions();
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Property Name="className" Id="{bce5ed82-c66d-4d67-b4a1-d5fbfdaf6587}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This abstract property returns the class name of the concrete object, 
+It's for debugging purpose
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+PROPERTY className :CNM_AbstractObject.ClassName]]></Declaration>
+      <Get Name="Get" Id="{986d6348-093c-44a4-a3cd-96de1518be0a}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[className := 'CNM_AssertionInterfaceLib.FloatAssertions';
+]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="double" Id="{05de71a9-9a57-4df4-8c4c-378583055d17}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+Returns the interface :ref:`ILrealAssertions` with assert statements for 64 bit floatings (``LREAL``)
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+PROPERTY double :ILrealAssertions
+]]></Declaration>
+      <Get Name="Get" Id="{d020fb99-ff2c-42ee-84be-05cbd018d38d}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[double := THIS^.lrealAssertions;
+]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="setCallBack" Id="{9709eb1f-8e3f-403d-a41a-b1be19956e61}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This methods is the setter for the callback class if an assertion was false
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD setCallBack
+VAR_INPUT
+	(* the class that must be informed if an assertion is false *)
+	callBack	:IAssertCallback;  
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.realAssertions.setCallBack(callBack);
+THIS^.lRealAssertions.setCallBack(callBack);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="single" Id="{2a735a7e-95c4-491b-8de1-8ac0c930d87b}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+Returns the interface :ref:`IRealAssertions` with assert statements for 32 bit floatings (``REAL``)
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+PROPERTY single :IRealAssertions
+]]></Declaration>
+      <Get Name="Get" Id="{634a4618-7cca-4f01-bd96-9452c8c3bfec}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[single := THIS^.realAssertions;
+]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <LineIds Name="FloatAssertions">
+      <LineId Id="9" Count="0" />
+    </LineIds>
+    <LineIds Name="FloatAssertions.className.Get">
+      <LineId Id="5" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FloatAssertions.double.Get">
+      <LineId Id="2" Count="0" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="FloatAssertions.setCallBack">
+      <LineId Id="30" Count="2" />
+    </LineIds>
+    <LineIds Name="FloatAssertions.single.Get">
+      <LineId Id="2" Count="0" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

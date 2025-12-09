@@ -1,0 +1,1913 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="Utf16StringPointerAssertions" Id="{70556877-f748-47a1-af10-6185891a58f8}" SpecialFunc="None">
+    <Declaration><![CDATA[(*
+
+short summary
+=================
+This class provides assert statements for UTF-16 strings
+
+.. attention:: 
+	All strings are handled as null terminated word streams.
+	For UTF-16 is end of the string 16#00_00
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+methods and properties
+=======================
+
+*)
+
+{attribute 'reflection'}
+FUNCTION_BLOCK INTERNAL Utf16StringPointerAssertions EXTENDS AbstarctStringPointerAssertions IMPLEMENTS IUtf16StringPointerAssertions
+VAR
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Folder Name="internal" Id="{f7fb3e43-4a92-4a96-986d-01dfa90cb801}" />
+    <Property Name="className" Id="{d82c78a1-99b3-4d45-b85b-86b5388f94ad}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This abstract property returns the class name of the concrete object, 
+It's for debugging purpose
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+PROPERTY className :CNM_AbstractObject.ClassName]]></Declaration>
+      <Get Name="Get" Id="{e2caa609-0912-478b-b9ad-4bc5af571b3a}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[className := 'CNM_AssertionInterfaceLib.Utf16StringPointerAssertions';
+]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="getCopyOfUtf16String" Id="{a3060542-c6c9-47b2-8158-a757458892bc}" FolderPath="internal\">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+this methods copy a string and returns the start address of new string
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+:return: start address of the UTF-16 string copy
+
+*)
+
+METHOD PROTECTED getCopyOfUtf16String :POINTER TO WORD
+VAR_INPUT
+	(* string to copy *)
+	stringAddress		:POINTER TO WORD;
+	(* length of the string in words*)
+	stringLengthInWord	:UDINT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[getCopyOfUtf16String := __NEW(WORD, stringLengthInWord);
+IF (getCopyOfUtf16String <> 0) THEN
+	Tc2_System.MEMCPY(
+		destAddr := getCopyOfUtf16String,
+		srcAddr := stringAddress,
+		n := stringLengthInWord * SIZEOF(WORD)
+	);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="getNewUtf16UCaseString" Id="{6347b4bc-2638-4a16-a3b0-b34999fa2cf6}" FolderPath="internal\">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+this methods copy a string and returns the start address of new string,
+all small letters are capitalized in the new string.
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+:return: start address of the UTF-16 string. 
+If ``createNewUpperCaseString`` is ``TRUE`` then it's a new string
+
+*)
+
+METHOD PROTECTED getNewUtf16UCaseString :POINTER TO WORD; 
+VAR_INPUT
+	(* start address of the string to copy and capitalize *)
+	stringAddress				:POINTER TO WORD;
+	(* length of the string ``stringAddress`` *)
+	stringLengthInWord			:UDINT;
+	(* 
+	``TRUE means meake a copy and capitalize it, 
+	``FALSE`` means return just ``stringAddress``
+	and do nothing else
+	*)
+	createNewUpperCaseString	:BOOL;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (createNewUpperCaseString) THEN
+	getNewUtf16UCaseString := THIS^.getCopyOfUtf16String(stringAddress, stringLengthInWord);
+	THIS^.utf16UpperCase(getNewUtf16UCaseString, stringLengthInWord);
+ELSE
+	getNewUtf16UCaseString := stringAddress;
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="getUtf16StringLength" Id="{6d4a4a1f-2d31-4a4e-8cc6-dcf7a55117d4}" FolderPath="internal\">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This methods returns the length of a null terminated UTF-16 string.
+The returned length is in characters (in UTF-16 have some charcters 32 bit length).
+This method provides two outputs to get the length in byte and word, too. 
+
+.. attention:: 
+	All strings are handled as null terminated byte streams.
+	For UTF-16 is end of the string 16#00_00
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+:return: length of the UTF-16 string in characters
+
+*)
+
+METHOD PROTECTED getUtf16StringLength :UDINT
+VAR_INPUT
+	(* Start address of the string for which the length is to be determined *)
+	stringAddress	:POINTER TO WORD;
+END_VAR
+VAR_OUTPUT
+	(* sting length in bytes *)
+	lengthInByte	:UDINT;
+	(* string length in words *)
+	lengthInWord	:UDINT;
+END_VAR
+VAR
+	(* character index to iterate thru the string *)
+	character		:UDINT;
+END_VAR
+VAR CONSTANT
+	(* NUL it terminates the string *)
+	END_OF_STRING		:WORD := 16#0000;
+	(* byte counter *)
+	INCREMENT_LENGTH	:UDINT := 1;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[getUtf16StringLength	:= 0;
+lengthInByte		:= 0;
+character			:= 0; 
+lengthInWord		:= 0;
+
+IF (stringAddress = 0) THEN
+	RETURN;
+END_IF
+
+WHILE (stringAddress[character] <> END_OF_STRING) DO
+	getUtf16StringLength := getUtf16StringLength + 1;
+	IF (THIS^.isUtf16CharASurrogatePair(
+			highWord := stringAddress[character], 
+			lowWord := stringAddress[character+1]
+		)
+	) THEN
+		character := character + 2;
+		lengthInByte := lengthInByte + 4;
+	ELSE
+		character := character + 1;
+		lengthInByte := lengthInByte + 2;		
+	END_IF;
+END_WHILE
+
+//add one word for null termination, it's required for the surrogate pair check
+lengthInWord := character + 1;
+lengthInByte := lengthInByte + 2; 
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="getUtf16SurrogatePairFromUtf32" Id="{55994e33-8de2-481f-b66a-d95d5f982844}" FolderPath="internal\">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This methods calculates from an UTF-32 code-point_ an UTF-16 surrogate-pair_
+
+.. _surrogate-pair: https://en.wikipedia.org/wiki/UTF-16#U+D800_to_U+DFFF
+
+.. _code-point: https://en.wikipedia.org/wiki/UTF-16#Code_points_from_U+010000_to_U+10FFFF
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD PROTECTED getUtf16SurrogatePairFromUtf32
+VAR_INPUT
+	(* utf32 code point *)
+	utf32Char	:DWORD;
+END_VAR
+VAR_OUTPUT
+	(* high word of the surrogate pair *)
+	highWord	:WORD;
+	(* low word of the surrogate pair *)
+	lowWord		:WORD;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[utf32Char := utf32Char - 16#10000;
+highWord := TO_WORD(SHR(utf32Char, 10)) + 16#D800;
+lowWord	:= TO_WORD(utf32Char AND 16#3FF) + 16#DC00;
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="getUtf32FromUtf16SurrogatePair" Id="{f612c7d4-2a21-4c9d-bfdc-db1ab80afa6a}" FolderPath="internal\">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This methods calculates from an UTF-16 surrogate-pair_ an UTF-32 code-point_
+
+.. _surrogate-pair: https://en.wikipedia.org/wiki/UTF-16#U+D800_to_U+DFFF
+
+.. _code-point: https://en.wikipedia.org/wiki/UTF-16#Code_points_from_U+010000_to_U+10FFFF
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+:return: UTF-32 character (code-point) from the UTF-16 surrogate pair
+
+*)
+
+METHOD PROTECTED getUtf32FromUtf16SurrogatePair :DWORD
+VAR_INPUT
+	(* high word of the surrogate pair *)
+	highWord	:WORD;
+	(* low word of the surrogate pair *)
+	lowWord		:WORD;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[getUtf32FromUtf16SurrogatePair := ((
+		SHL(TO_DWORD(highWord - 16#D800), 10)
+	) + (
+		(TO_DWORD(lowWord - 16#DC00) + 16#10000)
+	)
+);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="isCharUtf16WhiteSpace" Id="{8114cfaf-6135-4a81-98c2-ccdcd1fd8e3a}" FolderPath="internal\">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+this methods checks if an UTF-16 character is a whitespace character
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+:return: ``TRUE`` means ``character`` is whitespace,
+``FALSE`` means ``character`` is no whitespace 
+
+*)
+
+METHOD PROTECTED isCharUtf16WhiteSpace :BOOL
+VAR_INPUT
+	(* character to check if it's whitespace *)
+	character	:WORD;
+END_VAR
+VAR CONSTANT
+	HORIZONTAL_TAB				:WORD := 16#0009;
+	LINE_FEED					:WORD := 16#000A;
+	VERTICAL_TAB				:WORD := 16#000B;
+	FROM_FEED					:WORD := 16#000C;
+	CARRIAGE_RETURN				:WORD := 16#000D;
+	SPACE						:WORD := 16#0020;
+	NEXT_LINE					:WORD := 16#0085;
+	NO_BREAK_SPACE				:WORD := 16#00A0;
+	OGHAM_SPACE_MARK			:WORD := 16#1680;
+	EN_QUAD						:WORD := 16#2000;
+	EM_QUAD						:WORD := 16#2001;
+	EN_SPACE					:WORD := 16#2002;
+	EM_SPACE					:WORD := 16#2003;
+	THREE_PER_EM_SPACE			:WORD := 16#2004;
+	FOUR_PER_EM_SPACE			:WORD := 16#2005;
+	SIX_PER_EM_SPACE			:WORD := 16#2006;
+	FIGURE_SPACE				:WORD := 16#2007;
+	PUNCTUATION_SPACE			:WORD := 16#2008;
+	THIN_SPACE					:WORD := 16#2009;
+	HAIR_SPACE					:WORD := 16#200A;
+	LINE_SEPERATOR				:WORD := 16#2028;
+	PARAGRAPH_SEPERATOR 		:WORD := 16#2029;
+	NARROW_NO_BREAK_SPACE		:WORD := 16#202F;
+	MEDIUM_MATHEMEATICAL_SPACE	:WORD := 16#205F;
+	IDEOGRAPHIC_SPACE			:WORD := 16#3000;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[CASE character OF
+HORIZONTAL_TAB .. CARRIAGE_RETURN,
+SPACE,
+NEXT_LINE,
+NO_BREAK_SPACE,
+OGHAM_SPACE_MARK,
+EN_QUAD .. HAIR_SPACE,
+LINE_SEPERATOR .. PARAGRAPH_SEPERATOR,
+MEDIUM_MATHEMEATICAL_SPACE,
+IDEOGRAPHIC_SPACE:
+	isCharUtf16WhiteSpace := TRUE;
+ELSE
+	isCharUtf16WhiteSpace := FALSE;	
+END_CASE
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="isUtf16CharASurrogatePair" Id="{180cee31-1077-46e5-a619-00ad533aa728}" FolderPath="internal\">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This methods checks if two UTF-16 characters are a surrogate-pair_
+
+.. _surrogate-pair: https://en.wikipedia.org/wiki/UTF-16#U+D800_to_U+DFFF
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+:return: ``TRUE`` means it's a surrogate pair,
+``FALSE`` means it's no surrogate pair
+
+*)
+
+METHOD PROTECTED isUtf16CharASurrogatePair :BOOL
+VAR_INPUT
+	(* high word of the surrogate pair *)
+	highWord	:WORD;
+	(* low word of the surrogate pair *)
+	lowWord		:WORD;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[isUtf16CharASurrogatePair := (
+	(highWord >= 16#D800)
+	AND (highWord <= 16#DBFF)
+	AND (lowWord >= 16#DC00)
+	AND (lowWord <= 16#DFFF)
+);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="upperCaseUtf16Char" Id="{20af08ae-88be-4e43-b101-a4bd84099eed}" FolderPath="internal\">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This method converts an UTF-16 lowercase character to an UTF-16 uppercase character.
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD PROTECTED upperCaseUtf16Char
+VAR_IN_OUT
+	(* utf-16 char to upper case *)
+	char		:WORD;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[CASE char OF
+16#0061 .. 16#007A,
+16#00E0 .. 16#00F6,
+16#00F8 .. 16#00FE,
+16#03B1 .. 16#03C1,
+16#03C3 .. 16#03CB,
+16#0430 .. 16#044F,
+16#FF41 .. 16#FF5A:
+	char := char - 16#0020;
+16#00B5:
+	char := 16#039C;
+16#00DF,
+16#017F:
+	char := 16#0053;
+16#00FF:
+	char := 16#0178;
+16#0101 .. 16#012F,
+16#0132 .. 16#0137,
+16#013A .. 16#0148,
+16#014B .. 16#0177,
+16#017A .. 16#017E,
+16#0183 .. 16#0185,
+16#0188,
+16#018C,
+16#0192,
+16#0199,
+16#01A1 .. 16#01A5,
+16#01A8,
+16#01AD,
+16#01B0,
+16#01B4,
+16#01B6,
+16#01B9,
+16#01BD,
+16#01CE .. 16#01DC,
+16#01DF,
+16#01E1 .. 16#01EF,
+16#01F5,
+16#01FB .. 16#0217,
+16#03E3 .. 16#03EF,
+16#0461 .. 16#0481,
+16#0491 .. 16#04BF,
+16#04C2 .. 16#04C4,
+16#04C8,
+16#04CC,
+16#04D1 .. 16#04EB,
+16#04EF .. 16#04F5,
+16#04F9,
+16#1E01 .. 16#1E95,
+16#1EA1 .. 16#1EF9:
+	char := SEL((char.0 = 1), char, (char := char-1));
+16#0131:
+	char := 16#0049;
+16#0180:
+	char := 16#0243;
+16#01C6,
+16#01C9,
+16#01CC,
+16#01F3:
+	char := SEL((char.0 = 0), char, (char := char-2));
+16#0253:
+	char := 16#0181;
+16#0254:
+	char := 16#0186;
+16#0257,
+16#0260:
+	char := char - 16#00CD;
+16#0258,
+16#0259:
+	char := char - 16#00CA;
+16#025B:
+	char := 16#0190;
+16#0263:
+	char := 16#0194;
+16#0268:
+	char := 16#0197;
+16#0269,
+16#026F:
+	char := char - 16#00D3;
+16#0276:
+	char := 16#019D;
+16#0275:
+	char := 16#019F;
+16#0283,
+16#0288:
+	char := char - 16#00DA;
+16#028A .. 16#028B:
+	char := char - 16#00D9;
+16#0292:
+	char := 16#01B7;
+16#03AC:
+	char := 16#0386;
+16#03AD .. 16#03AF:
+	char := char - 16#0025;
+16#03CC:
+	char := 16#038C;
+16#03CD .. 16#03CE:
+	char := char - 16#003F;
+16#0451 .. 16#045C,
+16#045E .. 16#045F:
+	char := char - 16#0050;
+16#0561 .. 16#0586,
+16#10D0 .. 16#10F5:		
+	char := char - 16#0030;
+16#1F00 .. 16#1F07,
+16#1F10 .. 16#1F15,
+16#1F20 .. 16#1F27,
+16#1F30 .. 16#1F37,
+16#1F40 .. 16#1F45,
+16#1F51,
+16#1F53,
+16#1F55,
+16#1F57,
+16#1F60 .. 16#1F67,
+16#1F80 .. 16#1F87,
+16#1F90 .. 16#1F97,
+16#1FA0 .. 16#1FA7,
+16#1FB0 .. 16#1FB1,
+16#1FD0 .. 16#1FD1,
+16#1FE0 .. 16#1FE1:
+	char := char + 16#0008;
+16#24D0 .. 16#24E9:		
+	char := char - 16#001A;
+ELSE
+	RETURN;
+END_CASE
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="upperCaseUtf32Char" Id="{03300aa8-e972-44bd-9c55-489f11236fda}" FolderPath="internal\">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This method converts an UTF-32 lowercase character to an UTF-32 uppercase character.
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD PROTECTED upperCaseUtf32Char
+VAR_IN_OUT
+	(* utf-32 char to upper case *)
+	char		:DWORD;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[CASE char OF
+16#00010428 .. 16#00010447,
+16#000104D8 .. 16#000104FB:
+	char := char - 16#00000028;
+16#00010CC0 .. 16#00010CF2:
+	char := char - 16#00000040;
+16#000118C0 .. 16#000118DF,
+16#00016E60 .. 16#00016E7F:
+	char := char - 16#00000020;
+16#0001D41A .. 16#0001D433,
+16#0001D44E .. 16#0001D454,
+16#0001D456 .. 16#0001D467,
+16#0001D482 .. 16#0001D49B,
+16#0001D4B6,
+16#0001D4B8 .. 16#0001D4B9,
+16#0001D4BF .. 16#0001D4C0,
+16#0001D4C3,
+16#0001D4C5 .. 16#0001D4C6,
+16#0001D4C8 .. 16#0001D4CF,
+16#0001D4EA .. 16#0001D503,
+16#0001D51E .. 16#0001D51F,
+16#0001D521 .. 16#0001D524,
+16#0001D527 .. 16#0001D52E,
+16#0001D530 .. 16#0001D536,
+16#0001D552 .. 16#0001D553,
+16#0001D555 .. 16#0001D558,
+16#0001D55A .. 16#0001D55E,
+16#0001D560,
+16#0001D564 .. 16#0001D56A,
+16#0001D586 .. 16#0001D59F,
+16#0001D5BA .. 16#0001D5D3,
+16#0001D5EE .. 16#0001D607,
+16#0001D622 .. 16#0001D63B,
+16#0001D656 .. 16#0001D66F,
+16#0001D68A .. 16#0001D6A3,
+16#0001D6C2 .. 16#0001D6E1,
+16#0001D6FC .. 16#0001D71B,
+16#0001D736 .. 16#0001D755,
+16#0001D770 .. 16#0001D78F,
+16#0001D7AA .. 16#0001D7C9:
+	char := char - 16#0000001A;
+16#0001D7CB:
+	char := 16#0001D7CA;
+16#0001E922 .. 16#0001E943:
+	char := char - 16#00000022;
+ELSE
+	RETURN;
+END_CASE]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="utf16CharIsSurrogateHighWordLetterLike" Id="{a315d8aa-85c4-4cf7-afce-8c79bb07bda0}" FolderPath="internal\">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This methods checks if the high word an UTF-16 surrogate-pair_
+is inside the range of characters with lower and upper case
+
+.. _surrogate-pair: https://en.wikipedia.org/wiki/UTF-16#U+D800_to_U+DFFF
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+:return: ``TRUE`` means it could be letter with lower and uppercase,
+``FALSE`` means this is no letter with lower and upper case
+
+*)
+
+METHOD PROTECTED utf16CharIsSurrogateHighWordLetterLike :BOOL
+VAR_IN_OUT
+	highWord	:WORD;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[utf16CharIsSurrogateHighWordLetterLike := FALSE;
+CASE highWord OF
+16#D801,
+16#D803,
+16#D806,
+16#D81B,
+16#D835,
+16#D83A:
+	utf16CharIsSurrogateHighWordLetterLike := TRUE;
+ELSE
+	RETURN;
+END_CASE
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="utf16Contains" Id="{4966fca1-d72c-4a77-9b8e-956da0768a1a}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method for UTF-16 strings checks if the current string ``stringToCheck`` contains the search string ``searchString``
+
+.. attention:: 
+	All strings are handled as null terminated word streams.
+	For UTF-16 is end of the string 16#00_00
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD utf16Contains
+VAR_INPUT
+	(* current string to check *)
+	stringToCheck	:POINTER TO WORD;
+	(* string must be found in ``stringToCheck`` *)
+	searchString	:POINTER TO WORD;
+	(* ``TRUE`` means ignore cases; ``FALSE`` means cases must be equal too *)
+	ignoreCases		:BOOL;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+VAR
+	(* length of ``stringToCheck`` in characters *)
+	lenghtStringToCheck			:UDINT;
+	(* length of ``stringToCheck`` in bytes *)
+	lenghtStringToCheckInByte	:UDINT;
+	(* length of ``stringToCheck`` in words *)
+	lenghtStringToCheckInWord	:UDINT;
+	(* length of ``searchString`` *)
+	lengthSearchString			:UDINT;
+	(* length of ``searchString`` in bytes *)
+	lengthSearchStringInByte	:UDINT;
+	(* length of ``searchString`` in words *)
+	lengthSearchStringInWord	:UDINT;
+	(* string address we use to compare, if it's case sensitive it's equal to ``stringToCheck`` *)
+	usedStringToCheck			:POINTER TO WORD;
+	(* seacrch string address we use to compare, if it's case sensitive it's equal to ``searchString`` *)
+	usedSearchString			:POINTER TO WORD;
+	(* character index for the comperation *)
+	character					:UDINT;
+END_VAR
+VAR CONSTANT
+	(* NUL: $0000 *)
+	END_OF_STRING							:WORD := 16#0000;
+	(* just the length of the nul termination *)
+	END_OF_STRING_LENGTH					:UDINT := SIZEOF(END_OF_STRING);
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[lenghtStringToCheck := THIS^.getUtf16StringLength(
+	stringAddress := stringToCheck,
+	lengthInByte => lenghtStringToCheckInByte,
+	lengthInWord => lenghtStringToCheckInWord
+);
+
+lengthSearchString := THIS^.getUtf16StringLength(
+	stringAddress := searchString,
+	lengthInByte => lengthSearchStringInByte,
+	lengthInWord => lengthSearchStringInWord
+);
+
+IF (
+	NOT THIS^.isContainsCheckNecessary(
+		stringToCheck		:= stringToCheck,
+		searchString		:= searchString,
+		lenghtStringToCheck	:= lenghtStringToCheck,
+		lengthSearchString	:= lengthSearchString,
+		additionalText		:= THIS^.getDebugInfo('utf16Contains'),
+		message				:= message
+	)
+) THEN
+	RETURN;
+END_IF
+
+usedStringToCheck := THIS^.getNewUtf16UCaseString(stringToCheck, lenghtStringToCheckInWord, ignoreCases);
+usedSearchString := THIS^.getNewUtf16UCaseString(searchString, lengthSearchStringInWord, ignoreCases);
+
+FOR (character := 0) TO (lenghtStringToCheckInWord - lengthSearchStringInWord) BY 1 DO
+	IF (Tc2_System.MEMCMP(
+			ADR(usedStringToCheck[character]),
+			usedSearchString, 
+			(lengthSearchStringInByte - END_OF_STRING_LENGTH)
+		) = CNM_ReturnTypes.ComparationResult.EQUAL
+	) THEN
+		THIS^.utf16FreeMemory(usedStringToCheck, ignoreCases);
+		THIS^.utf16FreeMemory(usedSearchString, ignoreCases);		
+		RETURN; //assert is true
+	END_IF; 
+END_FOR
+
+THIS^.assertionWasWrong(message, THIS^.getDebugInfo('utf16Contains'));
+THIS^.utf16FreeMemory(usedStringToCheck, ignoreCases);
+THIS^.utf16FreeMemory(usedSearchString, ignoreCases);		
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="utf16ContainsNo" Id="{e5697763-da75-48b1-b6a2-a7de6f308147}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method for UTF-16 strings checks if the current string ``stringToCheck`` contains not the search string ``searchString``
+
+.. attention:: 
+	All strings are handled as null terminated word streams.
+	For UTF-16 is end of the string 16#00_00
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD utf16ContainsNo
+VAR_INPUT
+	(* current string to check *)
+	stringToCheck	:POINTER TO WORD;
+	(* string must be found in ``stringToCheck`` *)
+	searchString	:POINTER TO WORD;
+	(* ``TRUE`` means ignore cases; ``FALSE`` means cases must be equal too *)
+	ignoreCases		:BOOL;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+VAR
+	(* length of ``stringToCheck`` in characters *)
+	lenghtStringToCheck			:UDINT;
+	(* length of ``stringToCheck`` in bytes *)
+	lenghtStringToCheckInByte	:UDINT;
+	(* length of ``stringToCheck`` in words *)
+	lenghtStringToCheckInWord	:UDINT;
+	(* length of ``searchString`` *)
+	lengthSearchString			:UDINT;
+	(* length of ``searchString`` in bytes *)
+	lengthSearchStringInByte	:UDINT;
+	(* length of ``searchString`` in words *)
+	lengthSearchStringInWord	:UDINT;
+	(* string address we use to compare, if it's case sensitive it's equal to ``stringToCheck`` *)
+	usedStringToCheck			:POINTER TO WORD;
+	(* seacrch string address we use to compare, if it's case sensitive it's equal to ``searchString`` *)
+	usedSearchString			:POINTER TO WORD;
+	(* character index for the comperation *)
+	character					:UDINT;
+END_VAR
+VAR CONSTANT
+	(* NUL: $0000 *)
+	END_OF_STRING							:WORD := 16#0000;
+	(* just the length of the null termination *)
+	END_OF_STRING_LENGTH					:UDINT := SIZEOF(END_OF_STRING);
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[lenghtStringToCheck := THIS^.getUtf16StringLength(
+	stringAddress := stringToCheck,
+	lengthInByte => lenghtStringToCheckInByte,
+	lengthInWord => lenghtStringToCheckInWord
+);
+
+lengthSearchString := THIS^.getUtf16StringLength(
+	stringAddress := searchString,
+	lengthInByte => lengthSearchStringInByte,
+	lengthInWord => lengthSearchStringInWord
+);
+
+IF (
+	NOT THIS^.isContainsNoCheckNecessary(
+		stringToCheck		:= stringToCheck,
+		searchString		:= searchString,
+		lenghtStringToCheck	:= lenghtStringToCheck,
+		lengthSearchString	:= lengthSearchString,
+		additionalText		:= THIS^.getDebugInfo('utf16ContainsNo'),
+		message				:= message
+	)
+) THEN
+	RETURN;
+END_IF
+
+usedStringToCheck := THIS^.getNewUtf16UCaseString(stringToCheck, lenghtStringToCheckInWord, ignoreCases);
+usedSearchString := THIS^.getNewUtf16UCaseString(searchString, lengthSearchStringInWord, ignoreCases);
+
+FOR (character := 0) TO (lenghtStringToCheckInWord - lengthSearchStringInWord) BY 1 DO
+	IF (Tc2_System.MEMCMP(
+			ADR(usedStringToCheck[character]),
+			usedSearchString, 
+			(lengthSearchStringInByte - END_OF_STRING_LENGTH)
+		) = CNM_ReturnTypes.ComparationResult.EQUAL
+	) THEN
+		THIS^.assertionWasWrong(message, THIS^.getDebugInfo('utf16ContainsNo'));
+		THIS^.utf16FreeMemory(usedStringToCheck, ignoreCases);
+		THIS^.utf16FreeMemory(usedSearchString, ignoreCases);		
+		RETURN;
+	END_IF; 
+END_FOR
+
+THIS^.utf16FreeMemory(usedStringToCheck, ignoreCases);
+THIS^.utf16FreeMemory(usedSearchString, ignoreCases);		
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="utf16EndsWith" Id="{e91439b5-8a5f-47ec-916d-35ab73cce1fb}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method for UTF-16 strings checks if the current string ``stringToCheck`` ends with the string ``end``
+
+.. attention:: 
+	All strings are handled as null terminated word streams.
+	For UTF-16 is end of the string 16#00_00
+
+.. attention:: 
+	end of the string is **ALWAYS** the right side of the string 
+	even for writings which written from right to left like Hebrew or Arabic
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD utf16EndsWith
+VAR_INPUT
+	(* current string to check *)
+	stringToCheck	:POINTER TO WORD;
+	(* string must be the end of ``stringToCheck`` *)
+	end				:POINTER TO WORD;
+	(* ``TRUE`` means ignore cases; ``FALSE`` means cases must be equal too *)
+	ignoreCases		:BOOL;
+	(* ``TRUE`` means truncation of spaces on the right side of ``stringToCheck``*)
+	trim			:BOOL;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+VAR
+	(* length of ``stringToCheck`` in characters *)
+	lenghtStringToCheck			:UDINT;
+	(* length of ``stringToCheck`` in bytes *)
+	lenghtStringToCheckInByte	:UDINT;
+	(* length of ``stringToCheck`` in words *)
+	lenghtStringToCheckInWord	:UDINT;
+	(* length of ``end`` in characters *)
+	lengthOfEnd					:UDINT;
+	(* length of ``end`` in bytes *)
+	lengthOfEndInByte			:UDINT;
+	(* length of ``end`` in words *)
+	lengthOfEndInWord			:UDINT;
+	(* string address we use to compare, if it's case sensitive it's equal to ``stringToCheck`` *)
+	usedStringToCheck			:POINTER TO WORD;
+	(* seacrch string address we use to compare, if it's case sensitive it's equal to ``end`` *)
+	usedEndString				:POINTER TO WORD;
+END_VAR
+VAR CONSTANT
+	(* NUL: $0000 *)
+	END_OF_STRING							:WORD := 16#0000;
+	(* just the length of the nul termination *)
+	END_OF_STRING_LENGTH					:UDINT := SIZEOF(END_OF_STRING);
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[lenghtStringToCheck := THIS^.getUtf16StringLength(
+	stringAddress := stringToCheck,
+	lengthInByte => lenghtStringToCheckInByte,
+	lengthInWord => lenghtStringToCheckInWord
+);
+
+lengthOfEnd := THIS^.getUtf16StringLength(
+	stringAddress := end,
+	lengthInByte => lengthOfEndInByte,
+	lengthInWord => lengthOfEndInWord
+);
+
+THIS^.utf16TrimRight(
+	stringAddress := stringToCheck,
+	stringLength := lenghtStringToCheck,
+	lengthInByte := lenghtStringToCheckInByte,
+	lengthInWord := lenghtStringToCheckInWord,
+	trimString := trim
+);
+
+IF (
+	NOT THIS^.isContainsCheckNecessary(
+		stringToCheck		:= stringToCheck,
+		searchString		:= end,
+		lenghtStringToCheck	:= lenghtStringToCheck,
+		lengthSearchString	:= lengthOfEnd,
+		additionalText		:= THIS^.getDebugInfo('utf16EndsWith'),
+		message				:= message
+	)
+) THEN
+	RETURN;
+END_IF
+
+usedStringToCheck := THIS^.getNewUtf16UCaseString(stringToCheck, lenghtStringToCheckInWord, ignoreCases);
+usedEndString := THIS^.getNewUtf16UCaseString(end, lengthOfEndInWord, ignoreCases);
+
+IF (Tc2_System.MEMCMP(
+		ADR(usedStringToCheck[lenghtStringToCheckInWord - lengthOfEndInWord]),
+		usedEndString, 
+		(lengthOfEndInByte - END_OF_STRING_LENGTH)
+	) <> CNM_ReturnTypes.ComparationResult.EQUAL
+) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('utf16EndsWith'));
+END_IF;
+
+THIS^.utf16FreeMemory(usedStringToCheck, ignoreCases);
+THIS^.utf16FreeMemory(usedEndString, ignoreCases);		
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="utf16FreeMemory" Id="{837a2a0f-6309-44d4-aa59-4c10f988342d}" FolderPath="internal\">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This method is used to free allocated memory again
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD PROTECTED utf16FreeMemory
+VAR_INPUT
+	(* start address of the memory to free *)
+	stringAddress	:POINTER TO WORD;
+	(* ``TRUE`` means free the memory, ``FALSE`` means do not free the memory *)
+	freeMemoryAgain	:BOOL;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (freeMemoryAgain) THEN
+	__DELETE(stringAddress);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="utf16IsEqualTo" Id="{ea9a7e2f-7e5f-4c2c-9dd4-a79fa3cafc88}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method for utf-16 strings checks if the current string ``stringToCheck`` is equal to the ``expected`` string
+
+.. attention:: 
+	All strings are handled as null terminated word streams.
+	For UTF-16 is end of the string 16#00_00
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD utf16IsEqualTo
+VAR_INPUT
+	(* current string to check *)
+	stringToCheck	:POINTER TO WORD;
+	(* ``stringToCheck`` must be equal to expected *)
+	expected		:POINTER TO WORD;
+	(* ``TRUE`` means ignore cases; ``FALSE`` means cases must be equal too *)
+	ignoreCases		:BOOL;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+VAR
+	(* length of ``stringToCheck`` in characters *)
+	lenghtStringToCheck				:UDINT;
+	(* length of ``stringToCheck`` in bytes *)
+	lenghtStringToCheckInByte		:UDINT;
+	(* length of ``stringToCheck`` in words *)
+	lenghtStringToCheckInWord		:UDINT;
+	(* length of ``expected`` in characters *)
+	lengthExpectedString			:UDINT;
+	(* length of ``expected`` in characters *)
+	lengthExpectedStringInByte		:UDINT;
+	(* length of ``expected`` in characters *)
+	lengthExpectedStringInWord		:UDINT;
+	(* string address we use to compare, if it's case sensitive it's equal to ``stringToCheck`` *)
+	usedStringToCheck				:POINTER TO WORD;
+	(* seacrch string address we use to compare, if it's case sensitive it's equal to ``expected`` *)
+	usedExpectedString				:POINTER TO WORD;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[lenghtStringToCheck := THIS^.getUtf16StringLength(
+	stringAddress := stringToCheck,
+	lengthInByte => lenghtStringToCheckInByte,
+	lengthInWord => lenghtStringToCheckInWord
+);
+
+lengthExpectedString := THIS^.getUtf16StringLength(
+	stringAddress := expected,
+	lengthInByte => lengthExpectedStringInByte,
+	lengthInWord => lengthExpectedStringInWord
+);
+
+IF (lenghtStringToCheck <> lengthExpectedString) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('utf16IsEqualTo'));
+	RETURN;
+END_IF
+
+usedStringToCheck := THIS^.getNewUtf16UCaseString(stringToCheck, lenghtStringToCheckInWord, ignoreCases);
+usedExpectedString := THIS^.getNewUtf16UCaseString(expected, lengthExpectedStringInWord, ignoreCases);
+
+IF (Tc2_System.MEMCMP(
+		usedStringToCheck,
+		usedExpectedString, 
+		lengthExpectedStringInByte
+	) <> CNM_ReturnTypes.ComparationResult.EQUAL
+) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('utf16IsEqualTo'));
+END_IF;
+
+THIS^.utf16FreeMemory(usedStringToCheck, ignoreCases);
+THIS^.utf16FreeMemory(usedExpectedString, ignoreCases);		
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="utf16IsNotEqualTo" Id="{8e0c732a-1d04-4dae-9eac-f13ef61a3a73}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method for utf-16 strings checks if the current string ``stringToCheck`` is not equal to the ``unexpected`` string
+
+.. attention:: 
+	All strings are handled as null terminated word streams.
+	For UTF-16 is end of the string 16#00_00
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD utf16IsNotEqualTo
+VAR_INPUT
+	(* current string to check *)
+	stringToCheck	:POINTER TO WORD;
+	(* ``stringToCheck`` must be not equal to unexpected *)
+	unexpected		:POINTER TO WORD;
+	(* ``TRUE`` means ignore cases; ``FALSE`` means cases must be equal too *)
+	ignoreCases		:BOOL;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+VAR
+	(* length of ``stringToCheck`` in characters *)
+	lenghtStringToCheck				:UDINT;
+	(* length of ``stringToCheck`` in bytes *)
+	lenghtStringToCheckInByte		:UDINT;
+	(* length of ``stringToCheck`` in words *)
+	lenghtStringToCheckInWord		:UDINT;
+	(* length of ``expected`` in characters *)
+	lengthUnexpectedString			:UDINT;
+	(* length of ``expected`` in characters *)
+	lengthUnexpectedStringInByte	:UDINT;
+	(* length of ``expected`` in characters *)
+	lengthUnexpectedStringInWord	:UDINT;
+	(* string address we use to compare, if it's case sensitive it's equal to ``stringToCheck`` *)
+	usedStringToCheck				:POINTER TO WORD;
+	(* seacrch string address we use to compare, if it's case sensitive it's equal to ``expected`` *)
+	usedUnexpectedString			:POINTER TO WORD;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[lenghtStringToCheck := THIS^.getUtf16StringLength(
+	stringAddress := stringToCheck,
+	lengthInByte => lenghtStringToCheckInByte,
+	lengthInWord => lenghtStringToCheckInWord
+);
+
+lengthUnexpectedString := THIS^.getUtf16StringLength(
+	stringAddress := unexpected,
+	lengthInByte => lengthUnexpectedStringInByte,
+	lengthInWord => lengthUnexpectedStringInWord
+);
+
+usedStringToCheck := THIS^.getNewUtf16UCaseString(stringToCheck, lenghtStringToCheckInWord, ignoreCases);
+usedUnexpectedString := THIS^.getNewUtf16UCaseString(unexpected, lengthUnexpectedStringInWord, ignoreCases);
+
+IF (Tc2_System.MEMCMP(
+		usedStringToCheck,
+		usedUnexpectedString, 
+		lengthUnexpectedStringInByte
+	) = CNM_ReturnTypes.ComparationResult.EQUAL
+) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('utf16IsNotEqualTo'));
+END_IF;
+
+THIS^.utf16FreeMemory(usedStringToCheck, ignoreCases);
+THIS^.utf16FreeMemory(usedUnexpectedString, ignoreCases);		
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="utf16LenghtIsExact" Id="{b997ffb1-33c0-4e1f-bd8d-aca08094cf1e}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current string ``stringToCheck`` is length
+is equal to ``expectedLength``
+
+.. attention:: 
+	All strings are handled as null terminated word streams.
+	For UTF-16 is end of the string 16#00_00
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD utf16LenghtIsExact
+VAR_INPUT
+	(* current string to check *)
+	stringToCheck	:POINTER TO WORD;
+	(* expected length of ``stringToCheck`` *)
+	expectedLength	:UDINT;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (THIS^.getUtf16StringLength(stringToCheck) <> expectedLength) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('utf16LenghtIsExact'));
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="utf16LenghtIsMax" Id="{4c91eeff-9e95-4c2a-8e86-48846b3bbe59}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current string ``stringToCheck`` is length
+is equal or less than to ``maxLength``
+
+.. attention:: 
+	All strings are handled as null terminated word streams.
+	For UTF-16 is end of the string 16#00_00
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD utf16LenghtIsMax
+VAR_INPUT
+	(* current string to check *)
+	stringToCheck	:POINTER TO WORD;
+	(* upper limit of the length of ``stringToCheck`` *)
+	maxLength		:UDINT;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (THIS^.getUtf16StringLength(stringToCheck) > maxLength) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('utf16LenghtIsMax'));
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="utf16LenghtIsMin" Id="{54159306-9fe3-44bb-81ca-e8dfc775b3aa}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current string ``stringToCheck`` is length
+is equal or grater than to ``minLength``
+
+.. attention:: 
+	All strings are handled as null terminated word streams.
+	For UTF-16 is end of the string 16#00_00
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD utf16LenghtIsMin
+VAR_INPUT
+	(* current string to check *)
+	stringToCheck	:POINTER TO WORD;
+	(* lower limit of the length of ``stringToCheck`` *)
+	minLength		:UDINT;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (THIS^.getUtf16StringLength(stringToCheck) < minLength) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('utf16LenghtIsMin'));
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="utf16LengthIsBetween" Id="{78e86d7a-3338-4d87-a55a-aac689452ad1}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current string ``stringToCheck`` is length
+is equal or grater than ``minLength`` and equal or less than ``maxLength``
+
+.. attention:: 
+	All strings are handled as null terminated word streams.
+	For UTF-16 is end of the string 16#00_00
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD utf16LengthIsBetween
+VAR_INPUT
+	(* current string to check *)
+	stringToCheck	:POINTER TO WORD;
+	(* lower limit of the string length *)
+	minLenght		:UDINT;
+	(* upper limit of the string length *)
+	maxLenght		:UDINT;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+VAR
+	(* length of ``stringToCheck`` *)
+	lenghtStringToCheck	:UDINT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (minLenght > maxLenght) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('utf16LengthIsBetween'));
+	RETURN;
+END_IF
+
+lenghtStringToCheck := THIS^.getUtf16StringLength(stringToCheck);
+
+IF (
+	(lenghtStringToCheck < minLenght)
+	OR (lenghtStringToCheck > maxLenght)
+) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('utf16LengthIsBetween'));
+END_IF;
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="utf16StartsWith" Id="{a809b0b1-4771-4c2d-b992-d7521fb8baec}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current string ``stringToCheck`` starts with ``start``
+
+.. attention:: 
+	All strings are handled as null terminated byte streams.
+	For UTF-16 is end of the string 16#00_00
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD utf16StartsWith
+VAR_INPUT
+	(* current string to check *)
+	stringToCheck	:POINTER TO WORD;
+	(* expected start of ``stringToCheck`` *)
+	start			:POINTER TO WORD;
+	(* ``TRUE`` means ignore cases; ``FALSE`` means cases must be equal too *)
+	ignoreCases		:BOOL;
+	(* ``TRUE`` means truncation of spaces on the right side of ``stringToCheck``*)
+	trim			:BOOL;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+VAR
+	(* length of ``stringToCheck`` in characters *)
+	lenghtStringToCheck			:UDINT;
+	(* length of ``stringToCheck`` in bytes *)
+	lenghtStringToCheckInByte	:UDINT;
+	(* length of ``stringToCheck`` in words *)
+	lenghtStringToCheckInWord	:UDINT;
+	(* length of ``start`` in characters *)
+	lengthOfStart				:UDINT;
+	(* length of ``start`` in bytes *)
+	lengthOfStartInByte			:UDINT;
+	(* length of ``start`` in words *)
+	lengthOfStartInWord			:UDINT;
+	(* string address we use to compare, if it's case sensitive it's equal to ``stringToCheck`` *)
+	usedStringToCheck			:POINTER TO WORD;
+	(* seacrch string address we use to compare, if it's case sensitive it's equal to ``start`` *)
+	usedStartString				:POINTER TO WORD;
+END_VAR
+VAR CONSTANT
+	(* NUL: $0000 *)
+	END_OF_STRING							:WORD := 16#0000;
+	(* just the length of the null termination *)
+	END_OF_STRING_LENGTH					:UDINT := SIZEOF(END_OF_STRING);
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[lenghtStringToCheck := THIS^.getUtf16StringLength(
+	stringAddress := stringToCheck,
+	lengthInByte => lenghtStringToCheckInByte,
+	lengthInWord => lenghtStringToCheckInWord
+);
+
+lengthOfStart := THIS^.getUtf16StringLength(
+	stringAddress := start,
+	lengthInByte => lengthOfStartInByte,
+	lengthInWord => lengthOfStartInWord
+);
+
+THIS^.utf16TrimLeft(
+	stringAddress := stringToCheck,
+	stringLength := lenghtStringToCheck,
+	lengthInByte := lenghtStringToCheckInByte,
+	lengthInWord := lenghtStringToCheckInWord,
+	trimString := trim
+);
+
+IF (
+	NOT THIS^.isContainsCheckNecessary(
+		stringToCheck		:= stringToCheck,
+		searchString		:= start,
+		lenghtStringToCheck	:= lenghtStringToCheck,
+		lengthSearchString	:= lengthOfStart,
+		additionalText		:= THIS^.getDebugInfo('utf16StartsWith'),
+		message				:= message
+	)
+) THEN
+	RETURN;
+END_IF
+
+usedStringToCheck := THIS^.getNewUtf16UCaseString(stringToCheck, lenghtStringToCheckInWord, ignoreCases);
+usedStartString := THIS^.getNewUtf16UCaseString(start, lengthOfStartInWord, ignoreCases);
+
+IF (Tc2_System.MEMCMP(
+		usedStringToCheck,
+		usedStartString, 
+		(lengthOfStartInByte - END_OF_STRING_LENGTH)
+	) <> CNM_ReturnTypes.ComparationResult.EQUAL
+) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('utf16StartsWith'));
+END_IF;
+
+THIS^.utf16FreeMemory(usedStringToCheck, ignoreCases);
+THIS^.utf16FreeMemory(usedStartString, ignoreCases);		
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="utf16TrimLeft" Id="{50a0677b-6392-45cb-a685-90f305ecead7}" FolderPath="internal\">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This method is used to remove the whitespace from the start of the string.
+It does not really remove it, it just moves the start address and decreases
+the string length
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD PROTECTED utf16TrimLeft
+VAR_IN_OUT
+	(* start address of the string *)
+	stringAddress	:POINTER TO WORD;
+	(* length of the string ``stringAddress`` in characters *)
+	stringLength	:UDINT;
+	(* length of the string ``stringAddress`` in byte *)
+	lengthInByte	:UDINT;
+	(* length of the string ``stringAddress`` in word *)
+	lengthInWord	:UDINT;
+END_VAR
+VAR_INPUT
+	(* ``TRUE`` means remove the whitespace, ``FALSE`` means do not remove the whitespace *)
+	trimString		:BOOL;
+END_VAR
+VAR
+	(* index of the current character *)
+	character		:UDINT;
+	(* counter of the whitspace characters *)
+	whitespaceCount	:UDINT := 0;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF ((stringAddress = 0) OR (lengthInWord <= 1) OR (NOT trimString)) THEN
+	RETURN;
+END_IF
+
+FOR character := 0 TO (lengthInWord-1) BY 1 DO
+	IF (THIS^.isCharUtf16WhiteSpace(stringAddress[character])) THEN
+		whitespaceCount := whitespaceCount + 1;
+	ELSE
+		EXIT;
+	END_IF
+END_FOR
+
+stringAddress := ADR(stringAddress[whitespaceCount]);
+stringLength := stringLength - whitespaceCount;
+lengthInByte := lengthInByte - (SIZEOF(WORD) * whitespaceCount);
+lengthInWord := lengthInWord - whitespaceCount;
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="utf16TrimRight" Id="{2f1a6511-09f4-4b32-a4b2-ca73941e2c7d}" FolderPath="internal\">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This method is used to remove the whitespace from the end of the string.
+It does not really remove it, it just decreases the string length.
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD PROTECTED utf16TrimRight
+VAR_INPUT
+	(* start address of the string *)
+	stringAddress	:POINTER TO WORD;
+END_VAR
+VAR_IN_OUT
+	(* length of the string ``stringAddress`` in characters *)
+	stringLength	:UDINT;
+	(* length of the string ``stringAddress`` in byte *)
+	lengthInByte	:UDINT;
+	(* length of the string ``stringAddress`` in word *)
+	lengthInWord	:UDINT;
+END_VAR
+VAR_INPUT
+	(* ``TRUE`` means remove the whitespace, ``FALSE`` means do not remove the whitespace *)
+	trimString		:BOOL;
+END_VAR
+VAR
+	(* index of the current character *)
+	character	:LINT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF ((stringAddress = 0) OR (lengthInWord <= 1) OR (NOT trimString)) THEN
+	RETURN;
+END_IF
+
+//subtract 2 from the length, 
+//1 to match the index
+//and 1 for the null termination,
+// because NUL is not whitespace
+FOR character := (lengthInWord-2) TO 0 BY -1 DO
+	IF (THIS^.isCharUtf16WhiteSpace(stringAddress[character])) THEN
+		stringLength := stringLength-1;
+		lengthInWord := lengthInWord-1;
+		lengthInByte := lengthInByte - SIZEOF(WORD);
+	ELSE
+		RETURN;
+	END_IF
+END_FOR
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="utf16UpperCase" Id="{15b04459-e149-4ad6-9501-e37e03e10fd9}" FolderPath="internal\">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This method converts the lowercase letters in an utf16 string to uppercase letters.
+
+.. attention::
+	Method interprets NUL (16#0000) as end of string
+
+
+.. attention::
+	Sharp S ß (16#DF) will not converted
+
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD PROTECTED utf16UpperCase
+VAR_INPUT
+	(* string to ucase *)
+	stringAddress		:POINTER TO WORD;
+	(* length of the string in words *)
+	lengthInWord		:UDINT;
+END_VAR
+VAR
+	(* index of the current character *)
+	character					:UDINT := 0;
+	(* index of the current character *)
+	numberOfCharactersToCheck	:UDINT := 0;
+END_VAR
+VAR CONSTANT
+	(* NUL: $0000 *)
+	END_OF_STRING							:WORD := 16#0000;
+	(* increment for the character index *)
+	INCREMENT_CHARACTER						:UDINT := 1;
+	(* increment for the character index for surrogate pairs *)
+	INCREMENT_CHARACTER_PAIR				:UDINT := 2;	
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (stringAddress = 0) THEN
+	RETURN;
+END_IF
+
+numberOfCharactersToCheck := (lengthInWord - (SIZEOF(END_OF_STRING)/2));
+
+WHILE (
+		(stringAddress[character] <> END_OF_STRING)
+ 		AND (character < numberOfCharactersToCheck)
+) DO
+	IF (THIS^.isUtf16CharASurrogatePair(
+			stringAddress[character],
+			stringAddress[character + INCREMENT_CHARACTER]
+		)
+	) THEN
+		THIS^.utf16UpperCaseSurrogatePair(
+			stringAddress[character],
+			stringAddress[character + INCREMENT_CHARACTER]
+		);
+		character := character + INCREMENT_CHARACTER_PAIR;
+	ELSE
+		THIS^.upperCaseUtf16Char(stringAddress[character]);
+		character := character + INCREMENT_CHARACTER;
+	END_IF	
+END_WHILE
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="utf16UpperCaseSurrogatePair" Id="{84505cd5-9226-4c79-8009-4be5505c51d4}" FolderPath="internal\">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This methods calculates from an UTF-16 lowercase surrogate-pair_ the uppercase surrogate-pair_
+
+.. _surrogate-pair: https://en.wikipedia.org/wiki/UTF-16#U+D800_to_U+DFFF
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+:return: UTF-32 character (code-point) from the UTF-16 surrogate pair
+
+*)
+
+METHOD PROTECTED utf16UpperCaseSurrogatePair
+VAR_IN_OUT
+	(* high word of the surrogate pair *)
+	highWord	:WORD;
+	(* low word of the surrogate pair *)
+	lowWord		:WORD;
+END_VAR
+VAR
+	(* utf32 code point *)
+	utf32Char	:DWORD;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (NOT THIS^.utf16CharIsSurrogateHighWordLetterLike(highWord)) THEN
+	RETURN;
+END_IF
+utf32Char := THIS^.getUtf32FromUtf16SurrogatePair(highWord, lowWord);
+THIS^.upperCaseUtf32Char(utf32Char);
+THIS^.getUtf16SurrogatePairFromUtf32(utf32Char, highWord => highWord, lowWord => lowWord);
+]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

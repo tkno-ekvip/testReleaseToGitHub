@@ -1,0 +1,346 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.11">
+  <Itf Name="IUxintAssertions" Id="{c3f4c265-ab89-4bd8-bd53-878f8b7f4a93}">
+    <Declaration><![CDATA[(*
+
+short summary
+=================
+This interface provides assert statements for unsigned register length integers  (``__UXINT``)
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+methods
+==================
+
+*)
+
+INTERFACE IUxintAssertions EXTENDS __SYSTEM.IQueryInterface
+]]></Declaration>
+    <Method Name="valueIsEqualTo" Id="{d56d2899-a5d4-4082-8b38-cf08cf685998}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current value is equal to the expected value
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD valueIsEqualTo
+VAR_INPUT
+	(* current value to check *)
+	currentValue	:__UXINT;
+	(* expected value to compare *)
+	expectedValue	:__UXINT;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="valueIsEven" Id="{a71ace55-13de-4e57-bdff-edcbe351e151}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current value is even
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD valueIsEven
+VAR_INPUT
+	(* current value to check *)
+	currentValue	:__UXINT;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="valueIsGreaterThan" Id="{27331c58-1cbe-4801-83c5-bd25111b5fbc}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current value is greater than the less value
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD valueIsGreaterThan
+VAR_INPUT
+	(* current value to check *)
+	currentValue	:__UXINT;
+	(* less than lower limit *)
+	lessValue		:__UXINT;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="valueIsInRangeOf" Id="{c4d098ff-a8c7-4352-bda2-33c25c57550d}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current value is inside a limit
+
+.. attention:: 
+	limits are included: ``valueIsInRangeOf(3, 3, 3)`` is a true assertion
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD valueIsInRangeOf
+VAR_INPUT
+	(* lower limit for the current value *)
+	lowerLimit		:__UXINT;
+	(* current value to check *)
+	currentValue	:__UXINT;
+	(* upper limit for the current value *)
+	upperLimit		:__UXINT;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="valueIsLessThan" Id="{8ac14224-a487-4059-86a2-eda830801481}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current value is less than the greater value
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD valueIsLessThan
+VAR_INPUT
+	(* current value to check *)
+	currentValue	:__UXINT;
+	(* greater than upper limit *)
+	greaterValue	:__UXINT;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="valueIsMax" Id="{7b55b851-df43-4aec-8e1b-6134c34058e0}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current value is less than or equal to the maximum value
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD valueIsMax
+VAR_INPUT
+	(* current value to check *)
+	currentValue	:__UXINT;
+	(* upper limit for the current value *)
+	maximumValue	:__UXINT;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="valueIsMin" Id="{177ab15d-f223-47d9-a4ff-f5bb3e30b6e4}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current value is greater than or equal to the minimum value
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD valueIsMin
+VAR_INPUT
+	(* current value to check *)
+	currentValue	:__UXINT;
+	(* lower limit for the current value *)
+	minimumValue	:__UXINT;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="valueIsNotEqualTo" Id="{78854375-6672-4418-83bc-f331474c7c09}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current value is not equal to the unexpected value
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD valueIsNotEqualTo
+VAR_INPUT
+	(* current value to check *)
+	currentValue	:__UXINT;
+	(* unexpected value to compare *)
+	unexpectedValue	:__UXINT;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="valueIsOdd" Id="{92a85027-95cb-421b-bab1-6a40e966a8fd}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current value is odd
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD valueIsOdd
+VAR_INPUT
+	(* current value to check *)
+	currentValue	:__UXINT;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+    </Method>
+  </Itf>
+</TcPlcObject>

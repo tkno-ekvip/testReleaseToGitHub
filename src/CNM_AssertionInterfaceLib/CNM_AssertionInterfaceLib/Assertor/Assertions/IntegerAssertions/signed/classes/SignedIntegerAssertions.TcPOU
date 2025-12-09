@@ -1,0 +1,320 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.11">
+  <POU Name="SignedIntegerAssertions" Id="{cc876386-7c1e-4008-9fb7-a777b88dbb70}" SpecialFunc="None">
+    <Declaration><![CDATA[(*
+
+short summary
+=================
+| This class provides assert statements for signed integers from 8~64 bit length 
+| It implements the interface :ref:`ISignedIntegerAssertions`
+| For 8 bit intgers use :ref:`SignedIntegerAssertions.short`
+| For 16 bit intgers use :ref:`SignedIntegerAssertions.simple`
+| For 32 bit intgers use :ref:`SignedIntegerAssertions.double`
+| For 64 bit intgers use :ref:`SignedIntegerAssertions.long`
+| For integers in register length use :ref:`SignedIntegerAssertions.x`
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+methods and properties
+=======================
+
+*)
+
+{attribute 'reflection'}
+FUNCTION_BLOCK INTERNAL SignedIntegerAssertions EXTENDS CNM_AbstractObject.Object IMPLEMENTS ISignedIntegerAssertions, IAssertCallBacksetter
+VAR
+	(* class to handle assert statements for signed short integers *)
+	sintAssertions	:SintAssertions();
+	(* class to handle assert statements for signed integers *)
+	intAssertions	:IntAssertions();
+	(* class to handle assert statements for signed double integers *)
+	dintAssertions	:DintAssertions();
+	(* class to handle assert statements for signed register length integers *)
+	xintAssertions	:XintAssertions();
+	(* class to handle assert statements for signed long integers *)
+	lintAssertions	:LintAssertions();
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Property Name="className" Id="{86c329ce-b6d8-4b18-a2a8-f844a79dc673}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This abstract property returns the class name of the concrete object, 
+It's for debugging purpose
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+PROPERTY className :CNM_AbstractObject.ClassName]]></Declaration>
+      <Get Name="Get" Id="{3c3b98d8-1f2c-4c71-a20d-4179d0ee1630}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[className := 'CNM_AssertionInterfaceLib.SignedIntegerAssertions';
+]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="double" Id="{a58b0bda-294f-4a02-be21-27e347686bb0}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+Returns the interface :ref:`IDintAssertions` with assert statements for signed 32 bit integers 
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+PROPERTY double :IDintAssertions
+]]></Declaration>
+      <Get Name="Get" Id="{c7648006-2cc9-4a7c-9c55-04250905e411}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[double := THIS^.dintAssertions;
+]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="long" Id="{bff02bc0-d0e9-465a-b054-750eea1cec41}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+Returns the interface :ref:`ILintAssertions` with assert statements for signed 64 bit integers 
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+PROPERTY long :ILintAssertions
+]]></Declaration>
+      <Get Name="Get" Id="{57a4203a-c658-412b-bb82-5bc38e9f57b7}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[long := THIS^.lintAssertions;
+]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="setCallBack" Id="{ba7a693b-21e2-4df8-bd4a-7f3249eaf14a}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This methods is the setter for the callback class if an assertion was false
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD setCallBack
+VAR_INPUT
+	(* the class that must be informed if an assertion is false *)
+	callBack	:IAssertCallback;  
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.sintAssertions.setCallBack(callBack);
+THIS^.intAssertions.setCallBack(callBack);
+THIS^.dintAssertions.setCallBack(callBack);
+THIS^.xintAssertions.setCallBack(callBack);
+THIS^.lintAssertions.setCallBack(callBack);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="short" Id="{f7e2fcff-9062-4f0e-ad34-6f47c0dfa9d3}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+Returns the interface :ref:`ISintAssertions` with assert statements for signed 8 bit integers 
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+PROPERTY short :ISintAssertions
+]]></Declaration>
+      <Get Name="Get" Id="{2c4503d9-8547-41e6-a96e-c4bd2972a56a}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[short := THIS^.sintAssertions;
+]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="simple" Id="{0c953366-37c9-46f3-9940-16703e2f27e8}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+Returns the interface :ref:`IIntAssertions` with assert statements for signed 16 bit integers 
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+PROPERTY simple :IIntAssertions
+]]></Declaration>
+      <Get Name="Get" Id="{ba246887-4bd0-4c09-aadb-05efb1da5b0c}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[simple := THIS^.intAssertions;
+]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="x" Id="{a3841add-6b09-446b-a890-0038ffcc23e0}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+Returns the interface :ref:`IXintAssertions` with assert statements for signed integers register length 
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+PROPERTY x :IXintAssertions
+]]></Declaration>
+      <Get Name="Get" Id="{51f35bae-e0b2-4b99-9613-d087228d555e}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[x := THIS^.xintAssertions;
+]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <LineIds Name="SignedIntegerAssertions">
+      <LineId Id="9" Count="0" />
+    </LineIds>
+    <LineIds Name="SignedIntegerAssertions.className.Get">
+      <LineId Id="5" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="SignedIntegerAssertions.double.Get">
+      <LineId Id="2" Count="0" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="SignedIntegerAssertions.long.Get">
+      <LineId Id="2" Count="0" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="SignedIntegerAssertions.setCallBack">
+      <LineId Id="31" Count="4" />
+      <LineId Id="30" Count="0" />
+    </LineIds>
+    <LineIds Name="SignedIntegerAssertions.short.Get">
+      <LineId Id="2" Count="0" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="SignedIntegerAssertions.simple.Get">
+      <LineId Id="2" Count="0" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="SignedIntegerAssertions.x.Get">
+      <LineId Id="2" Count="0" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

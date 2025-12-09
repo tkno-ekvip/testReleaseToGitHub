@@ -1,0 +1,1271 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="XWordAssertions" Id="{db6019e7-84ef-4813-bfe8-7695ad803e8b}" SpecialFunc="None">
+    <Declaration><![CDATA[(*
+
+short summary
+=================
+This class provides assert statements for register length words 
+It implements :ref:`IXWordAssertions`
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+methods and properties
+=======================
+
+*)
+
+{attribute 'reflection'}
+FUNCTION_BLOCK INTERNAL XWordAssertions EXTENDS AbstactAssertion IMPLEMENTS IXWordAssertions
+VAR
+END_VAR
+VAR CONSTANT
+	(* least significant bit *)
+	LSB	:__XWORD := 1;
+	(* most significant bit *)
+	MSB :__XWORD := (SHL(LSB,((SIZEOF(__XWORD)*8)-1)));
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Method Name="andMaskIsEqualTo" Id="{82076716-45d2-4405-88a4-b86078e38d2e}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the result current value bitwise ``AND`` mask is equal to the expected value
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD andMaskIsEqualTo
+VAR_INPUT
+	(* current value to check *)
+	currentValue	:__XWORD;
+	(* 2nd operand for bitwise operation *)
+	mask			:__XWORD;
+	(* expected result after masking *)
+	expectedValue	:__XWORD;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF ((currentValue AND mask) <> expectedValue) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('andMaskIsEqualTo'));
+END_IF	
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="andMaskIsNotEqualTo" Id="{96b4bda2-094c-46c8-902b-bac64e754888}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the result current value bitwise ``AND`` mask
+is not equal to the unexpected value
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD andMaskIsNotEqualTo
+VAR_INPUT
+	(* current value to check *)
+	currentValue	:__XWORD;
+	(* 2nd operand for bitwise operation *)
+	mask			:__XWORD;
+	(* unexpected result after masking *)
+	unexpectedValue	:__XWORD;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF ((currentValue AND mask) = unexpectedValue) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('andMaskIsNotEqualTo'));
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="bitXIsEqualTo" Id="{4f9d155d-2c63-41c4-a115-36021a082c4c}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the selected bit of current value
+is equal to the expected value
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD bitXIsEqualTo
+VAR_INPUT
+	(* current value to check *)
+	currentValue	:__XWORD;
+	(* number of bit to check *)
+	number			:BitNumberXWord;
+	(* expected value of bit *)
+	expectedValue	:BOOL;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (
+	TO_BOOL(
+		TO_LWORD(SHL(THIS^.LSB, number))
+		AND currentValue
+	) <> expectedValue
+) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('bitXIsEqualTo'));
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="bitXIsNotEqualTo" Id="{5df7b870-c47d-4a27-81fe-ceffe1f12ee1}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the selected bit of current value
+is not equal to the unexpected value
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD bitXIsNotEqualTo
+VAR_INPUT
+	(* current value to check *)
+	currentValue	:__XWORD;
+	(* number of bit to check *)
+	number			:BitNumberXWord;
+	(* unexpected value of bit *)
+	unexpectedValue	:BOOL;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (
+	TO_BOOL(
+		TO_LWORD(SHL(THIS^.LSB, number))
+		AND currentValue
+	) = unexpectedValue
+) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('bitXIsNotEqualTo'));
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="bitXIsSet" Id="{040de785-02ae-4dc2-abcc-526aec84e146}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the selected bit of current value
+is set
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD bitXIsSet
+VAR_INPUT
+	(* current value to check *)
+	currentValue	:__XWORD;
+	(* number of bit to check *)
+	number			:BitNumberXWord;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (
+	NOT TO_BOOL(
+		TO_LWORD(SHL(THIS^.LSB, number))
+		AND currentValue
+	)
+) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('bitXIsSet'));
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="bitXIsUnset" Id="{631a87b0-aab4-4d80-8283-856c33caf681}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the selected bit of current value
+is unset
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD bitXIsUnset
+VAR_INPUT
+	(* current value to check *)
+	currentValue	:__XWORD;
+	(* number of bit to check *)
+	number			:BitNumberXWord;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (
+	TO_BOOL(
+		TO_LWORD(SHL(THIS^.LSB, number))
+		AND currentValue
+	)
+) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('bitXIsUnset'));
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="className" Id="{4c2aa606-ba12-45e8-bc54-6295a09954e7}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This abstract property returns the class name of the concrete object, 
+It's for debugging purpose
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+PROPERTY className :CNM_AbstractObject.ClassName]]></Declaration>
+      <Get Name="Get" Id="{7bf0f78d-31e2-4dcf-bb85-9f250f0a3888}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[className := 'CNM_AssertionInterfaceLib.XWordAssertions';
+]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="lsbIsEqualTo" Id="{9cac7170-05aa-4202-ada4-8b9d28ba001f}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the least significant bit of current value
+is equal to the expected value
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD lsbIsEqualTo
+VAR_INPUT
+	(* current value to check *)
+	currentValue	:__XWORD;
+	(* expected value of lsb *)
+	expectedValue	:BOOL;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (TO_BOOL(currentValue AND THIS^.LSB) <> expectedValue) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('lsbIsEqualTo'));
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="lsbIsNotEqualTo" Id="{5c795061-9f50-4457-9c34-140d28adaed3}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the least significant bit of current value
+is not equal to the unexpected value
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD lsbIsNotEqualTo
+VAR_INPUT
+	(* current value to check *)
+	currentValue	:__XWORD;
+	(* unexpected value of lsb *)
+	unexpectedValue	:BOOL;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (TO_BOOL(currentValue AND THIS^.LSB) = unexpectedValue) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('lsbIsNotEqualTo'));
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="lsbIsSet" Id="{f09a5db3-83a2-4d99-ae0a-0e86023f7c37}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the least significant bit of current value
+is set
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD lsbIsSet
+VAR_INPUT
+	(* current value to check *)
+	currentValue	:__XWORD;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (NOT TO_BOOL(currentValue AND THIS^.LSB)) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('lsbIsSet'));
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="lsbIsUnset" Id="{174f23d4-7551-48b0-a0cb-0e2d1a14816a}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the least significant bit of current value
+is unset
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD lsbIsUnset
+VAR_INPUT
+	(* current value to check *)
+	currentValue	:__XWORD;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (TO_BOOL(currentValue AND THIS^.LSB)) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('lsbIsUnset'));
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="msbIsEqualTo" Id="{22d1b922-53ea-4abe-b5c6-e93a26088640}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the most significant bit of current value
+is equal to the expected value
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD msbIsEqualTo
+VAR_INPUT
+	(* current value to check *)
+	currentValue	:__XWORD;
+	(* expected value of msb *)
+	expectedValue	:BOOL;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (TO_BOOL(currentValue AND THIS^.MSB) <> expectedValue) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('msbIsEqualTo'));
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="msbIsNotEqualTo" Id="{65e56cc8-4208-49d3-81cf-7df0f9ff484f}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the most significant bit of current value
+is not equal to the unexpected value
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD msbIsNotEqualTo
+VAR_INPUT
+	(* current value to check *)
+	currentValue	:__XWORD;
+	(* unexpected value of msb *)
+	unexpectedValue	:BOOL;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (TO_BOOL(currentValue AND THIS^.MSB) = unexpectedValue) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('msbIsNotEqualTo'));
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="msbIsSet" Id="{b531ba63-ca6f-4484-8247-0332d168d7e2}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the most significant bit of current value
+is set
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD msbIsSet
+VAR_INPUT
+	(* current value to check *)
+	currentValue	:__XWORD;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (NOT TO_BOOL(currentValue AND THIS^.MSB)) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('msbIsSet'));
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="msbIsUnset" Id="{b331bbb3-e005-4763-906b-2293c8631f4e}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the most significant bit of current value
+is unset
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD msbIsUnset
+VAR_INPUT
+	(* current value to check *)
+	currentValue	:__XWORD;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (TO_BOOL(currentValue AND THIS^.MSB)) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('msbIsUnset'));
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="orMaskIsEqualTo" Id="{4f3e93ca-50fb-493e-b5be-6739fbf41850}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the result current value bitwise ``OR`` mask is equal to the expected value
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD orMaskIsEqualTo
+VAR_INPUT
+	(* current value to check *)
+	currentValue	:__XWORD;
+	(* 2nd operand for bitwise operation *)
+	mask			:__XWORD;
+	(* expected result after masking *)
+	expectedValue	:__XWORD;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF ((currentValue OR mask) <> expectedValue) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('orMaskIsEqualTo'));
+END_IF	]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="orMaskIsNotEqualTo" Id="{d542ca06-fe02-4440-ae94-8df457a05035}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the result current value bitwise ``OR`` mask 
+is not equal to the unexpected value
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD orMaskIsNotEqualTo
+VAR_INPUT
+	(* current value to check *)
+	currentValue	:__XWORD;
+	(* 2nd operand for bitwise operation *)
+	mask			:__XWORD;
+	(* unexpected result after masking *)
+	unexpectedValue	:__XWORD;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF ((currentValue OR mask) = unexpectedValue) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('orMaskIsNotEqualTo'));
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="valueIsEqualTo" Id="{85cab3d4-b568-4a58-abed-8bb0659e707e}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current value is equal to the expected value
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD valueIsEqualTo
+VAR_INPUT
+	(* current value to check *)
+	currentValue	:__XWORD;
+	(* expected value to compare *)
+	expectedValue	:__XWORD;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (currentValue <> expectedValue) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('valueIsEqualTo'));
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="valueIsGreaterThan" Id="{ea509a05-4e5b-44d1-aa85-cefa9b796435}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current value is greater than the less value
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD valueIsGreaterThan
+VAR_INPUT
+	(* current value to check *)
+	currentValue	:__XWORD;
+	(* less than lower limit *)
+	lessValue		:__XWORD;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (currentValue <= lessValue) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('valueIsGreaterThan'));
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="valueIsInRangeOf" Id="{936c4b04-9081-4786-a5d5-79113423983f}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current value is inside a limit
+
+.. attention:: 
+	limits are included: ``valueIsInRangeOf(3, 3, 3)`` is a true assertion
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD valueIsInRangeOf
+VAR_INPUT
+	(* lower limit for the current value *)
+	lowerLimit		:__XWORD;
+	(* current value to check *)
+	currentValue	:__XWORD;
+	(* upper limit for the current value *)
+	upperLimit		:__XWORD;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (
+	(currentValue < lowerLimit)
+	OR (currentValue > upperLimit)
+) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('valueIsInRangeOf'));
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="valueIsLessThan" Id="{1028da69-71a0-4e89-a389-fc622b46ad63}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current value is less than the greater value
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD valueIsLessThan
+VAR_INPUT
+	(* current value to check *)
+	currentValue	:__XWORD;
+	(* greater than upper limit *)
+	greaterValue	:__XWORD;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (currentValue >= greaterValue) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('valueIsLessThan'));
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="valueIsMax" Id="{256b6af7-3861-4197-96c0-f0ccafa5a95c}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current value is less than or equal to the maximum value
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD valueIsMax
+VAR_INPUT
+	(* current value to check *)
+	currentValue	:__XWORD;
+	(* upper limit for the current value *)
+	maximumValue	:__XWORD;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (currentValue > maximumValue) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('valueIsMax'));
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="valueIsMin" Id="{aeee1fc8-9730-476d-aa5d-56dbaee0b04f}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current value is greater than or equal to the minimum value
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD valueIsMin
+VAR_INPUT
+	(* current value to check *)
+	currentValue	:__XWORD;
+	(* lower limit for the current value *)
+	minimumValue	:__XWORD;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (currentValue < minimumValue) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('valueIsMin'));
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="valueIsNotEqualTo" Id="{fd6937b6-686f-49cf-ab20-a16adb88aa8c}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current value is not equal to the unexpected value
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD valueIsNotEqualTo
+VAR_INPUT
+	(* current value to check *)
+	currentValue	:__XWORD;
+	(* unexpected value to compare *)
+	unexpectedValue	:__XWORD;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (currentValue = unexpectedValue) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('valueIsNotEqualTo'));
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="xorMaskIsEqualTo" Id="{73dbbc19-7e66-499d-b03a-e75199fd01bb}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the result current value bitwise ``XOR`` mask is equal to the expected value
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD xorMaskIsEqualTo
+VAR_INPUT
+	(* current value to check *)
+	currentValue	:__XWORD;
+	(* 2nd operand for bitwise operation *)
+	mask			:__XWORD;
+	(* expected result after masking *)
+	expectedValue	:__XWORD;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF ((currentValue XOR mask) <> expectedValue) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('xorMaskIsEqualTo'));
+END_IF	
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="xorMaskIsNotEqualTo" Id="{8d52eeb0-42ae-4108-8014-866f35ed48e0}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the result current value bitwise ``XOR`` mask 
+is not equal to the unexpected value
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD xorMaskIsNotEqualTo
+VAR_INPUT
+	(* current value to check *)
+	currentValue	:__XWORD;
+	(* 2nd operand for bitwise operation *)
+	mask			:__XWORD;
+	(* unexpected result after masking *)
+	unexpectedValue	:__XWORD;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF ((currentValue XOR mask) = unexpectedValue) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('xorMaskIsNotEqualTo'));
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <LineIds Name="XWordAssertions">
+      <LineId Id="9" Count="0" />
+    </LineIds>
+    <LineIds Name="XWordAssertions.andMaskIsEqualTo">
+      <LineId Id="36" Count="0" />
+      <LineId Id="39" Count="0" />
+      <LineId Id="37" Count="1" />
+    </LineIds>
+    <LineIds Name="XWordAssertions.andMaskIsNotEqualTo">
+      <LineId Id="38" Count="1" />
+      <LineId Id="37" Count="0" />
+      <LineId Id="40" Count="0" />
+    </LineIds>
+    <LineIds Name="XWordAssertions.bitXIsEqualTo">
+      <LineId Id="39" Count="0" />
+      <LineId Id="38" Count="0" />
+      <LineId Id="45" Count="2" />
+      <LineId Id="41" Count="0" />
+      <LineId Id="43" Count="1" />
+      <LineId Id="42" Count="0" />
+    </LineIds>
+    <LineIds Name="XWordAssertions.bitXIsNotEqualTo">
+      <LineId Id="38" Count="7" />
+      <LineId Id="37" Count="0" />
+    </LineIds>
+    <LineIds Name="XWordAssertions.bitXIsSet">
+      <LineId Id="36" Count="6" />
+      <LineId Id="35" Count="0" />
+      <LineId Id="43" Count="0" />
+    </LineIds>
+    <LineIds Name="XWordAssertions.bitXIsUnset">
+      <LineId Id="36" Count="7" />
+      <LineId Id="35" Count="0" />
+    </LineIds>
+    <LineIds Name="XWordAssertions.className.Get">
+      <LineId Id="5" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="XWordAssertions.lsbIsEqualTo">
+      <LineId Id="35" Count="0" />
+      <LineId Id="38" Count="0" />
+      <LineId Id="37" Count="0" />
+      <LineId Id="39" Count="0" />
+    </LineIds>
+    <LineIds Name="XWordAssertions.lsbIsNotEqualTo">
+      <LineId Id="36" Count="2" />
+      <LineId Id="35" Count="0" />
+    </LineIds>
+    <LineIds Name="XWordAssertions.lsbIsSet">
+      <LineId Id="34" Count="1" />
+      <LineId Id="33" Count="0" />
+      <LineId Id="36" Count="0" />
+    </LineIds>
+    <LineIds Name="XWordAssertions.lsbIsUnset">
+      <LineId Id="34" Count="2" />
+      <LineId Id="33" Count="0" />
+    </LineIds>
+    <LineIds Name="XWordAssertions.msbIsEqualTo">
+      <LineId Id="36" Count="2" />
+      <LineId Id="35" Count="0" />
+    </LineIds>
+    <LineIds Name="XWordAssertions.msbIsNotEqualTo">
+      <LineId Id="36" Count="2" />
+      <LineId Id="35" Count="0" />
+    </LineIds>
+    <LineIds Name="XWordAssertions.msbIsSet">
+      <LineId Id="34" Count="2" />
+      <LineId Id="33" Count="0" />
+    </LineIds>
+    <LineIds Name="XWordAssertions.msbIsUnset">
+      <LineId Id="34" Count="2" />
+      <LineId Id="33" Count="0" />
+    </LineIds>
+    <LineIds Name="XWordAssertions.orMaskIsEqualTo">
+      <LineId Id="37" Count="1" />
+      <LineId Id="36" Count="0" />
+    </LineIds>
+    <LineIds Name="XWordAssertions.orMaskIsNotEqualTo">
+      <LineId Id="38" Count="2" />
+      <LineId Id="37" Count="0" />
+    </LineIds>
+    <LineIds Name="XWordAssertions.valueIsEqualTo">
+      <LineId Id="35" Count="2" />
+      <LineId Id="34" Count="0" />
+    </LineIds>
+    <LineIds Name="XWordAssertions.valueIsGreaterThan">
+      <LineId Id="34" Count="0" />
+      <LineId Id="37" Count="1" />
+      <LineId Id="36" Count="0" />
+    </LineIds>
+    <LineIds Name="XWordAssertions.valueIsInRangeOf">
+      <LineId Id="36" Count="3" />
+      <LineId Id="41" Count="0" />
+      <LineId Id="40" Count="0" />
+      <LineId Id="42" Count="0" />
+    </LineIds>
+    <LineIds Name="XWordAssertions.valueIsLessThan">
+      <LineId Id="35" Count="1" />
+      <LineId Id="34" Count="0" />
+      <LineId Id="37" Count="0" />
+    </LineIds>
+    <LineIds Name="XWordAssertions.valueIsMax">
+      <LineId Id="35" Count="2" />
+      <LineId Id="34" Count="0" />
+    </LineIds>
+    <LineIds Name="XWordAssertions.valueIsMin">
+      <LineId Id="35" Count="2" />
+      <LineId Id="34" Count="0" />
+    </LineIds>
+    <LineIds Name="XWordAssertions.valueIsNotEqualTo">
+      <LineId Id="35" Count="2" />
+      <LineId Id="34" Count="0" />
+    </LineIds>
+    <LineIds Name="XWordAssertions.xorMaskIsEqualTo">
+      <LineId Id="37" Count="2" />
+      <LineId Id="36" Count="0" />
+    </LineIds>
+    <LineIds Name="XWordAssertions.xorMaskIsNotEqualTo">
+      <LineId Id="38" Count="2" />
+      <LineId Id="37" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

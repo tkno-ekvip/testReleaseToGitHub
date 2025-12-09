@@ -1,0 +1,456 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.11">
+  <Itf Name="IUtf16StringPointerAssertions" Id="{9b7f977d-6c6b-4ca7-bc4d-400e778e9646}">
+    <Declaration><![CDATA[(*
+
+short summary
+=================
+This interface provides assert statements for UTF-16 strings
+
+.. attention:: 
+	All strings are handled as null terminated word streams.
+	For UTF-16 is end of the string 16#00_00
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+methods
+==================
+
+*)
+
+INTERFACE IUtf16StringPointerAssertions EXTENDS IAssertCallBackSetter
+]]></Declaration>
+    <Method Name="utf16Contains" Id="{db53bf6d-0ad4-49c2-b507-3833254c811b}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method for UTF-16 strings checks if the current string ``stringToCheck`` contains the search string ``searchString``
+
+.. attention:: 
+	All strings are handled as null terminated word streams.
+	For UTF-16 is end of the string 16#00_00
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD utf16Contains
+VAR_INPUT
+	(* current string to check *)
+	stringToCheck	:POINTER TO WORD;
+	(* string must be found in ``stringToCheck`` *)
+	searchString	:POINTER TO WORD;
+	(* ``TRUE`` means ignore cases; ``FALSE`` means cases must be equal too *)
+	ignoreCases		:BOOL;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="utf16ContainsNo" Id="{0f7f99cf-70e5-4bbe-bd17-cd592e6ff74a}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method for UTF-16 strings checks if the current string ``stringToCheck`` contains not the search string ``searchString``
+
+.. attention:: 
+	All strings are handled as null terminated word streams.
+	For UTF-16 is end of the string 16#00_00
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD utf16ContainsNo
+VAR_INPUT
+	(* current string to check *)
+	stringToCheck	:POINTER TO WORD;
+	(* string must be found in ``stringToCheck`` *)
+	searchString	:POINTER TO WORD;
+	(* ``TRUE`` means ignore cases; ``FALSE`` means cases must be equal too *)
+	ignoreCases		:BOOL;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="utf16EndsWith" Id="{514883d5-32c5-4928-ae99-d0c1de85720a}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method for UTF-16 strings checks if the current string ``stringToCheck`` ends with the string ``end``
+
+.. attention:: 
+	All strings are handled as null terminated word streams.
+	For UTF-16 is end of the string 16#00_00
+
+.. attention:: 
+	end of the string is **ALWAYS** the right side of the string 
+	even for writings which written from right to left like Hebrew or Arabic
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD utf16EndsWith
+VAR_INPUT
+	(* current string to check *)
+	stringToCheck	:POINTER TO WORD;
+	(* string must be the end of ``stringToCheck`` *)
+	end				:POINTER TO WORD;
+	(* ``TRUE`` means ignore cases; ``FALSE`` means cases must be equal too *)
+	ignoreCases		:BOOL;
+	(* ``TRUE`` means truncation of spaces on the right side of ``stringToCheck``*)
+	trim			:BOOL;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="utf16IsEqualTo" Id="{6cde40fe-49b6-46be-88a1-9ea5ba21626b}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method for utf-16 strings checks if the current string ``stringToCheck`` is equal to the ``expected`` string
+
+.. attention:: 
+	All strings are handled as null terminated word streams.
+	For UTF-16 is end of the string 16#00_00
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD utf16IsEqualTo
+VAR_INPUT
+	(* current string to check *)
+	stringToCheck	:POINTER TO WORD;
+	(* ``stringToCheck`` must be equal to expected *)
+	expected		:POINTER TO WORD;
+	(* ``TRUE`` means ignore cases; ``FALSE`` means cases must be equal too *)
+	ignoreCases		:BOOL;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+
+]]></Declaration>
+    </Method>
+    <Method Name="utf16IsNotEqualTo" Id="{b3d1a2dc-9b8f-4d18-bebf-250ba3a280b1}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method for utf-16 strings checks if the current string ``stringToCheck`` is not equal to the ``unexpected`` string
+
+.. attention:: 
+	All strings are handled as null terminated word streams.
+	For UTF-16 is end of the string 16#00_00
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD utf16IsNotEqualTo
+VAR_INPUT
+	(* current string to check *)
+	stringToCheck	:POINTER TO WORD;
+	(* ``stringToCheck`` must be not equal to unexpected *)
+	unexpected		:POINTER TO WORD;
+	(* ``TRUE`` means ignore cases; ``FALSE`` means cases must be equal too *)
+	ignoreCases		:BOOL;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+
+]]></Declaration>
+    </Method>
+    <Method Name="utf16LenghtIsExact" Id="{e46647f9-cdbd-4254-ad6f-c0db49be0e1c}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current string ``stringToCheck`` is length
+is equal to ``expectedLength``
+
+.. attention:: 
+	All strings are handled as null terminated word streams.
+	For UTF-16 is end of the string 16#00_00
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD utf16LenghtIsExact
+VAR_INPUT
+	(* current string to check *)
+	stringToCheck	:POINTER TO WORD;
+	(* expected length of ``stringToCheck`` *)
+	expectedLength	:UDINT;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="utf16LenghtIsMax" Id="{9b649e1c-758a-4b62-b82d-9ac99621d3ef}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current string ``stringToCheck`` is length
+is equal or less than to ``maxLength``
+
+.. attention:: 
+	All strings are handled as null terminated word streams.
+	For UTF-16 is end of the string 16#00_00
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD utf16LenghtIsMax
+VAR_INPUT
+	(* current string to check *)
+	stringToCheck	:POINTER TO WORD;
+	(* upper limit of the length of ``stringToCheck`` *)
+	maxLength		:UDINT;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="utf16LenghtIsMin" Id="{e5fe0b69-36c5-4d7b-9daa-dde8a70b14c8}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current string ``stringToCheck`` is length
+is equal or grater than to ``minLength``
+
+.. attention:: 
+	All strings are handled as null terminated word streams.
+	For UTF-16 is end of the string 16#00_00
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD utf16LenghtIsMin
+VAR_INPUT
+	(* current string to check *)
+	stringToCheck	:POINTER TO WORD;
+	(* lower limit of the length of ``stringToCheck`` *)
+	minLength		:UDINT;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="utf16LengthIsBetween" Id="{5e1d0aae-e93d-4397-89e3-033305b25d38}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current string ``stringToCheck`` is length
+is equal or grater than ``minLength`` and equal or less than ``maxLength``
+
+.. attention:: 
+	All strings are handled as null terminated word streams.
+	For UTF-16 is end of the string 16#00_00
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD utf16LengthIsBetween
+VAR_INPUT
+	(* current string to check *)
+	stringToCheck	:POINTER TO WORD;
+	(* lower limit of the string length *)
+	minLenght		:UDINT;
+	(* upper limit of the string length *)
+	maxLenght		:UDINT;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="utf16StartsWith" Id="{462e2b04-a234-4028-a21a-65dafe5111cb}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method for UTF-16 strings checks if the current string ``stringToCheck`` strats with the string ``start``
+
+.. attention:: 
+	All strings are handled as null terminated word streams.
+	For UTF-16 is end of the string 16#00_00
+
+.. attention:: 
+	start of the string is **ALWAYS** the left side of the string 
+	even for writings which written from right to left like Hebrew or Arabic
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD utf16StartsWith
+VAR_INPUT
+	(* current string to check *)
+	stringToCheck	:POINTER TO WORD;
+	(* expected start of ``stringToCheck`` *)
+	start			:POINTER TO WORD;
+	(* ``TRUE`` means ignore cases; ``FALSE`` means cases must be equal too *)
+	ignoreCases		:BOOL;
+	(* ``TRUE`` means truncation of spaces on the right side of ``stringToCheck``*)
+	trim			:BOOL;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+    </Method>
+  </Itf>
+</TcPlcObject>

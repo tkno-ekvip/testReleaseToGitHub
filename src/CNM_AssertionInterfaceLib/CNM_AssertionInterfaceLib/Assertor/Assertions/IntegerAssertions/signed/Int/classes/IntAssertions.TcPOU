@@ -1,0 +1,582 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.11">
+  <POU Name="IntAssertions" Id="{fe6625b1-f286-4ca4-b9f4-fb6a25757467}" SpecialFunc="None">
+    <Declaration><![CDATA[(*
+
+short summary
+=================
+This class provides assert statements for signed integers  (``INT``)
+It implements the interface :ref:`IIntAssertions`
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+methods and properties
+=======================
+
+*)
+
+{attribute 'reflection'}
+FUNCTION_BLOCK INTERNAL IntAssertions EXTENDS AbstactAssertion IMPLEMENTS IIntAssertions
+VAR
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Property Name="className" Id="{4cf5ab88-cd68-425c-98ec-d39f456b047e}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This abstract property returns the class name of the concrete object, 
+It's for debugging purpose
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+PROPERTY className :CNM_AbstractObject.ClassName]]></Declaration>
+      <Get Name="Get" Id="{e297ae34-2251-4ba6-afe9-8996c69587ed}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[className := 'CNM_AssertionInterfaceLib.IntAssertions';
+]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="valueIsEqualTo" Id="{81a38031-39cf-4fa7-8a10-520acf8e1dd9}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current value is equal to the expected value
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD valueIsEqualTo
+VAR_INPUT
+	(* current value to check *)
+	currentValue	:INT;
+	(* expected value to compare *)
+	expectedValue	:INT;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (currentValue <> expectedValue) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('valueIsEqualTo'));
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="valueIsEven" Id="{066d0b09-88a4-443b-b04d-a1138408a767}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current value is even
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD valueIsEven
+VAR_INPUT
+	(* current value to check *)
+	currentValue	:INT;
+	(* message if the assertion is false *)
+	message			:Tc2_System.T_MaxString;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF ((currentValue MOD 2) <> 0) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('valueIsEven'));
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="valueIsGreaterThan" Id="{84532a7d-f278-4bd6-baca-8700adaf4cda}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current value is greater than the less value
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD valueIsGreaterThan
+VAR_INPUT
+	(* current value to check *)
+	currentValue	:INT;
+	(* less than lower limit *)
+	lessValue		:INT;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (currentValue <= lessValue) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('valueIsGreaterThan'));
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="valueIsInRangeOf" Id="{6069160d-5c76-4bc6-a122-d53e180f65e7}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current value is inside a limit
+
+.. attention:: 
+	limits are included: ``valueIsInRangeOf(3, 3, 3)`` is a true assertion
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD valueIsInRangeOf
+VAR_INPUT
+	(* lower limit for the current value *)
+	lowerLimit		:INT;
+	(* current value to check *)
+	currentValue	:INT;
+	(* upper limit for the current value *)
+	upperLimit		:INT;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (
+	(currentValue < lowerLimit)
+	OR (currentValue > upperLimit)
+) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('valueIsInRangeOf'));
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="valueIsLessThan" Id="{6efba4a5-0802-4b55-bc5b-8e4ee435a50f}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current value is less than the greater value
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD valueIsLessThan
+VAR_INPUT
+	(* current value to check *)
+	currentValue	:INT;
+	(* greater than upper limit *)
+	greaterValue	:INT;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (currentValue >= greaterValue) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('valueIsLessThan'));
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="valueIsMax" Id="{9ecce37d-563b-454f-8d94-7264cd8d4a92}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current value is less than or equal to the maximum value
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD valueIsMax
+VAR_INPUT
+	(* current value to check *)
+	currentValue	:INT;
+	(* upper limit for the current value *)
+	maximumValue	:INT;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (currentValue > maximumValue) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('valueIsMax'));
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="valueIsMin" Id="{c1882d0b-2796-43cd-9b9b-d008dac70d85}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current value is greater than or equal to the minimum value
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD valueIsMin
+VAR_INPUT
+	(* current value to check *)
+	currentValue	:INT;
+	(* lower limit for the current value *)
+	minimumValue	:INT;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (currentValue < minimumValue) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('valueIsMin'));
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="valueIsNegative" Id="{7e55dca8-cc8e-48b5-b38b-e266c1872838}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current value is negative
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD valueIsNegative
+VAR_INPUT
+	(* current value to check *)
+	currentValue	:INT;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (currentValue >= 0) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('valueIsNegative'));
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="valueIsNotEqualTo" Id="{d5091229-1b31-40d2-8650-6575666e6c4d}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current value is not equal to the unexpected value
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD valueIsNotEqualTo
+VAR_INPUT
+	(* current value to check *)
+	currentValue	:INT;
+	(* unexpected value to compare *)
+	unexpectedValue	:INT;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (currentValue = unexpectedValue) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('valueIsNotEqualTo'));
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="valueIsOdd" Id="{6771d731-3ecf-467a-9771-553cc9883902}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current value is odd
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD valueIsOdd
+VAR_INPUT
+	(* current value to check *)
+	currentValue	:INT;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF ((currentValue MOD 2) = 0) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('valueIsOdd'));
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="valueIsPositive" Id="{92b178ed-a967-4431-8c5c-d3eec7944999}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current value is positve
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD valueIsPositive
+VAR_INPUT
+	(* current value to check *)
+	currentValue	:INT;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (currentValue < 0) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('valueIsPositive'));
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <LineIds Name="IntAssertions">
+      <LineId Id="9" Count="0" />
+    </LineIds>
+    <LineIds Name="IntAssertions.className.Get">
+      <LineId Id="5" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="IntAssertions.valueIsEqualTo">
+      <LineId Id="34" Count="0" />
+      <LineId Id="37" Count="0" />
+      <LineId Id="36" Count="0" />
+      <LineId Id="38" Count="0" />
+    </LineIds>
+    <LineIds Name="IntAssertions.valueIsEven">
+      <LineId Id="32" Count="0" />
+      <LineId Id="35" Count="0" />
+      <LineId Id="34" Count="0" />
+      <LineId Id="36" Count="0" />
+    </LineIds>
+    <LineIds Name="IntAssertions.valueIsGreaterThan">
+      <LineId Id="34" Count="0" />
+      <LineId Id="37" Count="1" />
+      <LineId Id="36" Count="0" />
+    </LineIds>
+    <LineIds Name="IntAssertions.valueIsInRangeOf">
+      <LineId Id="36" Count="3" />
+      <LineId Id="41" Count="0" />
+      <LineId Id="40" Count="0" />
+      <LineId Id="42" Count="0" />
+    </LineIds>
+    <LineIds Name="IntAssertions.valueIsLessThan">
+      <LineId Id="35" Count="1" />
+      <LineId Id="34" Count="0" />
+      <LineId Id="37" Count="0" />
+    </LineIds>
+    <LineIds Name="IntAssertions.valueIsMax">
+      <LineId Id="35" Count="2" />
+      <LineId Id="34" Count="0" />
+    </LineIds>
+    <LineIds Name="IntAssertions.valueIsMin">
+      <LineId Id="35" Count="2" />
+      <LineId Id="34" Count="0" />
+    </LineIds>
+    <LineIds Name="IntAssertions.valueIsNegative">
+      <LineId Id="32" Count="0" />
+      <LineId Id="35" Count="0" />
+      <LineId Id="34" Count="0" />
+      <LineId Id="36" Count="0" />
+    </LineIds>
+    <LineIds Name="IntAssertions.valueIsNotEqualTo">
+      <LineId Id="35" Count="2" />
+      <LineId Id="34" Count="0" />
+    </LineIds>
+    <LineIds Name="IntAssertions.valueIsOdd">
+      <LineId Id="33" Count="2" />
+      <LineId Id="32" Count="0" />
+    </LineIds>
+    <LineIds Name="IntAssertions.valueIsPositive">
+      <LineId Id="33" Count="2" />
+      <LineId Id="32" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

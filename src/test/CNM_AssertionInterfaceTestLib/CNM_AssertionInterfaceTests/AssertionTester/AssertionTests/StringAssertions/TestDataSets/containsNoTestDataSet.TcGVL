@@ -1,0 +1,237 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <GVL Name="containsNoTestDataSet" Id="{d7111402-3efb-45da-8817-46014f1baf09}">
+    <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+{warning 'header is generated please add your documentation'}
+{attribute 'qualified_only'}
+VAR_GLOBAL CONSTANT
+	SIZE_OF_CONTAINSNO_DATASET:USINT := 21;
+END_VAR
+
+VAR_GLOBAL
+	containsNoDataSetCommon : ARRAY[0..SIZE_OF_CONTAINSNO_DATASET] OF containsDataStr := [
+		
+		// test number 0
+		(	StringToTest		:= 'hello',
+		  	WStringToTest 		:= "Hello",
+			StringToContain 	:= 'h',
+			WStringToContain	:= "h",
+			IgnoreCases			:= TRUE,
+			ExpectedResult  	:= TRUE,
+			typeToTest      	:= TypeToTest.TEST_STRING	),
+		
+		// test number 1	
+		(	StringToTest		:= 'hello',
+		  	WStringToTest 		:= "Hello",
+			StringToContain 	:= 'h',
+			WStringToContain	:= "h",
+			IgnoreCases			:= TRUE,
+			ExpectedResult  	:= TRUE,
+			typeToTest      	:= TypeToTest.TEST_WSTRING	),
+		
+		// test number 2		
+		(	StringToTest		:= 'дивный новый мир',
+		  	WStringToTest 		:= "дивный новый мир",
+			StringToContain 	:= 'нов',
+			WStringToContain	:= "нов",
+			IgnoreCases			:= TRUE,
+			ExpectedResult  	:= TRUE,
+			typeToTest      	:= TypeToTest.TEST_WSTRING	),
+
+		// test number 3				
+		(	StringToTest		:= 'дивный новый мир',
+		  	WStringToTest 		:= "дивный новый мир",
+			StringToContain 	:= 'ноa',
+			WStringToContain	:= "ноa",
+			IgnoreCases			:= TRUE,
+			ExpectedResult  	:= FALSE,
+			typeToTest      	:= TypeToTest.TEST_WSTRING	),
+
+		// test number 4				
+		(	StringToTest		:= 'дивный новый мир',
+		  	WStringToTest 		:= "дивный новый мир",
+			StringToContain 	:= 'нов',
+			WStringToContain	:= "нов",
+			IgnoreCases			:= TRUE,
+			ExpectedResult  	:= TRUE,
+			typeToTest      	:= TypeToTest.TEST_STRING	),
+	
+		// test number 5			
+		(	StringToTest		:= 'дивный новый мир',
+		  	WStringToTest 		:= "дивный новый мир",
+			StringToContain 	:= 'ноa',
+			WStringToContain	:= "ноa",
+			IgnoreCases			:= TRUE,
+			ExpectedResult  	:= FALSE,
+			typeToTest      	:= TypeToTest.TEST_STRING	),
+			
+		// test number 6			
+		(	StringToTest		:= '',
+		  	WStringToTest 		:= "",
+			StringToContain 	:= ' ',
+			WStringToContain	:= " ",
+			IgnoreCases			:= TRUE,
+			ExpectedResult  	:= FALSE,
+			typeToTest      	:= TypeToTest.TEST_STRING	),
+			
+		// test number 7			
+		(	StringToTest		:= '',
+		  	WStringToTest 		:= "",
+			StringToContain 	:= ' ',
+			WStringToContain	:= " ",
+			IgnoreCases			:= TRUE,
+			ExpectedResult  	:= FALSE,
+			typeToTest      	:= TypeToTest.TEST_WSTRING	),
+			
+		// test number 8			
+		(	StringToTest		:= ' ',
+		  	WStringToTest 		:= " ",
+			StringToContain 	:= ' ',
+			WStringToContain	:= " ",
+			IgnoreCases			:= TRUE,
+			ExpectedResult  	:= TRUE,
+			typeToTest      	:= TypeToTest.TEST_STRING	),
+			
+		// test number 9			
+		(	StringToTest		:= ' ',
+		  	WStringToTest 		:= " ",
+			StringToContain 	:= ' ',
+			WStringToContain	:= " ",
+			IgnoreCases			:= TRUE,
+			ExpectedResult  	:= TRUE,
+			typeToTest      	:= TypeToTest.TEST_WSTRING	),
+			
+		// test number 10			
+		(	StringToTest		:= ' ',
+		  	WStringToTest 		:= " ",
+			StringToContain 	:= ' ',
+			WStringToContain	:= " ",
+			IgnoreCases			:= TRUE,
+			ExpectedResult  	:= TRUE,
+			typeToTest      	:= TypeToTest.TEST_STRING	),
+			
+		// test number 11			
+		(	StringToTest		:= 'Brave new World',
+		  	WStringToTest 		:= "Brave new World",
+			StringToContain 	:= 'brave',
+			WStringToContain	:= "brave",
+			IgnoreCases			:= FALSE,
+			ExpectedResult  	:= FALSE,
+			typeToTest      	:= TypeToTest.TEST_WSTRING	),
+			
+		// test number 12			
+		(	StringToTest		:= 'Brave new World',
+		  	WStringToTest 		:= "Brave new World",
+			StringToContain 	:= 'brave',
+			WStringToContain	:= "brave",
+			IgnoreCases			:= FALSE,
+			ExpectedResult  	:= FALSE,
+			typeToTest      	:= TypeToTest.TEST_WSTRING	),
+			
+		// test number 13			
+		(	StringToTest		:= 'Brave new World',
+		  	WStringToTest 		:= "Brave new World",
+			StringToContain 	:= 'brave',
+			WStringToContain	:= "brave",
+			IgnoreCases			:= TRUE,
+			ExpectedResult  	:= TRUE,
+			typeToTest      	:= TypeToTest.TEST_WSTRING	),
+			
+		// test number 14			
+		(	StringToTest		:= 'Brave new World',
+		  	WStringToTest 		:= "Brave new World",
+			StringToContain 	:= 'brave',
+			WStringToContain	:= "brave",
+			IgnoreCases			:= TRUE,
+			ExpectedResult  	:= TRUE,
+			typeToTest      	:= TypeToTest.TEST_WSTRING	),
+			
+		// test number 15			
+		(	StringToTest		:= '²345',
+		  	WStringToTest 		:= "²345",
+			StringToContain 	:= '2',
+			WStringToContain	:= "2",
+			IgnoreCases			:= TRUE,
+			ExpectedResult  	:= FALSE,
+			typeToTest      	:= TypeToTest.TEST_STRING	),
+			
+		// test number 16			
+		(	StringToTest		:= '2345',
+		  	WStringToTest 		:= "²345",
+			StringToContain 	:= '2',
+			WStringToContain	:= "2",
+			IgnoreCases			:= TRUE,
+			ExpectedResult  	:= FALSE,
+			typeToTest      	:= TypeToTest.TEST_WSTRING	),
+			
+		// test number 17			
+		(	StringToTest		:= '²345',
+		  	WStringToTest 		:= "²345",
+			StringToContain 	:= '2',
+			WStringToContain	:= "2",
+			IgnoreCases			:= FALSE,
+			ExpectedResult  	:= FALSE,
+			typeToTest      	:= TypeToTest.TEST_STRING	),
+			
+		// test number 18			
+		(	StringToTest		:= '²345',
+		  	WStringToTest 		:= "²345",
+			StringToContain 	:= '2',
+			WStringToContain	:= "2",
+			IgnoreCases			:= FALSE,
+			ExpectedResult  	:= FALSE,
+			typeToTest      	:= TypeToTest.TEST_WSTRING	),
+			
+		// test number 19			
+		(	StringToTest		:= '',
+		  	WStringToTest 		:= "👪",
+			StringToContain 	:= '',
+			WStringToContain	:= "👪",
+			IgnoreCases			:= FALSE,
+			ExpectedResult  	:= TRUE,
+			typeToTest      	:= TypeToTest.TEST_WSTRING	),
+			
+		// test number 20			
+		(	StringToTest		:= ' hello world ',
+		  	WStringToTest 		:= " hello world ",
+			StringToContain 	:= '  ',
+			WStringToContain	:= "  ",
+			IgnoreCases			:= FALSE,
+			ExpectedResult  	:= FALSE,
+			typeToTest      	:= TypeToTest.TEST_WSTRING	),
+			
+		// test number 21			
+		(	StringToTest		:= ' hello world ',
+		  	WStringToTest 		:= " hello world ",
+			StringToContain 	:= '  ',
+			WStringToContain	:= "  ",
+			IgnoreCases			:= FALSE,
+			ExpectedResult  	:= FALSE,
+			typeToTest      	:= TypeToTest.TEST_STRING	)
+			
+		
+			
+		
+
+	];
+END_VAR]]></Declaration>
+  </GVL>
+</TcPlcObject>

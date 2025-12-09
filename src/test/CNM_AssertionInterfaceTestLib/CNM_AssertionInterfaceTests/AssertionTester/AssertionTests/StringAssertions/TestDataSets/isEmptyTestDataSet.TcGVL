@@ -1,0 +1,119 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <GVL Name="isEmptyTestDataSet" Id="{09d27585-f5c5-4144-892e-c50bf1e5af24}">
+    <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+{warning 'header is generated please add your documentation'}
+{attribute 'qualified_only'}
+VAR_GLOBAL CONSTANT
+	SIZE_OF_ISEMPTY_DATASET:USINT := 13;
+END_VAR
+
+VAR_GLOBAL
+	isEmptyDataSetCommon : ARRAY[0..SIZE_OF_ISEMPTY_DATASET] OF isEmptyDataStr := [
+		// test number 0
+		(	StringToTest 	:= 'hello',
+			WStringToTest 	:= "hello",
+			ExpectedResult  := TRUE,
+			typeToTest     	:= TypeToTest.TEST_STRING ),
+		
+		// test number 1
+		(	StringToTest 	:= 'hello',
+			WStringToTest 	:= "hello",
+			ExpectedResult  := TRUE,
+			typeToTest     	:= TypeToTest.TEST_STRING ),
+
+		// test number 2
+		(	StringToTest 	:= '',
+			WStringToTest 	:= "",
+			ExpectedResult  := FALSE,
+			typeToTest     	:= TypeToTest.TEST_STRING ),		
+		
+		// test number 3
+		(	StringToTest 	:= '',
+			WStringToTest 	:= "",
+			ExpectedResult  := FALSE,
+			typeToTest     	:= TypeToTest.TEST_WSTRING ),	
+
+		// test number 4
+		(	StringToTest 	:= '   ',
+			WStringToTest 	:= "   ",
+			ExpectedResult  := TRUE,
+			typeToTest     	:= TypeToTest.TEST_WSTRING ),
+
+		// test number 5
+		(	StringToTest 	:= '   ',
+			WStringToTest 	:= "   ",
+			ExpectedResult  := TRUE,
+			typeToTest     	:= TypeToTest.TEST_STRING ),
+			
+		// test number 6
+		(	StringToTest 	:= '   ',
+			WStringToTest 	:= "नमस्ते",
+			ExpectedResult  := TRUE,
+			typeToTest     	:= TypeToTest.TEST_WSTRING ),
+				
+		// test number 7
+		(	StringToTest 	:= 'мальчик или девочка',
+			WStringToTest 	:= "мальчик или девочка",
+			ExpectedResult  := TRUE,
+			typeToTest     	:= TypeToTest.TEST_WSTRING ),
+			
+		// test number 8
+		(	StringToTest 	:= 'мальчик или девочка',
+			WStringToTest 	:= "мальчик или девочка",
+			ExpectedResult  := TRUE,
+			typeToTest     	:= TypeToTest.TEST_STRING ),
+			
+		// test number 9
+		(	StringToTest 	:= '',
+			WStringToTest 	:= "👨‍🔬 👩‍🎨 🧑‍🎨 👨‍🎨 👩‍🚒 🧑‍🚒 👨‍🚒 👩‍✈️ 🧑‍✈️ 👨‍✈️ 👩‍🚀",
+			ExpectedResult  := TRUE,
+			typeToTest     	:= TypeToTest.TEST_WSTRING ),
+			
+		// test number 10
+		(	StringToTest 	:= 'QQQqqqq@@@@@%%%%',
+			WStringToTest 	:= "QQQqqqq@@@@@%%%%",
+			ExpectedResult  := TRUE,
+			typeToTest     	:= TypeToTest.TEST_WSTRING ),
+
+		// test number 11
+		(	StringToTest 	:= '.',
+			WStringToTest 	:= ".",
+			ExpectedResult  := TRUE,
+			typeToTest     	:= TypeToTest.TEST_WSTRING ),	
+
+			
+		// test number 12
+		(	StringToTest 	:= 'QQQqqqq@@@@@%%%%',
+			WStringToTest 	:= "QQQqqqq@@@@@%%%%",
+			ExpectedResult  := TRUE,
+			typeToTest     	:= TypeToTest.TEST_STRING ),
+
+		// test number 13
+		(	StringToTest 	:= '.',
+			WStringToTest 	:= ".",
+			ExpectedResult  := TRUE,
+			typeToTest     	:= TypeToTest.TEST_STRING )			
+
+	];
+END_VAR]]></Declaration>
+  </GVL>
+</TcPlcObject>

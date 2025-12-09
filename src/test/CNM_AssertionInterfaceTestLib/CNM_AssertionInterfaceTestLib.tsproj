@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<TcSmProject xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.beckhoff.com/schemas/2012/07/TcSmProject" TcSmVersion="1.0" TcVersion="3.1.4024.47">
+	<Project ProjectGUID="{ADEABCE9-E659-47E3-80FA-94700FDAEA46}" Target64Bit="true" ShowHideConfigurations="#x106">
+		<Plc>
+			<Project GUID="{86EC1D4E-35A7-4C5F-8473-C08E49637B9A}" Name="CNM_AssertionInterfaceTests" PrjFilePath="CNM_AssertionInterfaceTests\CNM_AssertionInterfaceTests.plcproj" TmcFilePath="CNM_AssertionInterfaceTests\CNM_AssertionInterfaceTests.tmc" ReloadTmc="true" AmsPort="851" FileArchiveSettings="#x000e" SymbolicMapping="true">
+				<Instance Id="#x08502000" TcSmClass="TComPlcObjDef" KeepUnrestoredLinks="2" TmcPath="CNM_AssertionInterfaceTests\CNM_AssertionInterfaceTests.tmc" TmcHash="{4329E5C3-BBA1-43FC-B9BB-479716F9D413}">
+					<Name>CNM_AssertionInterfaceTests Instance</Name>
+					<CLSID ClassFactory="TcPlc30">{08500001-0000-0000-F000-000000000064}</CLSID>
+					<Contexts>
+						<Context>
+							<Id>1</Id>
+							<Name>Default</Name>
+						</Context>
+					</Contexts>
+				</Instance>
+			</Project>
+		</Plc>
+	</Project>
+</TcSmProject>

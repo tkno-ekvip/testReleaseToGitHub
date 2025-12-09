@@ -1,0 +1,1092 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="BinaryAssertionsTests" Id="{37e73c2d-24d6-40c3-b311-f092f66f0cb2}" SpecialFunc="None">
+    <Declaration><![CDATA[(*
+
+short summary
+==================
+This class tests all methods of binary assertions
+with various combinations of inputs and checks expected 
+outputs are satisfied or not
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+methods and properties
+======================
+
+*)
+
+FUNCTION_BLOCK BinaryAssertionsTests EXTENDS AbstractAssertorTest
+VAR_INPUT
+	(* shall be not set, because this is for the null pointer edge case tests *)
+	NULL :ANY;
+END_VAR
+VAR
+	(* boolean value TRUE *)
+	BOOLEAN_TRUE							:BOOL := TRUE;
+	(* boolean value FALSE *)
+	BOOLEAN_FALSE							:BOOL := FALSE;
+	(* long word value one *)
+	LWORD_WITH_VALUE_1						:LWORD := 16#0000_0000_0000_0000_0000_0000_0000_0001;
+	(* word value 255 *)
+	ALL_BITS_SET_AT_LOW_BYTE				:WORD := 16#00FF;
+	(* double word vaule 255 *)
+	ALL_BITS_SET_AT_LOW_BYTE_DWORD			:DWORD := 16#0000_00FF;
+	(* double word value 16#FF00_FF00 *)
+	NO_BITS_SET_AT_MID_BYTES				:DWORD := 16#FF00_00FF;
+	(* byte array [0..299] all zero *)
+	BYTE_ARRAY_ALL_BYTES_ZERO				:ARRAY[0..299] OF BYTE := [300(0)];
+	(* byte array [0..299] 100 zero, 100 16#FF, 100 zero *)
+	BYTE_ARRAY_MID_BYTES_FF_ONLY			:ARRAY[0..299] OF BYTE := [100(0),100(16#FF),100(0)];
+	(* byte array with two dimensions [0..2][0..99] all zero *)
+	ARRAY_OF_BYTE_ARRAY_ALL_BYTES_ZERO		:ARRAY[0..2] OF ARRAY[0..99] OF BYTE := [[100(0)],[100(0)],[100(0)]];	
+END_VAR
+VAR CONSTANT	
+	(* prefix to unify the test names *)
+	TEST_NAME_PREFIX						:STRING := 'assert.binary.';
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[THIS^.runIsEqualToTests();
+THIS^.runIsNotEqualToTests();
+THIS^.runIsGreaterThanTests();
+THIS^.runIsLessThanTests();
+]]></ST>
+    </Implementation>
+    <Folder Name="internal" Id="{ef177dd0-8e10-49ad-b63a-8e69ac9ffe3f}" />
+    <Folder Name="isEqualTo" Id="{d4915373-6a2f-4b19-89c4-093c1ca9e255}" />
+    <Folder Name="isGreaterThan" Id="{e9d34517-6f03-44b5-90f4-120ac332e1f2}" />
+    <Folder Name="isLessThan" Id="{f32675fa-081a-4812-bb37-c02d4caf44cd}" />
+    <Folder Name="isNotEqualTo" Id="{1a21cc9d-15fe-42bf-ba5a-dde4e305718e}" />
+    <Method Name="getTestNameFor" Id="{9ea340e2-c56a-4583-9727-bc93d37a84ea}" FolderPath="internal\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method is a helper function to create a unified test name
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+METHOD PROTECTED getTestNameFor :Tc2_System.T_MaxString
+VAR_INPUT
+	(* name of the method to test, to create a unified test name *)
+	nameOfMethodToTest	:Tc2_System.T_MaxString;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[getTestNameFor := Tc2_Standard.CONCAT(THIS^.TEST_NAME_PREFIX, nameOfMethodToTest);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="runIsEqualToTests" Id="{8f0aa75f-9217-4346-ab3f-16c5189de80c}" FolderPath="isEqualTo\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.binary.isEqualTo``
+method of CNM_AssertionInterfaceLib library with various inputs
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+METHOD runIsEqualToTests
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[RETURN (NOT TcUnit.TEST_ORDERED(THIS^.getTestNameFor('isEqualTo')));
+
+THIS^.testIsEqualTo(
+	data			:= THIS^.BOOLEAN_FALSE,
+	dataToCompare	:= THIS^.BOOLEAN_FALSE,
+	assertionIsWrong:= FALSE,
+	testDataInfo	:= 'data is a boolean FALSE, dataToCompare is a aboolean FALSE'
+);
+
+THIS^.testIsEqualTo(
+	data			:= THIS^.BOOLEAN_TRUE,
+	dataToCompare	:= THIS^.BOOLEAN_FALSE,
+	assertionIsWrong:= TRUE,
+	testDataInfo	:= 'data is a boolean TRUE, dataToCompare is a boolean FALSE'
+);
+
+THIS^.testIsEqualTo(
+	data			:= THIS^.BOOLEAN_TRUE,
+	dataToCompare	:= NULL,
+	assertionIsWrong:= TRUE,
+	testDataInfo	:= 'data is a boolean TRUE, dataToCompare is null'
+);
+
+THIS^.testIsEqualTo(
+	data			:= NULL,
+	dataToCompare	:= NULL,
+	assertionIsWrong:= FALSE,
+	testDataInfo	:= 'data is null, dataToCompare is null'
+);
+
+THIS^.testIsEqualTo(
+	data			:= THIS^.BYTE_ARRAY_ALL_BYTES_ZERO,
+	dataToCompare	:= THIS^.BOOLEAN_FALSE,
+	assertionIsWrong:= FALSE,
+	testDataInfo	:= 'data is a byte array [300(0)], dataToCompare is a boolean FALSE'
+);
+
+THIS^.testIsEqualTo(
+	data			:= THIS^.BYTE_ARRAY_ALL_BYTES_ZERO,
+	dataToCompare	:= THIS^.ARRAY_OF_BYTE_ARRAY_ALL_BYTES_ZERO,
+	assertionIsWrong:= FALSE,
+	testDataInfo	:= 'data is a byte array [300(0)], dataToCompare is a byte array [[100(0)],[100(0)],[100(0)]]'
+);
+
+THIS^.testIsEqualTo(
+	data			:= THIS^.BYTE_ARRAY_MID_BYTES_FF_ONLY,
+	dataToCompare	:= THIS^.ARRAY_OF_BYTE_ARRAY_ALL_BYTES_ZERO,
+	assertionIsWrong:= TRUE,
+	testDataInfo	:= 'data is a byte array [100(0),100(16#FF),100(0)], dataToCompare is a byte array [[100(0)],[100(0)],[100(0)]]'
+);
+
+THIS^.testIsEqualTo(
+	data			:= THIS^.ALL_BITS_SET_AT_LOW_BYTE,
+	dataToCompare	:= THIS^.ALL_BITS_SET_AT_LOW_BYTE_DWORD,
+	assertionIsWrong:= FALSE,
+	testDataInfo	:= 'data is a word 16#00FF, dataToCompare is dword 16#0000_00FF'
+);
+
+THIS^.testIsEqualTo(
+	data			:= THIS^.ALL_BITS_SET_AT_LOW_BYTE_DWORD,
+	dataToCompare	:= THIS^.ALL_BITS_SET_AT_LOW_BYTE,
+	assertionIsWrong:= FALSE,
+	testDataInfo	:= 'data is a dword 16#0000_00FF, dataToCompare is word 16#00FF'
+);
+
+THIS^.testIsEqualTo(
+	data			:= THIS^.ALL_BITS_SET_AT_LOW_BYTE,
+	dataToCompare	:= THIS^.NO_BITS_SET_AT_MID_BYTES,
+	assertionIsWrong:= TRUE,
+	testDataInfo	:= 'data is a word 16#00FF, dataToCompare is dword 16#FF00_00FF'
+);
+
+THIS^.testIsEqualTo(
+	data			:= THIS^.NO_BITS_SET_AT_MID_BYTES,
+	dataToCompare	:= THIS^.ALL_BITS_SET_AT_LOW_BYTE,
+	assertionIsWrong:= TRUE,
+	testDataInfo	:= 'data is a dword 16#FF00_00FF, dataToCompare is word 16#00FF'
+);
+
+THIS^.testIsEqualTo(
+	data			:= THIS^.LWORD_WITH_VALUE_1,
+	dataToCompare	:= THIS^.BOOLEAN_TRUE,
+	assertionIsWrong:= FALSE,
+	testDataInfo	:= 'data is a lword 16#0000_0000_0000_0000_0000_0000_0000_0001, dataToCompare is bool TRUE'
+);
+
+THIS^.testIsEqualTo(
+	data			:= THIS^.LWORD_WITH_VALUE_1,
+	dataToCompare	:= THIS^.BOOLEAN_FALSE,
+	assertionIsWrong:= TRUE,
+	testDataInfo	:= 'data is a lword 16#0000_0000_0000_0000_0000_0000_0000_0001, dataToCompare is bool FALSE'
+);
+
+TcUnit.TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="runIsGreaterThanTests" Id="{bc5c1995-9c1d-4af4-a018-c7d9b74bb6bb}" FolderPath="isGreaterThan\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.binary.isGreaterThan``
+method of CNM_AssertionInterfaceLib library with various inputs
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+METHOD runIsGreaterThanTests
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[RETURN (NOT TcUnit.TEST_ORDERED(THIS^.getTestNameFor('isGreaterThan')));
+
+THIS^.testIsGreaterThan(
+	data			:= THIS^.BOOLEAN_FALSE,
+	dataToCompare	:= THIS^.BOOLEAN_FALSE,
+	assertionIsWrong:= TRUE,
+	testDataInfo	:= 'data is a boolean FALSE, dataToCompare is a aboolean FALSE'
+);
+
+THIS^.testIsGreaterThan(
+	data			:= THIS^.BOOLEAN_TRUE,
+	dataToCompare	:= THIS^.BOOLEAN_FALSE,
+	assertionIsWrong:= FALSE,
+	testDataInfo	:= 'data is a boolean TRUE, dataToCompare is a boolean FALSE'
+);
+
+THIS^.testIsGreaterThan(
+	data			:= THIS^.BOOLEAN_TRUE,
+	dataToCompare	:= NULL,
+	assertionIsWrong:= FALSE,
+	testDataInfo	:= 'data is a boolean TRUE, dataToCompare is null'
+);
+
+THIS^.testIsGreaterThan(
+	data			:= NULL,
+	dataToCompare	:= NULL,
+	assertionIsWrong:= TRUE,
+	testDataInfo	:= 'data is null, dataToCompare is null'
+);
+
+THIS^.testIsGreaterThan(
+	data			:= THIS^.BYTE_ARRAY_ALL_BYTES_ZERO,
+	dataToCompare	:= THIS^.BOOLEAN_FALSE,
+	assertionIsWrong:= TRUE,
+	testDataInfo	:= 'data is a byte array [300(0)], dataToCompare is a boolean FALSE'
+);
+
+THIS^.testIsGreaterThan(
+	data			:= THIS^.BYTE_ARRAY_ALL_BYTES_ZERO,
+	dataToCompare	:= THIS^.ARRAY_OF_BYTE_ARRAY_ALL_BYTES_ZERO,
+	assertionIsWrong:= TRUE,
+	testDataInfo	:= 'data is a byte array [300(0)], dataToCompare is a byte array [[100(0)],[100(0)],[100(0)]]'
+);
+
+THIS^.testIsGreaterThan(
+	data			:= THIS^.BYTE_ARRAY_MID_BYTES_FF_ONLY,
+	dataToCompare	:= THIS^.ARRAY_OF_BYTE_ARRAY_ALL_BYTES_ZERO,
+	assertionIsWrong:= FALSE,
+	testDataInfo	:= 'data is a byte array [100(0),100(16#FF),100(0)], dataToCompare is a byte array [[100(0)],[100(0)],[100(0)]]'
+);
+
+THIS^.testIsGreaterThan(
+	data			:= THIS^.ALL_BITS_SET_AT_LOW_BYTE,
+	dataToCompare	:= THIS^.ALL_BITS_SET_AT_LOW_BYTE_DWORD,
+	assertionIsWrong:= TRUE,
+	testDataInfo	:= 'data is a word 16#00FF, dataToCompare is dword 16#0000_00FF'
+);
+
+THIS^.testIsGreaterThan(
+	data			:= THIS^.ALL_BITS_SET_AT_LOW_BYTE_DWORD,
+	dataToCompare	:= THIS^.ALL_BITS_SET_AT_LOW_BYTE,
+	assertionIsWrong:= TRUE,
+	testDataInfo	:= 'data is a dword 16#0000_00FF, dataToCompare is word 16#00FF'
+);
+
+THIS^.testIsGreaterThan(
+	data			:= THIS^.ALL_BITS_SET_AT_LOW_BYTE,
+	dataToCompare	:= THIS^.NO_BITS_SET_AT_MID_BYTES,
+	assertionIsWrong:= TRUE,
+	testDataInfo	:= 'data is a word 16#00FF, dataToCompare is dword 16#FF00_00FF'
+);
+
+THIS^.testIsGreaterThan(
+	data			:= THIS^.NO_BITS_SET_AT_MID_BYTES,
+	dataToCompare	:= THIS^.ALL_BITS_SET_AT_LOW_BYTE,
+	assertionIsWrong:= FALSE,
+	testDataInfo	:= 'data is a dword 16#FF00_00FF, dataToCompare is word 16#00FF'
+);
+
+THIS^.testIsGreaterThan(
+	data			:= THIS^.LWORD_WITH_VALUE_1,
+	dataToCompare	:= THIS^.BOOLEAN_TRUE,
+	assertionIsWrong:= TRUE,
+	testDataInfo	:= 'data is a lword 16#0000_0000_0000_0000_0000_0000_0000_0001, dataToCompare is bool TRUE'
+);
+
+THIS^.testIsGreaterThan(
+	data			:= THIS^.LWORD_WITH_VALUE_1,
+	dataToCompare	:= THIS^.BOOLEAN_FALSE,
+	assertionIsWrong:= FALSE,
+	testDataInfo	:= 'data is a lword 16#0000_0000_0000_0000_0000_0000_0000_0001, dataToCompare is bool FALSE'
+);
+
+THIS^.testIsGreaterThan(
+	data			:= THIS^.BOOLEAN_TRUE,
+	dataToCompare	:= THIS^.LWORD_WITH_VALUE_1,
+	assertionIsWrong:= TRUE,
+	testDataInfo	:= 'data is a bool TRUE, dataToCompare is bool 16#0000_0000_0000_0000_0000_0000_0000_0001'
+);
+
+THIS^.testIsGreaterThan(
+	data			:= THIS^.BOOLEAN_FALSE,
+	dataToCompare	:= THIS^.LWORD_WITH_VALUE_1,
+	assertionIsWrong:= TRUE,
+	testDataInfo	:= 'data is a bool FALSE, dataToCompare is bool 16#0000_0000_0000_0000_0000_0000_0000_0001'
+);
+
+TcUnit.TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="runIsLessThanTests" Id="{7c280d6c-4bee-41e3-b347-1297fd60bdbb}" FolderPath="isLessThan\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.binary.isLessThan``
+method of CNM_AssertionInterfaceLib library with various inputs
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+METHOD runIsLessThanTests
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[RETURN (NOT TcUnit.TEST_ORDERED(THIS^.getTestNameFor('isLessThan')));
+
+THIS^.testIsLessThan(
+	data			:= THIS^.BOOLEAN_FALSE,
+	dataToCompare	:= THIS^.BOOLEAN_FALSE,
+	assertionIsWrong:= TRUE,
+	testDataInfo	:= 'data is a boolean FALSE, dataToCompare is a aboolean FALSE'
+);
+
+THIS^.testIsLessThan(
+	data			:= THIS^.BOOLEAN_TRUE,
+	dataToCompare	:= THIS^.BOOLEAN_FALSE,
+	assertionIsWrong:= TRUE,
+	testDataInfo	:= 'data is a boolean TRUE, dataToCompare is a boolean FALSE'
+);
+
+THIS^.testIsLessThan(
+	data			:= THIS^.BOOLEAN_FALSE,
+	dataToCompare	:= THIS^.BOOLEAN_TRUE,
+	assertionIsWrong:= FALSE,
+	testDataInfo	:= 'data is a boolean FALSE, dataToCompare is a boolean TRUE'
+);
+
+THIS^.testIsLessThan(
+	data			:= THIS^.BOOLEAN_TRUE,
+	dataToCompare	:= NULL,
+	assertionIsWrong:= TRUE,
+	testDataInfo	:= 'data is a boolean TRUE, dataToCompare is null'
+);
+
+THIS^.testIsLessThan(
+	data			:= NULL,
+	dataToCompare	:= THIS^.BOOLEAN_TRUE,
+	assertionIsWrong:= FALSE,
+	testDataInfo	:= 'data is null, dataToCompare is a boolean TRUE'
+);
+
+THIS^.testIsLessThan(
+	data			:= NULL,
+	dataToCompare	:= NULL,
+	assertionIsWrong:= TRUE,
+	testDataInfo	:= 'data is null, dataToCompare is null'
+);
+
+THIS^.testIsLessThan(
+	data			:= THIS^.BYTE_ARRAY_ALL_BYTES_ZERO,
+	dataToCompare	:= THIS^.BOOLEAN_FALSE,
+	assertionIsWrong:= TRUE,
+	testDataInfo	:= 'data is a byte array [300(0)], dataToCompare is a boolean FALSE'
+);
+
+THIS^.testIsLessThan(
+	data			:= THIS^.BYTE_ARRAY_ALL_BYTES_ZERO,
+	dataToCompare	:= THIS^.ARRAY_OF_BYTE_ARRAY_ALL_BYTES_ZERO,
+	assertionIsWrong:= TRUE,
+	testDataInfo	:= 'data is a byte array [300(0)], dataToCompare is a byte array [[100(0)],[100(0)],[100(0)]]'
+);
+
+THIS^.testIsLessThan(
+	data			:= THIS^.ARRAY_OF_BYTE_ARRAY_ALL_BYTES_ZERO,
+	dataToCompare	:= THIS^.BYTE_ARRAY_ALL_BYTES_ZERO,
+	assertionIsWrong:= TRUE,
+	testDataInfo	:= 'data is a byte array [100(0),100(0),100(0)], dataToCompare is a byte array [300(0)]'
+);
+
+THIS^.testIsLessThan(
+	data			:= THIS^.BYTE_ARRAY_MID_BYTES_FF_ONLY,
+	dataToCompare	:= THIS^.ARRAY_OF_BYTE_ARRAY_ALL_BYTES_ZERO,
+	assertionIsWrong:= TRUE,
+	testDataInfo	:= 'data is a byte array [100(0),100(16#FF),100(0)], dataToCompare is a byte array [[100(0)],[100(0)],[100(0)]]'
+);
+
+THIS^.testIsLessThan(
+	data			:= THIS^.ARRAY_OF_BYTE_ARRAY_ALL_BYTES_ZERO,
+	dataToCompare	:= THIS^.BYTE_ARRAY_MID_BYTES_FF_ONLY,
+	assertionIsWrong:= FALSE,
+	testDataInfo	:= 'data is a byte array [[100(0)],[100(0)],[100(0)]], dataToCompare is a byte array [100(0),100(16#FF),100(0)]'
+);
+
+THIS^.testIsLessThan(
+	data			:= THIS^.ALL_BITS_SET_AT_LOW_BYTE_DWORD,
+	dataToCompare	:= THIS^.ALL_BITS_SET_AT_LOW_BYTE,
+	assertionIsWrong:= TRUE,
+	testDataInfo	:= 'data is a dword 16#0000_00FF, dataToCompare is word 16#00FF'
+);
+
+THIS^.testIsLessThan(
+	data			:= THIS^.ALL_BITS_SET_AT_LOW_BYTE,
+	dataToCompare	:= THIS^.NO_BITS_SET_AT_MID_BYTES,
+	assertionIsWrong:= FALSE,
+	testDataInfo	:= 'data is a word 16#00FF, dataToCompare is dword 16#FF00_00FF'
+);
+
+THIS^.testIsLessThan(
+	data			:= THIS^.NO_BITS_SET_AT_MID_BYTES,
+	dataToCompare	:= THIS^.ALL_BITS_SET_AT_LOW_BYTE,
+	assertionIsWrong:= TRUE,
+	testDataInfo	:= 'data is a dword 16#FF00_00FF, dataToCompare is word 16#00FF'
+);
+
+THIS^.testIsLessThan(
+	data			:= THIS^.LWORD_WITH_VALUE_1,
+	dataToCompare	:= THIS^.BOOLEAN_TRUE,
+	assertionIsWrong:= TRUE,
+	testDataInfo	:= 'data is a lword 16#0000_0000_0000_0000_0000_0000_0000_0001, dataToCompare is bool TRUE'
+);
+
+THIS^.testIsLessThan(
+	data			:= THIS^.LWORD_WITH_VALUE_1,
+	dataToCompare	:= THIS^.BOOLEAN_FALSE,
+	assertionIsWrong:= TRUE,
+	testDataInfo	:= 'data is a lword 16#0000_0000_0000_0000_0000_0000_0000_0001, dataToCompare is bool FALSE'
+);
+
+THIS^.testIsLessThan(
+	data			:= THIS^.BOOLEAN_TRUE,
+	dataToCompare	:= THIS^.LWORD_WITH_VALUE_1,
+	assertionIsWrong:= TRUE,
+	testDataInfo	:= 'data is a bool TRUE, dataToCompare is bool 16#0000_0000_0000_0000_0000_0000_0000_0001'
+);
+
+THIS^.testIsLessThan(
+	data			:= THIS^.BOOLEAN_FALSE,
+	dataToCompare	:= THIS^.LWORD_WITH_VALUE_1,
+	assertionIsWrong:= FALSE,
+	testDataInfo	:= 'data is a bool FALSE, dataToCompare is bool 16#0000_0000_0000_0000_0000_0000_0000_0001'
+);
+
+TcUnit.TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="runIsNotEqualToTests" Id="{f4994154-a9dd-4487-ba78-c34ceba48e66}" FolderPath="isNotEqualTo\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.binary.isNotEqualTo``
+method of CNM_AssertionInterfaceLib library with various inputs
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+METHOD runIsNotEqualToTests
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[RETURN (NOT TcUnit.TEST_ORDERED(THIS^.getTestNameFor('isNotEqualTo')));
+
+THIS^.testIsNotEqualTo(
+	data			:= THIS^.BOOLEAN_FALSE,
+	dataToCompare	:= THIS^.BOOLEAN_FALSE,
+	assertionIsWrong:= TRUE,
+	testDataInfo	:= 'data is a boolean FALSE, dataToCompare is a aboolean FALSE'
+);
+
+THIS^.testIsNotEqualTo(
+	data			:= THIS^.BOOLEAN_TRUE,
+	dataToCompare	:= THIS^.BOOLEAN_FALSE,
+	assertionIsWrong:= FALSE,
+	testDataInfo	:= 'data is a boolean TRUE, dataToCompare is a boolean FALSE'
+);
+
+THIS^.testIsNotEqualTo(
+	data			:= THIS^.BOOLEAN_TRUE,
+	dataToCompare	:= NULL,
+	assertionIsWrong:= FALSE,
+	testDataInfo	:= 'data is a boolean TRUE, dataToCompare is null'
+);
+
+THIS^.testIsNotEqualTo(
+	data			:= NULL,
+	dataToCompare	:= NULL,
+	assertionIsWrong:= TRUE,
+	testDataInfo	:= 'data is null, dataToCompare is null'
+);
+
+THIS^.testIsNotEqualTo(
+	data			:= THIS^.BYTE_ARRAY_ALL_BYTES_ZERO,
+	dataToCompare	:= THIS^.BOOLEAN_FALSE,
+	assertionIsWrong:= TRUE,
+	testDataInfo	:= 'data is a byte array [300(0)], dataToCompare is a boolean FALSE'
+);
+
+THIS^.testIsNotEqualTo(
+	data			:= THIS^.BYTE_ARRAY_ALL_BYTES_ZERO,
+	dataToCompare	:= THIS^.ARRAY_OF_BYTE_ARRAY_ALL_BYTES_ZERO,
+	assertionIsWrong:= TRUE,
+	testDataInfo	:= 'data is a byte array [300(0)], dataToCompare is a byte array [[100(0)],[100(0)],[100(0)]]'
+);
+
+THIS^.testIsNotEqualTo(
+	data			:= THIS^.BYTE_ARRAY_MID_BYTES_FF_ONLY,
+	dataToCompare	:= THIS^.ARRAY_OF_BYTE_ARRAY_ALL_BYTES_ZERO,
+	assertionIsWrong:= FALSE,
+	testDataInfo	:= 'data is a byte array [100(0),100(16#FF),100(0)], dataToCompare is a byte array [[100(0)],[100(0)],[100(0)]]'
+);
+
+THIS^.testIsNotEqualTo(
+	data			:= THIS^.ALL_BITS_SET_AT_LOW_BYTE,
+	dataToCompare	:= THIS^.ALL_BITS_SET_AT_LOW_BYTE_DWORD,
+	assertionIsWrong:= TRUE,
+	testDataInfo	:= 'data is a word 16#00FF, dataToCompare is dword 16#0000_00FF'
+);
+
+THIS^.testIsNotEqualTo(
+	data			:= THIS^.ALL_BITS_SET_AT_LOW_BYTE_DWORD,
+	dataToCompare	:= THIS^.ALL_BITS_SET_AT_LOW_BYTE,
+	assertionIsWrong:= TRUE,
+	testDataInfo	:= 'data is a dword 16#0000_00FF, dataToCompare is word 16#00FF'
+);
+
+THIS^.testIsNotEqualTo(
+	data			:= THIS^.ALL_BITS_SET_AT_LOW_BYTE,
+	dataToCompare	:= THIS^.NO_BITS_SET_AT_MID_BYTES,
+	assertionIsWrong:= FALSE,
+	testDataInfo	:= 'data is a word 16#00FF, dataToCompare is dword 16#FF00_00FF'
+);
+
+THIS^.testIsNotEqualTo(
+	data			:= THIS^.NO_BITS_SET_AT_MID_BYTES,
+	dataToCompare	:= THIS^.ALL_BITS_SET_AT_LOW_BYTE,
+	assertionIsWrong:= FALSE,
+	testDataInfo	:= 'data is a dword 16#FF00_00FF, dataToCompare is word 16#00FF'
+);
+
+THIS^.testIsNotEqualTo(
+	data			:= THIS^.LWORD_WITH_VALUE_1,
+	dataToCompare	:= THIS^.BOOLEAN_TRUE,
+	assertionIsWrong:= TRUE,
+	testDataInfo	:= 'data is a lword 16#0000_0000_0000_0000_0000_0000_0000_0001, dataToCompare is bool TRUE'
+);
+
+THIS^.testIsNotEqualTo(
+	data			:= THIS^.LWORD_WITH_VALUE_1,
+	dataToCompare	:= THIS^.BOOLEAN_FALSE,
+	assertionIsWrong:= FALSE,
+	testDataInfo	:= 'data is a lword 16#0000_0000_0000_0000_0000_0000_0000_0001, dataToCompare is bool FALSE'
+);
+
+TcUnit.TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testIsEqualTo" Id="{fce15f84-2dc4-45b5-9512-bed2aa10727d}" FolderPath="isEqualTo\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.binary.isEqualTo``
+method of CNM_AssertionInterfaceLib library, 
+it provides the possibility to handover test data via parameter 
+
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+METHOD testIsEqualTo 
+VAR_INPUT
+	(* for the test it's the parameter ``data`` *)
+	data				:ANY;
+	(* for the test it's the parameter ``dataToCompare`` *)
+	dataToCompare		:ANY;
+	(* just the expectation if the assertion to test must be worng or true *)
+	assertionIsWrong	:BOOL;
+	(* info string what the test does *)
+	testDataInfo		:Tc2_System.T_MaxString;
+END_VAR
+VAR
+	(* contains the format string for the test message *)
+	message	:Tc2_System.T_MaxString;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.assertorContainer.resetAssertor();
+
+message := SEL(
+	assertionIsWrong,
+	Tc2_Standard.CONCAT(testDataInfo, ' assertion must be TRUE'),
+	Tc2_Standard.CONCAT(testDataInfo, ' assertion must be FALSE')
+);
+
+THIS^.assertorContainer.assertor.assert.binary.isEqualTo(
+	data := data,
+	dataToCompare := dataToCompare,
+	message := ''
+);
+
+THIS^.AssertEquals_BOOL(
+	Expected 	:= assertionIsWrong,
+	Actual 		:= THIS^.assertorContainer.wasAssertionWrong,
+	Message 	:= message
+);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testIsGreaterThan" Id="{8346ab32-c066-40fc-a1c7-1bccfc275542}" FolderPath="isGreaterThan\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.binary.isGreaterThan``
+method of CNM_AssertionInterfaceLib library, 
+it provides the possibility to handover test data via parameter 
+
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+METHOD testIsGreaterThan 
+VAR_INPUT
+	(* for the test it's the parameter ``data`` *)
+	data				:ANY;
+	(* for the test it's the parameter ``dataToCompare`` *)
+	dataToCompare		:ANY;
+	(* just the expectation if the assertion to test must be worng or true *)
+	assertionIsWrong	:BOOL;
+	(* info string what the test does *)
+	testDataInfo		:Tc2_System.T_MaxString;
+END_VAR
+VAR
+	(* contains the format string for the test message *)
+	message	:Tc2_System.T_MaxString;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.assertorContainer.resetAssertor();
+
+message := SEL(
+	assertionIsWrong,
+	Tc2_Standard.CONCAT(testDataInfo, ' assertion must be TRUE'),
+	Tc2_Standard.CONCAT(testDataInfo, ' assertion must be FALSE')
+);
+
+THIS^.assertorContainer.assertor.assert.binary.isGreaterThan(
+	data := data,
+	dataToCompare := dataToCompare,
+	message := ''
+);
+
+THIS^.AssertEquals_BOOL(
+	Expected 	:= assertionIsWrong,
+	Actual 		:= THIS^.assertorContainer.wasAssertionWrong,
+	Message 	:= message
+);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testIsLessThan" Id="{6492d7a9-0169-4b1e-bb0d-0a173013f266}" FolderPath="isLessThan\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.binary.isLessThan``
+method of CNM_AssertionInterfaceLib library, 
+it provides the possibility to handover test data via parameter 
+
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+METHOD testIsLessThan 
+VAR_INPUT
+	(* for the test it's the parameter ``data`` *)
+	data				:ANY;
+	(* for the test it's the parameter ``dataToCompare`` *)
+	dataToCompare		:ANY;
+	(* just the expectation if the assertion to test must be worng or true *)
+	assertionIsWrong	:BOOL;
+	(* info string what the test does *)
+	testDataInfo		:Tc2_System.T_MaxString;
+END_VAR
+VAR
+	(* contains the format string for the test message *)
+	message	:Tc2_System.T_MaxString;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.assertorContainer.resetAssertor();
+
+message := SEL(
+	assertionIsWrong,
+	Tc2_Standard.CONCAT(testDataInfo, ' assertion must be TRUE'),
+	Tc2_Standard.CONCAT(testDataInfo, ' assertion must be FALSE')
+);
+
+THIS^.assertorContainer.assertor.assert.binary.isLessThan(
+	data := data,
+	dataToCompare := dataToCompare,
+	message := ''
+);
+
+THIS^.AssertEquals_BOOL(
+	Expected 	:= assertionIsWrong,
+	Actual 		:= THIS^.assertorContainer.wasAssertionWrong,
+	Message 	:= message
+);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testIsNotEqualTo" Id="{4b115341-6e80-4be3-a543-d99d90d593a0}" FolderPath="isNotEqualTo\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.binary.isNotEqualTo``
+method of CNM_AssertionInterfaceLib library, 
+it provides the possibility to handover test data via parameter 
+
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+METHOD testIsNotEqualTo 
+VAR_INPUT
+	(* for the test it's the parameter ``data`` *)
+	data				:ANY;
+	(* for the test it's the parameter ``dataToCompare`` *)
+	dataToCompare		:ANY;
+	(* just the expectation if the assertion to test must be worng or true *)
+	assertionIsWrong	:BOOL;
+	(* info string what the test does *)
+	testDataInfo		:Tc2_System.T_MaxString;
+END_VAR
+VAR
+	(* contains the format string for the test message *)
+	message	:Tc2_System.T_MaxString;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.assertorContainer.resetAssertor();
+
+message := SEL(
+	assertionIsWrong,
+	Tc2_Standard.CONCAT(testDataInfo, ' assertion must be TRUE'),
+	Tc2_Standard.CONCAT(testDataInfo, ' assertion must be FALSE')
+);
+
+THIS^.assertorContainer.assertor.assert.binary.isNotEqualTo(
+	data := data,
+	dataToCompare := dataToCompare,
+	message := ''
+);
+
+THIS^.AssertEquals_BOOL(
+	Expected 	:= assertionIsWrong,
+	Actual 		:= THIS^.assertorContainer.wasAssertionWrong,
+	Message 	:= message
+);
+]]></ST>
+      </Implementation>
+    </Method>
+    <LineIds Name="BinaryAssertionsTests">
+      <LineId Id="54" Count="1" />
+      <LineId Id="113" Count="1" />
+      <LineId Id="17" Count="0" />
+    </LineIds>
+    <LineIds Name="BinaryAssertionsTests.getTestNameFor">
+      <LineId Id="5" Count="0" />
+      <LineId Id="7" Count="0" />
+    </LineIds>
+    <LineIds Name="BinaryAssertionsTests.runIsEqualToTests">
+      <LineId Id="3" Count="1" />
+      <LineId Id="232" Count="0" />
+      <LineId Id="234" Count="1" />
+      <LineId Id="286" Count="0" />
+      <LineId Id="236" Count="5" />
+      <LineId Id="287" Count="0" />
+      <LineId Id="242" Count="5" />
+      <LineId Id="284" Count="0" />
+      <LineId Id="248" Count="1" />
+      <LineId Id="233" Count="0" />
+      <LineId Id="252" Count="2" />
+      <LineId Id="285" Count="0" />
+      <LineId Id="255" Count="1" />
+      <LineId Id="288" Count="0" />
+      <LineId Id="290" Count="5" />
+      <LineId Id="289" Count="0" />
+      <LineId Id="296" Count="19" />
+      <LineId Id="338" Count="14" />
+      <LineId Id="354" Count="5" />
+      <LineId Id="353" Count="0" />
+      <LineId Id="384" Count="5" />
+      <LineId Id="382" Count="0" />
+      <LineId Id="390" Count="5" />
+      <LineId Id="8" Count="0" />
+      <LineId Id="2" Count="0" />
+      <LineId Id="40" Count="0" />
+    </LineIds>
+    <LineIds Name="BinaryAssertionsTests.runIsGreaterThanTests">
+      <LineId Id="3" Count="1" />
+      <LineId Id="232" Count="0" />
+      <LineId Id="234" Count="1" />
+      <LineId Id="286" Count="0" />
+      <LineId Id="236" Count="5" />
+      <LineId Id="287" Count="0" />
+      <LineId Id="242" Count="5" />
+      <LineId Id="284" Count="0" />
+      <LineId Id="248" Count="1" />
+      <LineId Id="233" Count="0" />
+      <LineId Id="252" Count="2" />
+      <LineId Id="285" Count="0" />
+      <LineId Id="255" Count="1" />
+      <LineId Id="288" Count="0" />
+      <LineId Id="290" Count="5" />
+      <LineId Id="289" Count="0" />
+      <LineId Id="296" Count="19" />
+      <LineId Id="338" Count="14" />
+      <LineId Id="354" Count="5" />
+      <LineId Id="353" Count="0" />
+      <LineId Id="384" Count="5" />
+      <LineId Id="382" Count="0" />
+      <LineId Id="390" Count="5" />
+      <LineId Id="418" Count="13" />
+      <LineId Id="8" Count="0" />
+      <LineId Id="2" Count="0" />
+      <LineId Id="40" Count="0" />
+    </LineIds>
+    <LineIds Name="BinaryAssertionsTests.runIsLessThanTests">
+      <LineId Id="3" Count="1" />
+      <LineId Id="232" Count="0" />
+      <LineId Id="234" Count="1" />
+      <LineId Id="286" Count="0" />
+      <LineId Id="236" Count="5" />
+      <LineId Id="287" Count="0" />
+      <LineId Id="242" Count="1" />
+      <LineId Id="432" Count="0" />
+      <LineId Id="434" Count="5" />
+      <LineId Id="244" Count="3" />
+      <LineId Id="284" Count="0" />
+      <LineId Id="248" Count="1" />
+      <LineId Id="446" Count="0" />
+      <LineId Id="440" Count="5" />
+      <LineId Id="233" Count="0" />
+      <LineId Id="252" Count="2" />
+      <LineId Id="285" Count="0" />
+      <LineId Id="255" Count="1" />
+      <LineId Id="288" Count="0" />
+      <LineId Id="290" Count="5" />
+      <LineId Id="289" Count="0" />
+      <LineId Id="296" Count="12" />
+      <LineId Id="447" Count="6" />
+      <LineId Id="309" Count="0" />
+      <LineId Id="454" Count="5" />
+      <LineId Id="338" Count="14" />
+      <LineId Id="354" Count="5" />
+      <LineId Id="353" Count="0" />
+      <LineId Id="384" Count="5" />
+      <LineId Id="382" Count="0" />
+      <LineId Id="390" Count="5" />
+      <LineId Id="418" Count="13" />
+      <LineId Id="8" Count="0" />
+      <LineId Id="2" Count="0" />
+      <LineId Id="40" Count="0" />
+    </LineIds>
+    <LineIds Name="BinaryAssertionsTests.runIsNotEqualToTests">
+      <LineId Id="3" Count="1" />
+      <LineId Id="232" Count="0" />
+      <LineId Id="234" Count="1" />
+      <LineId Id="286" Count="0" />
+      <LineId Id="236" Count="5" />
+      <LineId Id="287" Count="0" />
+      <LineId Id="242" Count="5" />
+      <LineId Id="284" Count="0" />
+      <LineId Id="248" Count="1" />
+      <LineId Id="233" Count="0" />
+      <LineId Id="252" Count="2" />
+      <LineId Id="285" Count="0" />
+      <LineId Id="255" Count="1" />
+      <LineId Id="288" Count="0" />
+      <LineId Id="290" Count="5" />
+      <LineId Id="289" Count="0" />
+      <LineId Id="296" Count="19" />
+      <LineId Id="338" Count="13" />
+      <LineId Id="374" Count="0" />
+      <LineId Id="376" Count="5" />
+      <LineId Id="404" Count="13" />
+      <LineId Id="8" Count="0" />
+      <LineId Id="2" Count="0" />
+      <LineId Id="40" Count="0" />
+    </LineIds>
+    <LineIds Name="BinaryAssertionsTests.testIsEqualTo">
+      <LineId Id="3" Count="0" />
+      <LineId Id="183" Count="0" />
+      <LineId Id="67" Count="0" />
+      <LineId Id="72" Count="3" />
+      <LineId Id="6" Count="0" />
+      <LineId Id="8" Count="0" />
+      <LineId Id="12" Count="0" />
+      <LineId Id="166" Count="1" />
+      <LineId Id="13" Count="1" />
+      <LineId Id="20" Count="3" />
+      <LineId Id="2" Count="0" />
+      <LineId Id="80" Count="0" />
+    </LineIds>
+    <LineIds Name="BinaryAssertionsTests.testIsGreaterThan">
+      <LineId Id="3" Count="0" />
+      <LineId Id="183" Count="0" />
+      <LineId Id="67" Count="0" />
+      <LineId Id="72" Count="3" />
+      <LineId Id="6" Count="0" />
+      <LineId Id="8" Count="0" />
+      <LineId Id="12" Count="0" />
+      <LineId Id="166" Count="1" />
+      <LineId Id="13" Count="1" />
+      <LineId Id="20" Count="3" />
+      <LineId Id="2" Count="0" />
+      <LineId Id="80" Count="0" />
+    </LineIds>
+    <LineIds Name="BinaryAssertionsTests.testIsLessThan">
+      <LineId Id="3" Count="0" />
+      <LineId Id="183" Count="0" />
+      <LineId Id="67" Count="0" />
+      <LineId Id="72" Count="3" />
+      <LineId Id="6" Count="0" />
+      <LineId Id="8" Count="0" />
+      <LineId Id="12" Count="0" />
+      <LineId Id="166" Count="1" />
+      <LineId Id="13" Count="1" />
+      <LineId Id="20" Count="3" />
+      <LineId Id="2" Count="0" />
+      <LineId Id="80" Count="0" />
+    </LineIds>
+    <LineIds Name="BinaryAssertionsTests.testIsNotEqualTo">
+      <LineId Id="3" Count="0" />
+      <LineId Id="183" Count="0" />
+      <LineId Id="67" Count="0" />
+      <LineId Id="72" Count="3" />
+      <LineId Id="6" Count="0" />
+      <LineId Id="8" Count="0" />
+      <LineId Id="12" Count="0" />
+      <LineId Id="166" Count="1" />
+      <LineId Id="13" Count="1" />
+      <LineId Id="20" Count="3" />
+      <LineId Id="2" Count="0" />
+      <LineId Id="80" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

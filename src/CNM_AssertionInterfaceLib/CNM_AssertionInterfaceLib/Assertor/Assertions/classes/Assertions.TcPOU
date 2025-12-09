@@ -1,0 +1,534 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="Assertions" Id="{6a4a64d5-6ec4-4b4b-aade-c47eac3c5641}" SpecialFunc="None">
+    <Declaration><![CDATA[(*
+
+short summary
+=================
+| This class provides assert statements the most common data:
+| It implements the interface :ref:`IAssertions`
+| For ``STRUCT``, ``ARRAY``, ``FUNCTION BLOCK``, ``ENUM``  use :ref:`Assertions.binary`
+| For ``BYTE``, ``WORD``, ``DWORD``, ``LWORD``, ``__XWORD`` use :ref:`Assertions.bitNumber`
+| For ``BOOL`` use :ref:`Assertions.boolean`
+| For ``DT``, ``TOD``, ``DATE`` use :ref:`Assertions.dateAndTime`
+| For ``REAL``, ``LREAL`` use :ref:`Assertions.float`
+| For ``SINT``, ``INT``, ``DINT``, ``LINT``, ``__XINT`` use :ref:`Assertions.integer`
+| For ``CNM_AbsrtractObject.IObject`` use :ref:`Assertions.object`
+| For ``POINTER`` use :ref:`Assertions.pointers`
+| For ``STRING``, ``WSTRING`` use :ref:`Assertions.strings`
+| For ``TIME``, ``LTIME`` use :ref:`Assertions.times`
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+methods and properties
+=======================
+
+*)
+
+{attribute 'reflection'}
+FUNCTION_BLOCK INTERNAL Assertions EXTENDS CNM_AbstractObject.Object IMPLEMENTS IAssertions, IAssertCallBacksetter
+VAR
+	(* class to handle binary assertions *)
+	binaryAssertions	:BinaryAssertions();
+	(* class to handle bit number assertions *)
+	bitNumberAssertions	:BitNumberAssertions();
+	(* class to handle boolean assertions *)
+	booleanAssertions	:BooleanAssertion();
+	(* class to handle date and time assertions *)
+	dateTimeAssertions	:DateAndTimeAssertions();
+	(* class to handle float assertions *)
+	floatAssertions		:FloatAssertions();
+	(* class to handle integer assertions *)
+	intgerAssertions	:IntergerAssertions();
+	(* class to handle object assertions *)
+	objectAssertions	:ObjectAssertions();
+	(* class to handle pointer assertions *)
+	pointerAssertions	:PointerAssertions();
+	(* class to handle string assertions *)
+	stringAssertions	:StringAssertions();
+	(* class to handle time assertions *)
+	timeAssertions		:TimeAssertions();
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Property Name="binary" Id="{142c926b-7501-4ccc-8f69-6a247de43135}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+Returns the interface :ref:`IBinaryAssertions`
+with assert statements for binary data 
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+PROPERTY binary :IBinaryAssertions
+]]></Declaration>
+      <Get Name="Get" Id="{b7c2278f-bedb-4fab-91a7-77f4c4281a99}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[binary := THIS^.binaryAssertions;
+]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="bitNumber" Id="{4ec29991-655d-4950-a714-b3d8ba0255ee}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+Returns the interface :ref:`IBitNumberAssertions`
+with assert statements for bit numbers 
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+PROPERTY bitNumber :IBitNumberAssertions
+]]></Declaration>
+      <Get Name="Get" Id="{2f73ad81-d28d-45ba-8ce6-a07d77138d29}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[bitNumber := THIS^.bitNumberAssertions;
+]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="boolean" Id="{acd9bbbe-07df-4677-bb51-c2cdfa44c9d6}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+Returns the interface :ref:`IBooleanAssertion`
+with assert statements for booleans
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+PROPERTY boolean :IBooleanAssertion
+]]></Declaration>
+      <Get Name="Get" Id="{945c8e76-685f-488e-94b6-80134f6cfdc8}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[boolean := THIS^.booleanAssertions;
+]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="className" Id="{86f6a553-7cca-4892-be2a-c6d1aced52d5}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This abstract property returns the class name of the concrete object, 
+It's for debugging purpose
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+PROPERTY className :CNM_AbstractObject.ClassName]]></Declaration>
+      <Get Name="Get" Id="{1662ac8b-568f-45a9-95f2-17365adef5d5}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[className := 'CNM_AssertionInterfaceLib.Assertions';
+]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="dateAndTime" Id="{55de2bbc-cb36-431d-9a9e-da75b292109b}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+Returns the interface :ref:`IDateAndTimeAssertions`
+with assert statements for date and time data types
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+PROPERTY dateAndTime :IDateAndTimeAssertions
+]]></Declaration>
+      <Get Name="Get" Id="{a9147822-4b63-4e17-ac59-4495fa4e47de}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[dateAndTime := THIS^.dateTimeAssertions;
+]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="float" Id="{9218355c-182a-4f47-b7f0-8992a0809776}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+Returns the interface :ref:`IFloatAssertions`
+with assert statements for floatings
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+PROPERTY float :IFloatAssertions
+]]></Declaration>
+      <Get Name="Get" Id="{4c4a36ad-c249-406f-aa81-bd04408b6b84}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[float := THIS^.floatAssertions;
+]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="integer" Id="{b65a6d6b-b495-4f3b-95a2-c7861bb5407d}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+Returns the interface :ref:`IIntergerAssertions`
+with assert statements for integers
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+PROPERTY integer :IIntergerAssertions
+]]></Declaration>
+      <Get Name="Get" Id="{cbc086f1-96e9-43ab-ab5f-e9f32d1cea0c}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[integer := THIS^.intgerAssertions;
+]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="object" Id="{7bf60662-43d8-4e19-adbd-cccbf5d058bf}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+Returns the interface :ref:`IObjectAssertions`
+with assert statements for ``CNM_AbstractObject.IObject``
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+PROPERTY object :IObjectAssertions
+]]></Declaration>
+      <Get Name="Get" Id="{9c5cd401-d750-43b6-af55-add2be37063f}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[object := THIS^.objectAssertions;
+]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="pointers" Id="{6724e1cf-e6cb-4515-9765-00eb60337b3b}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+Returns the interface :ref:`IPointerAssertions`
+with assert statements for pointers
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+PROPERTY pointers :IPointerAssertions
+]]></Declaration>
+      <Get Name="Get" Id="{5be8d647-99ca-4d89-9fbf-1876130341c5}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[pointers := THIS^.pointerAssertions;
+]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="setCallBack" Id="{3f4eb8e9-9028-4ea0-b455-29d500d57685}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This methods is the setter for the callback class if an assertion was false
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD setCallBack
+VAR_INPUT
+	(* the class that must be informed if an assertion is false *)
+	callBack	:IAssertCallback;  
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.binaryAssertions.setCallBack(callBack);
+THIS^.bitNumberAssertions.setCallBack(callBack);
+THIS^.booleanAssertions.setCallBack(callBack);
+THIS^.dateTimeAssertions.setCallBack(callBack);
+THIS^.floatAssertions.setCallBack(callBack);
+THIS^.intgerAssertions.setCallBack(callBack);
+THIS^.objectAssertions.setCallBack(callBack);
+THIS^.pointerAssertions.setCallBack(callBack);
+THIS^.stringAssertions.setCallBack(callBack);
+THIS^.timeAssertions.setCallBack(callBack);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="strings" Id="{63ab39da-e661-4a29-8ea2-a177aebf05fb}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+Returns the interface :ref:`IStringAssertions`
+with assert statements for windows-1252 and UTF-16 strings
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+PROPERTY strings :IStringAssertions
+]]></Declaration>
+      <Get Name="Get" Id="{98e545e1-86cb-4f6a-a67c-fa23903f6378}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[strings := THIS^.stringAssertions;
+]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="times" Id="{07e8307b-c360-425a-acd8-547c6726db30}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+Returns the interface :ref:`ITimeAssertions`
+with assert statements for time data types
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+PROPERTY times :ITimeAssertions
+]]></Declaration>
+      <Get Name="Get" Id="{b856cf7a-028c-4686-b2f9-e0dcd58f45fe}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[times := THIS^.timeAssertions;
+]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <LineIds Name="Assertions">
+      <LineId Id="9" Count="0" />
+    </LineIds>
+    <LineIds Name="Assertions.binary.Get">
+      <LineId Id="2" Count="0" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="Assertions.bitNumber.Get">
+      <LineId Id="2" Count="0" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="Assertions.boolean.Get">
+      <LineId Id="2" Count="0" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="Assertions.className.Get">
+      <LineId Id="5" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="Assertions.dateAndTime.Get">
+      <LineId Id="2" Count="0" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="Assertions.float.Get">
+      <LineId Id="2" Count="0" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="Assertions.integer.Get">
+      <LineId Id="2" Count="0" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="Assertions.object.Get">
+      <LineId Id="2" Count="0" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="Assertions.pointers.Get">
+      <LineId Id="2" Count="0" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="Assertions.setCallBack">
+      <LineId Id="30" Count="10" />
+    </LineIds>
+    <LineIds Name="Assertions.strings.Get">
+      <LineId Id="2" Count="0" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="Assertions.times.Get">
+      <LineId Id="2" Count="0" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

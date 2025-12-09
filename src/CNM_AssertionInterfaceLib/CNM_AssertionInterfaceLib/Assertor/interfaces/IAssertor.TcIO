@@ -1,0 +1,64 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.11">
+  <Itf Name="IAssertor" Id="{494385c1-a2d8-444c-a0f6-b200312ac877}">
+    <Declaration><![CDATA[(*
+
+short summary
+=================
+This interface provides assert statements
+for the most common data types. The interface
+is made to avoid to many methods to select in 
+intelliSense of the TwinCAT editor
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+properties
+==================
+
+*)
+
+INTERFACE IAssertor EXTENDS __SYSTEM.IQueryInterface
+]]></Declaration>
+    <Property Name="assert" Id="{d83f9712-1108-4d7c-93ff-08e68224b2d8}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+Returns the interface :ref:`IAssertions`
+to get access to the assert statements
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+methods
+==================
+
+*)
+
+PROPERTY assert :IAssertions
+]]></Declaration>
+      <Get Name="Get" Id="{8b0f0d23-c1ea-4c8d-8e76-f066ce404a86}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+  </Itf>
+</TcPlcObject>

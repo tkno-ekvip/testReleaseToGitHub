@@ -1,0 +1,75 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.8">
+  <DUT Name="UnicodeStringLengthUnit" Id="{5a7bc17c-26d2-4f24-a570-e173ce85c071}">
+    <Declaration><![CDATA[(*
+
+short summary
+=================
+This list is intended to define the string length units of measurement
+
+Type of the enumartion is ``BYTE``
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+enumeration values
+======================
+
+*)
+
+{attribute 'qualified_only'}
+{attribute 'strict'}
+{attribute 'to_string'}
+TYPE UnicodeStringLengthUnit :
+(
+	(* Just the number of bytes without the termination character U+0000 *)
+	BYTES := 0,
+	(* 
+	Character count of a string. For example Ä
+	can be represented just one character U+00C4 (Ä) 
+	or it can be represented by two characters U+0041 U+00308 (A◌̈)
+	*)
+	CHARACTERS := 1,
+	(*
+	Character count of a string normalized with form D.
+	Form D is a canonial decomposition. 
+	For example Ä (U+00C4) will transformed to A◌̈ (U+0041 U+00308)
+	it counts always two.
+	*)
+	CHARACTERS_NFD := 2,
+	(*
+	Character count of a string normalized with form C.
+	Form C is a canonial composition. 
+	For example A◌̈ (U+0041 U+00308) will transformed to Ä (U+00C4)
+	it counts always one.
+	*)	
+	CHARACTERS_NFC := 3,
+	(*
+	Character count of a string but the visible only.
+	For example the developer emoji 👨‍💻 is made from three characters:
+	man👨 (U+1F468),zero width joiner (U+200D) and the Personal Computer 💻 (U+1F4BB)
+	but it counts just one for it.
+	*)
+	VISIBLE_CHARACTERS := 4,
+	(*
+	String width (rendering width according to the number of spaces (U+0020)).
+ 	If strings should be in horizontal aligned, then it's required to check the width.
+	For example woman 👩 (U+1F469) has a width of two spaces, 
+	developer 👨‍💻 (U+1F468 U+200D U+1F4BB) has a width of five spaces
+	and Ä has a width of one space
+	*)
+	WIDTH := 5
+)DINT;
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

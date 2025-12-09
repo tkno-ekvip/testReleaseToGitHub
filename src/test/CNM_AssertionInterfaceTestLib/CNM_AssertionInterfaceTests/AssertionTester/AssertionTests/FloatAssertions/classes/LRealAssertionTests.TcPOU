@@ -1,0 +1,5815 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="LRealAssertionTests" Id="{4cdef9f6-aea7-47e1-a973-1a1e625cb7d9}" SpecialFunc="None">
+    <Declaration><![CDATA[(*
+
+short summary
+==================
+This class tests all methods of LREAL assertions
+with various combinations of inputs and checks expected 
+outputs are satisfied or not
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+methods and properties
+======================
+
+*)
+
+
+FUNCTION_BLOCK LRealAssertionTests EXTENDS AbstractAssertorTest
+VAR
+	(* not a number *)
+	NAN							:LRealTestParameter := (asString := 'NaN');
+	(* infinity *)
+	INF							:LRealTestParameter := (asString := '+inf');
+	(* -infinity *)
+	MINUS_INF					:LRealTestParameter := (asString := '-inf');
+	(* -0.0 (MSB is set only) *)
+	MINUS_ZERO					:LRealTestParameter := (asString := '-0.0');
+	(* minimum subnormal value: -2.225073858507201e-308 (all fraction bits and MSB set only) *)
+	MIN_SUBNORMAL				:LRealTestParameter := (asString := '-2.225073858507201e-308');
+	(* maximum subnormal value: 2.225073858507201e-308 (all fraction bits are set only) *)
+	MAX_SUBNORMAL				:LRealTestParameter := (asString := '2.225073858507201e-308');
+	(* smallest positive subnormal value: 5E-324 (LSB set only) *)
+	SMALLEST_POSITIVE_SUBNORMAL	:LRealTestParameter := (asString := '5E-324');
+	(* smallest negative subnormal value: -5E-324 (LSB and MSB set only)*)
+	SMALLEST_NEGATIVE_SUBNORMAL	:LRealTestParameter := (asString := '-5E-324');
+END_VAR
+VAR CONSTANT
+	(* prefix to unify the test names *)
+	TEST_NAME_PREFIX					:STRING := 'assert.float.double.';
+	(* max value of real *)
+	MAX_NON_SPECIAL						:LRealTestParameter := (value := 1.7976931348623158E+308, asString := '1.7976931348623158E+308');
+	(* min value of real *)
+	MIN_NON_SPECIAL						:LRealTestParameter := (value := -1.7976931348623158E+308, asString := '-1.7976931348623158E+308');
+	(* 0.0 *)
+	ZERO								:LRealTestParameter := (value := 0.0, asString := '0.0');
+	(* 1% 0.01 *)
+	ONE_PERCENT							:LRealTestParameter := (value := 0.01, asString := '0.01');
+	(* 1‰ 0.001 *)
+	ONE_PERMILLE						:LRealTestParameter := (value := 0.001, asString := '0.001');
+	(* -1% -0.01 *)
+	MINUS_ONE_PERCENT					:LRealTestParameter := (value := -0.01, asString := '-0.01');
+	(* -1‰ -0.001 *)
+	MINUS_ONE_PERMILLE					:LRealTestParameter := (value := -0.001, asString := '-0.001');
+	(* bit number of the sign bit *)
+	SIGN								:USINT := 63;
+	(* binary value of 0.0 *)
+	BINARY_ZERO							:LWORD := 16#0000_0000_0000_0000;
+	(* binary value of -0.0 *)
+	BINARY_MINUS_ZERO					:LWORD := 16#8000_0000_0000_0000;
+	(* binary value of inf *)
+	BINARY_INFINITY						:LWORD := 16#7FF0_0000_0000_0000;
+	(* binary value of -inf *)
+	BINARY_NEGATIVE_INFINITY			:LWORD := 16#FFF0_0000_0000_0000;
+	(* mask to filter the exponent of the number *)
+	MASK_FOR_EXPONENT					:LWORD := 16#7FF0_0000_0000_0000;
+	(* minimum denormalized number *)
+	BINARY_MIN_SUBNORMAL				:LWORD := 16#800F_FFFF_FFFF_FFFF;
+	(* maximum denormalized number*)
+	BINARY_MAX_SUBNORMAL				:LWORD := 16#000F_FFFF_FFFF_FFFF;
+	(* smallest positive denormalizied number greater than zero *)
+	BINARY_SMALLEST_POSITIVE_SUBNORMAL	:LWORD := 16#0000_0000_0000_0001;
+	(* smallest negative denormalizied number greater than minus zero *)
+	BINARY_SMALLEST_NEGATIVE_SUBNORMAL	:LWORD := 16#8000_0000_0000_0001;
+	(* smallest positive signaling NaN *)
+	BINARY_POSITIVE_SIGNALING_NAN		:LWORD := 16#FFF0_0000_0000_0001;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[THIS^.runValueIsEqualToTests();
+THIS^.runValueIsGreaterThanTests();
+THIS^.runValueIsInRangeOfTests();
+THIS^.runValueIsLessThanTests();
+THIS^.runValueIsMaxTests();
+THIS^.runValueIsMinTests();
+THIS^.runValueIsNotEqualToTests();
+THIS^.runValueIsANumberTests();
+THIS^.runValueIsFiniteTests();
+THIS^.runValueIsInfiniteTests();
+THIS^.runValueIsNaNTests();
+THIS^.runValueIsNegativeTests();
+THIS^.runValueIsPositiveTests();
+THIS^.runValueIsNegativeInfiniteTests();
+THIS^.runValueIsPositiveInfiniteTests();
+THIS^.runValueIsNegativeZeroTests();
+THIS^.runValueIsPositiveZeroTests();
+THIS^.runValueIsNormalTests();
+THIS^.runValueIsNotNegativeInfiniteTests();
+THIS^.runValueIsNotPositiveInfiniteTests();
+THIS^.runValueIsNotSpecialTests();
+THIS^.runValueIsSpecialTests();
+THIS^.runValueIsSubnormalTests();
+
+//THIS^.assertorContainer.assertor.assert.float.double
+//Tc2_Utilities.LLrealIsFinite
+//Tc2_Utilities.LLrealIsNaN]]></ST>
+    </Implementation>
+    <Folder Name="internal" Id="{55a78c18-c6f0-4b66-a6aa-792fa07f1e40}" />
+    <Folder Name="valueIsANumber" Id="{c9b81cb1-3d28-4c93-b044-b859fef34f8d}" />
+    <Folder Name="valueIsEqualTo" Id="{cb34475c-b4d7-42a5-bd9e-15c700b2806e}" />
+    <Folder Name="valueIsFinite" Id="{5c0c9d31-6210-40f2-b1ab-4667167ca000}" />
+    <Folder Name="valueIsGreaterThan" Id="{ffa6b16a-871b-43ef-8dde-4d6eee078ea1}" />
+    <Folder Name="valueIsInfinite" Id="{863226ec-1e47-4545-b043-cfa078beab65}" />
+    <Folder Name="valueIsInRangeOf" Id="{237c4a1b-299e-432c-9b8c-3ea021088efc}" />
+    <Folder Name="valueIsLessThan" Id="{462e0175-fd69-4d14-ab10-4cb34cefd812}" />
+    <Folder Name="valueIsMax" Id="{b3a473d0-e1aa-4a22-8661-42298afa5290}" />
+    <Folder Name="valueIsMin" Id="{3d02cbf4-1326-4c23-baf3-a2eea53014b5}" />
+    <Folder Name="valueIsNaN" Id="{c71a9c78-4843-49c1-bce1-9bd76d1a646b}" />
+    <Folder Name="valueIsNegative" Id="{3dcb3e65-0417-4c17-bf15-eb8504e9c8d3}" />
+    <Folder Name="valueIsNegativeZero" Id="{fce9c057-8072-4a48-b835-1f3394ec4c1e}" />
+    <Folder Name="valueIsNegInfinite" Id="{8f95f117-a915-4daa-808c-be94399d9b0e}" />
+    <Folder Name="valueIsNormal" Id="{48943a1c-d523-4c2f-8247-1f0b6d57eea3}" />
+    <Folder Name="valueIsNotEqualTo" Id="{b4bacf5d-61b3-46f5-8320-06568e53cc2b}" />
+    <Folder Name="valueIsNotNegInf" Id="{00012e42-5d5f-4a60-bc55-131907fb72a6}" />
+    <Folder Name="valueIsNotPosInf" Id="{7ff6c67b-baa7-4f0e-a513-c43cef34b606}" />
+    <Folder Name="valueIsNotSpecial" Id="{bf8d6ef0-edeb-4e1a-86ee-3747b12ee906}" />
+    <Folder Name="valueIsPosInfinite" Id="{30b69d2b-d974-4d67-a6e2-29b2a04b3540}" />
+    <Folder Name="valueIsPositive" Id="{a00449ba-37d2-4545-b648-be16d4e64c4d}" />
+    <Folder Name="valueIsPositiveZero" Id="{bc6b203b-48cd-4459-bdda-9f03812395d1}" />
+    <Folder Name="valueIsSpecial" Id="{cb32aef4-2d4d-4812-8b85-3f75ff4178cd}" />
+    <Folder Name="valueIsSubnormal" Id="{266fbcbc-518f-417c-ad7a-817d5f144ea7}" />
+    <Method Name="FB_init" Id="{39816376-de75-40d7-b4de-febbec9bb1e7}">
+      <Declaration><![CDATA[(*
+
+short summary
+=============
+It attaches the container with the class to test
+and it sets the special numbers from `IEEE 754`_ standard
+
+.. _IEEE 754: https://en.wikipedia.org/wiki/IEEE_754
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+METHOD FB_init :BOOL
+VAR_INPUT
+	(* if TRUE, the retain variables are initialized (warm start / cold start) *)
+    bInitRetains	:BOOL;
+	(* if TRUE, the instance afterwards gets moved into the copy code (online change) *)
+    bInCopyCode		:BOOL;
+	(* container with the class to test *)
+	classToBeTested :IAssertorContainer;
+END_VAR
+VAR
+	{attribute 'hide'}
+	newHashstate3		:CNM_AbstractObject.Hashcode;
+	{attribute 'hide'}
+	carzyNumberPointer	:POINTER TO LWORD;	
+END_VAR
+VAR CONSTANT
+	{attribute 'hide'}
+	NUMBER_OF_LEFT_SHIFTS		:UINT	:= 17;
+	{attribute 'hide'}
+	NUMBER_OF_LEFT_ROTATIONS	:UINT   := 45;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[carzyNumberPointer := ADR(THIS^.NAN.value);
+carzyNumberPointer^ := THIS^.BINARY_POSITIVE_SIGNALING_NAN;
+
+carzyNumberPointer := ADR(THIS^.INF.value);
+carzyNumberPointer^ := THIS^.BINARY_INFINITY;
+
+carzyNumberPointer := ADR(THIS^.MINUS_INF.value);
+carzyNumberPointer^ := THIS^.BINARY_NEGATIVE_INFINITY;
+
+carzyNumberPointer := ADR(THIS^.MINUS_ZERO.value);
+carzyNumberPointer^ := THIS^.BINARY_MINUS_ZERO;
+
+carzyNumberPointer := ADR(THIS^.MIN_SUBNORMAL.value);
+carzyNumberPointer^ := THIS^.BINARY_MIN_SUBNORMAL; 
+
+carzyNumberPointer := ADR(THIS^.MAX_SUBNORMAL.value);
+carzyNumberPointer^ := THIS^.BINARY_MAX_SUBNORMAL; 
+
+carzyNumberPointer := ADR(THIS^.SMALLEST_POSITIVE_SUBNORMAL.value);
+carzyNumberPointer^ := THIS^.BINARY_SMALLEST_POSITIVE_SUBNORMAL; 
+
+carzyNumberPointer := ADR(THIS^.SMALLEST_NEGATIVE_SUBNORMAL.value);
+carzyNumberPointer^ := THIS^.BINARY_SMALLEST_NEGATIVE_SUBNORMAL; 
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="getTestNameFor" Id="{618c4f00-1437-4fdc-a957-5e323f3ae1cc}" FolderPath="internal\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method is a helper function to create a unified test name
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+METHOD PROTECTED getTestNameFor :Tc2_System.T_MaxString
+VAR_INPUT
+	(* name of the method to test, to create a unified test name *)
+	nameOfMethodToTest	:Tc2_System.T_MaxString;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[getTestNameFor := Tc2_Standard.CONCAT(THIS^.TEST_NAME_PREFIX, nameOfMethodToTest);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="runValueIsANumberTests" Id="{32293ef8-5339-4531-a969-4cef8cd4acfd}" FolderPath="valueIsANumber\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.float.double.valueIsANumber``
+method of CNM_AssertionInterfaceLib library with various inputs
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+METHOD runValueIsANumberTests
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[RETURN (NOT TcUnit.TEST_ORDERED(THIS^.getTestNameFor('valueIsANumber')));
+
+THIS^.testValueIsANumber(THIS^.NAN);
+THIS^.testValueIsANumber(THIS^.INF);
+THIS^.testValueIsANumber(THIS^.MINUS_INF);
+THIS^.testValueIsANumber(THIS^.MAX_NON_SPECIAL);
+THIS^.testValueIsANumber(THIS^.MIN_NON_SPECIAL);
+THIS^.testValueIsANumber(THIS^.ZERO);
+THIS^.testValueIsANumber(THIS^.MINUS_ZERO);
+THIS^.testValueIsANumber(THIS^.MAX_SUBNORMAL);
+THIS^.testValueIsANumber(THIS^.MIN_SUBNORMAL);
+THIS^.testValueIsANumber(THIS^.SMALLEST_NEGATIVE_SUBNORMAL);
+THIS^.testValueIsANumber(THIS^.SMALLEST_POSITIVE_SUBNORMAL);
+THIS^.testValueIsANumber(THIS^.ONE_PERCENT);
+THIS^.testValueIsANumber(THIS^.ONE_PERMILLE);
+THIS^.testValueIsANumber(THIS^.MINUS_ONE_PERCENT);
+THIS^.testValueIsANumber(THIS^.MINUS_ONE_PERMILLE);
+
+TcUnit.TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="runValueIsEqualToTests" Id="{de4bad80-9c96-4fff-a086-3e74441d3c1d}" FolderPath="valueIsEqualTo\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.float.double.valueIsEqualTo``
+method of CNM_AssertionInterfaceLib library with various inputs
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+METHOD runValueIsEqualToTests
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[RETURN (NOT TcUnit.TEST_ORDERED(THIS^.getTestNameFor('valueIsEqualTo')));
+
+THIS^.testValueIsEqualTo(
+	valueToTest := THIS^.NAN,
+	expected := THIS^.ONE_PERCENT,
+	tolerance := THIS^.ONE_PERMILLE
+);
+
+THIS^.testValueIsEqualTo(
+	valueToTest := THIS^.ONE_PERCENT,
+	expected := THIS^.NAN,
+	tolerance := THIS^.ONE_PERMILLE
+);
+
+THIS^.testValueIsEqualTo(
+	valueToTest := THIS^.ONE_PERCENT,
+	expected := THIS^.ONE_PERCENT,
+	tolerance := THIS^.NAN
+);
+
+THIS^.testValueIsEqualTo(
+	valueToTest := THIS^.NAN,
+	expected := THIS^.NAN,
+	tolerance := THIS^.ONE_PERCENT
+);
+
+THIS^.testValueIsEqualTo(
+	valueToTest := THIS^.NAN,
+	expected := THIS^.NAN,
+	tolerance := THIS^.NAN
+);
+
+THIS^.testValueIsEqualTo(
+	valueToTest := THIS^.INF,
+	expected := THIS^.ONE_PERCENT,
+	tolerance := THIS^.ONE_PERMILLE
+);
+
+THIS^.testValueIsEqualTo(
+	valueToTest := THIS^.ONE_PERCENT,
+	expected := THIS^.INF,
+	tolerance := THIS^.ONE_PERMILLE
+);
+
+THIS^.testValueIsEqualTo(
+	valueToTest := THIS^.ONE_PERCENT,
+	expected := THIS^.ONE_PERCENT,
+	tolerance := THIS^.INF
+);
+
+THIS^.testValueIsEqualTo(
+	valueToTest := THIS^.INF,
+	expected := THIS^.INF,
+	tolerance := THIS^.ONE_PERCENT
+);
+
+THIS^.testValueIsEqualTo(
+	valueToTest := THIS^.INF,
+	expected := THIS^.INF,
+	tolerance := THIS^.INF
+);
+
+THIS^.testValueIsEqualTo(
+	valueToTest := THIS^.INF,
+	expected := THIS^.MINUS_INF,
+	tolerance := THIS^.INF
+);
+
+THIS^.testValueIsEqualTo(
+	valueToTest := THIS^.MINUS_INF,
+	expected := THIS^.ONE_PERCENT,
+	tolerance := THIS^.ONE_PERMILLE
+);
+
+THIS^.testValueIsEqualTo(
+	valueToTest := THIS^.ONE_PERCENT,
+	expected := THIS^.MINUS_INF,
+	tolerance := THIS^.ONE_PERMILLE
+);
+
+THIS^.testValueIsEqualTo(
+	valueToTest := THIS^.ONE_PERCENT,
+	expected := THIS^.ONE_PERCENT,
+	tolerance := THIS^.MINUS_INF
+);
+
+THIS^.testValueIsEqualTo(
+	valueToTest := THIS^.MINUS_INF,
+	expected := THIS^.MINUS_INF,
+	tolerance := THIS^.ONE_PERCENT
+);
+
+THIS^.testValueIsEqualTo(
+	valueToTest := THIS^.MINUS_INF,
+	expected := THIS^.MINUS_INF,
+	tolerance := THIS^.MINUS_INF
+);
+
+THIS^.testValueIsEqualTo(
+	valueToTest := THIS^.INF,
+	expected := THIS^.MINUS_INF,
+	tolerance := THIS^.INF
+);
+
+THIS^.testValueIsEqualTo(
+	valueToTest := THIS^.MINUS_ZERO,
+	expected := THIS^.SMALLEST_POSITIVE_SUBNORMAL,
+	tolerance := THIS^.ONE_PERMILLE
+);
+
+THIS^.testValueIsEqualTo(
+	valueToTest := THIS^.SMALLEST_POSITIVE_SUBNORMAL,
+	expected := THIS^.MINUS_ZERO,
+	tolerance := THIS^.ONE_PERMILLE
+);
+
+THIS^.testValueIsEqualTo(
+	valueToTest := THIS^.SMALLEST_POSITIVE_SUBNORMAL,
+	expected := THIS^.SMALLEST_POSITIVE_SUBNORMAL,
+	tolerance := THIS^.MINUS_ZERO
+);
+
+THIS^.testValueIsEqualTo(
+	valueToTest := THIS^.MINUS_ZERO,
+	expected := THIS^.MINUS_ZERO,
+	tolerance := THIS^.SMALLEST_POSITIVE_SUBNORMAL
+);
+
+THIS^.testValueIsEqualTo(
+	valueToTest := THIS^.MINUS_ZERO,
+	expected := THIS^.MINUS_ZERO,
+	tolerance := THIS^.MINUS_ZERO
+);
+
+THIS^.testValueIsEqualTo(
+	valueToTest := THIS^.MINUS_ZERO,
+	expected := THIS^.ZERO,
+	tolerance := THIS^.MINUS_ZERO
+);
+
+THIS^.testValueIsEqualTo(
+	valueToTest := THIS^.ZERO,
+	expected := THIS^.SMALLEST_POSITIVE_SUBNORMAL,
+	tolerance := THIS^.ONE_PERMILLE
+);
+
+THIS^.testValueIsEqualTo(
+	valueToTest := THIS^.SMALLEST_POSITIVE_SUBNORMAL,
+	expected := THIS^.ZERO,
+	tolerance := THIS^.ONE_PERMILLE
+);
+
+THIS^.testValueIsEqualTo(
+	valueToTest := THIS^.SMALLEST_POSITIVE_SUBNORMAL,
+	expected := THIS^.SMALLEST_POSITIVE_SUBNORMAL,
+	tolerance := THIS^.ZERO
+);
+
+THIS^.testValueIsEqualTo(
+	valueToTest := THIS^.ZERO,
+	expected := THIS^.ZERO,
+	tolerance := THIS^.SMALLEST_POSITIVE_SUBNORMAL
+);
+
+THIS^.testValueIsEqualTo(
+	valueToTest := THIS^.ZERO,
+	expected := THIS^.ZERO,
+	tolerance := THIS^.ZERO
+);
+
+THIS^.testValueIsEqualTo(
+	valueToTest := THIS^.ZERO,
+	expected := THIS^.MINUS_ZERO,
+	tolerance := THIS^.ZERO
+);
+
+THIS^.testValueIsEqualTo(
+	valueToTest := THIS^.SMALLEST_POSITIVE_SUBNORMAL,
+	expected := THIS^.ONE_PERCENT,
+	tolerance := THIS^.ONE_PERMILLE
+);
+
+THIS^.testValueIsEqualTo(
+	valueToTest := THIS^.ONE_PERCENT,
+	expected := THIS^.SMALLEST_POSITIVE_SUBNORMAL,
+	tolerance := THIS^.ONE_PERMILLE
+);
+
+THIS^.testValueIsEqualTo(
+	valueToTest := THIS^.ONE_PERCENT,
+	expected := THIS^.ONE_PERCENT,
+	tolerance := THIS^.SMALLEST_POSITIVE_SUBNORMAL
+);
+
+THIS^.testValueIsEqualTo(
+	valueToTest := THIS^.SMALLEST_POSITIVE_SUBNORMAL,
+	expected := THIS^.SMALLEST_POSITIVE_SUBNORMAL,
+	tolerance := THIS^.ONE_PERCENT
+);
+
+THIS^.testValueIsEqualTo(
+	valueToTest := THIS^.SMALLEST_POSITIVE_SUBNORMAL,
+	expected := THIS^.SMALLEST_POSITIVE_SUBNORMAL,
+	tolerance := THIS^.SMALLEST_POSITIVE_SUBNORMAL
+);
+
+THIS^.testValueIsEqualTo(
+	valueToTest := THIS^.SMALLEST_POSITIVE_SUBNORMAL,
+	expected := THIS^.SMALLEST_NEGATIVE_SUBNORMAL,
+	tolerance := THIS^.SMALLEST_POSITIVE_SUBNORMAL
+);
+
+THIS^.testValueIsEqualTo(
+	valueToTest := THIS^.SMALLEST_NEGATIVE_SUBNORMAL,
+	expected := THIS^.ONE_PERCENT,
+	tolerance := THIS^.ONE_PERMILLE
+);
+
+THIS^.testValueIsEqualTo(
+	valueToTest := THIS^.ONE_PERCENT,
+	expected := THIS^.SMALLEST_NEGATIVE_SUBNORMAL,
+	tolerance := THIS^.ONE_PERMILLE
+);
+
+THIS^.testValueIsEqualTo(
+	valueToTest := THIS^.ONE_PERCENT,
+	expected := THIS^.ONE_PERCENT,
+	tolerance := THIS^.SMALLEST_NEGATIVE_SUBNORMAL
+);
+
+THIS^.testValueIsEqualTo(
+	valueToTest := THIS^.SMALLEST_NEGATIVE_SUBNORMAL,
+	expected := THIS^.SMALLEST_NEGATIVE_SUBNORMAL,
+	tolerance := THIS^.ONE_PERCENT
+);
+
+THIS^.testValueIsEqualTo(
+	valueToTest := THIS^.SMALLEST_NEGATIVE_SUBNORMAL,
+	expected := THIS^.SMALLEST_NEGATIVE_SUBNORMAL,
+	tolerance := THIS^.SMALLEST_NEGATIVE_SUBNORMAL
+);
+
+THIS^.testValueIsEqualTo(
+	valueToTest := THIS^.SMALLEST_NEGATIVE_SUBNORMAL,
+	expected := THIS^.SMALLEST_POSITIVE_SUBNORMAL,
+	tolerance := THIS^.SMALLEST_NEGATIVE_SUBNORMAL
+);
+
+THIS^.testValueIsEqualTo(
+	valueToTest := THIS^.MAX_SUBNORMAL,
+	expected := THIS^.SMALLEST_POSITIVE_SUBNORMAL,
+	tolerance := THIS^.SMALLEST_NEGATIVE_SUBNORMAL
+);
+
+THIS^.testValueIsEqualTo(
+	valueToTest := THIS^.SMALLEST_POSITIVE_SUBNORMAL,
+	expected := THIS^.MAX_SUBNORMAL,
+	tolerance := THIS^.SMALLEST_NEGATIVE_SUBNORMAL
+);
+
+THIS^.testValueIsEqualTo(
+	valueToTest := THIS^.SMALLEST_POSITIVE_SUBNORMAL,
+	expected := THIS^.SMALLEST_POSITIVE_SUBNORMAL,
+	tolerance := THIS^.MAX_SUBNORMAL
+);
+
+THIS^.testValueIsEqualTo(
+	valueToTest := THIS^.MAX_SUBNORMAL,
+	expected := THIS^.MAX_SUBNORMAL,
+	tolerance := THIS^.SMALLEST_POSITIVE_SUBNORMAL
+);
+
+THIS^.testValueIsEqualTo(
+	valueToTest := THIS^.MAX_SUBNORMAL,
+	expected := THIS^.MAX_SUBNORMAL,
+	tolerance := THIS^.MAX_SUBNORMAL
+);
+
+THIS^.testValueIsEqualTo(
+	valueToTest := THIS^.MAX_SUBNORMAL,
+	expected := THIS^.MIN_SUBNORMAL,
+	tolerance := THIS^.MAX_SUBNORMAL
+);
+//
+THIS^.testValueIsEqualTo(
+	valueToTest := THIS^.MIN_SUBNORMAL,
+	expected := THIS^.SMALLEST_POSITIVE_SUBNORMAL,
+	tolerance := THIS^.SMALLEST_NEGATIVE_SUBNORMAL
+);
+
+THIS^.testValueIsEqualTo(
+	valueToTest := THIS^.SMALLEST_POSITIVE_SUBNORMAL,
+	expected := THIS^.MIN_SUBNORMAL,
+	tolerance := THIS^.SMALLEST_NEGATIVE_SUBNORMAL
+);
+
+THIS^.testValueIsEqualTo(
+	valueToTest := THIS^.SMALLEST_POSITIVE_SUBNORMAL,
+	expected := THIS^.SMALLEST_POSITIVE_SUBNORMAL,
+	tolerance := THIS^.MIN_SUBNORMAL
+);
+
+THIS^.testValueIsEqualTo(
+	valueToTest := THIS^.MIN_SUBNORMAL,
+	expected := THIS^.MIN_SUBNORMAL,
+	tolerance := THIS^.SMALLEST_POSITIVE_SUBNORMAL
+);
+
+THIS^.testValueIsEqualTo(
+	valueToTest := THIS^.MIN_SUBNORMAL,
+	expected := THIS^.MIN_SUBNORMAL,
+	tolerance := THIS^.MIN_SUBNORMAL
+);
+
+THIS^.testValueIsEqualTo(
+	valueToTest := THIS^.MIN_SUBNORMAL,
+	expected := THIS^.MAX_SUBNORMAL,
+	tolerance := THIS^.MIN_SUBNORMAL
+);
+
+THIS^.testValueIsEqualTo(
+	valueToTest := THIS^.MAX_NON_SPECIAL,
+	expected := THIS^.SMALLEST_POSITIVE_SUBNORMAL,
+	tolerance := THIS^.SMALLEST_NEGATIVE_SUBNORMAL
+);
+
+THIS^.testValueIsEqualTo(
+	valueToTest := THIS^.SMALLEST_POSITIVE_SUBNORMAL,
+	expected := THIS^.MAX_NON_SPECIAL,
+	tolerance := THIS^.SMALLEST_NEGATIVE_SUBNORMAL
+);
+
+THIS^.testValueIsEqualTo(
+	valueToTest := THIS^.SMALLEST_POSITIVE_SUBNORMAL,
+	expected := THIS^.SMALLEST_POSITIVE_SUBNORMAL,
+	tolerance := THIS^.MAX_NON_SPECIAL
+);
+
+THIS^.testValueIsEqualTo(
+	valueToTest := THIS^.MAX_NON_SPECIAL,
+	expected := THIS^.MAX_NON_SPECIAL,
+	tolerance := THIS^.SMALLEST_POSITIVE_SUBNORMAL
+);
+
+THIS^.testValueIsEqualTo(
+	valueToTest := THIS^.MAX_NON_SPECIAL,
+	expected := THIS^.MAX_NON_SPECIAL,
+	tolerance := THIS^.MAX_NON_SPECIAL
+);
+
+THIS^.testValueIsEqualTo(
+	valueToTest := THIS^.MAX_NON_SPECIAL,
+	expected := THIS^.MIN_NON_SPECIAL,
+	tolerance := THIS^.MAX_NON_SPECIAL
+);
+
+THIS^.testValueIsEqualTo(
+	valueToTest := THIS^.MIN_NON_SPECIAL,
+	expected := THIS^.SMALLEST_POSITIVE_SUBNORMAL,
+	tolerance := THIS^.SMALLEST_NEGATIVE_SUBNORMAL
+);
+
+THIS^.testValueIsEqualTo(
+	valueToTest := THIS^.SMALLEST_POSITIVE_SUBNORMAL,
+	expected := THIS^.MIN_NON_SPECIAL,
+	tolerance := THIS^.SMALLEST_NEGATIVE_SUBNORMAL
+);
+
+THIS^.testValueIsEqualTo(
+	valueToTest := THIS^.SMALLEST_POSITIVE_SUBNORMAL,
+	expected := THIS^.SMALLEST_POSITIVE_SUBNORMAL,
+	tolerance := THIS^.MIN_NON_SPECIAL
+);
+
+THIS^.testValueIsEqualTo(
+	valueToTest := THIS^.MIN_NON_SPECIAL,
+	expected := THIS^.MIN_NON_SPECIAL,
+	tolerance := THIS^.SMALLEST_POSITIVE_SUBNORMAL
+);
+
+THIS^.testValueIsEqualTo(
+	valueToTest := THIS^.MIN_NON_SPECIAL,
+	expected := THIS^.MIN_NON_SPECIAL,
+	tolerance := THIS^.MIN_NON_SPECIAL
+);
+
+THIS^.testValueIsEqualTo(
+	valueToTest := THIS^.MAX_NON_SPECIAL,
+	expected := THIS^.MIN_NON_SPECIAL,
+	tolerance := THIS^.MAX_NON_SPECIAL
+);
+
+TcUnit.TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="runValueIsFiniteTests" Id="{ef83ab90-0dcf-4724-8ea5-80da6724b357}" FolderPath="valueIsFinite\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.float.double.valueIsFinite``
+method of CNM_AssertionInterfaceLib library with various inputs
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+METHOD runValueIsFiniteTests
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[RETURN (NOT TcUnit.TEST_ORDERED(THIS^.getTestNameFor('valueIsFinite')));
+
+THIS^.testValueIsFinite(THIS^.NAN);
+THIS^.testValueIsFinite(THIS^.INF);
+THIS^.testValueIsFinite(THIS^.MINUS_INF);
+THIS^.testValueIsFinite(THIS^.MAX_NON_SPECIAL);
+THIS^.testValueIsFinite(THIS^.MIN_NON_SPECIAL);
+THIS^.testValueIsFinite(THIS^.ZERO);
+THIS^.testValueIsFinite(THIS^.MINUS_ZERO);
+THIS^.testValueIsFinite(THIS^.MAX_SUBNORMAL);
+THIS^.testValueIsFinite(THIS^.MIN_SUBNORMAL);
+THIS^.testValueIsFinite(THIS^.SMALLEST_NEGATIVE_SUBNORMAL);
+THIS^.testValueIsFinite(THIS^.SMALLEST_POSITIVE_SUBNORMAL);
+THIS^.testValueIsFinite(THIS^.ONE_PERCENT);
+THIS^.testValueIsFinite(THIS^.ONE_PERMILLE);
+THIS^.testValueIsFinite(THIS^.MINUS_ONE_PERCENT);
+THIS^.testValueIsFinite(THIS^.MINUS_ONE_PERMILLE);
+
+TcUnit.TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="runValueIsGreaterThanTests" Id="{c69faa20-08c5-46d4-8c1f-b1ab3cdadb74}" FolderPath="valueIsGreaterThan\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.float.double.valueIsGreaterThan``
+method of CNM_AssertionInterfaceLib library with various inputs
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+METHOD runValueIsGreaterThanTests
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[RETURN (NOT TcUnit.TEST_ORDERED(THIS^.getTestNameFor('valueIsGreaterThan')));
+
+THIS^.testValueIsGreaterThan(
+	valueToTest := THIS^.NAN,
+	lessValue := THIS^.NAN
+);
+
+THIS^.testValueIsGreaterThan(
+	valueToTest := THIS^.ONE_PERCENT,
+	lessValue := THIS^.NAN
+);
+
+THIS^.testValueIsGreaterThan(
+	valueToTest := THIS^.NAN,
+	lessValue := THIS^.ONE_PERCENT
+);
+
+THIS^.testValueIsGreaterThan(
+	valueToTest := THIS^.INF,
+	lessValue := THIS^.INF
+);
+
+THIS^.testValueIsGreaterThan(
+	valueToTest := THIS^.MINUS_INF,
+	lessValue := THIS^.MINUS_INF
+);
+
+THIS^.testValueIsGreaterThan(
+	valueToTest := THIS^.MINUS_INF,
+	lessValue := THIS^.INF
+);
+
+THIS^.testValueIsGreaterThan(
+	valueToTest := THIS^.INF,
+	lessValue := THIS^.MINUS_INF
+);
+
+THIS^.testValueIsGreaterThan(
+	valueToTest := THIS^.ZERO,
+	lessValue := THIS^.MINUS_ZERO
+);
+
+THIS^.testValueIsGreaterThan(
+	valueToTest := THIS^.MINUS_ZERO,
+	lessValue := THIS^.ZERO
+);
+
+THIS^.testValueIsGreaterThan(
+	valueToTest := THIS^.MAX_SUBNORMAL,
+	lessValue := THIS^.MIN_SUBNORMAL
+);
+
+THIS^.testValueIsGreaterThan(
+	valueToTest := THIS^.MIN_SUBNORMAL,
+	lessValue := THIS^.MAX_SUBNORMAL
+);
+
+THIS^.testValueIsGreaterThan(
+	valueToTest := THIS^.MAX_SUBNORMAL,
+	lessValue := THIS^.SMALLEST_NEGATIVE_SUBNORMAL
+);
+
+THIS^.testValueIsGreaterThan(
+	valueToTest := THIS^.MIN_SUBNORMAL,
+	lessValue := THIS^.SMALLEST_NEGATIVE_SUBNORMAL
+);
+
+THIS^.testValueIsGreaterThan(
+	valueToTest := THIS^.MAX_SUBNORMAL,
+	lessValue := THIS^.SMALLEST_POSITIVE_SUBNORMAL
+);
+
+THIS^.testValueIsGreaterThan(
+	valueToTest := THIS^.MIN_SUBNORMAL,
+	lessValue := THIS^.SMALLEST_POSITIVE_SUBNORMAL
+);
+
+THIS^.testValueIsGreaterThan(
+	valueToTest := THIS^.SMALLEST_NEGATIVE_SUBNORMAL,
+	lessValue := THIS^.SMALLEST_POSITIVE_SUBNORMAL
+);
+
+THIS^.testValueIsGreaterThan(
+	valueToTest := THIS^.SMALLEST_POSITIVE_SUBNORMAL,
+	lessValue := THIS^.SMALLEST_NEGATIVE_SUBNORMAL
+);
+
+THIS^.testValueIsGreaterThan(
+	valueToTest := THIS^.ONE_PERCENT,
+	lessValue := THIS^.ONE_PERMILLE
+);
+
+THIS^.testValueIsGreaterThan(
+	valueToTest := THIS^.ONE_PERMILLE,
+	lessValue := THIS^.ONE_PERCENT
+);
+
+THIS^.testValueIsGreaterThan(
+	valueToTest := THIS^.ONE_PERMILLE,
+	lessValue := THIS^.ONE_PERMILLE
+);
+
+THIS^.testValueIsGreaterThan(
+	valueToTest := THIS^.ONE_PERCENT,
+	lessValue := THIS^.ONE_PERCENT
+);
+
+THIS^.testValueIsGreaterThan(
+	valueToTest := THIS^.MAX_NON_SPECIAL,
+	lessValue := THIS^.MIN_NON_SPECIAL
+);
+
+THIS^.testValueIsGreaterThan(
+	valueToTest := THIS^.MIN_NON_SPECIAL,
+	lessValue := THIS^.MAX_NON_SPECIAL
+);
+
+THIS^.testValueIsGreaterThan(
+	valueToTest := THIS^.MIN_NON_SPECIAL,
+	lessValue := THIS^.MIN_NON_SPECIAL
+);
+
+THIS^.testValueIsGreaterThan(
+	valueToTest := THIS^.MAX_NON_SPECIAL,
+	lessValue := THIS^.MAX_NON_SPECIAL
+);
+
+TcUnit.TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="runValueIsInfiniteTests" Id="{589e72b1-fe49-429e-8df6-b1a6a046c863}" FolderPath="valueIsInfinite\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.float.double.valueIsInfinite``
+method of CNM_AssertionInterfaceLib library with various inputs
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+METHOD runValueIsInfiniteTests
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[RETURN (NOT TcUnit.TEST_ORDERED(THIS^.getTestNameFor('valueIsInfinite')));
+
+THIS^.testValueIsInfinite(THIS^.NAN);
+THIS^.testValueIsInfinite(THIS^.INF);
+THIS^.testValueIsInfinite(THIS^.MINUS_INF);
+THIS^.testValueIsInfinite(THIS^.MAX_NON_SPECIAL);
+THIS^.testValueIsInfinite(THIS^.MIN_NON_SPECIAL);
+THIS^.testValueIsInfinite(THIS^.ZERO);
+THIS^.testValueIsInfinite(THIS^.MINUS_ZERO);
+THIS^.testValueIsInfinite(THIS^.MAX_SUBNORMAL);
+THIS^.testValueIsInfinite(THIS^.MIN_SUBNORMAL);
+THIS^.testValueIsInfinite(THIS^.SMALLEST_NEGATIVE_SUBNORMAL);
+THIS^.testValueIsInfinite(THIS^.SMALLEST_POSITIVE_SUBNORMAL);
+THIS^.testValueIsInfinite(THIS^.ONE_PERCENT);
+THIS^.testValueIsInfinite(THIS^.ONE_PERMILLE);
+THIS^.testValueIsInfinite(THIS^.MINUS_ONE_PERCENT);
+THIS^.testValueIsInfinite(THIS^.MINUS_ONE_PERMILLE);
+
+TcUnit.TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="runValueIsInRangeOfTests" Id="{3ed90c21-5f02-473b-98a5-03b8857c1550}" FolderPath="valueIsInRangeOf\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.dateAndTime.simple.dateOnly.valueIsInRangeOf``
+method of CNM_AssertionInterfaceLib library with various inputs
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+METHOD runValueIsInRangeOfTests
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[RETURN (NOT TcUnit.TEST_ORDERED(THIS^.getTestNameFor('valueIsInRangeOf')));
+
+THIS^.testValueIsInRangeOf(
+	lowerLimit := THIS^.NAN,
+	valueToTest := THIS^.ONE_PERCENT,
+	upperLimit := THIS^.ONE_PERMILLE
+);
+
+THIS^.testValueIsInRangeOf(
+	lowerLimit := THIS^.ONE_PERCENT,
+	valueToTest := THIS^.NAN,
+	upperLimit := THIS^.ONE_PERMILLE
+);
+
+THIS^.testValueIsInRangeOf(
+	lowerLimit := THIS^.ONE_PERCENT,
+	valueToTest := THIS^.ONE_PERCENT,
+	upperLimit := THIS^.NAN
+);
+
+THIS^.testValueIsInRangeOf(
+	lowerLimit := THIS^.NAN,
+	valueToTest := THIS^.NAN,
+	upperLimit := THIS^.ONE_PERCENT
+);
+
+THIS^.testValueIsInRangeOf(
+	lowerLimit := THIS^.NAN,
+	valueToTest := THIS^.NAN,
+	upperLimit := THIS^.NAN
+);
+
+THIS^.testValueIsInRangeOf(
+	lowerLimit := THIS^.INF,
+	valueToTest := THIS^.ONE_PERCENT,
+	upperLimit := THIS^.ONE_PERMILLE
+);
+
+THIS^.testValueIsInRangeOf(
+	lowerLimit := THIS^.ONE_PERCENT,
+	valueToTest := THIS^.INF,
+	upperLimit := THIS^.ONE_PERMILLE
+);
+
+THIS^.testValueIsInRangeOf(
+	lowerLimit := THIS^.ONE_PERCENT,
+	valueToTest := THIS^.ONE_PERCENT,
+	upperLimit := THIS^.INF
+);
+
+THIS^.testValueIsInRangeOf(
+	lowerLimit := THIS^.INF,
+	valueToTest := THIS^.INF,
+	upperLimit := THIS^.ONE_PERCENT
+);
+
+THIS^.testValueIsInRangeOf(
+	lowerLimit := THIS^.INF,
+	valueToTest := THIS^.INF,
+	upperLimit := THIS^.INF
+);
+
+THIS^.testValueIsInRangeOf(
+	lowerLimit := THIS^.INF,
+	valueToTest := THIS^.MINUS_INF,
+	upperLimit := THIS^.MINUS_INF
+);
+
+THIS^.testValueIsInRangeOf(
+	lowerLimit := THIS^.MINUS_INF,
+	valueToTest := THIS^.ONE_PERCENT,
+	upperLimit := THIS^.ONE_PERMILLE
+);
+
+THIS^.testValueIsInRangeOf(
+	lowerLimit := THIS^.ONE_PERCENT,
+	valueToTest := THIS^.MINUS_INF,
+	upperLimit := THIS^.ONE_PERMILLE
+);
+
+THIS^.testValueIsInRangeOf(
+	lowerLimit := THIS^.ONE_PERCENT,
+	valueToTest := THIS^.ONE_PERCENT,
+	upperLimit := THIS^.MINUS_INF
+);
+
+THIS^.testValueIsInRangeOf(
+	lowerLimit := THIS^.MINUS_INF,
+	valueToTest := THIS^.MINUS_INF,
+	upperLimit := THIS^.ONE_PERCENT
+);
+
+THIS^.testValueIsInRangeOf(
+	lowerLimit := THIS^.MINUS_INF,
+	valueToTest := THIS^.MINUS_INF,
+	upperLimit := THIS^.MINUS_INF
+);
+
+THIS^.testValueIsInRangeOf(
+	lowerLimit := THIS^.INF,
+	valueToTest := THIS^.MINUS_INF,
+	upperLimit := THIS^.INF
+);
+
+THIS^.testValueIsInRangeOf(
+	lowerLimit := THIS^.MINUS_ZERO,
+	valueToTest := THIS^.SMALLEST_POSITIVE_SUBNORMAL,
+	upperLimit := THIS^.ONE_PERMILLE
+);
+
+THIS^.testValueIsInRangeOf(
+	lowerLimit := THIS^.SMALLEST_POSITIVE_SUBNORMAL,
+	valueToTest := THIS^.MINUS_ZERO,
+	upperLimit := THIS^.ONE_PERMILLE
+);
+
+THIS^.testValueIsInRangeOf(
+	lowerLimit := THIS^.SMALLEST_POSITIVE_SUBNORMAL,
+	valueToTest := THIS^.SMALLEST_POSITIVE_SUBNORMAL,
+	upperLimit := THIS^.MINUS_ZERO
+);
+
+THIS^.testValueIsInRangeOf(
+	lowerLimit := THIS^.MINUS_ZERO,
+	valueToTest := THIS^.MINUS_ZERO,
+	upperLimit := THIS^.SMALLEST_POSITIVE_SUBNORMAL
+);
+
+THIS^.testValueIsInRangeOf(
+	lowerLimit := THIS^.MINUS_ZERO,
+	valueToTest := THIS^.MINUS_ZERO,
+	upperLimit := THIS^.MINUS_ZERO
+);
+
+THIS^.testValueIsInRangeOf(
+	lowerLimit := THIS^.MINUS_ZERO,
+	valueToTest := THIS^.ZERO,
+	upperLimit := THIS^.MINUS_ZERO
+);
+
+THIS^.testValueIsInRangeOf(
+	lowerLimit := THIS^.ZERO,
+	valueToTest := THIS^.SMALLEST_POSITIVE_SUBNORMAL,
+	upperLimit := THIS^.ONE_PERMILLE
+);
+
+THIS^.testValueIsInRangeOf(
+	lowerLimit := THIS^.SMALLEST_POSITIVE_SUBNORMAL,
+	valueToTest := THIS^.ZERO,
+	upperLimit := THIS^.ONE_PERMILLE
+);
+
+THIS^.testValueIsInRangeOf(
+	lowerLimit := THIS^.SMALLEST_POSITIVE_SUBNORMAL,
+	valueToTest := THIS^.SMALLEST_POSITIVE_SUBNORMAL,
+	upperLimit := THIS^.ZERO
+);
+
+THIS^.testValueIsInRangeOf(
+	lowerLimit := THIS^.ZERO,
+	valueToTest := THIS^.ZERO,
+	upperLimit := THIS^.SMALLEST_POSITIVE_SUBNORMAL
+);
+
+THIS^.testValueIsInRangeOf(
+	lowerLimit := THIS^.ZERO,
+	valueToTest := THIS^.ZERO,
+	upperLimit := THIS^.ZERO
+);
+
+THIS^.testValueIsInRangeOf(
+	lowerLimit := THIS^.ZERO,
+	valueToTest := THIS^.MINUS_ZERO,
+	upperLimit := THIS^.ZERO
+);
+
+THIS^.testValueIsInRangeOf(
+	lowerLimit := THIS^.SMALLEST_POSITIVE_SUBNORMAL,
+	valueToTest := THIS^.ONE_PERCENT,
+	upperLimit := THIS^.ONE_PERMILLE
+);
+
+THIS^.testValueIsInRangeOf(
+	lowerLimit := THIS^.ONE_PERCENT,
+	valueToTest := THIS^.SMALLEST_POSITIVE_SUBNORMAL,
+	upperLimit := THIS^.ONE_PERMILLE
+);
+
+THIS^.testValueIsInRangeOf(
+	lowerLimit := THIS^.ONE_PERCENT,
+	valueToTest := THIS^.ONE_PERCENT,
+	upperLimit := THIS^.SMALLEST_POSITIVE_SUBNORMAL
+);
+
+THIS^.testValueIsInRangeOf(
+	lowerLimit := THIS^.SMALLEST_POSITIVE_SUBNORMAL,
+	valueToTest := THIS^.SMALLEST_POSITIVE_SUBNORMAL,
+	upperLimit := THIS^.ONE_PERCENT
+);
+
+THIS^.testValueIsInRangeOf(
+	lowerLimit := THIS^.SMALLEST_POSITIVE_SUBNORMAL,
+	valueToTest := THIS^.SMALLEST_POSITIVE_SUBNORMAL,
+	upperLimit := THIS^.SMALLEST_POSITIVE_SUBNORMAL
+);
+
+THIS^.testValueIsInRangeOf(
+	lowerLimit := THIS^.SMALLEST_POSITIVE_SUBNORMAL,
+	valueToTest := THIS^.SMALLEST_NEGATIVE_SUBNORMAL,
+	upperLimit := THIS^.SMALLEST_NEGATIVE_SUBNORMAL
+);
+
+THIS^.testValueIsInRangeOf(
+	lowerLimit := THIS^.SMALLEST_NEGATIVE_SUBNORMAL,
+	valueToTest := THIS^.ONE_PERCENT,
+	upperLimit := THIS^.ONE_PERMILLE
+);
+
+THIS^.testValueIsInRangeOf(
+	lowerLimit := THIS^.ONE_PERCENT,
+	valueToTest := THIS^.SMALLEST_NEGATIVE_SUBNORMAL,
+	upperLimit := THIS^.ONE_PERMILLE
+);
+
+THIS^.testValueIsInRangeOf(
+	lowerLimit := THIS^.ONE_PERCENT,
+	valueToTest := THIS^.ONE_PERCENT,
+	upperLimit := THIS^.SMALLEST_NEGATIVE_SUBNORMAL
+);
+
+THIS^.testValueIsInRangeOf(
+	lowerLimit := THIS^.SMALLEST_NEGATIVE_SUBNORMAL,
+	valueToTest := THIS^.SMALLEST_NEGATIVE_SUBNORMAL,
+	upperLimit := THIS^.ONE_PERCENT
+);
+
+THIS^.testValueIsInRangeOf(
+	lowerLimit := THIS^.SMALLEST_NEGATIVE_SUBNORMAL,
+	valueToTest := THIS^.SMALLEST_NEGATIVE_SUBNORMAL,
+	upperLimit := THIS^.SMALLEST_NEGATIVE_SUBNORMAL
+);
+
+THIS^.testValueIsInRangeOf(
+	lowerLimit := THIS^.SMALLEST_NEGATIVE_SUBNORMAL,
+	valueToTest := THIS^.SMALLEST_POSITIVE_SUBNORMAL,
+	upperLimit := THIS^.SMALLEST_NEGATIVE_SUBNORMAL
+);
+
+THIS^.testValueIsInRangeOf(
+	lowerLimit := THIS^.MAX_SUBNORMAL,
+	valueToTest := THIS^.SMALLEST_POSITIVE_SUBNORMAL,
+	upperLimit := THIS^.SMALLEST_NEGATIVE_SUBNORMAL
+);
+
+THIS^.testValueIsInRangeOf(
+	lowerLimit := THIS^.SMALLEST_POSITIVE_SUBNORMAL,
+	valueToTest := THIS^.MAX_SUBNORMAL,
+	upperLimit := THIS^.SMALLEST_NEGATIVE_SUBNORMAL
+);
+
+THIS^.testValueIsInRangeOf(
+	lowerLimit := THIS^.SMALLEST_POSITIVE_SUBNORMAL,
+	valueToTest := THIS^.SMALLEST_POSITIVE_SUBNORMAL,
+	upperLimit := THIS^.MAX_SUBNORMAL
+);
+
+THIS^.testValueIsInRangeOf(
+	lowerLimit := THIS^.MAX_SUBNORMAL,
+	valueToTest := THIS^.MAX_SUBNORMAL,
+	upperLimit := THIS^.SMALLEST_POSITIVE_SUBNORMAL
+);
+
+THIS^.testValueIsInRangeOf(
+	lowerLimit := THIS^.MAX_SUBNORMAL,
+	valueToTest := THIS^.MAX_SUBNORMAL,
+	upperLimit := THIS^.MAX_SUBNORMAL
+);
+
+THIS^.testValueIsInRangeOf(
+	lowerLimit := THIS^.MAX_SUBNORMAL,
+	valueToTest := THIS^.MIN_SUBNORMAL,
+	upperLimit := THIS^.MAX_SUBNORMAL
+);
+//
+THIS^.testValueIsInRangeOf(
+	lowerLimit := THIS^.MIN_SUBNORMAL,
+	valueToTest := THIS^.SMALLEST_POSITIVE_SUBNORMAL,
+	upperLimit := THIS^.SMALLEST_NEGATIVE_SUBNORMAL
+);
+
+THIS^.testValueIsInRangeOf(
+	lowerLimit := THIS^.SMALLEST_POSITIVE_SUBNORMAL,
+	valueToTest := THIS^.MIN_SUBNORMAL,
+	upperLimit := THIS^.SMALLEST_NEGATIVE_SUBNORMAL
+);
+
+THIS^.testValueIsInRangeOf(
+	lowerLimit := THIS^.SMALLEST_POSITIVE_SUBNORMAL,
+	valueToTest := THIS^.SMALLEST_POSITIVE_SUBNORMAL,
+	upperLimit := THIS^.MIN_SUBNORMAL
+);
+
+THIS^.testValueIsInRangeOf(
+	lowerLimit := THIS^.MIN_SUBNORMAL,
+	valueToTest := THIS^.MIN_SUBNORMAL,
+	upperLimit := THIS^.SMALLEST_POSITIVE_SUBNORMAL
+);
+
+THIS^.testValueIsInRangeOf(
+	lowerLimit := THIS^.MIN_SUBNORMAL,
+	valueToTest := THIS^.MIN_SUBNORMAL,
+	upperLimit := THIS^.MIN_SUBNORMAL
+);
+
+THIS^.testValueIsInRangeOf(
+	lowerLimit := THIS^.MIN_SUBNORMAL,
+	valueToTest := THIS^.MAX_SUBNORMAL,
+	upperLimit := THIS^.MIN_SUBNORMAL
+);
+
+THIS^.testValueIsInRangeOf(
+	lowerLimit := THIS^.MAX_NON_SPECIAL,
+	valueToTest := THIS^.SMALLEST_POSITIVE_SUBNORMAL,
+	upperLimit := THIS^.SMALLEST_NEGATIVE_SUBNORMAL
+);
+
+THIS^.testValueIsInRangeOf(
+	lowerLimit := THIS^.SMALLEST_POSITIVE_SUBNORMAL,
+	valueToTest := THIS^.MAX_NON_SPECIAL,
+	upperLimit := THIS^.SMALLEST_NEGATIVE_SUBNORMAL
+);
+
+THIS^.testValueIsInRangeOf(
+	lowerLimit := THIS^.SMALLEST_POSITIVE_SUBNORMAL,
+	valueToTest := THIS^.SMALLEST_POSITIVE_SUBNORMAL,
+	upperLimit := THIS^.MAX_NON_SPECIAL
+);
+
+THIS^.testValueIsInRangeOf(
+	lowerLimit := THIS^.MAX_NON_SPECIAL,
+	valueToTest := THIS^.MAX_NON_SPECIAL,
+	upperLimit := THIS^.SMALLEST_POSITIVE_SUBNORMAL
+);
+
+THIS^.testValueIsInRangeOf(
+	lowerLimit := THIS^.MAX_NON_SPECIAL,
+	valueToTest := THIS^.MAX_NON_SPECIAL,
+	upperLimit := THIS^.MAX_NON_SPECIAL
+);
+
+THIS^.testValueIsInRangeOf(
+	lowerLimit := THIS^.MAX_NON_SPECIAL,
+	valueToTest := THIS^.MIN_NON_SPECIAL,
+	upperLimit := THIS^.MAX_NON_SPECIAL
+);
+
+THIS^.testValueIsInRangeOf(
+	lowerLimit := THIS^.MIN_NON_SPECIAL,
+	valueToTest := THIS^.SMALLEST_POSITIVE_SUBNORMAL,
+	upperLimit := THIS^.SMALLEST_NEGATIVE_SUBNORMAL
+);
+
+THIS^.testValueIsInRangeOf(
+	lowerLimit := THIS^.SMALLEST_POSITIVE_SUBNORMAL,
+	valueToTest := THIS^.MIN_NON_SPECIAL,
+	upperLimit := THIS^.SMALLEST_NEGATIVE_SUBNORMAL
+);
+
+THIS^.testValueIsInRangeOf(
+	lowerLimit := THIS^.SMALLEST_POSITIVE_SUBNORMAL,
+	valueToTest := THIS^.SMALLEST_POSITIVE_SUBNORMAL,
+	upperLimit := THIS^.MIN_NON_SPECIAL
+);
+
+THIS^.testValueIsInRangeOf(
+	lowerLimit := THIS^.MIN_NON_SPECIAL,
+	valueToTest := THIS^.MIN_NON_SPECIAL,
+	upperLimit := THIS^.SMALLEST_POSITIVE_SUBNORMAL
+);
+
+THIS^.testValueIsInRangeOf(
+	lowerLimit := THIS^.MIN_NON_SPECIAL,
+	valueToTest := THIS^.MIN_NON_SPECIAL,
+	upperLimit := THIS^.MIN_NON_SPECIAL
+);
+
+THIS^.testValueIsInRangeOf(
+	lowerLimit := THIS^.MAX_NON_SPECIAL,
+	valueToTest := THIS^.MIN_NON_SPECIAL,
+	upperLimit := THIS^.MAX_NON_SPECIAL
+);
+
+TcUnit.TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="runValueIsLessThanTests" Id="{bbe8b0f1-0d80-43ce-9a39-18b5cc1f207b}" FolderPath="valueIsLessThan\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.float.double.valueIsLessThan``
+method of CNM_AssertionInterfaceLib library with various inputs
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+METHOD runValueIsLessThanTests
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[RETURN (NOT TcUnit.TEST_ORDERED(THIS^.getTestNameFor('valueIsLessThan')));
+
+THIS^.testValueIsLessThan(
+	valueToTest := THIS^.NAN,
+	greaterValue := THIS^.NAN
+);
+
+THIS^.testValueIsLessThan(
+	valueToTest := THIS^.ONE_PERCENT,
+	greaterValue := THIS^.NAN
+);
+
+THIS^.testValueIsLessThan(
+	valueToTest := THIS^.NAN,
+	greaterValue := THIS^.ONE_PERCENT
+);
+
+THIS^.testValueIsLessThan(
+	valueToTest := THIS^.INF,
+	greaterValue := THIS^.INF
+);
+
+THIS^.testValueIsLessThan(
+	valueToTest := THIS^.MINUS_INF,
+	greaterValue := THIS^.MINUS_INF
+);
+
+THIS^.testValueIsLessThan(
+	valueToTest := THIS^.MINUS_INF,
+	greaterValue := THIS^.INF
+);
+
+THIS^.testValueIsLessThan(
+	valueToTest := THIS^.INF,
+	greaterValue := THIS^.MINUS_INF
+);
+
+THIS^.testValueIsLessThan(
+	valueToTest := THIS^.ZERO,
+	greaterValue := THIS^.MINUS_ZERO
+);
+
+THIS^.testValueIsLessThan(
+	valueToTest := THIS^.MINUS_ZERO,
+	greaterValue := THIS^.ZERO
+);
+
+THIS^.testValueIsLessThan(
+	valueToTest := THIS^.MAX_SUBNORMAL,
+	greaterValue := THIS^.MIN_SUBNORMAL
+);
+
+THIS^.testValueIsLessThan(
+	valueToTest := THIS^.MIN_SUBNORMAL,
+	greaterValue := THIS^.MAX_SUBNORMAL
+);
+
+THIS^.testValueIsLessThan(
+	valueToTest := THIS^.MAX_SUBNORMAL,
+	greaterValue := THIS^.SMALLEST_NEGATIVE_SUBNORMAL
+);
+
+THIS^.testValueIsLessThan(
+	valueToTest := THIS^.MIN_SUBNORMAL,
+	greaterValue := THIS^.SMALLEST_NEGATIVE_SUBNORMAL
+);
+
+THIS^.testValueIsLessThan(
+	valueToTest := THIS^.MAX_SUBNORMAL,
+	greaterValue := THIS^.SMALLEST_POSITIVE_SUBNORMAL
+);
+
+THIS^.testValueIsLessThan(
+	valueToTest := THIS^.MIN_SUBNORMAL,
+	greaterValue := THIS^.SMALLEST_POSITIVE_SUBNORMAL
+);
+
+THIS^.testValueIsLessThan(
+	valueToTest := THIS^.SMALLEST_NEGATIVE_SUBNORMAL,
+	greaterValue := THIS^.SMALLEST_POSITIVE_SUBNORMAL
+);
+
+THIS^.testValueIsLessThan(
+	valueToTest := THIS^.SMALLEST_POSITIVE_SUBNORMAL,
+	greaterValue := THIS^.SMALLEST_NEGATIVE_SUBNORMAL
+);
+
+THIS^.testValueIsLessThan(
+	valueToTest := THIS^.ONE_PERCENT,
+	greaterValue := THIS^.ONE_PERMILLE
+);
+
+THIS^.testValueIsLessThan(
+	valueToTest := THIS^.ONE_PERMILLE,
+	greaterValue := THIS^.ONE_PERCENT
+);
+
+THIS^.testValueIsLessThan(
+	valueToTest := THIS^.ONE_PERMILLE,
+	greaterValue := THIS^.ONE_PERMILLE
+);
+
+THIS^.testValueIsLessThan(
+	valueToTest := THIS^.ONE_PERCENT,
+	greaterValue := THIS^.ONE_PERCENT
+);
+
+THIS^.testValueIsLessThan(
+	valueToTest := THIS^.MAX_NON_SPECIAL,
+	greaterValue := THIS^.MIN_NON_SPECIAL
+);
+
+THIS^.testValueIsLessThan(
+	valueToTest := THIS^.MIN_NON_SPECIAL,
+	greaterValue := THIS^.MAX_NON_SPECIAL
+);
+
+THIS^.testValueIsLessThan(
+	valueToTest := THIS^.MIN_NON_SPECIAL,
+	greaterValue := THIS^.MIN_NON_SPECIAL
+);
+
+THIS^.testValueIsLessThan(
+	valueToTest := THIS^.MAX_NON_SPECIAL,
+	greaterValue := THIS^.MAX_NON_SPECIAL
+);
+
+TcUnit.TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="runValueIsMaxTests" Id="{b1c919c7-15ce-414f-a451-53d585cdfbea}" FolderPath="valueIsMax\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.float.double.valueIsMax``
+method of CNM_AssertionInterfaceLib library with various inputs
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+METHOD runValueIsMaxTests
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[RETURN (NOT TcUnit.TEST_ORDERED(THIS^.getTestNameFor('valueIsMax')));
+
+THIS^.testValueIsMax(
+	valueToTest := THIS^.NAN,
+	maximumValue := THIS^.NAN
+);
+
+THIS^.testValueIsMax(
+	valueToTest := THIS^.ONE_PERCENT,
+	maximumValue := THIS^.NAN
+);
+
+THIS^.testValueIsMax(
+	valueToTest := THIS^.NAN,
+	maximumValue := THIS^.ONE_PERCENT
+);
+
+THIS^.testValueIsMax(
+	valueToTest := THIS^.INF,
+	maximumValue := THIS^.INF
+);
+
+THIS^.testValueIsMax(
+	valueToTest := THIS^.MINUS_INF,
+	maximumValue := THIS^.MINUS_INF
+);
+
+THIS^.testValueIsMax(
+	valueToTest := THIS^.MINUS_INF,
+	maximumValue := THIS^.INF
+);
+
+THIS^.testValueIsMax(
+	valueToTest := THIS^.INF,
+	maximumValue := THIS^.MINUS_INF
+);
+
+THIS^.testValueIsMax(
+	valueToTest := THIS^.ZERO,
+	maximumValue := THIS^.MINUS_ZERO
+);
+
+THIS^.testValueIsMax(
+	valueToTest := THIS^.MINUS_ZERO,
+	maximumValue := THIS^.ZERO
+);
+
+THIS^.testValueIsMax(
+	valueToTest := THIS^.MAX_SUBNORMAL,
+	maximumValue := THIS^.MIN_SUBNORMAL
+);
+
+THIS^.testValueIsMax(
+	valueToTest := THIS^.MIN_SUBNORMAL,
+	maximumValue := THIS^.MAX_SUBNORMAL
+);
+
+THIS^.testValueIsMax(
+	valueToTest := THIS^.MAX_SUBNORMAL,
+	maximumValue := THIS^.SMALLEST_NEGATIVE_SUBNORMAL
+);
+
+THIS^.testValueIsMax(
+	valueToTest := THIS^.MIN_SUBNORMAL,
+	maximumValue := THIS^.SMALLEST_NEGATIVE_SUBNORMAL
+);
+
+THIS^.testValueIsMax(
+	valueToTest := THIS^.MAX_SUBNORMAL,
+	maximumValue := THIS^.SMALLEST_POSITIVE_SUBNORMAL
+);
+
+THIS^.testValueIsMax(
+	valueToTest := THIS^.MIN_SUBNORMAL,
+	maximumValue := THIS^.SMALLEST_POSITIVE_SUBNORMAL
+);
+
+THIS^.testValueIsMax(
+	valueToTest := THIS^.SMALLEST_NEGATIVE_SUBNORMAL,
+	maximumValue := THIS^.SMALLEST_POSITIVE_SUBNORMAL
+);
+
+THIS^.testValueIsMax(
+	valueToTest := THIS^.SMALLEST_POSITIVE_SUBNORMAL,
+	maximumValue := THIS^.SMALLEST_NEGATIVE_SUBNORMAL
+);
+
+THIS^.testValueIsMax(
+	valueToTest := THIS^.ONE_PERCENT,
+	maximumValue := THIS^.ONE_PERMILLE
+);
+
+THIS^.testValueIsMax(
+	valueToTest := THIS^.ONE_PERMILLE,
+	maximumValue := THIS^.ONE_PERCENT
+);
+
+THIS^.testValueIsMax(
+	valueToTest := THIS^.ONE_PERMILLE,
+	maximumValue := THIS^.ONE_PERMILLE
+);
+
+THIS^.testValueIsMax(
+	valueToTest := THIS^.ONE_PERCENT,
+	maximumValue := THIS^.ONE_PERCENT
+);
+
+THIS^.testValueIsMax(
+	valueToTest := THIS^.MAX_NON_SPECIAL,
+	maximumValue := THIS^.MIN_NON_SPECIAL
+);
+
+THIS^.testValueIsMax(
+	valueToTest := THIS^.MIN_NON_SPECIAL,
+	maximumValue := THIS^.MAX_NON_SPECIAL
+);
+
+THIS^.testValueIsMax(
+	valueToTest := THIS^.MIN_NON_SPECIAL,
+	maximumValue := THIS^.MIN_NON_SPECIAL
+);
+
+THIS^.testValueIsMax(
+	valueToTest := THIS^.MAX_NON_SPECIAL,
+	maximumValue := THIS^.MAX_NON_SPECIAL
+);
+
+TcUnit.TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="runValueIsMinTests" Id="{56aa7749-9f36-422b-956a-3faef2c5a138}" FolderPath="valueIsMin\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.float.double.valueIsMin``
+method of CNM_AssertionInterfaceLib library with various inputs
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+METHOD runValueIsMinTests
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[RETURN (NOT TcUnit.TEST_ORDERED(THIS^.getTestNameFor('valueIsMin')));
+
+THIS^.testValueIsMin(
+	valueToTest := THIS^.NAN,
+	minimumValue := THIS^.NAN
+);
+
+THIS^.testValueIsMin(
+	valueToTest := THIS^.ONE_PERCENT,
+	minimumValue := THIS^.NAN
+);
+
+THIS^.testValueIsMin(
+	valueToTest := THIS^.NAN,
+	minimumValue := THIS^.ONE_PERCENT
+);
+
+THIS^.testValueIsMin(
+	valueToTest := THIS^.INF,
+	minimumValue := THIS^.INF
+);
+
+THIS^.testValueIsMin(
+	valueToTest := THIS^.MINUS_INF,
+	minimumValue := THIS^.MINUS_INF
+);
+
+THIS^.testValueIsMin(
+	valueToTest := THIS^.MINUS_INF,
+	minimumValue := THIS^.INF
+);
+
+THIS^.testValueIsMin(
+	valueToTest := THIS^.INF,
+	minimumValue := THIS^.MINUS_INF
+);
+
+THIS^.testValueIsMin(
+	valueToTest := THIS^.ZERO,
+	minimumValue := THIS^.MINUS_ZERO
+);
+
+THIS^.testValueIsMin(
+	valueToTest := THIS^.MINUS_ZERO,
+	minimumValue := THIS^.ZERO
+);
+
+THIS^.testValueIsMin(
+	valueToTest := THIS^.MAX_SUBNORMAL,
+	minimumValue := THIS^.MIN_SUBNORMAL
+);
+
+THIS^.testValueIsMin(
+	valueToTest := THIS^.MIN_SUBNORMAL,
+	minimumValue := THIS^.MAX_SUBNORMAL
+);
+
+THIS^.testValueIsMin(
+	valueToTest := THIS^.MAX_SUBNORMAL,
+	minimumValue := THIS^.SMALLEST_NEGATIVE_SUBNORMAL
+);
+
+THIS^.testValueIsMin(
+	valueToTest := THIS^.MIN_SUBNORMAL,
+	minimumValue := THIS^.SMALLEST_NEGATIVE_SUBNORMAL
+);
+
+THIS^.testValueIsMin(
+	valueToTest := THIS^.MAX_SUBNORMAL,
+	minimumValue := THIS^.SMALLEST_POSITIVE_SUBNORMAL
+);
+
+THIS^.testValueIsMin(
+	valueToTest := THIS^.MIN_SUBNORMAL,
+	minimumValue := THIS^.SMALLEST_POSITIVE_SUBNORMAL
+);
+
+THIS^.testValueIsMin(
+	valueToTest := THIS^.SMALLEST_NEGATIVE_SUBNORMAL,
+	minimumValue := THIS^.SMALLEST_POSITIVE_SUBNORMAL
+);
+
+THIS^.testValueIsMin(
+	valueToTest := THIS^.SMALLEST_POSITIVE_SUBNORMAL,
+	minimumValue := THIS^.SMALLEST_NEGATIVE_SUBNORMAL
+);
+
+THIS^.testValueIsMin(
+	valueToTest := THIS^.ONE_PERCENT,
+	minimumValue := THIS^.ONE_PERMILLE
+);
+
+THIS^.testValueIsMin(
+	valueToTest := THIS^.ONE_PERMILLE,
+	minimumValue := THIS^.ONE_PERCENT
+);
+
+THIS^.testValueIsMin(
+	valueToTest := THIS^.ONE_PERMILLE,
+	minimumValue := THIS^.ONE_PERMILLE
+);
+
+THIS^.testValueIsMin(
+	valueToTest := THIS^.ONE_PERCENT,
+	minimumValue := THIS^.ONE_PERCENT
+);
+
+THIS^.testValueIsMin(
+	valueToTest := THIS^.MAX_NON_SPECIAL,
+	minimumValue := THIS^.MIN_NON_SPECIAL
+);
+
+THIS^.testValueIsMin(
+	valueToTest := THIS^.MIN_NON_SPECIAL,
+	minimumValue := THIS^.MAX_NON_SPECIAL
+);
+
+THIS^.testValueIsMin(
+	valueToTest := THIS^.MIN_NON_SPECIAL,
+	minimumValue := THIS^.MIN_NON_SPECIAL
+);
+
+THIS^.testValueIsMin(
+	valueToTest := THIS^.MAX_NON_SPECIAL,
+	minimumValue := THIS^.MAX_NON_SPECIAL
+);
+
+TcUnit.TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="runValueIsNaNTests" Id="{75129fd3-8cfb-4d75-87c8-a0bba0cd63c5}" FolderPath="valueIsNaN\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.float.double.valueIsNaN``
+method of CNM_AssertionInterfaceLib library with various inputs
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+METHOD runValueIsNaNTests
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[RETURN (NOT TcUnit.TEST_ORDERED(THIS^.getTestNameFor('valueIsNaN')));
+
+THIS^.testValueIsANumber(THIS^.NAN);
+THIS^.testValueIsANumber(THIS^.INF);
+THIS^.testValueIsANumber(THIS^.MINUS_INF);
+THIS^.testValueIsANumber(THIS^.MAX_NON_SPECIAL);
+THIS^.testValueIsANumber(THIS^.MIN_NON_SPECIAL);
+THIS^.testValueIsANumber(THIS^.ZERO);
+THIS^.testValueIsANumber(THIS^.MINUS_ZERO);
+THIS^.testValueIsANumber(THIS^.MAX_SUBNORMAL);
+THIS^.testValueIsANumber(THIS^.MIN_SUBNORMAL);
+THIS^.testValueIsANumber(THIS^.SMALLEST_NEGATIVE_SUBNORMAL);
+THIS^.testValueIsANumber(THIS^.SMALLEST_POSITIVE_SUBNORMAL);
+THIS^.testValueIsANumber(THIS^.ONE_PERCENT);
+THIS^.testValueIsANumber(THIS^.ONE_PERMILLE);
+THIS^.testValueIsANumber(THIS^.MINUS_ONE_PERCENT);
+THIS^.testValueIsANumber(THIS^.MINUS_ONE_PERMILLE);
+
+TcUnit.TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="runValueIsNegativeInfiniteTests" Id="{67ef3164-f1f6-4671-94d8-25d1ff634672}" FolderPath="valueIsNegInfinite\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.float.double.valueIsNegativeInfinite``
+method of CNM_AssertionInterfaceLib library with various inputs
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+METHOD runValueIsNegativeInfiniteTests
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[RETURN (NOT TcUnit.TEST_ORDERED(THIS^.getTestNameFor('valueIsNegativeInfinite')));
+
+THIS^.testValueIsNegativeInfinite(THIS^.NAN);
+THIS^.testValueIsNegativeInfinite(THIS^.INF);
+THIS^.testValueIsNegativeInfinite(THIS^.MINUS_INF);
+THIS^.testValueIsNegativeInfinite(THIS^.MAX_NON_SPECIAL);
+THIS^.testValueIsNegativeInfinite(THIS^.MIN_NON_SPECIAL);
+THIS^.testValueIsNegativeInfinite(THIS^.ZERO);
+THIS^.testValueIsNegativeInfinite(THIS^.MINUS_ZERO);
+THIS^.testValueIsNegativeInfinite(THIS^.MAX_SUBNORMAL);
+THIS^.testValueIsNegativeInfinite(THIS^.MIN_SUBNORMAL);
+THIS^.testValueIsNegativeInfinite(THIS^.SMALLEST_NEGATIVE_SUBNORMAL);
+THIS^.testValueIsNegativeInfinite(THIS^.SMALLEST_POSITIVE_SUBNORMAL);
+THIS^.testValueIsNegativeInfinite(THIS^.ONE_PERCENT);
+THIS^.testValueIsNegativeInfinite(THIS^.ONE_PERMILLE);
+THIS^.testValueIsNegativeInfinite(THIS^.MINUS_ONE_PERCENT);
+THIS^.testValueIsNegativeInfinite(THIS^.MINUS_ONE_PERMILLE);
+
+TcUnit.TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="runValueIsNegativeTests" Id="{97a5f293-8c8e-4183-8cc5-f86158b211ce}" FolderPath="valueIsNegative\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.float.double.valueIsNegative``
+method of CNM_AssertionInterfaceLib library with various inputs
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+METHOD runValueIsNegativeTests
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[RETURN (NOT TcUnit.TEST_ORDERED(THIS^.getTestNameFor('valueIsNegative')));
+
+THIS^.testValueIsNegative(THIS^.NAN);
+THIS^.testValueIsNegative(THIS^.INF);
+THIS^.testValueIsNegative(THIS^.MINUS_INF);
+THIS^.testValueIsNegative(THIS^.MAX_NON_SPECIAL);
+THIS^.testValueIsNegative(THIS^.MIN_NON_SPECIAL);
+THIS^.testValueIsNegative(THIS^.ZERO);
+THIS^.testValueIsNegative(THIS^.MINUS_ZERO);
+THIS^.testValueIsNegative(THIS^.MAX_SUBNORMAL);
+THIS^.testValueIsNegative(THIS^.MIN_SUBNORMAL);
+THIS^.testValueIsNegative(THIS^.SMALLEST_NEGATIVE_SUBNORMAL);
+THIS^.testValueIsNegative(THIS^.SMALLEST_POSITIVE_SUBNORMAL);
+THIS^.testValueIsNegative(THIS^.ONE_PERCENT);
+THIS^.testValueIsNegative(THIS^.ONE_PERMILLE);
+THIS^.testValueIsNegative(THIS^.MINUS_ONE_PERCENT);
+THIS^.testValueIsNegative(THIS^.MINUS_ONE_PERMILLE);
+
+TcUnit.TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="runValueIsNegativeZeroTests" Id="{b4fb472c-f608-443d-b454-10a003aca9b2}" FolderPath="valueIsNegativeZero\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.float.double.valueIsNegativeZero``
+method of CNM_AssertionInterfaceLib library with various inputs
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+METHOD runValueIsNegativeZeroTests
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[RETURN (NOT TcUnit.TEST_ORDERED(THIS^.getTestNameFor('valueIsNegativeZero')));
+
+THIS^.testValueIsNegativeZero(THIS^.NAN);
+THIS^.testValueIsNegativeZero(THIS^.INF);
+THIS^.testValueIsNegativeZero(THIS^.MINUS_INF);
+THIS^.testValueIsNegativeZero(THIS^.MAX_NON_SPECIAL);
+THIS^.testValueIsNegativeZero(THIS^.MIN_NON_SPECIAL);
+THIS^.testValueIsNegativeZero(THIS^.ZERO);
+THIS^.testValueIsNegativeZero(THIS^.MINUS_ZERO);
+THIS^.testValueIsNegativeZero(THIS^.MAX_SUBNORMAL);
+THIS^.testValueIsNegativeZero(THIS^.MIN_SUBNORMAL);
+THIS^.testValueIsNegativeZero(THIS^.SMALLEST_NEGATIVE_SUBNORMAL);
+THIS^.testValueIsNegativeZero(THIS^.SMALLEST_POSITIVE_SUBNORMAL);
+THIS^.testValueIsNegativeZero(THIS^.ONE_PERCENT);
+THIS^.testValueIsNegativeZero(THIS^.ONE_PERMILLE);
+THIS^.testValueIsNegativeZero(THIS^.MINUS_ONE_PERCENT);
+THIS^.testValueIsNegativeZero(THIS^.MINUS_ONE_PERMILLE);
+
+TcUnit.TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="runValueIsNormalTests" Id="{b609c3ae-6540-49dd-8d90-e4ffdb81c765}" FolderPath="valueIsNormal\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.float.double.valueIsNormal``
+method of CNM_AssertionInterfaceLib library with various inputs
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+METHOD runValueIsNormalTests
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[RETURN (NOT TcUnit.TEST_ORDERED(THIS^.getTestNameFor('valueIsNormal')));
+
+THIS^.testValueIsNormal(THIS^.NAN);
+THIS^.testValueIsNormal(THIS^.INF);
+THIS^.testValueIsNormal(THIS^.MINUS_INF);
+THIS^.testValueIsNormal(THIS^.MAX_NON_SPECIAL);
+THIS^.testValueIsNormal(THIS^.MIN_NON_SPECIAL);
+THIS^.testValueIsNormal(THIS^.ZERO);
+THIS^.testValueIsNormal(THIS^.MINUS_ZERO);
+THIS^.testValueIsNormal(THIS^.MAX_SUBNORMAL);
+THIS^.testValueIsNormal(THIS^.MIN_SUBNORMAL);
+THIS^.testValueIsNormal(THIS^.SMALLEST_NEGATIVE_SUBNORMAL);
+THIS^.testValueIsNormal(THIS^.SMALLEST_POSITIVE_SUBNORMAL);
+THIS^.testValueIsNormal(THIS^.ONE_PERCENT);
+THIS^.testValueIsNormal(THIS^.ONE_PERMILLE);
+THIS^.testValueIsNormal(THIS^.MINUS_ONE_PERCENT);
+THIS^.testValueIsNormal(THIS^.MINUS_ONE_PERMILLE);
+
+TcUnit.TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="runValueIsNotEqualToTests" Id="{f02af843-ea77-4244-96fa-5e99ad5eeb88}" FolderPath="valueIsNotEqualTo\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.float.double.valueIsNotEqualTo``
+method of CNM_AssertionInterfaceLib library with various inputs
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+METHOD runValueIsNotEqualToTests
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[RETURN (NOT TcUnit.TEST_ORDERED(THIS^.getTestNameFor('valueIsNotEqualTo')));
+
+THIS^.testValueIsNotEqualTo(
+	valueToTest := THIS^.NAN,
+	unexpectedValue := THIS^.ONE_PERCENT,
+	tolerance := THIS^.ONE_PERMILLE
+);
+
+THIS^.testValueIsNotEqualTo(
+	valueToTest := THIS^.ONE_PERCENT,
+	unexpectedValue := THIS^.NAN,
+	tolerance := THIS^.ONE_PERMILLE
+);
+
+THIS^.testValueIsNotEqualTo(
+	valueToTest := THIS^.ONE_PERCENT,
+	unexpectedValue := THIS^.ONE_PERCENT,
+	tolerance := THIS^.NAN
+);
+
+THIS^.testValueIsNotEqualTo(
+	valueToTest := THIS^.NAN,
+	unexpectedValue := THIS^.NAN,
+	tolerance := THIS^.ONE_PERCENT
+);
+
+THIS^.testValueIsNotEqualTo(
+	valueToTest := THIS^.NAN,
+	unexpectedValue := THIS^.NAN,
+	tolerance := THIS^.NAN
+);
+
+THIS^.testValueIsNotEqualTo(
+	valueToTest := THIS^.INF,
+	unexpectedValue := THIS^.ONE_PERCENT,
+	tolerance := THIS^.ONE_PERMILLE
+);
+
+THIS^.testValueIsNotEqualTo(
+	valueToTest := THIS^.ONE_PERCENT,
+	unexpectedValue := THIS^.INF,
+	tolerance := THIS^.ONE_PERMILLE
+);
+
+THIS^.testValueIsNotEqualTo(
+	valueToTest := THIS^.ONE_PERCENT,
+	unexpectedValue := THIS^.ONE_PERCENT,
+	tolerance := THIS^.INF
+);
+
+THIS^.testValueIsNotEqualTo(
+	valueToTest := THIS^.INF,
+	unexpectedValue := THIS^.INF,
+	tolerance := THIS^.ONE_PERCENT
+);
+
+THIS^.testValueIsNotEqualTo(
+	valueToTest := THIS^.INF,
+	unexpectedValue := THIS^.INF,
+	tolerance := THIS^.INF
+);
+
+THIS^.testValueIsNotEqualTo(
+	valueToTest := THIS^.INF,
+	unexpectedValue := THIS^.MINUS_INF,
+	tolerance := THIS^.INF
+);
+
+THIS^.testValueIsNotEqualTo(
+	valueToTest := THIS^.MINUS_INF,
+	unexpectedValue := THIS^.ONE_PERCENT,
+	tolerance := THIS^.ONE_PERMILLE
+);
+
+THIS^.testValueIsNotEqualTo(
+	valueToTest := THIS^.ONE_PERCENT,
+	unexpectedValue := THIS^.MINUS_INF,
+	tolerance := THIS^.ONE_PERMILLE
+);
+
+THIS^.testValueIsNotEqualTo(
+	valueToTest := THIS^.ONE_PERCENT,
+	unexpectedValue := THIS^.ONE_PERCENT,
+	tolerance := THIS^.MINUS_INF
+);
+
+THIS^.testValueIsNotEqualTo(
+	valueToTest := THIS^.MINUS_INF,
+	unexpectedValue := THIS^.MINUS_INF,
+	tolerance := THIS^.ONE_PERCENT
+);
+
+THIS^.testValueIsNotEqualTo(
+	valueToTest := THIS^.MINUS_INF,
+	unexpectedValue := THIS^.MINUS_INF,
+	tolerance := THIS^.MINUS_INF
+);
+
+THIS^.testValueIsNotEqualTo(
+	valueToTest := THIS^.INF,
+	unexpectedValue := THIS^.MINUS_INF,
+	tolerance := THIS^.INF
+);
+
+THIS^.testValueIsNotEqualTo(
+	valueToTest := THIS^.MINUS_ZERO,
+	unexpectedValue := THIS^.SMALLEST_POSITIVE_SUBNORMAL,
+	tolerance := THIS^.ONE_PERMILLE
+);
+
+THIS^.testValueIsNotEqualTo(
+	valueToTest := THIS^.SMALLEST_POSITIVE_SUBNORMAL,
+	unexpectedValue := THIS^.MINUS_ZERO,
+	tolerance := THIS^.ONE_PERMILLE
+);
+
+THIS^.testValueIsNotEqualTo(
+	valueToTest := THIS^.SMALLEST_POSITIVE_SUBNORMAL,
+	unexpectedValue := THIS^.SMALLEST_POSITIVE_SUBNORMAL,
+	tolerance := THIS^.MINUS_ZERO
+);
+
+THIS^.testValueIsNotEqualTo(
+	valueToTest := THIS^.MINUS_ZERO,
+	unexpectedValue := THIS^.MINUS_ZERO,
+	tolerance := THIS^.SMALLEST_POSITIVE_SUBNORMAL
+);
+
+THIS^.testValueIsNotEqualTo(
+	valueToTest := THIS^.MINUS_ZERO,
+	unexpectedValue := THIS^.MINUS_ZERO,
+	tolerance := THIS^.MINUS_ZERO
+);
+
+THIS^.testValueIsNotEqualTo(
+	valueToTest := THIS^.MINUS_ZERO,
+	unexpectedValue := THIS^.ZERO,
+	tolerance := THIS^.MINUS_ZERO
+);
+
+THIS^.testValueIsNotEqualTo(
+	valueToTest := THIS^.ZERO,
+	unexpectedValue := THIS^.SMALLEST_POSITIVE_SUBNORMAL,
+	tolerance := THIS^.ONE_PERMILLE
+);
+
+THIS^.testValueIsNotEqualTo(
+	valueToTest := THIS^.SMALLEST_POSITIVE_SUBNORMAL,
+	unexpectedValue := THIS^.ZERO,
+	tolerance := THIS^.ONE_PERMILLE
+);
+
+THIS^.testValueIsNotEqualTo(
+	valueToTest := THIS^.SMALLEST_POSITIVE_SUBNORMAL,
+	unexpectedValue := THIS^.SMALLEST_POSITIVE_SUBNORMAL,
+	tolerance := THIS^.ZERO
+);
+
+THIS^.testValueIsNotEqualTo(
+	valueToTest := THIS^.ZERO,
+	unexpectedValue := THIS^.ZERO,
+	tolerance := THIS^.SMALLEST_POSITIVE_SUBNORMAL
+);
+
+THIS^.testValueIsNotEqualTo(
+	valueToTest := THIS^.ZERO,
+	unexpectedValue := THIS^.ZERO,
+	tolerance := THIS^.ZERO
+);
+
+THIS^.testValueIsNotEqualTo(
+	valueToTest := THIS^.ZERO,
+	unexpectedValue := THIS^.MINUS_ZERO,
+	tolerance := THIS^.ZERO
+);
+
+THIS^.testValueIsNotEqualTo(
+	valueToTest := THIS^.SMALLEST_POSITIVE_SUBNORMAL,
+	unexpectedValue := THIS^.ONE_PERCENT,
+	tolerance := THIS^.ONE_PERMILLE
+);
+
+THIS^.testValueIsNotEqualTo(
+	valueToTest := THIS^.ONE_PERCENT,
+	unexpectedValue := THIS^.SMALLEST_POSITIVE_SUBNORMAL,
+	tolerance := THIS^.ONE_PERMILLE
+);
+
+THIS^.testValueIsNotEqualTo(
+	valueToTest := THIS^.ONE_PERCENT,
+	unexpectedValue := THIS^.ONE_PERCENT,
+	tolerance := THIS^.SMALLEST_POSITIVE_SUBNORMAL
+);
+
+THIS^.testValueIsNotEqualTo(
+	valueToTest := THIS^.SMALLEST_POSITIVE_SUBNORMAL,
+	unexpectedValue := THIS^.SMALLEST_POSITIVE_SUBNORMAL,
+	tolerance := THIS^.ONE_PERCENT
+);
+
+THIS^.testValueIsNotEqualTo(
+	valueToTest := THIS^.SMALLEST_POSITIVE_SUBNORMAL,
+	unexpectedValue := THIS^.SMALLEST_POSITIVE_SUBNORMAL,
+	tolerance := THIS^.SMALLEST_POSITIVE_SUBNORMAL
+);
+
+THIS^.testValueIsNotEqualTo(
+	valueToTest := THIS^.SMALLEST_POSITIVE_SUBNORMAL,
+	unexpectedValue := THIS^.SMALLEST_NEGATIVE_SUBNORMAL,
+	tolerance := THIS^.SMALLEST_POSITIVE_SUBNORMAL
+);
+
+THIS^.testValueIsNotEqualTo(
+	valueToTest := THIS^.SMALLEST_NEGATIVE_SUBNORMAL,
+	unexpectedValue := THIS^.ONE_PERCENT,
+	tolerance := THIS^.ONE_PERMILLE
+);
+
+THIS^.testValueIsNotEqualTo(
+	valueToTest := THIS^.ONE_PERCENT,
+	unexpectedValue := THIS^.SMALLEST_NEGATIVE_SUBNORMAL,
+	tolerance := THIS^.ONE_PERMILLE
+);
+
+THIS^.testValueIsNotEqualTo(
+	valueToTest := THIS^.ONE_PERCENT,
+	unexpectedValue := THIS^.ONE_PERCENT,
+	tolerance := THIS^.SMALLEST_NEGATIVE_SUBNORMAL
+);
+
+THIS^.testValueIsNotEqualTo(
+	valueToTest := THIS^.SMALLEST_NEGATIVE_SUBNORMAL,
+	unexpectedValue := THIS^.SMALLEST_NEGATIVE_SUBNORMAL,
+	tolerance := THIS^.ONE_PERCENT
+);
+
+THIS^.testValueIsNotEqualTo(
+	valueToTest := THIS^.SMALLEST_NEGATIVE_SUBNORMAL,
+	unexpectedValue := THIS^.SMALLEST_NEGATIVE_SUBNORMAL,
+	tolerance := THIS^.SMALLEST_NEGATIVE_SUBNORMAL
+);
+
+THIS^.testValueIsNotEqualTo(
+	valueToTest := THIS^.SMALLEST_NEGATIVE_SUBNORMAL,
+	unexpectedValue := THIS^.SMALLEST_POSITIVE_SUBNORMAL,
+	tolerance := THIS^.SMALLEST_NEGATIVE_SUBNORMAL
+);
+
+THIS^.testValueIsNotEqualTo(
+	valueToTest := THIS^.MAX_SUBNORMAL,
+	unexpectedValue := THIS^.SMALLEST_POSITIVE_SUBNORMAL,
+	tolerance := THIS^.SMALLEST_NEGATIVE_SUBNORMAL
+);
+
+THIS^.testValueIsNotEqualTo(
+	valueToTest := THIS^.SMALLEST_POSITIVE_SUBNORMAL,
+	unexpectedValue := THIS^.MAX_SUBNORMAL,
+	tolerance := THIS^.SMALLEST_NEGATIVE_SUBNORMAL
+);
+
+THIS^.testValueIsNotEqualTo(
+	valueToTest := THIS^.SMALLEST_POSITIVE_SUBNORMAL,
+	unexpectedValue := THIS^.SMALLEST_POSITIVE_SUBNORMAL,
+	tolerance := THIS^.MAX_SUBNORMAL
+);
+
+THIS^.testValueIsNotEqualTo(
+	valueToTest := THIS^.MAX_SUBNORMAL,
+	unexpectedValue := THIS^.MAX_SUBNORMAL,
+	tolerance := THIS^.SMALLEST_POSITIVE_SUBNORMAL
+);
+
+THIS^.testValueIsNotEqualTo(
+	valueToTest := THIS^.MAX_SUBNORMAL,
+	unexpectedValue := THIS^.MAX_SUBNORMAL,
+	tolerance := THIS^.MAX_SUBNORMAL
+);
+
+THIS^.testValueIsNotEqualTo(
+	valueToTest := THIS^.MAX_SUBNORMAL,
+	unexpectedValue := THIS^.MIN_SUBNORMAL,
+	tolerance := THIS^.MAX_SUBNORMAL
+);
+//
+THIS^.testValueIsNotEqualTo(
+	valueToTest := THIS^.MIN_SUBNORMAL,
+	unexpectedValue := THIS^.SMALLEST_POSITIVE_SUBNORMAL,
+	tolerance := THIS^.SMALLEST_NEGATIVE_SUBNORMAL
+);
+
+THIS^.testValueIsNotEqualTo(
+	valueToTest := THIS^.SMALLEST_POSITIVE_SUBNORMAL,
+	unexpectedValue := THIS^.MIN_SUBNORMAL,
+	tolerance := THIS^.SMALLEST_NEGATIVE_SUBNORMAL
+);
+
+THIS^.testValueIsNotEqualTo(
+	valueToTest := THIS^.SMALLEST_POSITIVE_SUBNORMAL,
+	unexpectedValue := THIS^.SMALLEST_POSITIVE_SUBNORMAL,
+	tolerance := THIS^.MIN_SUBNORMAL
+);
+
+THIS^.testValueIsNotEqualTo(
+	valueToTest := THIS^.MIN_SUBNORMAL,
+	unexpectedValue := THIS^.MIN_SUBNORMAL,
+	tolerance := THIS^.SMALLEST_POSITIVE_SUBNORMAL
+);
+
+THIS^.testValueIsNotEqualTo(
+	valueToTest := THIS^.MIN_SUBNORMAL,
+	unexpectedValue := THIS^.MIN_SUBNORMAL,
+	tolerance := THIS^.MIN_SUBNORMAL
+);
+
+THIS^.testValueIsNotEqualTo(
+	valueToTest := THIS^.MIN_SUBNORMAL,
+	unexpectedValue := THIS^.MAX_SUBNORMAL,
+	tolerance := THIS^.MIN_SUBNORMAL
+);
+
+THIS^.testValueIsNotEqualTo(
+	valueToTest := THIS^.MAX_NON_SPECIAL,
+	unexpectedValue := THIS^.SMALLEST_POSITIVE_SUBNORMAL,
+	tolerance := THIS^.SMALLEST_NEGATIVE_SUBNORMAL
+);
+
+THIS^.testValueIsNotEqualTo(
+	valueToTest := THIS^.SMALLEST_POSITIVE_SUBNORMAL,
+	unexpectedValue := THIS^.MAX_NON_SPECIAL,
+	tolerance := THIS^.SMALLEST_NEGATIVE_SUBNORMAL
+);
+
+THIS^.testValueIsNotEqualTo(
+	valueToTest := THIS^.SMALLEST_POSITIVE_SUBNORMAL,
+	unexpectedValue := THIS^.SMALLEST_POSITIVE_SUBNORMAL,
+	tolerance := THIS^.MAX_NON_SPECIAL
+);
+
+THIS^.testValueIsNotEqualTo(
+	valueToTest := THIS^.MAX_NON_SPECIAL,
+	unexpectedValue := THIS^.MAX_NON_SPECIAL,
+	tolerance := THIS^.SMALLEST_POSITIVE_SUBNORMAL
+);
+
+THIS^.testValueIsNotEqualTo(
+	valueToTest := THIS^.MAX_NON_SPECIAL,
+	unexpectedValue := THIS^.MAX_NON_SPECIAL,
+	tolerance := THIS^.MAX_NON_SPECIAL
+);
+
+THIS^.testValueIsNotEqualTo(
+	valueToTest := THIS^.MAX_NON_SPECIAL,
+	unexpectedValue := THIS^.MIN_NON_SPECIAL,
+	tolerance := THIS^.MAX_NON_SPECIAL
+);
+
+THIS^.testValueIsNotEqualTo(
+	valueToTest := THIS^.MIN_NON_SPECIAL,
+	unexpectedValue := THIS^.SMALLEST_POSITIVE_SUBNORMAL,
+	tolerance := THIS^.SMALLEST_NEGATIVE_SUBNORMAL
+);
+
+THIS^.testValueIsNotEqualTo(
+	valueToTest := THIS^.SMALLEST_POSITIVE_SUBNORMAL,
+	unexpectedValue := THIS^.MIN_NON_SPECIAL,
+	tolerance := THIS^.SMALLEST_NEGATIVE_SUBNORMAL
+);
+
+THIS^.testValueIsNotEqualTo(
+	valueToTest := THIS^.SMALLEST_POSITIVE_SUBNORMAL,
+	unexpectedValue := THIS^.SMALLEST_POSITIVE_SUBNORMAL,
+	tolerance := THIS^.MIN_NON_SPECIAL
+);
+
+THIS^.testValueIsNotEqualTo(
+	valueToTest := THIS^.MIN_NON_SPECIAL,
+	unexpectedValue := THIS^.MIN_NON_SPECIAL,
+	tolerance := THIS^.SMALLEST_POSITIVE_SUBNORMAL
+);
+
+THIS^.testValueIsNotEqualTo(
+	valueToTest := THIS^.MIN_NON_SPECIAL,
+	unexpectedValue := THIS^.MIN_NON_SPECIAL,
+	tolerance := THIS^.MIN_NON_SPECIAL
+);
+
+THIS^.testValueIsNotEqualTo(
+	valueToTest := THIS^.MAX_NON_SPECIAL,
+	unexpectedValue := THIS^.MIN_NON_SPECIAL,
+	tolerance := THIS^.MAX_NON_SPECIAL
+);
+
+TcUnit.TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="runValueIsNotNegativeInfiniteTests" Id="{385586b3-3ffa-4192-8684-25dfa2c22d7b}" FolderPath="valueIsNotNegInf\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.float.double.valueIsNotNegativeInfinite``
+method of CNM_AssertionInterfaceLib library with various inputs
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+METHOD runValueIsNotNegativeInfiniteTests
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[RETURN (NOT TcUnit.TEST_ORDERED(THIS^.getTestNameFor('valueIsNotNegativeInfinite')));
+
+THIS^.testValueIsNotNegativeInfinite(THIS^.NAN);
+THIS^.testValueIsNotNegativeInfinite(THIS^.INF);
+THIS^.testValueIsNotNegativeInfinite(THIS^.MINUS_INF);
+THIS^.testValueIsNotNegativeInfinite(THIS^.MAX_NON_SPECIAL);
+THIS^.testValueIsNotNegativeInfinite(THIS^.MIN_NON_SPECIAL);
+THIS^.testValueIsNotNegativeInfinite(THIS^.ZERO);
+THIS^.testValueIsNotNegativeInfinite(THIS^.MINUS_ZERO);
+THIS^.testValueIsNotNegativeInfinite(THIS^.MAX_SUBNORMAL);
+THIS^.testValueIsNotNegativeInfinite(THIS^.MIN_SUBNORMAL);
+THIS^.testValueIsNotNegativeInfinite(THIS^.SMALLEST_NEGATIVE_SUBNORMAL);
+THIS^.testValueIsNotNegativeInfinite(THIS^.SMALLEST_POSITIVE_SUBNORMAL);
+THIS^.testValueIsNotNegativeInfinite(THIS^.ONE_PERCENT);
+THIS^.testValueIsNotNegativeInfinite(THIS^.ONE_PERMILLE);
+THIS^.testValueIsNotNegativeInfinite(THIS^.MINUS_ONE_PERCENT);
+THIS^.testValueIsNotNegativeInfinite(THIS^.MINUS_ONE_PERMILLE);
+
+TcUnit.TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="runValueIsNotPositiveInfiniteTests" Id="{d67b6e20-bfb0-4c4a-8032-6a6af7af56f7}" FolderPath="valueIsNotPosInf\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.float.double.valueIsNotPositiveInfinite``
+method of CNM_AssertionInterfaceLib library with various inputs
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+METHOD runValueIsNotPositiveInfiniteTests
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[RETURN (NOT TcUnit.TEST_ORDERED(THIS^.getTestNameFor('valueIsNotPositiveInfinite')));
+
+THIS^.testValueIsNotPositiveInfinite(THIS^.NAN);
+THIS^.testValueIsNotPositiveInfinite(THIS^.INF);
+THIS^.testValueIsNotPositiveInfinite(THIS^.MINUS_INF);
+THIS^.testValueIsNotPositiveInfinite(THIS^.MAX_NON_SPECIAL);
+THIS^.testValueIsNotPositiveInfinite(THIS^.MIN_NON_SPECIAL);
+THIS^.testValueIsNotPositiveInfinite(THIS^.ZERO);
+THIS^.testValueIsNotPositiveInfinite(THIS^.MINUS_ZERO);
+THIS^.testValueIsNotPositiveInfinite(THIS^.MAX_SUBNORMAL);
+THIS^.testValueIsNotPositiveInfinite(THIS^.MIN_SUBNORMAL);
+THIS^.testValueIsNotPositiveInfinite(THIS^.SMALLEST_NEGATIVE_SUBNORMAL);
+THIS^.testValueIsNotPositiveInfinite(THIS^.SMALLEST_POSITIVE_SUBNORMAL);
+THIS^.testValueIsNotPositiveInfinite(THIS^.ONE_PERCENT);
+THIS^.testValueIsNotPositiveInfinite(THIS^.ONE_PERMILLE);
+THIS^.testValueIsNotPositiveInfinite(THIS^.MINUS_ONE_PERCENT);
+THIS^.testValueIsNotPositiveInfinite(THIS^.MINUS_ONE_PERMILLE);
+
+TcUnit.TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="runValueIsNotSpecialTests" Id="{4d61ebf3-1386-4c40-80c6-d67d50a5d56d}" FolderPath="valueIsNotSpecial\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.float.double.valueIsNotSpecial``
+method of CNM_AssertionInterfaceLib library with various inputs
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+METHOD runValueIsNotSpecialTests
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[RETURN (NOT TcUnit.TEST_ORDERED(THIS^.getTestNameFor('valueIsNotSpecial')));
+
+THIS^.testValueIsNotSpecial(THIS^.NAN);
+THIS^.testValueIsNotSpecial(THIS^.INF);
+THIS^.testValueIsNotSpecial(THIS^.MINUS_INF);
+THIS^.testValueIsNotSpecial(THIS^.MAX_NON_SPECIAL);
+THIS^.testValueIsNotSpecial(THIS^.MIN_NON_SPECIAL);
+THIS^.testValueIsNotSpecial(THIS^.ZERO);
+THIS^.testValueIsNotSpecial(THIS^.MINUS_ZERO);
+THIS^.testValueIsNotSpecial(THIS^.MAX_SUBNORMAL);
+THIS^.testValueIsNotSpecial(THIS^.MIN_SUBNORMAL);
+THIS^.testValueIsNotSpecial(THIS^.SMALLEST_NEGATIVE_SUBNORMAL);
+THIS^.testValueIsNotSpecial(THIS^.SMALLEST_POSITIVE_SUBNORMAL);
+THIS^.testValueIsNotSpecial(THIS^.ONE_PERCENT);
+THIS^.testValueIsNotSpecial(THIS^.ONE_PERMILLE);
+THIS^.testValueIsNotSpecial(THIS^.MINUS_ONE_PERCENT);
+THIS^.testValueIsNotSpecial(THIS^.MINUS_ONE_PERMILLE);
+
+TcUnit.TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="runValueIsPositiveInfiniteTests" Id="{5a24b56a-5648-4901-a8b8-cd3d17bc5f78}" FolderPath="valueIsPosInfinite\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.float.double.valueIsPositiveInfinite``
+method of CNM_AssertionInterfaceLib library with various inputs
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+METHOD runValueIsPositiveInfiniteTests
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[RETURN (NOT TcUnit.TEST_ORDERED(THIS^.getTestNameFor('valueIsPositiveInfinite')));
+
+THIS^.testValueIsPositiveInfinite(THIS^.NAN);
+THIS^.testValueIsPositiveInfinite(THIS^.INF);
+THIS^.testValueIsPositiveInfinite(THIS^.MINUS_INF);
+THIS^.testValueIsPositiveInfinite(THIS^.MAX_NON_SPECIAL);
+THIS^.testValueIsPositiveInfinite(THIS^.MIN_NON_SPECIAL);
+THIS^.testValueIsPositiveInfinite(THIS^.ZERO);
+THIS^.testValueIsPositiveInfinite(THIS^.MINUS_ZERO);
+THIS^.testValueIsPositiveInfinite(THIS^.MAX_SUBNORMAL);
+THIS^.testValueIsPositiveInfinite(THIS^.MIN_SUBNORMAL);
+THIS^.testValueIsPositiveInfinite(THIS^.SMALLEST_NEGATIVE_SUBNORMAL);
+THIS^.testValueIsPositiveInfinite(THIS^.SMALLEST_POSITIVE_SUBNORMAL);
+THIS^.testValueIsPositiveInfinite(THIS^.ONE_PERCENT);
+THIS^.testValueIsPositiveInfinite(THIS^.ONE_PERMILLE);
+THIS^.testValueIsPositiveInfinite(THIS^.MINUS_ONE_PERCENT);
+THIS^.testValueIsPositiveInfinite(THIS^.MINUS_ONE_PERMILLE);
+
+TcUnit.TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="runValueIsPositiveTests" Id="{c0e52967-a5ef-485f-9dc5-54a0bb67890c}" FolderPath="valueIsPositive\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.float.double.valueIsPositive``
+method of CNM_AssertionInterfaceLib library with various inputs
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+METHOD runValueIsPositiveTests
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[RETURN (NOT TcUnit.TEST_ORDERED(THIS^.getTestNameFor('valueIsPositive')));
+
+THIS^.testValueIsPositive(THIS^.NAN);
+THIS^.testValueIsPositive(THIS^.INF);
+THIS^.testValueIsPositive(THIS^.MINUS_INF);
+THIS^.testValueIsPositive(THIS^.MAX_NON_SPECIAL);
+THIS^.testValueIsPositive(THIS^.MIN_NON_SPECIAL);
+THIS^.testValueIsPositive(THIS^.ZERO);
+THIS^.testValueIsPositive(THIS^.MINUS_ZERO);
+THIS^.testValueIsPositive(THIS^.MAX_SUBNORMAL);
+THIS^.testValueIsPositive(THIS^.MIN_SUBNORMAL);
+THIS^.testValueIsPositive(THIS^.SMALLEST_NEGATIVE_SUBNORMAL);
+THIS^.testValueIsPositive(THIS^.SMALLEST_POSITIVE_SUBNORMAL);
+THIS^.testValueIsPositive(THIS^.ONE_PERCENT);
+THIS^.testValueIsPositive(THIS^.ONE_PERMILLE);
+THIS^.testValueIsPositive(THIS^.MINUS_ONE_PERCENT);
+THIS^.testValueIsPositive(THIS^.MINUS_ONE_PERMILLE);
+
+TcUnit.TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="runValueIsPositiveZeroTests" Id="{06928a47-9f2a-42a8-a787-c67cd059b79a}" FolderPath="valueIsPositiveZero\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.float.double.valueIsPositiveZero``
+method of CNM_AssertionInterfaceLib library with various inputs
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+METHOD runValueIsPositiveZeroTests
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[RETURN (NOT TcUnit.TEST_ORDERED(THIS^.getTestNameFor('valueIsPositiveZero')));
+
+THIS^.testValueIsPositiveZero(THIS^.NAN);
+THIS^.testValueIsPositiveZero(THIS^.INF);
+THIS^.testValueIsPositiveZero(THIS^.MINUS_INF);
+THIS^.testValueIsPositiveZero(THIS^.MAX_NON_SPECIAL);
+THIS^.testValueIsPositiveZero(THIS^.MIN_NON_SPECIAL);
+THIS^.testValueIsPositiveZero(THIS^.ZERO);
+THIS^.testValueIsPositiveZero(THIS^.MINUS_ZERO);
+THIS^.testValueIsPositiveZero(THIS^.MAX_SUBNORMAL);
+THIS^.testValueIsPositiveZero(THIS^.MIN_SUBNORMAL);
+THIS^.testValueIsPositiveZero(THIS^.SMALLEST_NEGATIVE_SUBNORMAL);
+THIS^.testValueIsPositiveZero(THIS^.SMALLEST_POSITIVE_SUBNORMAL);
+THIS^.testValueIsPositiveZero(THIS^.ONE_PERCENT);
+THIS^.testValueIsPositiveZero(THIS^.ONE_PERMILLE);
+THIS^.testValueIsPositiveZero(THIS^.MINUS_ONE_PERCENT);
+THIS^.testValueIsPositiveZero(THIS^.MINUS_ONE_PERMILLE);
+
+TcUnit.TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="runValueIsSpecialTests" Id="{67b3e52f-f7e4-448b-bb74-7cbff11c2d13}" FolderPath="valueIsSpecial\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.float.double.valueIsSpecial``
+method of CNM_AssertionInterfaceLib library with various inputs
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+METHOD runValueIsSpecialTests
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[RETURN (NOT TcUnit.TEST_ORDERED(THIS^.getTestNameFor('valueIsSpecial')));
+
+THIS^.testValueIsSpecial(THIS^.NAN);
+THIS^.testValueIsSpecial(THIS^.INF);
+THIS^.testValueIsSpecial(THIS^.MINUS_INF);
+THIS^.testValueIsSpecial(THIS^.MAX_NON_SPECIAL);
+THIS^.testValueIsSpecial(THIS^.MIN_NON_SPECIAL);
+THIS^.testValueIsSpecial(THIS^.ZERO);
+THIS^.testValueIsSpecial(THIS^.MINUS_ZERO);
+THIS^.testValueIsSpecial(THIS^.MAX_SUBNORMAL);
+THIS^.testValueIsSpecial(THIS^.MIN_SUBNORMAL);
+THIS^.testValueIsSpecial(THIS^.SMALLEST_NEGATIVE_SUBNORMAL);
+THIS^.testValueIsSpecial(THIS^.SMALLEST_POSITIVE_SUBNORMAL);
+THIS^.testValueIsSpecial(THIS^.ONE_PERCENT);
+THIS^.testValueIsSpecial(THIS^.ONE_PERMILLE);
+THIS^.testValueIsSpecial(THIS^.MINUS_ONE_PERCENT);
+THIS^.testValueIsSpecial(THIS^.MINUS_ONE_PERMILLE);
+
+TcUnit.TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="runValueIsSubnormalTests" Id="{8cb68382-0bcf-4a85-bbaa-50952f0f0fd1}" FolderPath="valueIsSubnormal\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.float.double.valueIsSubnormal``
+method of CNM_AssertionInterfaceLib library with various inputs
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+METHOD runValueIsSubnormalTests
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[RETURN (NOT TcUnit.TEST_ORDERED(THIS^.getTestNameFor('valueIsSubnormal')));
+
+THIS^.testValueIsSubnormal(THIS^.NAN);
+THIS^.testValueIsSubnormal(THIS^.INF);
+THIS^.testValueIsSubnormal(THIS^.MINUS_INF);
+THIS^.testValueIsSubnormal(THIS^.MAX_NON_SPECIAL);
+THIS^.testValueIsSubnormal(THIS^.MIN_NON_SPECIAL);
+THIS^.testValueIsSubnormal(THIS^.ZERO);
+THIS^.testValueIsSubnormal(THIS^.MINUS_ZERO);
+THIS^.testValueIsSubnormal(THIS^.MAX_SUBNORMAL);
+THIS^.testValueIsSubnormal(THIS^.MIN_SUBNORMAL);
+THIS^.testValueIsSubnormal(THIS^.SMALLEST_NEGATIVE_SUBNORMAL);
+THIS^.testValueIsSubnormal(THIS^.SMALLEST_POSITIVE_SUBNORMAL);
+THIS^.testValueIsSubnormal(THIS^.ONE_PERCENT);
+THIS^.testValueIsSubnormal(THIS^.ONE_PERMILLE);
+THIS^.testValueIsSubnormal(THIS^.MINUS_ONE_PERCENT);
+THIS^.testValueIsSubnormal(THIS^.MINUS_ONE_PERMILLE);
+
+TcUnit.TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testValueIsANumber" Id="{40956583-6a76-41fa-810f-1175f18c7652}" FolderPath="valueIsANumber\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.float.double.valueIsANumber``
+method of CNM_AssertionInterfaceLib library, 
+it provides the possibility to handover test data via parameter 
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+METHOD testValueIsANumber
+VAR_INPUT
+	(* for the test it's the parameter ``currentValue`` *)
+	valueToTest	:LRealTestParameter;	
+END_VAR
+VAR
+	(* just the expectation if the assertion to test must be worng or true *)
+	assertionIsWrong		:BOOL;
+	(* contains the format string for the test message *)
+	message					:Tc2_System.T_MaxString;
+	(* TwinCAT printf with the test message *)
+	messageStringBuilder	:Tc2_Utilities.FB_FormatString;
+	(* value of the paramter ``valueToTest`` as string *)
+	valueToTestAsString		:Tc2_System.T_MaxString;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.assertorContainer.resetAssertor();
+
+assertionIsWrong := Tc2_Utilities.LrealIsNaN(valueToTest.value);
+
+message := SEL(
+	assertionIsWrong,
+	'currentValue is %s assertion must be TRUE', 
+	'currentValue is %s assertion must be FALSE'
+);
+
+valueToTestAsString := valueToTest.asString;
+
+messageStringBuilder(
+	sFormat := message,
+	arg1 := THIS^.AnyToArg(valueToTestAsString)
+);
+
+THIS^.assertorContainer.assertor.assert.float.double.valueIsANumber(
+	currentValue := valueToTest.value,
+	message := ''
+);
+
+THIS^.AssertEquals_BOOL(
+	Expected 	:= assertionIsWrong,
+	Actual 		:= THIS^.assertorContainer.wasAssertionWrong,
+	Message 	:= messageStringBuilder.sOut
+);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testValueIsEqualTo" Id="{74336c2f-8fb6-418a-8d9d-eb99470ec2e7}" FolderPath="valueIsEqualTo\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.float.double.valueIsEqualTo``
+method of CNM_AssertionInterfaceLib library, 
+it provides the possibility to handover test data via parameter 
+
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+METHOD testValueIsEqualTo 
+VAR_INPUT
+	(* for the test it's the parameter ``currentValue`` *)
+	valueToTest	:LRealTestParameter;
+	(* for the test it's the parameter ``expectedValue`` *)
+	expected	:LRealTestParameter;
+	(* for the test it's the parameter ``tolerance`` *)
+	tolerance	:LRealTestParameter;
+END_VAR
+VAR
+	(* just the expectation if the assertion to test must be worng or true *)
+	assertionIsWrong		:BOOL;
+	(* contains the format string for the test message *)
+	message					:Tc2_System.T_MaxString;
+	(* TwinCAT printf with the test message *)
+	messageStringBuilder	:Tc2_Utilities.FB_FormatString;
+	(* just to cast *)
+	binaryCurrentValue		:POINTER TO LWORD;
+	(* just to cast *)
+	binaryExpectedValue		:POINTER TO LWORD;
+	(* value of the paramter ``valueToTest`` as string *)
+	valueToTestAsString		:Tc2_System.T_MaxString;
+	(* value of the paramter ``expected`` as string *)
+	expectedAsString		:Tc2_System.T_MaxString;
+	(* value of the paramter ``tolerance`` as string *)
+	toleranceAsString		:Tc2_System.T_MaxString;	
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.assertorContainer.resetAssertor();
+IF (
+	Tc2_Utilities.LrealIsNaN(valueToTest.value)
+	OR Tc2_Utilities.LrealIsNaN(expected.value)
+	OR Tc2_Utilities.LrealIsNaN(tolerance.value)
+) THEN
+	assertionIsWrong := TRUE;
+ELSIF (NOT Tc2_Utilities.LrealIsFinite(tolerance.value)) THEN
+	assertionIsWrong := FALSE;
+ELSIF (Tc2_Utilities.LrealIsFinite(valueToTest.value) <> Tc2_Utilities.LrealIsFinite(expected.value)) THEN
+	assertionIsWrong := TRUE; 
+ELSIF (
+	(NOT Tc2_Utilities.LrealIsFinite(valueToTest.value))
+	OR (NOT Tc2_Utilities.LrealIsFinite(expected.value))
+) THEN
+	binaryCurrentValue := ADR(valueToTest.value);
+	binaryExpectedValue := ADR(expected.value);
+	assertionIsWrong := (binaryCurrentValue^.SIGN <> binaryExpectedValue^.SIGN);
+ELSE
+	assertionIsWrong := (
+		((expected.value + ABS(tolerance.value)) < valueToTest.value)
+		OR ((expected.value - ABS(tolerance.value)) > valueToTest.value)
+	);
+END_IF
+
+message := SEL(
+	assertionIsWrong,
+	'currentValue is %s expectedValue is %s tolerance is %s assertion must be TRUE', 
+	'currentValue is %s expectedValue is %s tolerance is %s assertion must be FALSE'
+);
+
+valueToTestAsString := valueToTest.asString;
+expectedAsString := expected.asString;
+toleranceAsString := tolerance.asString;
+
+messageStringBuilder(
+	sFormat := message,
+	arg1 := THIS^.AnyToArg(valueToTestAsString),
+	arg2 := THIS^.AnyToArg(expectedAsString),
+	arg3 := THIS^.AnyToArg(toleranceAsString)
+);
+
+THIS^.assertorContainer.assertor.assert.float.double.valueIsEqualTo(
+	currentValue	:= valueToTest.value,
+	expectedValue	:= expected.value,
+	tolerance       := tolerance.value,
+	message			:= ''
+   );
+
+THIS^.AssertEquals_BOOL(
+	Expected 	:= assertionIsWrong,
+	Actual 		:= THIS^.assertorContainer.wasAssertionWrong,
+	Message 	:= messageStringBuilder.sOut
+);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testValueIsFinite" Id="{56a3c1e8-9430-404c-b828-bf3eb2626b22}" FolderPath="valueIsFinite\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.float.double.valueIsFinite``
+method of CNM_AssertionInterfaceLib library, 
+it provides the possibility to handover test data via parameter 
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+METHOD testValueIsFinite
+VAR_INPUT
+	(* for the test it's the parameter ``currentValue`` *)
+	valueToTest	:LRealTestParameter;	
+END_VAR
+VAR
+	(* just the expectation if the assertion to test must be worng or true *)
+	assertionIsWrong		:BOOL;
+	(* contains the format string for the test message *)
+	message					:Tc2_System.T_MaxString;
+	(* TwinCAT printf with the test message *)
+	messageStringBuilder	:Tc2_Utilities.FB_FormatString;
+	(* value of the paramter ``valueToTest`` as string *)
+	valueToTestAsString		:Tc2_System.T_MaxString;
+	(* binary value of the parameter ``valueToTest`` *)
+	binaryValueToTest		:POINTER TO LWORD;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.assertorContainer.resetAssertor();
+
+binaryValueToTest := ADR(valueToTest.value);
+assertionIsWrong := (
+	(binaryValueToTest^ = THIS^.BINARY_INFINITY)
+	OR_ELSE (binaryValueToTest^ = THIS^.BINARY_NEGATIVE_INFINITY)
+);
+
+message := SEL(
+	assertionIsWrong,
+	'currentValue is %s assertion must be TRUE', 
+	'currentValue is %s assertion must be FALSE'
+);
+
+valueToTestAsString := valueToTest.asString;
+
+messageStringBuilder(
+	sFormat := message,
+	arg1 := THIS^.AnyToArg(valueToTestAsString)
+);
+
+THIS^.assertorContainer.assertor.assert.float.double.valueIsFinite(
+	currentValue := valueToTest.value,
+	message := ''
+);
+
+THIS^.AssertEquals_BOOL(
+	Expected 	:= assertionIsWrong,
+	Actual 		:= THIS^.assertorContainer.wasAssertionWrong,
+	Message 	:= messageStringBuilder.sOut
+);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testValueIsGreaterThan" Id="{3ee2ce96-cf79-45a6-ae11-2149cd0051cc}" FolderPath="valueIsGreaterThan\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.float.double.valueIsGreaterThan``
+method of CNM_AssertionInterfaceLib library, 
+it provides the possibility to handover test data via parameter 
+
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+METHOD testValueIsGreaterThan 
+VAR_INPUT
+	(* for the test it's the parameter ``currentValue`` *)
+	valueToTest	:LRealTestParameter;
+	(* for the test it's the parameter ``lessValue`` *)
+	lessValue	:LRealTestParameter;
+END_VAR
+VAR
+	(* just the expectation if the assertion to test must be worng or true *)
+	assertionIsWrong		:BOOL;
+	(* contains the format string for the test message *)
+	message					:Tc2_System.T_MaxString;
+	(* TwinCAT printf with the test message *)
+	messageStringBuilder	:Tc2_Utilities.FB_FormatString;
+	(* just to cast *)
+	binaryCurrentValue		:POINTER TO LWORD;
+	(* just to cast *)
+	binaryLessValue			:POINTER TO LWORD;
+	(* value of the paramter ``valueToTest`` as string *)
+	valueToTestAsString		:Tc2_System.T_MaxString;
+	(* value of the paramter ``lessValue`` as string *)
+	lessValueAsString		:Tc2_System.T_MaxString;	
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.assertorContainer.resetAssertor();
+
+IF (Tc2_Utilities.LrealIsNaN(valueToTest.value) OR Tc2_Utilities.LrealIsNaN(lessValue.value)) THEN
+	assertionIsWrong := TRUE;
+ELSIF ((NOT Tc2_Utilities.LrealIsFinite(valueToTest.value)) AND (NOT Tc2_Utilities.LrealIsFinite(lessValue.value))) THEN
+	binaryCurrentValue := ADR(valueToTest.value);
+	binaryLessValue := ADR(lessValue.value);
+	assertionIsWrong := (
+		(binaryCurrentValue^.SIGN) //-inf
+		OR (NOT binaryLessValue^.SIGN) //inf
+	);
+ELSIF ((NOT Tc2_Utilities.LrealIsFinite(valueToTest.value)) AND (Tc2_Utilities.LrealIsFinite(lessValue.value))) THEN
+	binaryCurrentValue := ADR(valueToTest.value);
+	assertionIsWrong := (binaryCurrentValue^.SIGN);
+ELSIF (
+	(Tc2_Utilities.LrealIsFinite(valueToTest.value))
+	AND (NOT Tc2_Utilities.LrealIsFinite(lessValue.value))
+) THEN
+	binaryLessValue := ADR(lessValue.value);
+	assertionIsWrong := (NOT binaryLessValue^.SIGN);
+ELSE
+	assertionIsWrong := (valueToTest.value <= lessValue.value);
+END_IF
+
+message := SEL(
+	assertionIsWrong,
+	'currentValue is %s lessValue is %s assertion must be TRUE', 
+	'currentValue is %s lessValue is %s assertion must be FALSE'
+);
+
+valueToTestAsString := valueToTest.asString;
+lessValueAsString := lessValue.asString;
+
+messageStringBuilder(
+	sFormat := message,
+	arg1 := THIS^.AnyToArg(valueToTestAsString),
+	arg2 := THIS^.AnyToArg(lessValueAsString)
+);
+
+THIS^.assertorContainer.assertor.assert.float.double.valueIsGreaterThan(
+	currentValue	:= valueToTest.value,
+	lessValue		:= lessValue.value,
+	message			:= ''
+   );
+
+THIS^.AssertEquals_BOOL(
+	Expected 	:= assertionIsWrong,
+	Actual 		:= THIS^.assertorContainer.wasAssertionWrong,
+	Message 	:= messageStringBuilder.sOut
+);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testValueIsInfinite" Id="{6d4a316c-5e31-4431-9786-d65e34723f6b}" FolderPath="valueIsInfinite\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.float.double.valueIsInfinite``
+method of CNM_AssertionInterfaceLib library, 
+it provides the possibility to handover test data via parameter 
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+METHOD testValueIsInfinite
+VAR_INPUT
+	(* for the test it's the parameter ``currentValue`` *)
+	valueToTest	:LRealTestParameter;	
+END_VAR
+VAR
+	(* just the expectation if the assertion to test must be worng or true *)
+	assertionIsWrong		:BOOL;
+	(* contains the format string for the test message *)
+	message					:Tc2_System.T_MaxString;
+	(* TwinCAT printf with the test message *)
+	messageStringBuilder	:Tc2_Utilities.FB_FormatString;
+	(* value of the paramter ``valueToTest`` as string *)
+	valueToTestAsString		:Tc2_System.T_MaxString;
+	(* binary value of the parameter ``valueToTest`` *)
+	binaryValueToTest		:POINTER TO LWORD;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.assertorContainer.resetAssertor();
+
+binaryValueToTest := ADR(valueToTest.value);
+assertionIsWrong := (
+	(binaryValueToTest^ <> THIS^.BINARY_INFINITY)
+	AND_THEN (binaryValueToTest^ <> THIS^.BINARY_NEGATIVE_INFINITY)
+);
+
+message := SEL(
+	assertionIsWrong,
+	'currentValue is %s assertion must be TRUE', 
+	'currentValue is %s assertion must be FALSE'
+);
+
+valueToTestAsString := valueToTest.asString;
+
+messageStringBuilder(
+	sFormat := message,
+	arg1 := THIS^.AnyToArg(valueToTestAsString)
+);
+
+THIS^.assertorContainer.assertor.assert.float.double.valueIsInfinite(
+	currentValue := valueToTest.value,
+	message := ''
+);
+
+THIS^.AssertEquals_BOOL(
+	Expected 	:= assertionIsWrong,
+	Actual 		:= THIS^.assertorContainer.wasAssertionWrong,
+	Message 	:= messageStringBuilder.sOut
+);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testValueIsInRangeOf" Id="{964ffdf5-0066-45ac-94ac-3c32080a745a}" FolderPath="valueIsInRangeOf\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.float.double.valueIsInRangeOf``
+method of CNM_AssertionInterfaceLib library, 
+it provides the possibility to handover test data via parameter 
+
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+METHOD testValueIsInRangeOf 
+VAR_INPUT
+	(* for the test it's the parameter ``lowerLimit`` *)
+	lowerLimit	:LRealTestParameter;
+	(* for the test it's the parameter ``currentValue`` *)
+	valueToTest	:LRealTestParameter;
+	(* for the test it's the parameter ``upperLimit`` *)
+	upperLimit	:LRealTestParameter;
+END_VAR
+VAR
+	(* just the expectation if the assertion to test must be worng or true *)
+	assertionIsWrong		:BOOL;
+	(* contains the format string for the test message *)
+	message					:Tc2_System.T_MaxString;
+	(* TwinCAT printf with the test message *)
+	messageStringBuilder	:Tc2_Utilities.FB_FormatString;
+	(* just to cast *)
+	binaryLowerLimit		:POINTER TO LWORD;
+	(* just to cast *)
+	binaryCurrentValue		:POINTER TO LWORD;
+	(* just to cast *)
+	binaryUpperLimit		:POINTER TO LWORD;
+	(* value of the paramter ``lowerLimit`` as string *)
+	lowerLimitAsString		:Tc2_System.T_MaxString;
+	(* value of the paramter ``valueToTest`` as string *)
+	valueToTestAsString		:Tc2_System.T_MaxString;
+	(* value of the paramter ``upperLimit`` as string *)
+	upperLimitAsString		:Tc2_System.T_MaxString;	
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.assertorContainer.resetAssertor();
+
+IF (
+	Tc2_Utilities.LrealIsNaN(lowerLimit.value)
+	OR Tc2_Utilities.LrealIsNaN(valueToTest.value)
+	OR  Tc2_Utilities.LrealIsNaN(upperLimit.value)
+) THEN
+	assertionIsWrong := TRUE;
+ELSIF (
+	(NOT Tc2_Utilities.LrealIsFinite(lowerLimit.value))
+	AND (NOT Tc2_Utilities.LrealIsFinite(valueToTest.value))
+	AND (NOT Tc2_Utilities.LrealIsFinite(upperLimit.value))
+) THEN
+	binaryLowerLimit	:= ADR(lowerLimit.value);
+	binaryCurrentValue	:= ADR(valueToTest.value);
+	binaryUpperLimit	:= ADR(upperLimit.value);
+	assertionIsWrong := (
+		((NOT binaryLowerLimit^.SIGN) AND binaryUpperLimit^.SIGN)
+		OR (
+			((NOT binaryLowerLimit^.SIGN) AND (NOT binaryUpperLimit^.SIGN) AND binaryCurrentValue^.SIGN)
+		) OR (
+			(binaryLowerLimit^.SIGN AND binaryUpperLimit^.SIGN AND (NOT binaryCurrentValue^.SIGN))
+		)
+	);
+ELSIF (
+	(Tc2_Utilities.LrealIsFinite(lowerLimit.value))
+	AND (NOT Tc2_Utilities.LrealIsFinite(valueToTest.value))
+	AND (Tc2_Utilities.LrealIsFinite(upperLimit.value))
+) THEN
+	assertionIsWrong := TRUE;
+ELSIF (
+	(NOT Tc2_Utilities.LrealIsFinite(lowerLimit.value))
+	AND (Tc2_Utilities.LrealIsFinite(valueToTest.value))
+	AND (Tc2_Utilities.LrealIsFinite(upperLimit.value))
+) THEN
+	binaryLowerLimit	:= ADR(lowerLimit.value);
+	assertionIsWrong := (
+		(NOT binaryLowerLimit^.SIGN)
+		OR (valueToTest.value > upperLimit.value)
+	);
+ELSIF (
+	(Tc2_Utilities.LrealIsFinite(lowerLimit.value))
+	AND (Tc2_Utilities.LrealIsFinite(valueToTest.value))
+	AND (NOT Tc2_Utilities.LrealIsFinite(upperLimit.value))
+) THEN
+	binaryUpperLimit	:= ADR(upperLimit.value);
+	assertionIsWrong := (
+		(binaryUpperLimit^.SIGN)
+		OR (valueToTest.value < lowerLimit.value)
+	);
+ELSE
+	assertionIsWrong := assertionIsWrong := (
+		(valueToTest.value < lowerLimit.value)
+		 OR (valueToTest.value > upperLimit.value)
+	);
+END_IF
+
+message := SEL(
+	assertionIsWrong,
+	'lowerLimit is %s currentValue is %s upperLimit is %s assertion must be TRUE', 
+	'lowerLimit is %s currentValue is %s upperLimit is %s assertion must be FALSE'
+);
+
+lowerLimitAsString	:= lowerLimit.asString;
+valueToTestAsString := valueToTest.asString;
+upperLimitAsString  := upperLimit.asString;
+
+messageStringBuilder(
+	sFormat := message,
+	arg1 := THIS^.AnyToArg(lowerLimitAsString),
+	arg2 := THIS^.AnyToArg(valueToTestAsString),
+	arg3 := THIS^.AnyToArg(upperLimitAsString)
+);
+
+THIS^.assertorContainer.assertor.assert.float.double.valueIsInRangeOf(
+	lowerLimit		:= lowerLimit.value,
+	currentValue	:= valueToTest.value,
+	upperLimit		:= upperLimit.value,
+	message			:= ''
+   );
+
+THIS^.AssertEquals_BOOL(
+	Expected 	:= assertionIsWrong,
+	Actual 		:= THIS^.assertorContainer.wasAssertionWrong,
+	Message 	:= messageStringBuilder.sOut
+);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testValueIsLessThan" Id="{14d72b7e-616f-400b-95be-5ad6407bcabd}" FolderPath="valueIsLessThan\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.float.double.valueIsLessThan``
+method of CNM_AssertionInterfaceLib library, 
+it provides the possibility to handover test data via parameter 
+
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+METHOD testValueIsLessThan 
+VAR_INPUT
+	(* for the test it's the parameter ``currentValue`` *)
+	valueToTest		:LRealTestParameter;
+	(* for the test it's the parameter ``greaterValue`` *)
+	greaterValue	:LRealTestParameter;
+END_VAR
+VAR
+	(* just the expectation if the assertion to test must be worng or true *)
+	assertionIsWrong		:BOOL;
+	(* contains the format string for the test message *)
+	message					:Tc2_System.T_MaxString;
+	(* TwinCAT printf with the test message *)
+	messageStringBuilder	:Tc2_Utilities.FB_FormatString;
+	(* just to cast *)
+	binaryCurrentValue		:POINTER TO LWORD;
+	(* just to cast *)
+	binaryGreaterValue		:POINTER TO LWORD;
+	(* value of the paramter ``valueToTest`` as string *)
+	valueToTestAsString		:Tc2_System.T_MaxString;
+	(* value of the paramter ``greaterValue`` as string *)
+	greaterValueAsString	:Tc2_System.T_MaxString;	
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.assertorContainer.resetAssertor();
+
+IF (
+	Tc2_Utilities.LrealIsNaN(valueToTest.value) 
+	OR Tc2_Utilities.LrealIsNaN(greaterValue.value)
+) THEN
+	assertionIsWrong := TRUE;
+ELSIF (
+	(NOT Tc2_Utilities.LrealIsFinite(valueToTest.value))
+	AND (NOT Tc2_Utilities.LrealIsFinite(greaterValue.value))
+) THEN
+	binaryCurrentValue := ADR(valueToTest.value);
+	binaryGreaterValue := ADR(greaterValue.value);
+	assertionIsWrong := (
+		(NOT binaryCurrentValue^.SIGN) //inf
+		OR (binaryGreaterValue^.SIGN) //-inf
+	);
+ELSIF (
+	(NOT Tc2_Utilities.LrealIsFinite(valueToTest.value))
+	AND (Tc2_Utilities.LrealIsFinite(greaterValue.value))
+) THEN
+	binaryCurrentValue := ADR(valueToTest.value);
+	assertionIsWrong := (NOT binaryCurrentValue^.SIGN); //inf
+ELSIF (
+	(Tc2_Utilities.LrealIsFinite(valueToTest.value))
+	AND (NOT Tc2_Utilities.LrealIsFinite(greaterValue.value))
+) THEN
+	binaryGreaterValue := ADR(greaterValue.value);
+	assertionIsWrong := (binaryGreaterValue^.SIGN); //-inf
+ELSE
+	assertionIsWrong := (valueToTest.value >= greaterValue.value);
+END_IF
+
+message := SEL(
+	assertionIsWrong,
+	'currentValue is %s greaterValue is %s assertion must be TRUE', 
+	'currentValue is %s greaterValue is %s assertion must be FALSE'
+);
+
+valueToTestAsString := valueToTest.asString;
+greaterValueAsString := greaterValue.asString;
+
+messageStringBuilder(
+	sFormat := message,
+	arg1 := THIS^.AnyToArg(valueToTestAsString),
+	arg2 := THIS^.AnyToArg(greaterValueAsString)
+);
+
+THIS^.assertorContainer.assertor.assert.float.double.valueIsLessThan(
+	currentValue	:= valueToTest.value,
+	greaterValue	:= greaterValue.value,
+	message			:= ''
+   );
+
+THIS^.AssertEquals_BOOL(
+	Expected 	:= assertionIsWrong,
+	Actual 		:= THIS^.assertorContainer.wasAssertionWrong,
+	Message 	:= messageStringBuilder.sOut
+);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testValueIsMax" Id="{5a6939c4-e05b-499e-958c-954e3529a3fb}" FolderPath="valueIsMax\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.float.double.valueIsMax``
+method of CNM_AssertionInterfaceLib library, 
+it provides the possibility to handover test data via parameter 
+
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+METHOD testValueIsMax 
+VAR_INPUT
+	(* for the test it's the parameter ``currentValue`` *)
+	valueToTest		:LRealTestParameter;
+	(* for the test it's the parameter ``greaterValue`` *)
+	maximumValue	:LRealTestParameter;
+END_VAR
+VAR
+	(* just the expectation if the assertion to test must be worng or true *)
+	assertionIsWrong		:BOOL;
+	(* contains the format string for the test message *)
+	message					:Tc2_System.T_MaxString;
+	(* TwinCAT printf with the test message *)
+	messageStringBuilder	:Tc2_Utilities.FB_FormatString;
+	(* just to cast *)
+	binaryCurrentValue		:POINTER TO LWORD;
+	(* just to cast *)
+	binaryMaximumValue		:POINTER TO LWORD;
+	(* value of the paramter ``valueToTest`` as string *)
+	valueToTestAsString		:Tc2_System.T_MaxString;
+	(* value of the paramter ``maximumValue`` as string *)
+	maximumValueAsString	:Tc2_System.T_MaxString;	
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.assertorContainer.resetAssertor();
+
+IF (
+	Tc2_Utilities.LrealIsNaN(valueToTest.value)
+	OR Tc2_Utilities.LrealIsNaN(maximumValue.value)
+) THEN
+	assertionIsWrong := TRUE;
+ELSIF (
+	(NOT Tc2_Utilities.LrealIsFinite(valueToTest.value))
+	AND (NOT Tc2_Utilities.LrealIsFinite(maximumValue.value))
+) THEN
+	binaryCurrentValue := ADR(valueToTest.value);
+	binaryMaximumValue := ADR(maximumValue.value);
+	assertionIsWrong := (
+		(NOT binaryCurrentValue^.SIGN) //inf
+		AND (binaryMaximumValue^.SIGN) //-inf
+	);
+ELSIF (
+	(NOT Tc2_Utilities.LrealIsFinite(valueToTest.value))
+	AND (Tc2_Utilities.LrealIsFinite(maximumValue.value))
+) THEN
+	binaryCurrentValue := ADR(valueToTest.value);
+	assertionIsWrong := (NOT binaryCurrentValue^.SIGN); //inf
+ELSIF (
+	(Tc2_Utilities.LrealIsFinite(valueToTest.value))
+	AND (NOT Tc2_Utilities.LrealIsFinite(maximumValue.value))
+) THEN
+	binaryMaximumValue := ADR(maximumValue.value);
+	assertionIsWrong := (binaryMaximumValue^.SIGN);//-inf
+ELSE
+	assertionIsWrong := (valueToTest.value > maximumValue.value);
+END_IF
+
+message := SEL(
+	assertionIsWrong,
+	'currentValue is %s maximumValue is %s assertion must be TRUE', 
+	'currentValue is %s maximumValue is %s assertion must be FALSE'
+);
+
+valueToTestAsString := valueToTest.asString;
+maximumValueAsString := maximumValue.asString;
+
+messageStringBuilder(
+	sFormat := message,
+	arg1 := THIS^.AnyToArg(valueToTestAsString),
+	arg2 := THIS^.AnyToArg(maximumValueAsString)
+);
+
+THIS^.assertorContainer.assertor.assert.float.double.valueIsMax(
+	currentValue	:= valueToTest.value,
+	maximumValue	:= maximumValue.value,
+	message			:= ''
+   );
+
+THIS^.AssertEquals_BOOL(
+	Expected 	:= assertionIsWrong,
+	Actual 		:= THIS^.assertorContainer.wasAssertionWrong,
+	Message 	:= messageStringBuilder.sOut
+);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testValueIsMin" Id="{8c96d293-0120-4ff0-9bcf-86cf16be9877}" FolderPath="valueIsMin\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.float.double.valueIsMin``
+method of CNM_AssertionInterfaceLib library, 
+it provides the possibility to handover test data via parameter 
+
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+METHOD testValueIsMin 
+VAR_INPUT
+	(* for the test it's the parameter ``currentValue`` *)
+	valueToTest		:LRealTestParameter;
+	(* for the test it's the parameter ``minimumValue`` *)
+	minimumValue	:LRealTestParameter;
+END_VAR
+VAR
+	(* just the expectation if the assertion to test must be worng or true *)
+	assertionIsWrong		:BOOL;
+	(* contains the format string for the test message *)
+	message					:Tc2_System.T_MaxString;
+	(* TwinCAT printf with the test message *)
+	messageStringBuilder	:Tc2_Utilities.FB_FormatString;
+	(* just to cast *)
+	binaryCurrentValue		:POINTER TO LWORD;
+	(* just to cast *)
+	binaryMinimumValue		:POINTER TO LWORD;
+	(* value of the paramter ``valueToTest`` as string *)
+	valueToTestAsString		:Tc2_System.T_MaxString;
+	(* value of the paramter ``minimumValue`` as string *)
+	minimumValueAsString	:Tc2_System.T_MaxString;	
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.assertorContainer.resetAssertor();
+
+IF (
+	Tc2_Utilities.LrealIsNaN(valueToTest.value)
+	OR Tc2_Utilities.LrealIsNaN(minimumValue.value)
+) THEN
+	assertionIsWrong := TRUE;
+ELSIF (
+	(NOT Tc2_Utilities.LrealIsFinite(valueToTest.value))
+	AND (NOT Tc2_Utilities.LrealIsFinite(minimumValue.value))
+) THEN
+	binaryCurrentValue := ADR(valueToTest.value);
+	binaryMinimumValue := ADR(minimumValue.value);
+	assertionIsWrong := (
+		(binaryCurrentValue^.SIGN) //-inf
+		AND (NOT binaryMinimumValue^.SIGN) //inf
+	);
+ELSIF (
+	(NOT Tc2_Utilities.LrealIsFinite(valueToTest.value))
+	AND (Tc2_Utilities.LrealIsFinite(minimumValue.value))
+) THEN
+	binaryCurrentValue := ADR(valueToTest.value);
+	assertionIsWrong := (binaryCurrentValue^.SIGN);
+ELSIF (
+	(Tc2_Utilities.LrealIsFinite(valueToTest.value))
+	AND (NOT Tc2_Utilities.LrealIsFinite(minimumValue.value))
+) THEN
+	binaryMinimumValue := ADR(minimumValue.value);
+	assertionIsWrong := (NOT binaryMinimumValue^.SIGN);
+ELSE
+	assertionIsWrong := (valueToTest.value < minimumValue.value);
+END_IF
+
+message := SEL(
+	assertionIsWrong,
+	'currentValue is %s minimumValue is %s assertion must be TRUE', 
+	'currentValue is %s minimumValue is %s assertion must be FALSE'
+);
+
+valueToTestAsString := valueToTest.asString;
+minimumValueAsString := minimumValue.asString;
+
+messageStringBuilder(
+	sFormat := message,
+	arg1 := THIS^.AnyToArg(valueToTestAsString),
+	arg2 := THIS^.AnyToArg(minimumValueAsString)
+);
+
+THIS^.assertorContainer.assertor.assert.float.double.valueIsMin(
+	currentValue	:= valueToTest.value,
+	minimumValue	:= minimumValue.value,
+	message			:= ''
+   );
+
+THIS^.AssertEquals_BOOL(
+	Expected 	:= assertionIsWrong,
+	Actual 		:= THIS^.assertorContainer.wasAssertionWrong,
+	Message 	:= messageStringBuilder.sOut
+);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testValueIsNaN" Id="{6b9908e3-c23c-4144-9d37-a6dacd09c856}" FolderPath="valueIsNaN\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.float.double.valueIsNaN``
+method of CNM_AssertionInterfaceLib library, 
+it provides the possibility to handover test data via parameter 
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+METHOD testValueIsNaN
+VAR_INPUT
+	(* for the test it's the parameter ``currentValue`` *)
+	valueToTest	:LRealTestParameter;	
+END_VAR
+VAR
+	(* just the expectation if the assertion to test must be worng or true *)
+	assertionIsWrong		:BOOL;
+	(* contains the format string for the test message *)
+	message					:Tc2_System.T_MaxString;
+	(* TwinCAT printf with the test message *)
+	messageStringBuilder	:Tc2_Utilities.FB_FormatString;
+	(* value of the paramter ``valueToTest`` as string *)
+	valueToTestAsString		:Tc2_System.T_MaxString;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.assertorContainer.resetAssertor();
+
+assertionIsWrong := (NOT Tc2_Utilities.LrealIsNaN(valueToTest.value));
+
+message := SEL(
+	assertionIsWrong,
+	'currentValue is %s assertion must be TRUE', 
+	'currentValue is %s assertion must be FALSE'
+);
+
+valueToTestAsString := valueToTest.asString;
+
+messageStringBuilder(
+	sFormat := message,
+	arg1 := THIS^.AnyToArg(valueToTestAsString)
+);
+
+THIS^.assertorContainer.assertor.assert.float.double.valueIsNaN(
+	currentValue := valueToTest.value,
+	message := ''
+);
+
+THIS^.AssertEquals_BOOL(
+	Expected 	:= assertionIsWrong,
+	Actual 		:= THIS^.assertorContainer.wasAssertionWrong,
+	Message 	:= messageStringBuilder.sOut
+);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testValueIsNegative" Id="{24e2b382-be5d-4d91-99ff-557e4eb71055}" FolderPath="valueIsNegative\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.float.double.valueIsNegative``
+method of CNM_AssertionInterfaceLib library, 
+it provides the possibility to handover test data via parameter 
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+METHOD testValueIsNegative
+VAR_INPUT
+	(* for the test it's the parameter ``currentValue`` *)
+	valueToTest	:LRealTestParameter;	
+END_VAR
+VAR
+	(* just the expectation if the assertion to test must be worng or true *)
+	assertionIsWrong		:BOOL;
+	(* contains the format string for the test message *)
+	message					:Tc2_System.T_MaxString;
+	(* TwinCAT printf with the test message *)
+	messageStringBuilder	:Tc2_Utilities.FB_FormatString;
+	(* value of the paramter ``valueToTest`` as string *)
+	valueToTestAsString		:Tc2_System.T_MaxString;
+	(* binary value of the parameter ``valueToTest`` *)
+	binaryValueToTest		:POINTER TO LWORD;
+	(* sgin bit as BYTE for the message *)
+	signBitAsByte			:BYTE;
+	(* sgin bit as BOOL for the message *)
+	signBit					:BOOL;	
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.assertorContainer.resetAssertor();
+
+binaryValueToTest := ADR(valueToTest.value);
+signBit := binaryValueToTest^.SIGN;
+signBitAsByte := TO_BYTE(signBit);
+assertionIsWrong := (
+	(NOT signBit)
+	OR_ELSE Tc2_Utilities.LrealIsNaN(valueToTest.value)
+);
+
+message := SEL(
+	assertionIsWrong,
+	'currentValue is %s and sign bit is %u assertion must be TRUE', 
+	'currentValue is %s and sign bit is %u assertion must be FALSE'
+);
+
+valueToTestAsString := valueToTest.asString;
+
+messageStringBuilder(
+	sFormat := message,
+	arg1 := THIS^.AnyToArg(valueToTestAsString),
+	arg2 := THIS^.AnyToArg(signBitAsByte)
+);
+
+THIS^.assertorContainer.assertor.assert.float.double.valueIsNegative(
+	currentValue := valueToTest.value,
+	message := ''
+);
+
+THIS^.AssertEquals_BOOL(
+	Expected 	:= assertionIsWrong,
+	Actual 		:= THIS^.assertorContainer.wasAssertionWrong,
+	Message 	:= messageStringBuilder.sOut
+);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testValueIsNegativeInfinite" Id="{afdadbc7-259f-471b-9f5f-99eeaf9ab7cd}" FolderPath="valueIsNegInfinite\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.float.double.valueIsNegativeInfinite``
+method of CNM_AssertionInterfaceLib library, 
+it provides the possibility to handover test data via parameter 
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+METHOD testValueIsNegativeInfinite
+VAR_INPUT
+	(* for the test it's the parameter ``currentValue`` *)
+	valueToTest	:LRealTestParameter;	
+END_VAR
+VAR
+	(* just the expectation if the assertion to test must be worng or true *)
+	assertionIsWrong		:BOOL;
+	(* contains the format string for the test message *)
+	message					:Tc2_System.T_MaxString;
+	(* TwinCAT printf with the test message *)
+	messageStringBuilder	:Tc2_Utilities.FB_FormatString;
+	(* value of the paramter ``valueToTest`` as string *)
+	valueToTestAsString		:Tc2_System.T_MaxString;
+	(* binary value of the parameter ``valueToTest`` *)
+	binaryValueToTest		:POINTER TO LWORD;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.assertorContainer.resetAssertor();
+
+binaryValueToTest := ADR(valueToTest.value);
+assertionIsWrong := (binaryValueToTest^ <> THIS^.BINARY_NEGATIVE_INFINITY);
+
+message := SEL(
+	assertionIsWrong,
+	'currentValue is %s assertion must be TRUE', 
+	'currentValue is %s assertion must be FALSE'
+);
+
+valueToTestAsString := valueToTest.asString;
+
+messageStringBuilder(
+	sFormat := message,
+	arg1 := THIS^.AnyToArg(valueToTestAsString)
+);
+
+THIS^.assertorContainer.assertor.assert.float.double.valueIsNegativeInfinite(
+	currentValue := valueToTest.value,
+	message := ''
+);
+
+THIS^.AssertEquals_BOOL(
+	Expected 	:= assertionIsWrong,
+	Actual 		:= THIS^.assertorContainer.wasAssertionWrong,
+	Message 	:= messageStringBuilder.sOut
+);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testValueIsNegativeZero" Id="{8b073e02-d2c5-4878-bb11-5e1013a4a8d9}" FolderPath="valueIsNegativeZero\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.float.double.valueIsNegativeZero``
+method of CNM_AssertionInterfaceLib library, 
+it provides the possibility to handover test data via parameter 
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+METHOD testValueIsNegativeZero
+VAR_INPUT
+	(* for the test it's the parameter ``currentValue`` *)
+	valueToTest	:LRealTestParameter;	
+END_VAR
+VAR
+	(* just the expectation if the assertion to test must be worng or true *)
+	assertionIsWrong		:BOOL;
+	(* contains the format string for the test message *)
+	message					:Tc2_System.T_MaxString;
+	(* TwinCAT printf with the test message *)
+	messageStringBuilder	:Tc2_Utilities.FB_FormatString;
+	(* value of the paramter ``valueToTest`` as string *)
+	valueToTestAsString		:Tc2_System.T_MaxString;
+	(* binary value of the parameter ``valueToTest`` *)
+	binaryValueToTest		:POINTER TO LWORD;
+	(* sgin bit as BYTE for the message *)
+	signBitAsByte			:BYTE;
+	(* sgin bit as BOOL for the message *)
+	signBit					:BOOL;	
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.assertorContainer.resetAssertor();
+
+binaryValueToTest := ADR(valueToTest.value);
+signBit := binaryValueToTest^.SIGN;
+signBitAsByte := TO_BYTE(signBit);
+
+assertionIsWrong := (binaryValueToTest^ <> THIS^.BINARY_MINUS_ZERO);
+
+message := SEL(
+	assertionIsWrong,
+	'currentValue is %s and sign bit is %u assertion must be TRUE', 
+	'currentValue is %s and sign bit is %u assertion must be FALSE'
+);
+
+valueToTestAsString := valueToTest.asString;
+
+messageStringBuilder(
+	sFormat := message,
+	arg1 := THIS^.AnyToArg(valueToTestAsString),
+	arg2 := THIS^.AnyToArg(signBitAsByte)
+);
+
+THIS^.assertorContainer.assertor.assert.float.double.valueIsNegativeZero(
+	currentValue := valueToTest.value,
+	message := ''
+);
+
+THIS^.AssertEquals_BOOL(
+	Expected 	:= assertionIsWrong,
+	Actual 		:= THIS^.assertorContainer.wasAssertionWrong,
+	Message 	:= messageStringBuilder.sOut
+);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testValueIsNormal" Id="{721ff8f1-1a16-4813-a33d-c2a62a217f5f}" FolderPath="valueIsNormal\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.float.double.valueIsNormal``
+method of CNM_AssertionInterfaceLib library, 
+it provides the possibility to handover test data via parameter 
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+METHOD testValueIsNormal
+VAR_INPUT
+	(* for the test it's the parameter ``currentValue`` *)
+	valueToTest	:LRealTestParameter;	
+END_VAR
+VAR
+	(* just the expectation if the assertion to test must be worng or true *)
+	assertionIsWrong		:BOOL;
+	(* contains the format string for the test message *)
+	message					:Tc2_System.T_MaxString;
+	(* TwinCAT printf with the test message *)
+	messageStringBuilder	:Tc2_Utilities.FB_FormatString;
+	(* value of the paramter ``valueToTest`` as string *)
+	valueToTestAsString		:Tc2_System.T_MaxString;
+	(* binary value of the parameter ``valueToTest`` *)
+	binaryValueToTest		:POINTER TO LWORD;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.assertorContainer.resetAssertor();
+
+binaryValueToTest := ADR(valueToTest.value);
+
+assertionIsWrong := (
+	((binaryValueToTest^ AND THIS^.MASK_FOR_EXPONENT) = THIS^.BINARY_ZERO)
+	OR_ELSE Tc2_Utilities.LrealIsNaN(valueToTest.value)
+	OR_ELSE (NOT Tc2_Utilities.LrealIsFinite(valueToTest.value))
+);
+
+message := SEL(
+	assertionIsWrong,
+	'currentValue is %s assertion must be TRUE', 
+	'currentValue is %s assertion must be FALSE'
+);
+
+valueToTestAsString := valueToTest.asString;
+
+messageStringBuilder(
+	sFormat := message,
+	arg1 := THIS^.AnyToArg(valueToTestAsString)
+);
+
+THIS^.assertorContainer.assertor.assert.float.double.valueIsNormal(
+	currentValue := valueToTest.value,
+	message := ''
+);
+
+THIS^.AssertEquals_BOOL(
+	Expected 	:= assertionIsWrong,
+	Actual 		:= THIS^.assertorContainer.wasAssertionWrong,
+	Message 	:= messageStringBuilder.sOut
+);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testValueIsNotEqualTo" Id="{2a425286-606d-42e7-8621-5c05450cb403}" FolderPath="valueIsNotEqualTo\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.float.double.valueIsNotEqualTo``
+method of CNM_AssertionInterfaceLib library, 
+it provides the possibility to handover test data via parameter 
+
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+METHOD testValueIsNotEqualTo 
+VAR_INPUT
+	(* for the test it's the parameter ``currentValue`` *)
+	valueToTest		:LRealTestParameter;
+	(* for the test it's the parameter ``unexpectedValue`` *)
+	unexpectedValue	:LRealTestParameter;
+	(* for the test it's the parameter ``tolerance`` *)
+	tolerance		:LRealTestParameter;
+END_VAR
+VAR
+	(* just the expectation if the assertion to test must be worng or true *)
+	assertionIsWrong		:BOOL;
+	(* contains the format string for the test message *)
+	message					:Tc2_System.T_MaxString;
+	(* TwinCAT printf with the test message *)
+	messageStringBuilder	:Tc2_Utilities.FB_FormatString;
+	(* just to cast *)
+	binaryCurrentValue		:POINTER TO LWORD;
+	(* just to cast *)
+	binaryUnexpectedValue	:POINTER TO LWORD;
+	(* value of the paramter ``valueToTest`` as string *)
+	valueToTestAsString		:Tc2_System.T_MaxString;
+	(* value of the paramter ``unexpectedValue`` as string *)
+	unexpectedValueAsString	:Tc2_System.T_MaxString;
+	(* value of the paramter ``tolerance`` as string *)
+	toleranceAsString		:Tc2_System.T_MaxString;	
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.assertorContainer.resetAssertor();
+IF (
+	Tc2_Utilities.LrealIsNaN(valueToTest.value)
+	OR Tc2_Utilities.LrealIsNaN(unexpectedValue.value)
+	OR Tc2_Utilities.LrealIsNaN(tolerance.value)
+) THEN
+	assertionIsWrong := FALSE;
+ELSIF (NOT Tc2_Utilities.LrealIsFinite(tolerance.value)) THEN
+	assertionIsWrong := TRUE;
+ELSIF (
+	Tc2_Utilities.LrealIsFinite(valueToTest.value)
+	<> Tc2_Utilities.LrealIsFinite(unexpectedValue.value)
+) THEN
+	assertionIsWrong := FALSE; 
+ELSIF (
+	(NOT Tc2_Utilities.LrealIsFinite(valueToTest.value))
+	OR (NOT Tc2_Utilities.LrealIsFinite(unexpectedValue.value))
+) THEN
+	binaryCurrentValue := ADR(valueToTest.value);
+	binaryUnexpectedValue := ADR(unexpectedValue.value);
+	assertionIsWrong := (binaryCurrentValue^.SIGN = binaryUnexpectedValue^.SIGN);
+ELSE
+	assertionIsWrong := (
+		((unexpectedValue.value + ABS(tolerance.value)) >= valueToTest.value)
+		AND ((unexpectedValue.value - ABS(tolerance.value)) <= valueToTest.value)
+	);
+END_IF
+
+message := SEL(
+	assertionIsWrong,
+	'currentValue is %s unexpectedValue is %s tolerance is %s assertion must be TRUE', 
+	'currentValue is %s unexpectedValue is %s tolerance is %s assertion must be FALSE'
+);
+
+valueToTestAsString := valueToTest.asString;
+unexpectedValueAsString := unexpectedValue.asString;
+toleranceAsString := tolerance.asString;
+
+messageStringBuilder(
+	sFormat := message,
+	arg1 := THIS^.AnyToArg(valueToTestAsString),
+	arg2 := THIS^.AnyToArg(unexpectedValueAsString),
+	arg3 := THIS^.AnyToArg(toleranceAsString)
+);
+
+THIS^.assertorContainer.assertor.assert.float.double.valueIsNotEqualTo(
+	currentValue	:= valueToTest.value,
+	unexpectedValue	:= unexpectedValue.value,
+	tolerance       := tolerance.value,
+	message			:= ''
+   );
+
+THIS^.AssertEquals_BOOL(
+	Expected 	:= assertionIsWrong,
+	Actual 		:= THIS^.assertorContainer.wasAssertionWrong,
+	Message 	:= messageStringBuilder.sOut
+);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testValueIsNotNegativeInfinite" Id="{335f2f08-5d81-4eb7-932b-c5e5234ad541}" FolderPath="valueIsNotNegInf\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.float.double.valueIsNotNegativeInfinite``
+method of CNM_AssertionInterfaceLib library, 
+it provides the possibility to handover test data via parameter 
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+METHOD testValueIsNotNegativeInfinite
+VAR_INPUT
+	(* for the test it's the parameter ``currentValue`` *)
+	valueToTest	:LRealTestParameter;	
+END_VAR
+VAR
+	(* just the expectation if the assertion to test must be worng or true *)
+	assertionIsWrong		:BOOL;
+	(* contains the format string for the test message *)
+	message					:Tc2_System.T_MaxString;
+	(* TwinCAT printf with the test message *)
+	messageStringBuilder	:Tc2_Utilities.FB_FormatString;
+	(* value of the paramter ``valueToTest`` as string *)
+	valueToTestAsString		:Tc2_System.T_MaxString;
+	(* binary value of the parameter ``valueToTest`` *)
+	binaryValueToTest		:POINTER TO LWORD;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.assertorContainer.resetAssertor();
+
+binaryValueToTest := ADR(valueToTest.value);
+assertionIsWrong := (binaryValueToTest^ = THIS^.BINARY_NEGATIVE_INFINITY);
+
+message := SEL(
+	assertionIsWrong,
+	'currentValue is %s assertion must be TRUE', 
+	'currentValue is %s assertion must be FALSE'
+);
+
+valueToTestAsString := valueToTest.asString;
+
+messageStringBuilder(
+	sFormat := message,
+	arg1 := THIS^.AnyToArg(valueToTestAsString)
+);
+
+THIS^.assertorContainer.assertor.assert.float.double.valueIsNotNegativeInfinite(
+	currentValue := valueToTest.value,
+	message := ''
+);
+
+THIS^.AssertEquals_BOOL(
+	Expected 	:= assertionIsWrong,
+	Actual 		:= THIS^.assertorContainer.wasAssertionWrong,
+	Message 	:= messageStringBuilder.sOut
+);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testValueIsNotPositiveInfinite" Id="{d4a60b2f-0668-4746-9882-2daf4ccd02d6}" FolderPath="valueIsNotPosInf\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.float.double.valueIsNotPositiveInfinite``
+method of CNM_AssertionInterfaceLib library, 
+it provides the possibility to handover test data via parameter 
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+METHOD testValueIsNotPositiveInfinite
+VAR_INPUT
+	(* for the test it's the parameter ``currentValue`` *)
+	valueToTest	:LRealTestParameter;	
+END_VAR
+VAR
+	(* just the expectation if the assertion to test must be worng or true *)
+	assertionIsWrong		:BOOL;
+	(* contains the format string for the test message *)
+	message					:Tc2_System.T_MaxString;
+	(* TwinCAT printf with the test message *)
+	messageStringBuilder	:Tc2_Utilities.FB_FormatString;
+	(* value of the paramter ``valueToTest`` as string *)
+	valueToTestAsString		:Tc2_System.T_MaxString;
+	(* binary value of the parameter ``valueToTest`` *)
+	binaryValueToTest		:POINTER TO LWORD;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.assertorContainer.resetAssertor();
+
+binaryValueToTest := ADR(valueToTest.value);
+assertionIsWrong := (binaryValueToTest^ = THIS^.BINARY_INFINITY);
+
+message := SEL(
+	assertionIsWrong,
+	'currentValue is %s assertion must be TRUE', 
+	'currentValue is %s assertion must be FALSE'
+);
+
+valueToTestAsString := valueToTest.asString;
+
+messageStringBuilder(
+	sFormat := message,
+	arg1 := THIS^.AnyToArg(valueToTestAsString)
+);
+
+THIS^.assertorContainer.assertor.assert.float.double.valueIsNotPositiveInfinite(
+	currentValue := valueToTest.value,
+	message := ''
+);
+
+THIS^.AssertEquals_BOOL(
+	Expected 	:= assertionIsWrong,
+	Actual 		:= THIS^.assertorContainer.wasAssertionWrong,
+	Message 	:= messageStringBuilder.sOut
+);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testValueIsNotSpecial" Id="{cc64d524-f1c3-413f-81b6-011c3699970a}" FolderPath="valueIsNotSpecial\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.float.double.valueIsNotSpecial``
+method of CNM_AssertionInterfaceLib library, 
+it provides the possibility to handover test data via parameter 
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+METHOD testValueIsNotSpecial
+VAR_INPUT
+	(* for the test it's the parameter ``currentValue`` *)
+	valueToTest	:LRealTestParameter;	
+END_VAR
+VAR
+	(* just the expectation if the assertion to test must be worng or true *)
+	assertionIsWrong		:BOOL;
+	(* contains the format string for the test message *)
+	message					:Tc2_System.T_MaxString;
+	(* TwinCAT printf with the test message *)
+	messageStringBuilder	:Tc2_Utilities.FB_FormatString;
+	(* value of the paramter ``valueToTest`` as string *)
+	valueToTestAsString		:Tc2_System.T_MaxString;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.assertorContainer.resetAssertor();
+
+assertionIsWrong := (
+	(NOT Tc2_Utilities.LrealIsFinite(valueToTest.value))
+	OR_ELSE Tc2_Utilities.LrealIsNaN(valueToTest.value)
+);
+
+message := SEL(
+	assertionIsWrong,
+	'currentValue is %s assertion must be TRUE', 
+	'currentValue is %s assertion must be FALSE'
+);
+
+valueToTestAsString := valueToTest.asString;
+
+messageStringBuilder(
+	sFormat := message,
+	arg1 := THIS^.AnyToArg(valueToTestAsString)
+);
+
+THIS^.assertorContainer.assertor.assert.float.double.valueIsNotSpecial(
+	currentValue := valueToTest.value,
+	message := ''
+);
+
+THIS^.AssertEquals_BOOL(
+	Expected 	:= assertionIsWrong,
+	Actual 		:= THIS^.assertorContainer.wasAssertionWrong,
+	Message 	:= messageStringBuilder.sOut
+);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testValueIsPositive" Id="{c46e15a1-6558-4fc3-b9f6-aceb4e148962}" FolderPath="valueIsPositive\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.float.double.valueIsPositive``
+method of CNM_AssertionInterfaceLib library, 
+it provides the possibility to handover test data via parameter 
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+METHOD testValueIsPositive
+VAR_INPUT
+	(* for the test it's the parameter ``currentValue`` *)
+	valueToTest	:LRealTestParameter;	
+END_VAR
+VAR
+	(* just the expectation if the assertion to test must be worng or true *)
+	assertionIsWrong		:BOOL;
+	(* contains the format string for the test message *)
+	message					:Tc2_System.T_MaxString;
+	(* TwinCAT printf with the test message *)
+	messageStringBuilder	:Tc2_Utilities.FB_FormatString;
+	(* value of the paramter ``valueToTest`` as string *)
+	valueToTestAsString		:Tc2_System.T_MaxString;
+	(* binary value of the parameter ``valueToTest`` *)
+	binaryValueToTest		:POINTER TO LWORD;
+	(* sgin bit as BYTE for the message *)
+	signBitAsByte			:BYTE;
+	(* sgin bit as BOOL for the message *)
+	signBit					:BOOL;	
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.assertorContainer.resetAssertor();
+
+binaryValueToTest := ADR(valueToTest.value);
+signBit := binaryValueToTest^.SIGN;
+signBitAsByte := TO_BYTE(signBit);
+assertionIsWrong := (
+	signBit
+	OR Tc2_Utilities.LrealIsNaN(valueToTest.value)
+);
+
+message := SEL(
+	assertionIsWrong,
+	'currentValue is %s and sign bit is %u assertion must be TRUE', 
+	'currentValue is %s and sign bit is %u assertion must be FALSE'
+);
+
+valueToTestAsString := valueToTest.asString;
+
+messageStringBuilder(
+	sFormat := message,
+	arg1 := THIS^.AnyToArg(valueToTestAsString),
+	arg2 := THIS^.AnyToArg(signBitAsByte)
+);
+
+THIS^.assertorContainer.assertor.assert.float.double.valueIsPositive(
+	currentValue := valueToTest.value,
+	message := ''
+);
+
+THIS^.AssertEquals_BOOL(
+	Expected 	:= assertionIsWrong,
+	Actual 		:= THIS^.assertorContainer.wasAssertionWrong,
+	Message 	:= messageStringBuilder.sOut
+);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testValueIsPositiveInfinite" Id="{bac3cf27-4dd6-4d01-9d6a-fd77b35bb536}" FolderPath="valueIsPosInfinite\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.float.double.valueIsPositiveInfinite``
+method of CNM_AssertionInterfaceLib library, 
+it provides the possibility to handover test data via parameter 
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+METHOD testValueIsPositiveInfinite
+VAR_INPUT
+	(* for the test it's the parameter ``currentValue`` *)
+	valueToTest	:LRealTestParameter;	
+END_VAR
+VAR
+	(* just the expectation if the assertion to test must be worng or true *)
+	assertionIsWrong		:BOOL;
+	(* contains the format string for the test message *)
+	message					:Tc2_System.T_MaxString;
+	(* TwinCAT printf with the test message *)
+	messageStringBuilder	:Tc2_Utilities.FB_FormatString;
+	(* value of the paramter ``valueToTest`` as string *)
+	valueToTestAsString		:Tc2_System.T_MaxString;
+	(* binary value of the parameter ``valueToTest`` *)
+	binaryValueToTest		:POINTER TO LWORD;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.assertorContainer.resetAssertor();
+
+binaryValueToTest := ADR(valueToTest.value);
+assertionIsWrong := (binaryValueToTest^ <> THIS^.BINARY_INFINITY);
+
+message := SEL(
+	assertionIsWrong,
+	'currentValue is %s assertion must be TRUE', 
+	'currentValue is %s assertion must be FALSE'
+);
+
+valueToTestAsString := valueToTest.asString;
+
+messageStringBuilder(
+	sFormat := message,
+	arg1 := THIS^.AnyToArg(valueToTestAsString)
+);
+
+THIS^.assertorContainer.assertor.assert.float.double.valueIsPositiveInfinite(
+	currentValue := valueToTest.value,
+	message := ''
+);
+
+THIS^.AssertEquals_BOOL(
+	Expected 	:= assertionIsWrong,
+	Actual 		:= THIS^.assertorContainer.wasAssertionWrong,
+	Message 	:= messageStringBuilder.sOut
+);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testValueIsPositiveZero" Id="{63313205-3682-4c15-bbf7-178b1b16ffb8}" FolderPath="valueIsPositiveZero\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.float.double.valueIsPositiveZero``
+method of CNM_AssertionInterfaceLib library, 
+it provides the possibility to handover test data via parameter 
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+METHOD testValueIsPositiveZero
+VAR_INPUT
+	(* for the test it's the parameter ``currentValue`` *)
+	valueToTest	:LRealTestParameter;	
+END_VAR
+VAR
+	(* just the expectation if the assertion to test must be worng or true *)
+	assertionIsWrong		:BOOL;
+	(* contains the format string for the test message *)
+	message					:Tc2_System.T_MaxString;
+	(* TwinCAT printf with the test message *)
+	messageStringBuilder	:Tc2_Utilities.FB_FormatString;
+	(* value of the paramter ``valueToTest`` as string *)
+	valueToTestAsString		:Tc2_System.T_MaxString;
+	(* binary value of the parameter ``valueToTest`` *)
+	binaryValueToTest		:POINTER TO LWORD;
+	(* sgin bit as BYTE for the message *)
+	signBitAsByte			:BYTE;
+	(* sgin bit as BOOL for the message *)
+	signBit					:BOOL;	
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.assertorContainer.resetAssertor();
+
+binaryValueToTest := ADR(valueToTest.value);
+signBit := binaryValueToTest^.SIGN;
+signBitAsByte := TO_BYTE(signBit);
+
+assertionIsWrong := (binaryValueToTest^ <> THIS^.BINARY_ZERO);
+
+message := SEL(
+	assertionIsWrong,
+	'currentValue is %s and sign bit is %u assertion must be TRUE', 
+	'currentValue is %s and sign bit is %u assertion must be FALSE'
+);
+
+valueToTestAsString := valueToTest.asString;
+
+messageStringBuilder(
+	sFormat := message,
+	arg1 := THIS^.AnyToArg(valueToTestAsString),
+	arg2 := THIS^.AnyToArg(signBitAsByte)
+);
+
+THIS^.assertorContainer.assertor.assert.float.double.valueIsPositiveZero(
+	currentValue := valueToTest.value,
+	message := ''
+);
+
+THIS^.AssertEquals_BOOL(
+	Expected 	:= assertionIsWrong,
+	Actual 		:= THIS^.assertorContainer.wasAssertionWrong,
+	Message 	:= messageStringBuilder.sOut
+);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testValueIsSpecial" Id="{76b71d9d-6664-4a93-a2ae-bd05c9f1d61a}" FolderPath="valueIsSpecial\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.float.double.valueIsSpecial``
+method of CNM_AssertionInterfaceLib library, 
+it provides the possibility to handover test data via parameter 
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+METHOD testValueIsSpecial
+VAR_INPUT
+	(* for the test it's the parameter ``currentValue`` *)
+	valueToTest	:LRealTestParameter;	
+END_VAR
+VAR
+	(* just the expectation if the assertion to test must be worng or true *)
+	assertionIsWrong		:BOOL;
+	(* contains the format string for the test message *)
+	message					:Tc2_System.T_MaxString;
+	(* TwinCAT printf with the test message *)
+	messageStringBuilder	:Tc2_Utilities.FB_FormatString;
+	(* value of the paramter ``valueToTest`` as string *)
+	valueToTestAsString		:Tc2_System.T_MaxString;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.assertorContainer.resetAssertor();
+
+assertionIsWrong := (
+	(NOT Tc2_Utilities.LrealIsNaN(valueToTest.value))
+	AND_THEN (Tc2_Utilities.LrealIsFinite(valueToTest.value))
+);
+
+message := SEL(
+	assertionIsWrong,
+	'currentValue is %s assertion must be TRUE', 
+	'currentValue is %s assertion must be FALSE'
+);
+
+valueToTestAsString := valueToTest.asString;
+
+messageStringBuilder(
+	sFormat := message,
+	arg1 := THIS^.AnyToArg(valueToTestAsString)
+);
+
+THIS^.assertorContainer.assertor.assert.float.double.valueIsSpecial(
+	currentValue := valueToTest.value,
+	message := ''
+);
+
+THIS^.AssertEquals_BOOL(
+	Expected 	:= assertionIsWrong,
+	Actual 		:= THIS^.assertorContainer.wasAssertionWrong,
+	Message 	:= messageStringBuilder.sOut
+);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testValueIsSubnormal" Id="{b778b55e-1817-44e0-8edb-30fb2d3923be}" FolderPath="valueIsSubnormal\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.float.double.valueIsSubnormal``
+method of CNM_AssertionInterfaceLib library, 
+it provides the possibility to handover test data via parameter 
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+METHOD testValueIsSubnormal
+VAR_INPUT
+	(* for the test it's the parameter ``currentValue`` *)
+	valueToTest	:LRealTestParameter;	
+END_VAR
+VAR
+	(* just the expectation if the assertion to test must be worng or true *)
+	assertionIsWrong		:BOOL;
+	(* contains the format string for the test message *)
+	message					:Tc2_System.T_MaxString;
+	(* TwinCAT printf with the test message *)
+	messageStringBuilder	:Tc2_Utilities.FB_FormatString;
+	(* value of the paramter ``valueToTest`` as string *)
+	valueToTestAsString		:Tc2_System.T_MaxString;
+	(* binary value of the parameter ``valueToTest`` *)
+	binaryValueToTest		:POINTER TO LWORD;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.assertorContainer.resetAssertor();
+
+binaryValueToTest := ADR(valueToTest.value);
+
+assertionIsWrong := (
+	((binaryValueToTest^ AND THIS^.MASK_FOR_EXPONENT) <> THIS^.BINARY_ZERO)
+);
+
+message := SEL(
+	assertionIsWrong,
+	'currentValue is %s assertion must be TRUE', 
+	'currentValue is %s assertion must be FALSE'
+);
+
+valueToTestAsString := valueToTest.asString;
+
+messageStringBuilder(
+	sFormat := message,
+	arg1 := THIS^.AnyToArg(valueToTestAsString)
+);
+
+THIS^.assertorContainer.assertor.assert.float.double.valueIsSubnormal(
+	currentValue := valueToTest.value,
+	message := ''
+);
+
+THIS^.AssertEquals_BOOL(
+	Expected 	:= assertionIsWrong,
+	Actual 		:= THIS^.assertorContainer.wasAssertionWrong,
+	Message 	:= messageStringBuilder.sOut
+);
+]]></ST>
+      </Implementation>
+    </Method>
+    <LineIds Name="LRealAssertionTests">
+      <LineId Id="61" Count="0" />
+      <LineId Id="202" Count="5" />
+      <LineId Id="1100" Count="5" />
+      <LineId Id="1107" Count="2" />
+      <LineId Id="1112" Count="0" />
+      <LineId Id="1180" Count="0" />
+      <LineId Id="1185" Count="4" />
+      <LineId Id="1352" Count="0" />
+      <LineId Id="998" Count="0" />
+      <LineId Id="1353" Count="1" />
+    </LineIds>
+    <LineIds Name="LRealAssertionTests.FB_init">
+      <LineId Id="31" Count="0" />
+      <LineId Id="42" Count="0" />
+      <LineId Id="138" Count="0" />
+      <LineId Id="44" Count="1" />
+      <LineId Id="139" Count="0" />
+      <LineId Id="46" Count="0" />
+      <LineId Id="43" Count="0" />
+      <LineId Id="140" Count="0" />
+      <LineId Id="89" Count="0" />
+      <LineId Id="88" Count="0" />
+      <LineId Id="141" Count="0" />
+      <LineId Id="90" Count="1" />
+      <LineId Id="142" Count="0" />
+      <LineId Id="92" Count="1" />
+      <LineId Id="143" Count="0" />
+      <LineId Id="94" Count="1" />
+      <LineId Id="144" Count="0" />
+      <LineId Id="96" Count="1" />
+      <LineId Id="47" Count="0" />
+    </LineIds>
+    <LineIds Name="LRealAssertionTests.getTestNameFor">
+      <LineId Id="5" Count="0" />
+      <LineId Id="7" Count="0" />
+    </LineIds>
+    <LineIds Name="LRealAssertionTests.runValueIsANumberTests">
+      <LineId Id="101" Count="0" />
+      <LineId Id="159" Count="1" />
+      <LineId Id="570" Count="13" />
+      <LineId Id="568" Count="0" />
+      <LineId Id="136" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="LRealAssertionTests.runValueIsEqualToTests">
+      <LineId Id="101" Count="0" />
+      <LineId Id="159" Count="1" />
+      <LineId Id="162" Count="3" />
+      <LineId Id="229" Count="0" />
+      <LineId Id="214" Count="4" />
+      <LineId Id="230" Count="0" />
+      <LineId Id="219" Count="4" />
+      <LineId Id="231" Count="0" />
+      <LineId Id="224" Count="4" />
+      <LineId Id="265" Count="5" />
+      <LineId Id="233" Count="0" />
+      <LineId Id="236" Count="4" />
+      <LineId Id="247" Count="17" />
+      <LineId Id="235" Count="0" />
+      <LineId Id="271" Count="4" />
+      <LineId Id="281" Count="0" />
+      <LineId Id="276" Count="4" />
+      <LineId Id="234" Count="0" />
+      <LineId Id="282" Count="34" />
+      <LineId Id="167" Count="0" />
+      <LineId Id="317" Count="35" />
+      <LineId Id="354" Count="34" />
+      <LineId Id="353" Count="0" />
+      <LineId Id="389" Count="34" />
+      <LineId Id="161" Count="0" />
+      <LineId Id="426" Count="34" />
+      <LineId Id="425" Count="0" />
+      <LineId Id="461" Count="34" />
+      <LineId Id="424" Count="0" />
+      <LineId Id="497" Count="34" />
+      <LineId Id="496" Count="0" />
+      <LineId Id="533" Count="34" />
+      <LineId Id="570" Count="35" />
+      <LineId Id="568" Count="0" />
+      <LineId Id="136" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="LRealAssertionTests.runValueIsFiniteTests">
+      <LineId Id="101" Count="0" />
+      <LineId Id="159" Count="1" />
+      <LineId Id="570" Count="13" />
+      <LineId Id="568" Count="0" />
+      <LineId Id="136" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="LRealAssertionTests.runValueIsGreaterThanTests">
+      <LineId Id="101" Count="0" />
+      <LineId Id="224" Count="0" />
+      <LineId Id="200" Count="2" />
+      <LineId Id="204" Count="0" />
+      <LineId Id="257" Count="0" />
+      <LineId Id="259" Count="8" />
+      <LineId Id="211" Count="3" />
+      <LineId Id="216" Count="4" />
+      <LineId Id="222" Count="0" />
+      <LineId Id="256" Count="0" />
+      <LineId Id="247" Count="8" />
+      <LineId Id="268" Count="9" />
+      <LineId Id="223" Count="0" />
+      <LineId Id="280" Count="48" />
+      <LineId Id="349" Count="9" />
+      <LineId Id="329" Count="19" />
+      <LineId Id="168" Count="0" />
+      <LineId Id="136" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="LRealAssertionTests.runValueIsInfiniteTests">
+      <LineId Id="101" Count="0" />
+      <LineId Id="159" Count="1" />
+      <LineId Id="570" Count="13" />
+      <LineId Id="568" Count="0" />
+      <LineId Id="136" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="LRealAssertionTests.runValueIsInRangeOfTests">
+      <LineId Id="101" Count="0" />
+      <LineId Id="256" Count="0" />
+      <LineId Id="258" Count="388" />
+      <LineId Id="233" Count="0" />
+      <LineId Id="136" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="LRealAssertionTests.runValueIsLessThanTests">
+      <LineId Id="101" Count="0" />
+      <LineId Id="243" Count="94" />
+      <LineId Id="368" Count="9" />
+      <LineId Id="338" Count="9" />
+      <LineId Id="358" Count="9" />
+      <LineId Id="168" Count="0" />
+      <LineId Id="136" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="LRealAssertionTests.runValueIsMaxTests">
+      <LineId Id="101" Count="0" />
+      <LineId Id="242" Count="124" />
+      <LineId Id="168" Count="0" />
+      <LineId Id="136" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="LRealAssertionTests.runValueIsMinTests">
+      <LineId Id="101" Count="0" />
+      <LineId Id="242" Count="125" />
+      <LineId Id="136" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="LRealAssertionTests.runValueIsNaNTests">
+      <LineId Id="101" Count="0" />
+      <LineId Id="159" Count="1" />
+      <LineId Id="570" Count="13" />
+      <LineId Id="568" Count="0" />
+      <LineId Id="136" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="LRealAssertionTests.runValueIsNegativeInfiniteTests">
+      <LineId Id="101" Count="0" />
+      <LineId Id="159" Count="1" />
+      <LineId Id="570" Count="13" />
+      <LineId Id="568" Count="0" />
+      <LineId Id="136" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="LRealAssertionTests.runValueIsNegativeTests">
+      <LineId Id="101" Count="0" />
+      <LineId Id="159" Count="1" />
+      <LineId Id="570" Count="13" />
+      <LineId Id="568" Count="0" />
+      <LineId Id="136" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="LRealAssertionTests.runValueIsNegativeZeroTests">
+      <LineId Id="101" Count="0" />
+      <LineId Id="159" Count="1" />
+      <LineId Id="570" Count="13" />
+      <LineId Id="568" Count="0" />
+      <LineId Id="136" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="LRealAssertionTests.runValueIsNormalTests">
+      <LineId Id="101" Count="0" />
+      <LineId Id="159" Count="1" />
+      <LineId Id="570" Count="13" />
+      <LineId Id="568" Count="0" />
+      <LineId Id="136" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="LRealAssertionTests.runValueIsNotEqualToTests">
+      <LineId Id="101" Count="0" />
+      <LineId Id="207" Count="389" />
+      <LineId Id="135" Count="1" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="LRealAssertionTests.runValueIsNotNegativeInfiniteTests">
+      <LineId Id="101" Count="0" />
+      <LineId Id="159" Count="1" />
+      <LineId Id="570" Count="13" />
+      <LineId Id="568" Count="0" />
+      <LineId Id="136" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="LRealAssertionTests.runValueIsNotPositiveInfiniteTests">
+      <LineId Id="101" Count="0" />
+      <LineId Id="159" Count="1" />
+      <LineId Id="570" Count="13" />
+      <LineId Id="568" Count="0" />
+      <LineId Id="136" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="LRealAssertionTests.runValueIsNotSpecialTests">
+      <LineId Id="101" Count="0" />
+      <LineId Id="159" Count="1" />
+      <LineId Id="570" Count="13" />
+      <LineId Id="568" Count="0" />
+      <LineId Id="136" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="LRealAssertionTests.runValueIsPositiveInfiniteTests">
+      <LineId Id="101" Count="0" />
+      <LineId Id="159" Count="1" />
+      <LineId Id="570" Count="13" />
+      <LineId Id="568" Count="0" />
+      <LineId Id="136" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="LRealAssertionTests.runValueIsPositiveTests">
+      <LineId Id="101" Count="0" />
+      <LineId Id="159" Count="1" />
+      <LineId Id="570" Count="13" />
+      <LineId Id="568" Count="0" />
+      <LineId Id="136" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="LRealAssertionTests.runValueIsPositiveZeroTests">
+      <LineId Id="101" Count="0" />
+      <LineId Id="159" Count="1" />
+      <LineId Id="570" Count="13" />
+      <LineId Id="568" Count="0" />
+      <LineId Id="136" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="LRealAssertionTests.runValueIsSpecialTests">
+      <LineId Id="101" Count="0" />
+      <LineId Id="159" Count="1" />
+      <LineId Id="570" Count="13" />
+      <LineId Id="568" Count="0" />
+      <LineId Id="136" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="LRealAssertionTests.runValueIsSubnormalTests">
+      <LineId Id="101" Count="0" />
+      <LineId Id="159" Count="1" />
+      <LineId Id="570" Count="13" />
+      <LineId Id="568" Count="0" />
+      <LineId Id="136" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="LRealAssertionTests.testValueIsANumber">
+      <LineId Id="48" Count="1" />
+      <LineId Id="7" Count="0" />
+      <LineId Id="32" Count="0" />
+      <LineId Id="34" Count="3" />
+      <LineId Id="33" Count="0" />
+      <LineId Id="40" Count="1" />
+      <LineId Id="44" Count="3" />
+      <LineId Id="38" Count="0" />
+      <LineId Id="8" Count="0" />
+      <LineId Id="5" Count="0" />
+      <LineId Id="9" Count="2" />
+      <LineId Id="50" Count="0" />
+      <LineId Id="52" Count="3" />
+      <LineId Id="51" Count="0" />
+      <LineId Id="12" Count="0" />
+    </LineIds>
+    <LineIds Name="LRealAssertionTests.testValueIsEqualTo">
+      <LineId Id="3" Count="0" />
+      <LineId Id="119" Count="0" />
+      <LineId Id="268" Count="0" />
+      <LineId Id="270" Count="1" />
+      <LineId Id="269" Count="0" />
+      <LineId Id="272" Count="2" />
+      <LineId Id="285" Count="0" />
+      <LineId Id="287" Count="0" />
+      <LineId Id="275" Count="0" />
+      <LineId Id="277" Count="1" />
+      <LineId Id="276" Count="0" />
+      <LineId Id="279" Count="0" />
+      <LineId Id="284" Count="0" />
+      <LineId Id="288" Count="2" />
+      <LineId Id="292" Count="2" />
+      <LineId Id="291" Count="0" />
+      <LineId Id="295" Count="0" />
+      <LineId Id="67" Count="0" />
+      <LineId Id="72" Count="3" />
+      <LineId Id="353" Count="0" />
+      <LineId Id="347" Count="2" />
+      <LineId Id="174" Count="0" />
+      <LineId Id="68" Count="0" />
+      <LineId Id="71" Count="0" />
+      <LineId Id="76" Count="1" />
+      <LineId Id="224" Count="0" />
+      <LineId Id="79" Count="0" />
+      <LineId Id="6" Count="0" />
+      <LineId Id="8" Count="0" />
+      <LineId Id="166" Count="0" />
+      <LineId Id="168" Count="0" />
+      <LineId Id="223" Count="0" />
+      <LineId Id="12" Count="2" />
+      <LineId Id="20" Count="3" />
+      <LineId Id="2" Count="0" />
+      <LineId Id="80" Count="0" />
+    </LineIds>
+    <LineIds Name="LRealAssertionTests.testValueIsFinite">
+      <LineId Id="48" Count="0" />
+      <LineId Id="98" Count="0" />
+      <LineId Id="49" Count="0" />
+      <LineId Id="7" Count="0" />
+      <LineId Id="100" Count="1" />
+      <LineId Id="99" Count="0" />
+      <LineId Id="32" Count="0" />
+      <LineId Id="34" Count="3" />
+      <LineId Id="33" Count="0" />
+      <LineId Id="40" Count="1" />
+      <LineId Id="44" Count="3" />
+      <LineId Id="38" Count="0" />
+      <LineId Id="8" Count="0" />
+      <LineId Id="5" Count="0" />
+      <LineId Id="9" Count="2" />
+      <LineId Id="50" Count="0" />
+      <LineId Id="52" Count="3" />
+      <LineId Id="51" Count="0" />
+      <LineId Id="12" Count="0" />
+    </LineIds>
+    <LineIds Name="LRealAssertionTests.testValueIsGreaterThan">
+      <LineId Id="3" Count="0" />
+      <LineId Id="312" Count="0" />
+      <LineId Id="306" Count="0" />
+      <LineId Id="228" Count="0" />
+      <LineId Id="233" Count="0" />
+      <LineId Id="237" Count="0" />
+      <LineId Id="308" Count="0" />
+      <LineId Id="239" Count="0" />
+      <LineId Id="309" Count="0" />
+      <LineId Id="311" Count="0" />
+      <LineId Id="310" Count="0" />
+      <LineId Id="248" Count="0" />
+      <LineId Id="252" Count="0" />
+      <LineId Id="254" Count="6" />
+      <LineId Id="240" Count="0" />
+      <LineId Id="244" Count="1" />
+      <LineId Id="220" Count="0" />
+      <LineId Id="67" Count="0" />
+      <LineId Id="72" Count="3" />
+      <LineId Id="318" Count="0" />
+      <LineId Id="317" Count="0" />
+      <LineId Id="319" Count="0" />
+      <LineId Id="174" Count="0" />
+      <LineId Id="68" Count="0" />
+      <LineId Id="71" Count="0" />
+      <LineId Id="76" Count="1" />
+      <LineId Id="79" Count="0" />
+      <LineId Id="6" Count="0" />
+      <LineId Id="8" Count="0" />
+      <LineId Id="166" Count="0" />
+      <LineId Id="168" Count="0" />
+      <LineId Id="12" Count="2" />
+      <LineId Id="20" Count="3" />
+      <LineId Id="2" Count="0" />
+      <LineId Id="80" Count="0" />
+    </LineIds>
+    <LineIds Name="LRealAssertionTests.testValueIsInfinite">
+      <LineId Id="48" Count="1" />
+      <LineId Id="96" Count="4" />
+      <LineId Id="32" Count="0" />
+      <LineId Id="34" Count="3" />
+      <LineId Id="33" Count="0" />
+      <LineId Id="40" Count="1" />
+      <LineId Id="44" Count="3" />
+      <LineId Id="38" Count="0" />
+      <LineId Id="8" Count="0" />
+      <LineId Id="5" Count="0" />
+      <LineId Id="9" Count="2" />
+      <LineId Id="50" Count="0" />
+      <LineId Id="52" Count="3" />
+      <LineId Id="51" Count="0" />
+      <LineId Id="12" Count="0" />
+    </LineIds>
+    <LineIds Name="LRealAssertionTests.testValueIsInRangeOf">
+      <LineId Id="3" Count="0" />
+      <LineId Id="300" Count="0" />
+      <LineId Id="237" Count="2" />
+      <LineId Id="271" Count="0" />
+      <LineId Id="240" Count="1" />
+      <LineId Id="243" Count="2" />
+      <LineId Id="272" Count="0" />
+      <LineId Id="246" Count="0" />
+      <LineId Id="293" Count="0" />
+      <LineId Id="247" Count="2" />
+      <LineId Id="366" Count="5" />
+      <LineId Id="252" Count="0" />
+      <LineId Id="254" Count="0" />
+      <LineId Id="256" Count="0" />
+      <LineId Id="274" Count="0" />
+      <LineId Id="273" Count="0" />
+      <LineId Id="257" Count="0" />
+      <LineId Id="259" Count="0" />
+      <LineId Id="275" Count="4" />
+      <LineId Id="265" Count="1" />
+      <LineId Id="294" Count="0" />
+      <LineId Id="296" Count="0" />
+      <LineId Id="295" Count="0" />
+      <LineId Id="280" Count="6" />
+      <LineId Id="297" Count="2" />
+      <LineId Id="268" Count="1" />
+      <LineId Id="427" Count="2" />
+      <LineId Id="270" Count="0" />
+      <LineId Id="120" Count="0" />
+      <LineId Id="67" Count="0" />
+      <LineId Id="72" Count="3" />
+      <LineId Id="307" Count="3" />
+      <LineId Id="174" Count="0" />
+      <LineId Id="68" Count="0" />
+      <LineId Id="71" Count="0" />
+      <LineId Id="76" Count="1" />
+      <LineId Id="190" Count="0" />
+      <LineId Id="79" Count="0" />
+      <LineId Id="6" Count="0" />
+      <LineId Id="8" Count="0" />
+      <LineId Id="166" Count="0" />
+      <LineId Id="178" Count="0" />
+      <LineId Id="168" Count="0" />
+      <LineId Id="12" Count="2" />
+      <LineId Id="20" Count="3" />
+      <LineId Id="2" Count="0" />
+      <LineId Id="80" Count="0" />
+    </LineIds>
+    <LineIds Name="LRealAssertionTests.testValueIsLessThan">
+      <LineId Id="3" Count="0" />
+      <LineId Id="216" Count="0" />
+      <LineId Id="219" Count="0" />
+      <LineId Id="313" Count="2" />
+      <LineId Id="223" Count="0" />
+      <LineId Id="225" Count="0" />
+      <LineId Id="316" Count="2" />
+      <LineId Id="229" Count="5" />
+      <LineId Id="236" Count="0" />
+      <LineId Id="319" Count="2" />
+      <LineId Id="240" Count="1" />
+      <LineId Id="243" Count="0" />
+      <LineId Id="322" Count="2" />
+      <LineId Id="247" Count="1" />
+      <LineId Id="250" Count="2" />
+      <LineId Id="120" Count="0" />
+      <LineId Id="67" Count="0" />
+      <LineId Id="72" Count="3" />
+      <LineId Id="261" Count="1" />
+      <LineId Id="174" Count="0" />
+      <LineId Id="263" Count="0" />
+      <LineId Id="68" Count="0" />
+      <LineId Id="71" Count="0" />
+      <LineId Id="76" Count="1" />
+      <LineId Id="79" Count="0" />
+      <LineId Id="6" Count="0" />
+      <LineId Id="8" Count="0" />
+      <LineId Id="166" Count="0" />
+      <LineId Id="168" Count="0" />
+      <LineId Id="12" Count="2" />
+      <LineId Id="20" Count="3" />
+      <LineId Id="2" Count="0" />
+      <LineId Id="80" Count="0" />
+    </LineIds>
+    <LineIds Name="LRealAssertionTests.testValueIsMax">
+      <LineId Id="3" Count="0" />
+      <LineId Id="258" Count="0" />
+      <LineId Id="220" Count="0" />
+      <LineId Id="315" Count="2" />
+      <LineId Id="224" Count="0" />
+      <LineId Id="226" Count="0" />
+      <LineId Id="318" Count="2" />
+      <LineId Id="230" Count="5" />
+      <LineId Id="237" Count="0" />
+      <LineId Id="321" Count="2" />
+      <LineId Id="241" Count="1" />
+      <LineId Id="244" Count="0" />
+      <LineId Id="324" Count="2" />
+      <LineId Id="248" Count="1" />
+      <LineId Id="251" Count="2" />
+      <LineId Id="120" Count="0" />
+      <LineId Id="67" Count="0" />
+      <LineId Id="72" Count="3" />
+      <LineId Id="263" Count="2" />
+      <LineId Id="174" Count="0" />
+      <LineId Id="68" Count="0" />
+      <LineId Id="71" Count="0" />
+      <LineId Id="76" Count="1" />
+      <LineId Id="79" Count="0" />
+      <LineId Id="6" Count="0" />
+      <LineId Id="8" Count="0" />
+      <LineId Id="166" Count="0" />
+      <LineId Id="168" Count="0" />
+      <LineId Id="12" Count="2" />
+      <LineId Id="20" Count="3" />
+      <LineId Id="2" Count="0" />
+      <LineId Id="80" Count="0" />
+    </LineIds>
+    <LineIds Name="LRealAssertionTests.testValueIsMin">
+      <LineId Id="3" Count="0" />
+      <LineId Id="255" Count="0" />
+      <LineId Id="217" Count="0" />
+      <LineId Id="313" Count="2" />
+      <LineId Id="221" Count="0" />
+      <LineId Id="223" Count="0" />
+      <LineId Id="316" Count="2" />
+      <LineId Id="227" Count="5" />
+      <LineId Id="234" Count="0" />
+      <LineId Id="319" Count="2" />
+      <LineId Id="238" Count="1" />
+      <LineId Id="241" Count="0" />
+      <LineId Id="322" Count="2" />
+      <LineId Id="245" Count="1" />
+      <LineId Id="248" Count="2" />
+      <LineId Id="120" Count="0" />
+      <LineId Id="67" Count="0" />
+      <LineId Id="72" Count="3" />
+      <LineId Id="260" Count="1" />
+      <LineId Id="263" Count="0" />
+      <LineId Id="174" Count="0" />
+      <LineId Id="68" Count="0" />
+      <LineId Id="71" Count="0" />
+      <LineId Id="76" Count="1" />
+      <LineId Id="79" Count="0" />
+      <LineId Id="6" Count="0" />
+      <LineId Id="8" Count="0" />
+      <LineId Id="166" Count="0" />
+      <LineId Id="168" Count="0" />
+      <LineId Id="12" Count="2" />
+      <LineId Id="20" Count="3" />
+      <LineId Id="2" Count="0" />
+      <LineId Id="80" Count="0" />
+    </LineIds>
+    <LineIds Name="LRealAssertionTests.testValueIsNaN">
+      <LineId Id="48" Count="1" />
+      <LineId Id="7" Count="0" />
+      <LineId Id="32" Count="0" />
+      <LineId Id="34" Count="3" />
+      <LineId Id="33" Count="0" />
+      <LineId Id="40" Count="1" />
+      <LineId Id="44" Count="3" />
+      <LineId Id="38" Count="0" />
+      <LineId Id="8" Count="0" />
+      <LineId Id="5" Count="0" />
+      <LineId Id="9" Count="2" />
+      <LineId Id="50" Count="0" />
+      <LineId Id="52" Count="3" />
+      <LineId Id="51" Count="0" />
+      <LineId Id="12" Count="0" />
+    </LineIds>
+    <LineIds Name="LRealAssertionTests.testValueIsNegative">
+      <LineId Id="48" Count="0" />
+      <LineId Id="85" Count="0" />
+      <LineId Id="49" Count="0" />
+      <LineId Id="96" Count="0" />
+      <LineId Id="92" Count="0" />
+      <LineId Id="7" Count="0" />
+      <LineId Id="86" Count="0" />
+      <LineId Id="97" Count="0" />
+      <LineId Id="88" Count="0" />
+      <LineId Id="32" Count="0" />
+      <LineId Id="34" Count="3" />
+      <LineId Id="33" Count="0" />
+      <LineId Id="40" Count="1" />
+      <LineId Id="44" Count="3" />
+      <LineId Id="91" Count="0" />
+      <LineId Id="38" Count="0" />
+      <LineId Id="8" Count="0" />
+      <LineId Id="5" Count="0" />
+      <LineId Id="9" Count="2" />
+      <LineId Id="50" Count="0" />
+      <LineId Id="52" Count="3" />
+      <LineId Id="51" Count="0" />
+      <LineId Id="12" Count="0" />
+    </LineIds>
+    <LineIds Name="LRealAssertionTests.testValueIsNegativeInfinite">
+      <LineId Id="48" Count="0" />
+      <LineId Id="89" Count="1" />
+      <LineId Id="139" Count="0" />
+      <LineId Id="32" Count="0" />
+      <LineId Id="34" Count="3" />
+      <LineId Id="33" Count="0" />
+      <LineId Id="40" Count="1" />
+      <LineId Id="44" Count="3" />
+      <LineId Id="38" Count="0" />
+      <LineId Id="8" Count="0" />
+      <LineId Id="5" Count="0" />
+      <LineId Id="9" Count="2" />
+      <LineId Id="50" Count="0" />
+      <LineId Id="52" Count="3" />
+      <LineId Id="51" Count="0" />
+      <LineId Id="12" Count="0" />
+    </LineIds>
+    <LineIds Name="LRealAssertionTests.testValueIsNegativeZero">
+      <LineId Id="48" Count="0" />
+      <LineId Id="85" Count="0" />
+      <LineId Id="49" Count="0" />
+      <LineId Id="96" Count="0" />
+      <LineId Id="92" Count="0" />
+      <LineId Id="97" Count="0" />
+      <LineId Id="7" Count="0" />
+      <LineId Id="32" Count="0" />
+      <LineId Id="34" Count="3" />
+      <LineId Id="33" Count="0" />
+      <LineId Id="40" Count="1" />
+      <LineId Id="44" Count="3" />
+      <LineId Id="91" Count="0" />
+      <LineId Id="38" Count="0" />
+      <LineId Id="8" Count="0" />
+      <LineId Id="5" Count="0" />
+      <LineId Id="9" Count="2" />
+      <LineId Id="50" Count="0" />
+      <LineId Id="52" Count="3" />
+      <LineId Id="51" Count="0" />
+      <LineId Id="12" Count="0" />
+    </LineIds>
+    <LineIds Name="LRealAssertionTests.testValueIsNormal">
+      <LineId Id="48" Count="0" />
+      <LineId Id="85" Count="0" />
+      <LineId Id="49" Count="0" />
+      <LineId Id="97" Count="0" />
+      <LineId Id="7" Count="0" />
+      <LineId Id="98" Count="0" />
+      <LineId Id="100" Count="0" />
+      <LineId Id="147" Count="0" />
+      <LineId Id="99" Count="0" />
+      <LineId Id="32" Count="0" />
+      <LineId Id="34" Count="3" />
+      <LineId Id="33" Count="0" />
+      <LineId Id="40" Count="1" />
+      <LineId Id="44" Count="3" />
+      <LineId Id="38" Count="0" />
+      <LineId Id="8" Count="0" />
+      <LineId Id="5" Count="0" />
+      <LineId Id="9" Count="2" />
+      <LineId Id="50" Count="0" />
+      <LineId Id="52" Count="3" />
+      <LineId Id="51" Count="0" />
+      <LineId Id="12" Count="0" />
+    </LineIds>
+    <LineIds Name="LRealAssertionTests.testValueIsNotEqualTo">
+      <LineId Id="3" Count="0" />
+      <LineId Id="268" Count="8" />
+      <LineId Id="359" Count="2" />
+      <LineId Id="277" Count="13" />
+      <LineId Id="120" Count="0" />
+      <LineId Id="67" Count="0" />
+      <LineId Id="72" Count="3" />
+      <LineId Id="301" Count="0" />
+      <LineId Id="303" Count="2" />
+      <LineId Id="174" Count="0" />
+      <LineId Id="68" Count="0" />
+      <LineId Id="71" Count="0" />
+      <LineId Id="76" Count="1" />
+      <LineId Id="223" Count="0" />
+      <LineId Id="79" Count="0" />
+      <LineId Id="6" Count="0" />
+      <LineId Id="8" Count="0" />
+      <LineId Id="166" Count="0" />
+      <LineId Id="168" Count="0" />
+      <LineId Id="224" Count="0" />
+      <LineId Id="12" Count="2" />
+      <LineId Id="20" Count="3" />
+      <LineId Id="2" Count="0" />
+      <LineId Id="80" Count="0" />
+    </LineIds>
+    <LineIds Name="LRealAssertionTests.testValueIsNotNegativeInfinite">
+      <LineId Id="48" Count="0" />
+      <LineId Id="85" Count="0" />
+      <LineId Id="49" Count="0" />
+      <LineId Id="7" Count="0" />
+      <LineId Id="32" Count="0" />
+      <LineId Id="34" Count="3" />
+      <LineId Id="33" Count="0" />
+      <LineId Id="40" Count="1" />
+      <LineId Id="44" Count="3" />
+      <LineId Id="38" Count="0" />
+      <LineId Id="8" Count="0" />
+      <LineId Id="5" Count="0" />
+      <LineId Id="9" Count="2" />
+      <LineId Id="50" Count="0" />
+      <LineId Id="52" Count="3" />
+      <LineId Id="51" Count="0" />
+      <LineId Id="12" Count="0" />
+    </LineIds>
+    <LineIds Name="LRealAssertionTests.testValueIsNotPositiveInfinite">
+      <LineId Id="48" Count="0" />
+      <LineId Id="85" Count="0" />
+      <LineId Id="49" Count="0" />
+      <LineId Id="7" Count="0" />
+      <LineId Id="32" Count="0" />
+      <LineId Id="34" Count="3" />
+      <LineId Id="33" Count="0" />
+      <LineId Id="40" Count="1" />
+      <LineId Id="44" Count="3" />
+      <LineId Id="38" Count="0" />
+      <LineId Id="8" Count="0" />
+      <LineId Id="5" Count="0" />
+      <LineId Id="9" Count="2" />
+      <LineId Id="50" Count="0" />
+      <LineId Id="52" Count="3" />
+      <LineId Id="51" Count="0" />
+      <LineId Id="12" Count="0" />
+    </LineIds>
+    <LineIds Name="LRealAssertionTests.testValueIsNotSpecial">
+      <LineId Id="48" Count="1" />
+      <LineId Id="7" Count="0" />
+      <LineId Id="96" Count="0" />
+      <LineId Id="98" Count="0" />
+      <LineId Id="97" Count="0" />
+      <LineId Id="32" Count="0" />
+      <LineId Id="34" Count="3" />
+      <LineId Id="33" Count="0" />
+      <LineId Id="40" Count="1" />
+      <LineId Id="44" Count="3" />
+      <LineId Id="38" Count="0" />
+      <LineId Id="8" Count="0" />
+      <LineId Id="5" Count="0" />
+      <LineId Id="9" Count="2" />
+      <LineId Id="50" Count="0" />
+      <LineId Id="52" Count="3" />
+      <LineId Id="51" Count="0" />
+      <LineId Id="12" Count="0" />
+    </LineIds>
+    <LineIds Name="LRealAssertionTests.testValueIsPositive">
+      <LineId Id="48" Count="0" />
+      <LineId Id="85" Count="0" />
+      <LineId Id="49" Count="0" />
+      <LineId Id="96" Count="0" />
+      <LineId Id="92" Count="0" />
+      <LineId Id="7" Count="0" />
+      <LineId Id="86" Count="0" />
+      <LineId Id="143" Count="0" />
+      <LineId Id="88" Count="0" />
+      <LineId Id="32" Count="0" />
+      <LineId Id="34" Count="3" />
+      <LineId Id="33" Count="0" />
+      <LineId Id="40" Count="1" />
+      <LineId Id="44" Count="3" />
+      <LineId Id="91" Count="0" />
+      <LineId Id="38" Count="0" />
+      <LineId Id="8" Count="0" />
+      <LineId Id="5" Count="0" />
+      <LineId Id="9" Count="2" />
+      <LineId Id="50" Count="0" />
+      <LineId Id="52" Count="3" />
+      <LineId Id="51" Count="0" />
+      <LineId Id="12" Count="0" />
+    </LineIds>
+    <LineIds Name="LRealAssertionTests.testValueIsPositiveInfinite">
+      <LineId Id="48" Count="0" />
+      <LineId Id="89" Count="1" />
+      <LineId Id="142" Count="0" />
+      <LineId Id="32" Count="0" />
+      <LineId Id="34" Count="3" />
+      <LineId Id="33" Count="0" />
+      <LineId Id="40" Count="1" />
+      <LineId Id="44" Count="3" />
+      <LineId Id="38" Count="0" />
+      <LineId Id="8" Count="0" />
+      <LineId Id="5" Count="0" />
+      <LineId Id="9" Count="2" />
+      <LineId Id="50" Count="0" />
+      <LineId Id="52" Count="3" />
+      <LineId Id="51" Count="0" />
+      <LineId Id="12" Count="0" />
+    </LineIds>
+    <LineIds Name="LRealAssertionTests.testValueIsPositiveZero">
+      <LineId Id="48" Count="0" />
+      <LineId Id="85" Count="0" />
+      <LineId Id="49" Count="0" />
+      <LineId Id="96" Count="0" />
+      <LineId Id="92" Count="0" />
+      <LineId Id="97" Count="0" />
+      <LineId Id="7" Count="0" />
+      <LineId Id="32" Count="0" />
+      <LineId Id="34" Count="3" />
+      <LineId Id="33" Count="0" />
+      <LineId Id="40" Count="1" />
+      <LineId Id="44" Count="3" />
+      <LineId Id="91" Count="0" />
+      <LineId Id="38" Count="0" />
+      <LineId Id="8" Count="0" />
+      <LineId Id="5" Count="0" />
+      <LineId Id="9" Count="2" />
+      <LineId Id="50" Count="0" />
+      <LineId Id="52" Count="3" />
+      <LineId Id="51" Count="0" />
+      <LineId Id="12" Count="0" />
+    </LineIds>
+    <LineIds Name="LRealAssertionTests.testValueIsSpecial">
+      <LineId Id="48" Count="1" />
+      <LineId Id="7" Count="0" />
+      <LineId Id="97" Count="1" />
+      <LineId Id="96" Count="0" />
+      <LineId Id="32" Count="0" />
+      <LineId Id="34" Count="3" />
+      <LineId Id="33" Count="0" />
+      <LineId Id="40" Count="1" />
+      <LineId Id="44" Count="3" />
+      <LineId Id="38" Count="0" />
+      <LineId Id="8" Count="0" />
+      <LineId Id="5" Count="0" />
+      <LineId Id="9" Count="2" />
+      <LineId Id="50" Count="0" />
+      <LineId Id="52" Count="3" />
+      <LineId Id="51" Count="0" />
+      <LineId Id="12" Count="0" />
+    </LineIds>
+    <LineIds Name="LRealAssertionTests.testValueIsSubnormal">
+      <LineId Id="48" Count="0" />
+      <LineId Id="85" Count="0" />
+      <LineId Id="49" Count="0" />
+      <LineId Id="97" Count="0" />
+      <LineId Id="7" Count="0" />
+      <LineId Id="98" Count="1" />
+      <LineId Id="32" Count="0" />
+      <LineId Id="34" Count="3" />
+      <LineId Id="33" Count="0" />
+      <LineId Id="40" Count="1" />
+      <LineId Id="44" Count="3" />
+      <LineId Id="38" Count="0" />
+      <LineId Id="8" Count="0" />
+      <LineId Id="5" Count="0" />
+      <LineId Id="9" Count="2" />
+      <LineId Id="50" Count="0" />
+      <LineId Id="52" Count="3" />
+      <LineId Id="51" Count="0" />
+      <LineId Id="12" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

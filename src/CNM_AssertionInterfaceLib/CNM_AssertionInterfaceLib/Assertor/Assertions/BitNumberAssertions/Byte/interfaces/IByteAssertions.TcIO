@@ -1,0 +1,933 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.11">
+  <Itf Name="IByteAssertions" Id="{5c00a442-7a31-47da-ade5-8aa6d820a567}">
+    <Declaration><![CDATA[(*
+
+short summary
+=================
+This interface provides assert statements for bytes  
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+methods
+==================
+
+*)
+
+INTERFACE IByteAssertions EXTENDS __SYSTEM.IQueryInterface
+]]></Declaration>
+    <Method Name="andMaskIsEqualTo" Id="{68850a7e-3a00-47c1-91bb-4dcd7132fda5}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the result current value bitwise ``AND`` mask is equal to the expected value
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD andMaskIsEqualTo
+VAR_INPUT
+	(* current value to check *)
+	currentValue	:BYTE;
+	(* 2nd operand for bitwise operation *)
+	mask			:BYTE;
+	(* expected result after masking *)
+	expectedValue	:BYTE;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="andMaskIsNotEqualTo" Id="{632b1600-2d8c-45e6-979c-69c3cbc660ee}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the result current value bitwise ``AND`` mask
+is not equal to the unexpected value
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD andMaskIsNotEqualTo
+VAR_INPUT
+	(* current value to check *)
+	currentValue	:BYTE;
+	(* 2nd operand for bitwise operation *)
+	mask			:BYTE;
+	(* unexpected result after masking *)
+	unexpectedValue	:BYTE;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="bitXIsEqualTo" Id="{b5b59d24-7a80-42c6-b49b-c7bb96df9772}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the selected bit of current value
+is equal to the expected value
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD bitXIsEqualTo
+VAR_INPUT
+	(* current value to check *)
+	currentValue	:BYTE;
+	(* number of bit to check *)
+	number			:BitNumberByte;	
+	(* expected value of bit *)
+	expectedValue	:BOOL;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="bitXIsNotEqualTo" Id="{7c4a2866-5a0c-409a-962c-86205c4af28c}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the selected bit of current value
+is not equal to the unexpected value
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD bitXIsNotEqualTo
+VAR_INPUT
+	(* current value to check *)
+	currentValue	:BYTE;
+	(* number of bit to check *)
+	number			:BitNumberByte;	
+	(* unexpected value of bit *)
+	unexpectedValue	:BOOL;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="bitXIsSet" Id="{afce64c8-d1bd-49cd-a266-3a72a4613fbe}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the selected bit of current value
+is set
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD bitXIsSet
+VAR_INPUT
+	(* current value to check *)
+	currentValue	:BYTE;
+	(* number of bit to check *)
+	number			:BitNumberByte;	
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="bitXIsUnset" Id="{b9848e0e-84a2-45c2-a6fe-b1a94a66ef0f}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the selected bit of current value
+is unset
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD bitXIsUnset
+VAR_INPUT
+	(* current value to check *)
+	currentValue	:BYTE;
+	(* number of bit to check *)
+	number			:BitNumberByte;	
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="lsbIsEqualTo" Id="{f898e89a-3eee-4413-b1e8-d1bb34b3e1e0}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the least significant bit of current value
+is equal to the expected value
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD lsbIsEqualTo
+VAR_INPUT
+	(* current value to check *)
+	currentValue	:BYTE;
+	(* expected value of lsb *)
+	expectedValue	:BOOL;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="lsbIsNotEqualTo" Id="{4fef431b-3d53-42b1-a6b6-a36c4bb355dd}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the least significant bit of current value
+is not equal to the unexpected value
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD lsbIsNotEqualTo
+VAR_INPUT
+	(* current value to check *)
+	currentValue	:BYTE;
+	(* unexpected value of lsb *)
+	unexpectedValue	:BOOL;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="lsbIsSet" Id="{01193951-218c-4d1e-84ed-b6530d64a26a}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the least significant bit of current value
+is set
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD lsbIsSet
+VAR_INPUT
+	(* current value to check *)
+	currentValue	:BYTE;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="lsbIsUnset" Id="{9a5125d5-db17-4bc1-bc0f-73929c557e90}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the least significant bit of current value
+is unset
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD lsbIsUnset
+VAR_INPUT
+	(* current value to check *)
+	currentValue	:BYTE;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="msbIsEqualTo" Id="{5bd6ed23-2b0b-4eac-a970-80096961b806}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the most significant bit of current value
+is equal to the expected value
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD msbIsEqualTo
+VAR_INPUT
+	(* current value to check *)
+	currentValue	:BYTE;
+	(* expected value of msb *)
+	expectedValue	:BOOL;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="msbIsNotEqualTo" Id="{82eec5e5-9c17-428e-b415-8a2be6de8d21}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the most significant bit of current value
+is not equal to the unexpected value
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD msbIsNotEqualTo
+VAR_INPUT
+	(* current value to check *)
+	currentValue	:BYTE;
+	(* unexpected value of msb *)
+	unexpectedValue	:BOOL;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="msbIsSet" Id="{3cce755f-a694-4762-a6b9-28e78b6a7536}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the most significant bit of current value
+is set
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD msbIsSet
+VAR_INPUT
+	(* current value to check *)
+	currentValue	:BYTE;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="msbIsUnset" Id="{1af7f390-7056-4dc2-b0aa-0cc84f1212a8}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the most significant bit of current value
+is unset
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD msbIsUnset
+VAR_INPUT
+	(* current value to check *)
+	currentValue	:BYTE;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="orMaskIsEqualTo" Id="{8acaf2ed-7736-47b8-8c3c-96d20c700427}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the result current value bitwise ``OR`` mask is equal to the expected value
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD orMaskIsEqualTo
+VAR_INPUT
+	(* current value to check *)
+	currentValue	:BYTE;
+	(* 2nd operand for bitwise operation *)
+	mask			:BYTE;
+	(* expected result after masking *)
+	expectedValue	:BYTE;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="orMaskIsNotEqualTo" Id="{ec813477-bb5f-44d4-94af-f5085da5ecc0}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the result current value bitwise ``OR`` mask 
+is not equal to the unexpected value
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD orMaskIsNotEqualTo
+VAR_INPUT
+	(* current value to check *)
+	currentValue	:BYTE;
+	(* 2nd operand for bitwise operation *)
+	mask			:BYTE;
+	(* unexpected result after masking *)
+	unexpectedValue	:BYTE;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="valueIsEqualTo" Id="{3e986684-5882-4df5-a32e-8bf2274fa707}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current value is equal to the expected value
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD valueIsEqualTo
+VAR_INPUT
+	(* current value to check *)
+	currentValue	:BYTE;
+	(* expected value to compare *)
+	expectedValue	:BYTE;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="valueIsGreaterThan" Id="{26382691-1a50-4e3f-83d3-c41a31147f59}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current value is greater than the less value
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD valueIsGreaterThan
+VAR_INPUT
+	(* current value to check *)
+	currentValue	:BYTE;
+	(* less than lower limit *)
+	lessValue		:BYTE;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="valueIsInRangeOf" Id="{8f5edcd5-d39c-4514-ab34-7a011553a219}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current value is inside a limit
+
+.. attention:: 
+	limits are included: ``valueIsInRangeOf(3, 3, 3)`` is a true assertion
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD valueIsInRangeOf
+VAR_INPUT
+	(* lower limit for the current value *)
+	lowerLimit		:BYTE;
+	(* current value to check *)
+	currentValue	:BYTE;
+	(* upper limit for the current value *)
+	upperLimit		:BYTE;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="valueIsLessThan" Id="{e78b2b34-f827-43d7-8e28-316c3a110420}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current value is less than the greater value
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD valueIsLessThan
+VAR_INPUT
+	(* current value to check *)
+	currentValue	:BYTE;
+	(* greater than upper limit *)
+	greaterValue	:BYTE;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="valueIsMax" Id="{d6a10692-15b9-4485-abe2-f45efde0c346}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current value is less than or equal to the maximum value
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD valueIsMax
+VAR_INPUT
+	(* current value to check *)
+	currentValue	:BYTE;
+	(* upper limit for the current value *)
+	maximumValue	:BYTE;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="valueIsMin" Id="{fe2c5f41-3645-425c-b700-60dfb9c3f967}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current value is greater than or equal to the minimum value
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD valueIsMin
+VAR_INPUT
+	(* current value to check *)
+	currentValue	:BYTE;
+	(* lower limit for the current value *)
+	minimumValue	:BYTE;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="valueIsNotEqualTo" Id="{1b722c03-6c33-4696-a0cc-52deee3d484e}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current value is not equal to the unexpected value
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD valueIsNotEqualTo
+VAR_INPUT
+	(* current value to check *)
+	currentValue	:BYTE;
+	(* unexpected value to compare *)
+	unexpectedValue	:BYTE;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="xorMaskIsEqualTo" Id="{3c095385-9944-4a6f-940b-9d9c82fb04f5}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the result current value bitwise ``XOR`` mask is equal to the expected value
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD xorMaskIsEqualTo
+VAR_INPUT
+	(* current value to check *)
+	currentValue	:BYTE;
+	(* 2nd operand for bitwise operation *)
+	mask			:BYTE;
+	(* expected result after masking *)
+	expectedValue	:BYTE;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="xorMaskIsNotEqualTo" Id="{e296e2aa-cd88-445c-a3db-4fabbc24a35b}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the result current value bitwise ``XOR`` mask 
+is not equal to the unexpected value
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD xorMaskIsNotEqualTo
+VAR_INPUT
+	(* current value to check *)
+	currentValue	:BYTE;
+	(* 2nd operand for bitwise operation *)
+	mask			:BYTE;
+	(* unexpected result after masking *)
+	unexpectedValue	:BYTE;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+    </Method>
+  </Itf>
+</TcPlcObject>

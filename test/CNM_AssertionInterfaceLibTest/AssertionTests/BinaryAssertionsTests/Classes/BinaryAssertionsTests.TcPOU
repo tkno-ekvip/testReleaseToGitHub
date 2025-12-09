@@ -1,0 +1,2989 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.11">
+  <POU Name="BinaryAssertionsTests" Id="{d91789de-3a6f-42de-84a9-8ec36b50026e}" SpecialFunc="None">
+    <Declaration><![CDATA[(*
+
+short summary
+==================
+
+This class tests all methods of BinaryAssertions library with various combinations of inputs and checks expected outputs are satisfied or not
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+FUNCTION_BLOCK BinaryAssertionsTests EXTENDS FB_TestSuite 
+
+VAR
+	concrete :IAssertionTestable;
+	UnassignedPointer					: ARRAY[1..2] OF POINTER TO PVOID;
+	PointerToMemoryBufferRealArray		: ARRAY[1..2] OF POINTER TO REAL;//
+	NumericArray						: ARRAY[1..200] OF DINT;
+	NumericArray2						: ARRAY[1..200] OF DINT;
+	UsedBufferSize						: UDINT;
+	StringArray							: ARRAY[1..129] OF STRING;
+	StringArray2						: ARRAY[1..129] OF STRING;
+	SimpleForCnt						: USINT ;
+	AddressOffsetForUnknownArea			: UDINT := 16#0000FFFFFFF;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[ExecuteIsEqualToStringTests();
+ExecuteIsEqualToNumericTests();
+ExecuteIsEqualToMiscellaneousTests();
+ExecuteIsEqualToDateNTimeTests();
+ExecuteIsEqualToBooleanTests();
+ExecuteIsEqualToStructTests();
+ExecuteIsGreaterThanNumericTests();
+ExecuteIsGreaterThanStringTests();
+ExecuteIsGreaterThanBooleanTests();
+ExecuteIsGreaterThanDateNTimeTests();
+ExecuteIsGreaterThanStructTests();
+ExecuteIsLessThanNumericTests();
+ExecuteIsLessThanStringTests();
+ExecuteIsLessThanDateNTimeTests();
+ExecuteIsLessThanBooleanTests();
+ExecuteIsLessThanStructTests();
+ExecuteIsNotEqualToNumericTests();
+ExecuteIsNotEqualToStringTests();
+ExecuteIsNotEqualToStructTests();
+ExecuteIsNotEqualToMiscelansTests();
+ExecuteIsNotEqualToDateNTimeTests();
+ExecuteIsNotEqualToBooleanTests();]]></ST>
+    </Implementation>
+    <Method Name="CreateDefinedStruct" Id="{1ca64464-ab9a-499a-9932-dffcb3ec3baf}">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+
+This method creates an array of numerics for the given addresses
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+METHOD PROTECTED CreateDefinedStruct
+VAR
+	StructBuffer	: UnitTestStructGroup;
+END_VAR
+VAR_OUTPUT
+	SmallestStruct	: UnitTestStructGroup;
+	MiddleStruct	: UnitTestStructGroup;
+	BiggestStruct	: UnitTestStructGroup;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[StructBuffer.TestBool := FALSE;
+
+StructBuffer.TestInt := 10;
+
+StructBuffer.TestReal := 1.5;
+
+SmallestStruct := StructBuffer;
+
+StructBuffer.TestBool := FALSE;
+
+StructBuffer.TestInt := 15;
+
+StructBuffer.TestReal := 1.5;
+
+MiddleStruct := StructBuffer;
+
+StructBuffer.TestBool := TRUE;
+
+StructBuffer.TestInt := 15;
+
+StructBuffer.TestReal := 1.5;
+
+BiggestStruct := StructBuffer;
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="CreateNumericArray" Id="{834b6913-67d5-461d-acb3-120ca7536dcc}">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+
+This method creates an array of numerics for the given addresses
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+============
+
+*)
+
+
+METHOD PROTECTED CreateNumericArray
+VAR_INPUT
+	(* Start value of numeric array *)
+	StartValueOfArray					: DINT ;	
+	(* Index which will be the first filled element of the array *)
+	StartIndexOfArray					: DINT ;	
+	(* Size of the array which is going to be created *)
+	NumberOfElementsToBeCreated			: DINT ;	
+END_VAR
+
+VAR
+	NumericArrayIndex					: DINT;
+END_VAR
+VAR_IN_OUT
+	(*Numeric Array to be Filled *)
+	TargetNumericArray					: ARRAY[1..200] OF DINT;	
+END_VAR
+	
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[MEMSET (
+	ADR(TargetNumericArray),
+	0,
+	SIZEOF (TargetNumericArray)
+);
+
+FOR (
+	NumericArrayIndex := 1 
+) TO (
+	NumberOfElementsToBeCreated 
+) DO
+	TargetNumericArray[NumericArrayIndex+StartIndexOfArray-1] := StartValueOfArray+NumericArrayIndex-1;
+END_FOR]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="CreateStringArray" Id="{4a5a28b4-3328-4974-9f92-85a1291d31e7}">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+
+This method creates an array of string with  code of the ASCII string
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+============
+
+*)
+
+
+METHOD PROTECTED CreateStringArray 
+VAR_INPUT	
+	(*Numeric code of the ASCII *)
+	StartValueOfStringArray			: UINT :=65;	
+	(*Index that is going to be first filled element of array *)
+	StartIndexOfStringArray			: UINT :=1;	
+	(* Number of strings to be created.(127 for ASCII string) *)
+	NumberOfStringsToBeCreated			: UINT := 1;
+	(*String Array to be Filled *)
+	TargetStringArray					: POINTER TO STRING;		
+END_VAR
+VAR
+	(* ArrayToBeCreated	*)				
+	StringArrayIndex					: UINT;
+	UnionByteToString					: WordStringUnion;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[MEMSET (
+	(TargetStringArray),
+	0,
+	THIS^.UsedBufferSize
+);
+
+FOR (
+	StringArrayIndex := 1 
+) TO (
+	NumberOfStringsToBeCreated
+) DO
+	UnionByteToString.ValWord := TO_BYTE (StartValueOfStringArray+StringArrayIndex-1);
+	TargetStringArray[StringArrayIndex-1+StartIndexOfStringArray-1] := UnionByteToString.ValString;
+END_FOR]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ExecuteIsEqualToBooleanTests" Id="{f0bd5954-8165-4531-8759-2e4fce3c14fc}">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+
+This method tests the BinaryAssertionTest's IsEqualTo method with boolean inputs
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+METHOD PROTECTED ExecuteIsEqualToBooleanTests
+
+VAR
+	BooleanBuffer	: ARRAY[1..2] OF BitStructure;
+	BooleanBuffer2	: ARRAY[1..2] OF BitStructure;
+	UnionByteBool	: IntSintBoolUnion;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[(* Test with two equal boolean buffer inputs *)
+UnionByteBool.ValInt := 35;
+
+BooleanBuffer := UnionByteBool.ValBool;
+
+BooleanBuffer2 := UnionByteBool.ValBool;
+
+THIS^.UsedBufferSize := SIZEOF (BooleanBuffer2);
+
+THIS^.testIsEqualTo(
+	assertionMask := TRUE,
+	bufferAddress := ADR(BooleanBuffer),
+	bufferToCompare := ADR(BooleanBuffer2),
+	sizeInBytes := THIS^.UsedBufferSize,
+	messageInputs := 'with two equal boolean buffer ',
+	messageExpectedOuts := 'TRUE'	
+);
+
+(* Test with two reverse signed boolean buffer inputs *)
+UnionByteBool.ValInt := 35;
+
+BooleanBuffer := UnionByteBool.ValBool;
+
+UnionByteBool.ValInt := -35;
+
+BooleanBuffer2 := UnionByteBool.ValBool;
+
+THIS^.UsedBufferSize := SIZEOF (BooleanBuffer2);
+
+THIS^.testIsEqualTo(
+	assertionMask := FALSE,
+	bufferAddress := ADR(BooleanBuffer),
+	bufferToCompare := ADR(BooleanBuffer2),
+	sizeInBytes := THIS^.UsedBufferSize,
+	messageInputs := 'with two reverse signed boolean buffer ',
+	messageExpectedOuts := 'FALSE'	
+);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ExecuteIsEqualToDateNTimeTests" Id="{7a73fa16-8873-4fad-a598-f84e71705c94}">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+
+This method tests the BinaryAssertionTest's IsEqualTo method with date and time inputs
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+
+METHOD PROTECTED ExecuteIsEqualToDateNTimeTests
+
+VAR
+	DateAndTimeBuffer	: DATE_AND_TIME;
+	DateAndTimeBuffer2	: DATE_AND_TIME;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[(* With two equal date and time input *)
+
+DateAndTimeBuffer := TO_DT (F_GetSystemTime());
+
+DateAndTimeBuffer2 := TO_DT (F_GetSystemTime());
+
+THIS^.UsedBufferSize := SIZEOF (DateAndTimeBuffer);
+
+THIS^.testIsEqualTo(
+	assertionMask := TRUE,
+	bufferAddress := ADR(DateAndTimeBuffer),
+	bufferToCompare := ADR(DateAndTimeBuffer2),
+	sizeInBytes := THIS^.UsedBufferSize,
+	messageInputs := 'with two equal date and time buffer ',
+	messageExpectedOuts := 'TRUE'	
+);
+
+(*With two non equal date and time input*)
+DateAndTimeBuffer := TO_DT (F_GetSystemTime());
+
+DateAndTimeBuffer2 := TO_DT (F_GetSystemTime()+5);
+
+THIS^.UsedBufferSize := SIZEOF (DateAndTimeBuffer);
+
+THIS^.testIsEqualTo(
+	assertionMask := FALSE,
+	bufferAddress := ADR(DateAndTimeBuffer),
+	bufferToCompare := ADR(DateAndTimeBuffer2),
+	sizeInBytes := THIS^.UsedBufferSize,
+	messageInputs := 'with two non equal date and time buffer ',
+	messageExpectedOuts := 'FALSE'	
+);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ExecuteIsEqualToMiscellaneousTests" Id="{482f88c3-3bd8-4235-9374-8497aec5f05f}">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+
+This method tests the BinaryAssertionTest's IsEqualTo method with miscellaneous inputs
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+METHOD PROTECTED ExecuteIsEqualToMiscellaneousTests
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[
+{warning 'got exception here'}
+//(* Test with unassigned pointers *)
+//
+//THIS^.UsedBufferSize := 10;
+//
+//THIS^.testIsEqualTo(
+//	assertionMask := FALSE,
+//	bufferAddress := ADR(THIS^.UnassignedPointer),
+//	bufferToCompare := ADR(THIS^.UnassignedPointer),
+//	sizeInBytes := THIS^.UsedBufferSize,
+//	messageInputs := 'with unassigned address input',
+//	messageExpectedOuts := 'FALSE'	
+//);
+//
+
+(* Test with zero size input *)
+CreateNumericArray(
+	StartValueOfArray := 1,
+	StartIndexOfArray := 1,
+	NumberOfElementsToBeCreated := 20,
+	TargetNumericArray := THIS^.NumericArray
+);
+
+CreateNumericArray(
+	StartValueOfArray := 1,
+	StartIndexOfArray := 1,
+	NumberOfElementsToBeCreated := 20,
+	TargetNumericArray := THIS^.NumericArray2
+);
+
+THIS^.UsedBufferSize := 0;
+
+THIS^.testIsEqualTo(
+	assertionMask := FALSE,
+	bufferAddress := ADR(THIS^.UnassignedPointer),
+	bufferToCompare := ADR(THIS^.UnassignedPointer),
+	sizeInBytes := THIS^.UsedBufferSize,
+	messageInputs := 'with zero size input',
+	messageExpectedOuts := 'FALSE'	
+);
+
+{warning 'got exception here'}
+//(*Test with unknown memory areas *)
+//
+//THIS^.UsedBufferSize := SIZEOF (ARRAY[1..20] OF STRING) ;
+//
+//THIS^.testIsEqualTo(
+//	assertionMask := FALSE,
+//	bufferAddress := ADR(THIS^.StringArray) + THIS^.AddressOffsetForUnknownArea,
+//	bufferToCompare := ADR(THIS^.StringArray2) + THIS^.AddressOffsetForUnknownArea,
+//	sizeInBytes := THIS^.UsedBufferSize,
+//	messageInputs := 'with unknown memory areas ',
+//	messageExpectedOuts := 'FALSE'	
+//);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ExecuteIsEqualToNumericTests" Id="{7a8e27f7-168b-441f-b30b-5a8f9b78cc9e}">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+
+This method tests the BinaryAssertionTest's IsEqualTo method numeric inputs
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+METHOD PROTECTED ExecuteIsEqualToNumericTests
+
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[(* Test with two equal signed numeric inputs *)
+CreateNumericArray(
+	StartValueOfArray := 1,
+	StartIndexOfArray := 1,
+	NumberOfElementsToBeCreated := 20,
+	TargetNumericArray := THIS^.NumericArray
+);
+
+CreateNumericArray(
+	StartValueOfArray := 1,
+	StartIndexOfArray := 1,
+	NumberOfElementsToBeCreated := 20,
+	TargetNumericArray := THIS^.NumericArray2
+);
+
+THIS^.UsedBufferSize := SIZEOF (NumericArray2);
+
+THIS^.testIsEqualTo(
+	assertionMask := TRUE,
+	bufferAddress := ADR(THIS^.NumericArray),
+	bufferToCompare := ADR(THIS^.NumericArray2),
+	sizeInBytes := THIS^.UsedBufferSize,
+	messageInputs := 'with two equal signed numeric buffer',
+	messageExpectedOuts := 'TRUE'	
+);
+
+(* Test with two equal unsigned numeric inputs *)
+
+CreateNumericArray(
+	StartValueOfArray := -5,
+	StartIndexOfArray := 1,
+	NumberOfElementsToBeCreated := 20,
+	TargetNumericArray := THIS^.NumericArray
+);
+
+CreateNumericArray(
+	StartValueOfArray := -5,
+	StartIndexOfArray := 1,
+	NumberOfElementsToBeCreated := 20,
+	TargetNumericArray := THIS^.NumericArray2
+);
+
+THIS^.UsedBufferSize := SIZEOF (NumericArray2);
+
+THIS^.testIsEqualTo(
+	assertionMask := TRUE,
+	bufferAddress := ADR(THIS^.NumericArray),
+	bufferToCompare := ADR(THIS^.NumericArray2),
+	sizeInBytes := THIS^.UsedBufferSize,
+	messageInputs := 'with two equal unsigned numeric buffer',
+	messageExpectedOuts := 'TRUE'	
+);
+
+(* Test with one unsigned one signed numeric inputs *)
+CreateNumericArray(
+	StartValueOfArray := 5,
+	StartIndexOfArray := 1,
+	NumberOfElementsToBeCreated := 20,
+	TargetNumericArray := THIS^.NumericArray
+);
+
+CreateNumericArray(
+	StartValueOfArray := -5,
+	StartIndexOfArray := 1,
+	NumberOfElementsToBeCreated := 20,
+	TargetNumericArray := THIS^.NumericArray2
+);
+
+THIS^.UsedBufferSize := SIZEOF (NumericArray2);
+
+THIS^.testIsEqualTo(
+	assertionMask := FALSE,
+	bufferAddress := ADR(THIS^.NumericArray),
+	bufferToCompare := ADR(THIS^.NumericArray2),
+	sizeInBytes := THIS^.UsedBufferSize,
+	messageInputs := 'with one signed one unsigned buffer ',
+	messageExpectedOuts := 'FALSE'	
+);
+
+(* Test with two unsigned summary is zero numerical inputs *)
+CreateNumericArray(
+	StartValueOfArray := -5,
+	StartIndexOfArray := 1,
+	NumberOfElementsToBeCreated := 10,
+	TargetNumericArray := THIS^.NumericArray
+);
+
+CreateNumericArray(
+	StartValueOfArray := -10,
+	StartIndexOfArray := 1,
+	NumberOfElementsToBeCreated := 20,
+	TargetNumericArray := THIS^.NumericArray2
+);
+
+THIS^.UsedBufferSize := SIZEOF (NumericArray2);
+
+THIS^.testIsEqualTo(
+	assertionMask := FALSE,
+	bufferAddress := ADR(THIS^.NumericArray),
+	bufferToCompare := ADR(THIS^.NumericArray2),
+	sizeInBytes := THIS^.UsedBufferSize,
+	messageInputs := 'with two unsigned summary is zero buffer ',
+	messageExpectedOuts := 'FALSE'	
+);
+
+
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ExecuteIsEqualToStringTests" Id="{ee0ac3de-d976-49fa-b858-eaa5bf70a43f}">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+
+This method tests the BinaryAssertionTest's IsEqualTo method string inputs
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+METHOD PROTECTED ExecuteIsEqualToStringTests
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[
+(*Test with two equal string buffers do not overflow on size*)
+THIS^.CreateStringArray(
+	TargetStringArray := ADR(THIS^.StringArray),
+	StartIndexOfStringArray := 1,
+	StartValueOfStringArray := 65,
+	NumberOfStringsToBeCreated := 20
+);
+
+THIS^.CreateStringArray(
+	TargetStringArray := ADR(THIS^.StringArray2),
+	StartIndexOfStringArray := 1,
+	StartValueOfStringArray := 65,
+	NumberOfStringsToBeCreated := 20
+);
+
+THIS^.UsedBufferSize := SIZEOF (ARRAY[1..20] OF STRING) ;
+
+THIS^.testIsEqualTo(
+	assertionMask := TRUE,
+	bufferAddress := ADR(THIS^.StringArray),
+	bufferToCompare := ADR(THIS^.StringArray2),
+	sizeInBytes := THIS^.UsedBufferSize,
+	messageInputs := 'with two equal string buffer',
+	messageExpectedOuts := 'TRUE'	
+);
+
+(*Test with two equal string buffers overflow on size *)
+THIS^.CreateStringArray(
+	TargetStringArray := ADR(THIS^.StringArray),
+	StartIndexOfStringArray := 1,
+	StartValueOfStringArray := 65,
+	NumberOfStringsToBeCreated := 20
+);
+
+THIS^.CreateStringArray(
+	TargetStringArray := ADR(THIS^.StringArray2),
+	StartIndexOfStringArray := 1,
+	StartValueOfStringArray := 65,
+	NumberOfStringsToBeCreated := 20
+);
+
+THIS^.UsedBufferSize := SIZEOF (ARRAY[1..20] OF STRING)+2;
+
+THIS^.testIsEqualTo(
+	assertionMask := TRUE,
+	bufferAddress := ADR(THIS^.StringArray),
+	bufferToCompare := ADR(THIS^.StringArray2),
+	sizeInBytes := THIS^.UsedBufferSize,
+	messageInputs := 'with two equal string buffer but size overflow',
+	messageExpectedOuts := 'TRUE'	
+);
+
+(*Test with two different string buffers *)
+THIS^.CreateStringArray(
+	TargetStringArray := ADR(THIS^.StringArray),
+	StartIndexOfStringArray := 1,
+	StartValueOfStringArray := 65,
+	NumberOfStringsToBeCreated := 20
+);
+
+THIS^.CreateStringArray(
+	TargetStringArray := ADR(THIS^.StringArray2),
+	StartIndexOfStringArray := 1,
+	StartValueOfStringArray := 66,
+	NumberOfStringsToBeCreated := 22
+);
+
+THIS^.UsedBufferSize := SIZEOF (THIS^.StringArray) ;
+
+THIS^.testIsEqualTo(
+	assertionMask := FALSE,
+	bufferAddress := ADR(THIS^.StringArray),
+	bufferToCompare := ADR(THIS^.StringArray2),
+	sizeInBytes := THIS^.UsedBufferSize,
+	messageInputs := 'with different string buffer',
+	messageExpectedOuts := 'FALSE'	
+);
+
+(*Test with two different string buffers but equal on size *)
+THIS^.CreateStringArray(
+	TargetStringArray := ADR(THIS^.StringArray),
+	StartIndexOfStringArray := 1,
+	StartValueOfStringArray := 65,
+	NumberOfStringsToBeCreated := 20
+);
+
+MEMSET (
+	ADR(THIS^.StringArray2),
+	0,
+	SIZEOF (THIS^.StringArray2)
+);
+
+(*Just to make a mirror of first buffer with the half *)
+FOR (
+	THIS^.SimpleForCnt := 1 
+) TO ( 
+	10
+) DO
+	THIS^.StringArray2[THIS^.SimpleForCnt+10] := THIS^.StringArray[THIS^.SimpleForCnt];
+	THIS^.StringArray2[THIS^.SimpleForCnt] := THIS^.StringArray[THIS^.SimpleForCnt+10];
+END_FOR
+
+THIS^.UsedBufferSize := SIZEOF (ARRAY[1..20] OF STRING) ;
+
+THIS^.testIsEqualTo(
+	assertionMask := FALSE,
+	bufferAddress := ADR(THIS^.StringArray),
+	bufferToCompare := ADR(THIS^.StringArray2),
+	sizeInBytes := THIS^.UsedBufferSize,
+	messageInputs := 'with different string buffer but equal size',
+	messageExpectedOuts := 'FALSE'	
+);
+
+
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ExecuteIsEqualToStructTests" Id="{e4a2cf07-b334-434d-beef-4b07874ee42b}">
+      <Declaration><![CDATA[
+(*
+
+short summary
+==================
+
+This method tests the BinaryAssertionTest's IsEqualTo method with structure inputs
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+METHOD PROTECTED ExecuteIsEqualToStructTests
+VAR
+	TestStructure	: UnitTestStructGroup;
+	TestStructure2	: UnitTestStructGroup;	
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[(* Test with two equal struct *)
+CreateDefinedStruct(
+	SmallestStruct => TestStructure,
+);
+
+TestStructure2 := TestStructure;
+
+THIS^.UsedBufferSize := SIZEOF (TestStructure2) ;
+
+THIS^.testIsEqualTo(
+	assertionMask := TRUE,
+	bufferAddress := ADR(TestStructure),
+	bufferToCompare := ADR(TestStructure2),
+	sizeInBytes := THIS^.UsedBufferSize,
+	messageInputs := 'with two equal structure buffer',
+	messageExpectedOuts := 'TRUE'	
+);
+
+(* Test with two different struct first one is smaller *)
+CreateDefinedStruct(
+	SmallestStruct => TestStructure,
+	BiggestStruct => TestStructure2
+);
+
+THIS^.UsedBufferSize := SIZEOF (TestStructure2) ;
+
+THIS^.testIsEqualTo(
+	assertionMask := FALSE,
+	bufferAddress := ADR(TestStructure),
+	bufferToCompare := ADR(TestStructure2),
+	sizeInBytes := THIS^.UsedBufferSize,
+	messageInputs := 'with two different structure buffer first one is smaller ',
+	messageExpectedOuts := 'FALSE'	
+);
+
+(* Test with two different struct first one is bigger *)
+CreateDefinedStruct(
+	SmallestStruct => TestStructure2,
+	BiggestStruct => TestStructure
+);
+
+THIS^.UsedBufferSize := SIZEOF (TestStructure2) ;
+
+THIS^.testIsEqualTo(
+	assertionMask := FALSE,
+	bufferAddress := ADR(TestStructure),
+	bufferToCompare := ADR(TestStructure2),
+	sizeInBytes := THIS^.UsedBufferSize,
+	messageInputs := 'with two different structure buffer first one is bigger ',
+	messageExpectedOuts := 'FALSE'	
+);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ExecuteIsGreaterThanBooleanTests" Id="{4fcc8a1c-5f89-419e-8cc1-88630cbe8529}">
+      <Declaration><![CDATA[
+(*
+
+short summary
+==================
+
+This method tests the BinaryAssertionTest's IsGreaterThan method with boolean inputs
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+METHOD PROTECTED ExecuteIsGreaterThanBooleanTests
+VAR
+	BooleanBuffer	: ARRAY[1..2] OF BitStructure;
+	BooleanBuffer2	: ARRAY[1..2] OF BitStructure;
+	UnionByteBool	: IntSintBoolUnion;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[(* Test with two equal boolean buffer inputs *)
+UnionByteBool.ValInt := 35;
+
+BooleanBuffer := UnionByteBool.ValBool;
+
+BooleanBuffer2 := UnionByteBool.ValBool;
+
+THIS^.UsedBufferSize := SIZEOF (BooleanBuffer2);
+
+THIS^.testIsGreaterThan(
+	assertionMask := FALSE,
+	bufferAddress := ADR(BooleanBuffer),
+	bufferToCompare := ADR(BooleanBuffer2),
+	sizeInBytes := THIS^.UsedBufferSize,
+	messageInputs := 'with two equal boolean buffer ',
+	messageExpectedOuts := 'FALSE'	
+);
+
+(* Test with two reverse signed boolean buffer inputs *)
+UnionByteBool.ValInt := 35;
+
+BooleanBuffer := UnionByteBool.ValBool;
+
+UnionByteBool.ValInt := -35;
+
+BooleanBuffer2 := UnionByteBool.ValBool;
+
+THIS^.UsedBufferSize := SIZEOF (BooleanBuffer2);
+
+THIS^.testIsGreaterThan(
+	assertionMask := TRUE,
+	bufferAddress := ADR(BooleanBuffer),
+	bufferToCompare := ADR(BooleanBuffer2),
+	sizeInBytes := THIS^.UsedBufferSize,
+	messageInputs := 'with two reverse signed boolean buffer ',
+	messageExpectedOuts := 'TRUE'	
+);
+
+(* Test with same content different byte order *)
+UnionByteBool.ValSint[1] := 35;
+
+UnionByteBool.ValSint[2] := 0;
+
+BooleanBuffer := UnionByteBool.ValBool;
+
+UnionByteBool.ValSint[1] := 0;
+
+UnionByteBool.ValSint[2] := 35;
+
+BooleanBuffer2 := UnionByteBool.ValBool;
+
+THIS^.UsedBufferSize := SIZEOF (BooleanBuffer2);
+
+THIS^.testIsGreaterThan(
+	assertionMask := TRUE,
+	bufferAddress := ADR(BooleanBuffer),
+	bufferToCompare := ADR(BooleanBuffer2),
+	sizeInBytes := THIS^.UsedBufferSize,
+	messageInputs := 'with same content different byte order boolean buffer ',
+	messageExpectedOuts := 'TRUE'	
+);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ExecuteIsGreaterThanDateNTimeTests" Id="{5ce6f165-8694-4e99-b2f7-62a40cba8542}">
+      <Declaration><![CDATA[
+(*
+
+short summary
+==================
+
+This method tests the BinaryAssertionTest's IsGreaterThan method with Date and Time inputs
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+METHOD PROTECTED ExecuteIsGreaterThanDateNTimeTests
+VAR
+	DateAndTimeBuffer	: DATE_AND_TIME;
+	DateAndTimeBuffer2	: DATE_AND_TIME;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[(* With two equal date and time input *)
+DateAndTimeBuffer := TO_DT (F_GetSystemTime());
+
+DateAndTimeBuffer2 := TO_DT (F_GetSystemTime());
+
+THIS^.UsedBufferSize := SIZEOF (DateAndTimeBuffer);
+
+THIS^.testIsGreaterThan(
+	assertionMask := FALSE,
+	bufferAddress := ADR(DateAndTimeBuffer),
+	bufferToCompare := ADR(DateAndTimeBuffer2),
+	sizeInBytes := THIS^.UsedBufferSize,
+	messageInputs := 'with two equal date and time buffer ',
+	messageExpectedOuts := 'FALSE'	
+);
+
+(*With two non equal date and time input first input is smaller *)
+DateAndTimeBuffer := TO_DT (F_GetSystemTime());
+
+DateAndTimeBuffer2 := TO_DT (F_GetSystemTime()+5);
+
+THIS^.UsedBufferSize := SIZEOF (DateAndTimeBuffer);
+
+THIS^.testIsGreaterThan(
+	assertionMask := FALSE,
+	bufferAddress := ADR(DateAndTimeBuffer),
+	bufferToCompare := ADR(DateAndTimeBuffer2),
+	sizeInBytes := THIS^.UsedBufferSize,
+	messageInputs := 'with two non equal date and time buffer first input is smaller ',
+	messageExpectedOuts := 'FALSE'	
+);
+
+(*With two non equal date and time input first input is greater *)
+DateAndTimeBuffer := TO_DT (F_GetSystemTime()+5);
+
+DateAndTimeBuffer2 := TO_DT (F_GetSystemTime());
+
+THIS^.UsedBufferSize := SIZEOF (DateAndTimeBuffer);
+
+THIS^.testIsGreaterThan(
+	assertionMask := TRUE,
+	bufferAddress := ADR(DateAndTimeBuffer),
+	bufferToCompare := ADR(DateAndTimeBuffer2),
+	sizeInBytes := THIS^.UsedBufferSize,
+	messageInputs := 'with two non equal date and time buffer first input is greater ',
+	messageExpectedOuts := 'TRUE'	
+);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ExecuteIsGreaterThanNumericTests" Id="{6a5818bd-4157-4f89-9c9d-13ea0a5929e5}">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+
+This method tests the BinaryAssertionTest's IsGreaterThan method with numeric inputs
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+METHOD PROTECTED ExecuteIsGreaterThanNumericTests
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[(* Test with two equal signed numeric inputs *)
+CreateNumericArray(
+	StartValueOfArray := 1,
+	StartIndexOfArray := 1,
+	NumberOfElementsToBeCreated := 20,
+	TargetNumericArray := THIS^.NumericArray
+);
+
+CreateNumericArray(
+	StartValueOfArray := 1,
+	StartIndexOfArray := 1,
+	NumberOfElementsToBeCreated := 20,
+	TargetNumericArray := THIS^.NumericArray2
+);
+
+THIS^.UsedBufferSize := SIZEOF (NumericArray2);
+
+THIS^.testIsGreaterThan(
+	assertionMask := FALSE,
+	bufferAddress := ADR(THIS^.NumericArray),
+	bufferToCompare := ADR(THIS^.NumericArray2),
+	sizeInBytes := THIS^.UsedBufferSize,
+	messageInputs := 'with two equal signed numeric buffer',
+	messageExpectedOuts := 'FALSE'	
+);
+
+(* Test with two equal unsigned numeric inputs *)
+CreateNumericArray(
+	StartValueOfArray := -5,
+	StartIndexOfArray := 1,
+	NumberOfElementsToBeCreated := 20,
+	TargetNumericArray := THIS^.NumericArray
+);
+
+CreateNumericArray(
+	StartValueOfArray := -5,
+	StartIndexOfArray := 1,
+	NumberOfElementsToBeCreated := 20,
+	TargetNumericArray := THIS^.NumericArray2
+);
+
+THIS^.UsedBufferSize := SIZEOF (NumericArray2);
+
+THIS^.testIsGreaterThan(
+	assertionMask := FALSE,
+	bufferAddress := ADR(THIS^.NumericArray),
+	bufferToCompare := ADR(THIS^.NumericArray2),
+	sizeInBytes := THIS^.UsedBufferSize,
+	messageInputs := 'with two equal unsigned numeric buffer',
+	messageExpectedOuts := 'FALSE'	
+);
+
+(* Test with one unsigned one signed numeric inputs *)
+CreateNumericArray(
+	StartValueOfArray := 5,
+	StartIndexOfArray := 1,
+	NumberOfElementsToBeCreated := 20,
+	TargetNumericArray := THIS^.NumericArray
+);
+
+CreateNumericArray(
+	StartValueOfArray := -5,
+	StartIndexOfArray := 1,
+	NumberOfElementsToBeCreated := 20,
+	TargetNumericArray := THIS^.NumericArray2
+);
+
+THIS^.UsedBufferSize := SIZEOF (NumericArray2);
+
+THIS^.testIsGreaterThan(
+	assertionMask := TRUE,
+	bufferAddress := ADR(THIS^.NumericArray),
+	bufferToCompare := ADR(THIS^.NumericArray2),
+	sizeInBytes := THIS^.UsedBufferSize,
+	messageInputs := 'with one signed one unsigned buffer ',
+	messageExpectedOuts := 'TRUE'	
+);
+
+(* Test with two unsigned different size buffer inputs *)
+CreateNumericArray(
+	StartValueOfArray := -5,
+	StartIndexOfArray := 1,
+	NumberOfElementsToBeCreated := 1,
+	TargetNumericArray := THIS^.NumericArray
+);
+
+CreateNumericArray(
+	StartValueOfArray := -10,
+	StartIndexOfArray := 1,
+	NumberOfElementsToBeCreated := 1,
+	TargetNumericArray := THIS^.NumericArray2
+);
+
+THIS^.UsedBufferSize := SIZEOF (NumericArray2);
+
+THIS^.testIsGreaterThan(
+	assertionMask := TRUE,
+	bufferAddress := ADR(THIS^.NumericArray),
+	bufferToCompare := ADR(THIS^.NumericArray2),
+	sizeInBytes := THIS^.UsedBufferSize,
+	messageInputs := 'with two unsigned  different size buffer inputs ',
+	messageExpectedOuts := 'TRUE'	
+);
+
+(* Test with same value but byte order changed *)
+CreateNumericArray(
+	StartValueOfArray := 3,
+	StartIndexOfArray := 1,
+	NumberOfElementsToBeCreated := 1,
+	TargetNumericArray := THIS^.NumericArray
+);
+
+CreateNumericArray(
+	StartValueOfArray := 3,
+	StartIndexOfArray := 50,
+	NumberOfElementsToBeCreated := 1,
+	TargetNumericArray := THIS^.NumericArray2
+);
+
+THIS^.UsedBufferSize := SIZEOF (NumericArray2);
+
+THIS^.testIsGreaterThan(
+	assertionMask := TRUE,
+	bufferAddress := ADR(THIS^.NumericArray),
+	bufferToCompare := ADR(THIS^.NumericArray2),
+	sizeInBytes := THIS^.UsedBufferSize,
+	messageInputs := 'with same values different byte orders ',
+	messageExpectedOuts := 'TRUE'	
+);
+
+
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ExecuteIsGreaterThanStringTests" Id="{528869ce-0fd7-4eeb-a4e1-41e4e036424b}">
+      <Declaration><![CDATA[
+(*
+
+short summary
+==================
+
+This method tests the BinaryAssertionTest's IsGreaterThan method with string inputs
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+METHOD PROTECTED ExecuteIsGreaterThanStringTests
+
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[
+(*Test with two equal string buffers do not overflow on size*)
+THIS^.CreateStringArray(
+	TargetStringArray := ADR(THIS^.StringArray),
+	StartIndexOfStringArray := 1,
+	StartValueOfStringArray := 65,
+	NumberOfStringsToBeCreated := 20
+);
+
+THIS^.CreateStringArray(
+	TargetStringArray := ADR(THIS^.StringArray2),
+	StartIndexOfStringArray := 1,
+	StartValueOfStringArray := 65,
+	NumberOfStringsToBeCreated := 20
+);
+
+THIS^.UsedBufferSize := SIZEOF (ARRAY[1..20] OF STRING) ;
+
+THIS^.testIsGreaterThan(
+	assertionMask := FALSE,
+	bufferAddress := ADR(THIS^.StringArray),
+	bufferToCompare := ADR(THIS^.StringArray2),
+	sizeInBytes := THIS^.UsedBufferSize,
+	messageInputs := 'with two equal string buffer',
+	messageExpectedOuts := 'FALSE'	
+);
+
+(*Test with two equal string buffers overflow on size *)
+THIS^.CreateStringArray(
+	TargetStringArray := ADR(THIS^.StringArray),
+	StartIndexOfStringArray := 1,
+	StartValueOfStringArray := 65,
+	NumberOfStringsToBeCreated := 20
+);
+
+THIS^.CreateStringArray(
+	TargetStringArray := ADR(THIS^.StringArray2),
+	StartIndexOfStringArray := 1,
+	StartValueOfStringArray := 65,
+	NumberOfStringsToBeCreated := 20
+);
+
+THIS^.UsedBufferSize := SIZEOF (StringArray2)+2;
+
+THIS^.testIsGreaterThan(
+	assertionMask := FALSE,
+	bufferAddress := ADR(THIS^.StringArray),
+	bufferToCompare := ADR(THIS^.StringArray2),
+	sizeInBytes := THIS^.UsedBufferSize,
+	messageInputs := 'with two equal string buffer but size overflow',
+	messageExpectedOuts := 'FALSE'	
+);
+
+(*Test with two different string buffers different size *)
+THIS^.CreateStringArray(
+	TargetStringArray := ADR(THIS^.StringArray),
+	StartIndexOfStringArray := 1,
+	StartValueOfStringArray := 65,
+	NumberOfStringsToBeCreated := 20
+);
+
+THIS^.CreateStringArray(
+	TargetStringArray := ADR(THIS^.StringArray2),
+	StartIndexOfStringArray := 1,
+	StartValueOfStringArray := 65,
+	NumberOfStringsToBeCreated := 22
+);
+
+THIS^.UsedBufferSize := SIZEOF (THIS^.StringArray) ;
+
+THIS^.testIsGreaterThan(
+	assertionMask := FALSE,
+	bufferAddress := ADR(THIS^.StringArray),
+	bufferToCompare := ADR(THIS^.StringArray2),
+	sizeInBytes := THIS^.UsedBufferSize,
+	messageInputs := 'with different string buffer different size ',
+	messageExpectedOuts := 'FALSE'	
+);
+
+(*Test with two different string buffers but equal on size *)
+THIS^.CreateStringArray(
+	TargetStringArray := ADR(THIS^.StringArray),
+	StartIndexOfStringArray := 1,
+	StartValueOfStringArray := 66,
+	NumberOfStringsToBeCreated := 20
+);
+
+THIS^.CreateStringArray(
+	TargetStringArray := ADR(THIS^.StringArray2),
+	StartIndexOfStringArray := 1,
+	StartValueOfStringArray := 65,
+	NumberOfStringsToBeCreated := 20
+);
+
+THIS^.UsedBufferSize := SIZEOF (THIS^.StringArray) ;
+
+THIS^.testIsGreaterThan(
+	assertionMask := TRUE,
+	bufferAddress := ADR(THIS^.StringArray),
+	bufferToCompare := ADR(THIS^.StringArray2),
+	sizeInBytes := THIS^.UsedBufferSize,
+	messageInputs := 'with different string buffer equal on size ',
+	messageExpectedOuts := 'TRUE'	
+);
+
+MEMSET (
+	ADR(THIS^.StringArray2),
+	0,
+	SIZEOF (THIS^.StringArray2)
+);
+
+(*Just to make a mirror of first buffer with the half *)
+FOR THIS^.SimpleForCnt := 1 TO 10 DO
+	THIS^.StringArray2[THIS^.SimpleForCnt+10] := THIS^.StringArray[THIS^.SimpleForCnt];
+	THIS^.StringArray2[THIS^.SimpleForCnt] := THIS^.StringArray[THIS^.SimpleForCnt+10];
+END_FOR
+
+THIS^.UsedBufferSize := SIZEOF (ARRAY[1..20] OF STRING) ;
+
+THIS^.testIsGreaterThan(
+	assertionMask := FALSE,
+	bufferAddress := ADR(THIS^.StringArray),
+	bufferToCompare := ADR(THIS^.StringArray2),
+	sizeInBytes := THIS^.UsedBufferSize,
+	messageInputs := 'with a mirror of first buffer with the half ',
+	messageExpectedOuts := 'FALSE'	
+);
+
+(*Test with same content but different byte order *)
+THIS^.CreateStringArray(
+	TargetStringArray := ADR(THIS^.StringArray),
+	StartIndexOfStringArray := 1,
+	StartValueOfStringArray := 65,
+	NumberOfStringsToBeCreated := 20
+);
+
+THIS^.CreateStringArray(
+	TargetStringArray := ADR(THIS^.StringArray2),
+	StartIndexOfStringArray := 2,
+	StartValueOfStringArray := 65,
+	NumberOfStringsToBeCreated := 20
+);
+
+THIS^.UsedBufferSize := SIZEOF (THIS^.StringArray) ;
+
+THIS^.testIsGreaterThan(
+	assertionMask := TRUE,
+	bufferAddress := ADR(THIS^.StringArray),
+	bufferToCompare := ADR(THIS^.StringArray2),
+	sizeInBytes := THIS^.UsedBufferSize,
+	messageInputs := 'with same content different byte order',
+	messageExpectedOuts := 'TRUE'	
+);
+
+
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ExecuteIsGreaterThanStructTests" Id="{5dc5bbf2-bd7f-474f-b227-ae45b4088ea4}">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+
+This method tests the BinaryAssertionTest's IsGreaterThan method with structure inputs
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+METHOD ExecuteIsGreaterThanStructTests
+VAR
+	TestStructure	: UnitTestStructGroup;
+	TestStructure2	: UnitTestStructGroup;	
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[(* Test with two equal struct *)
+CreateDefinedStruct(
+	SmallestStruct => TestStructure,
+);
+
+TestStructure2 := TestStructure;
+
+THIS^.UsedBufferSize := SIZEOF (TestStructure2) ;
+
+THIS^.testIsGreaterThan(
+	assertionMask := FALSE,
+	bufferAddress := ADR(TestStructure),
+	bufferToCompare := ADR(TestStructure2),
+	sizeInBytes := THIS^.UsedBufferSize,
+	messageInputs := 'with two equal structure buffer',
+	messageExpectedOuts := 'FALSE'	
+);
+
+(* Test with two different struct first one is smaller *)
+CreateDefinedStruct(
+	SmallestStruct => TestStructure,
+	BiggestStruct => TestStructure2
+);
+
+THIS^.UsedBufferSize := SIZEOF (TestStructure2) ;
+
+THIS^.testIsGreaterThan(
+	assertionMask := FALSE,
+	bufferAddress := ADR(TestStructure),
+	bufferToCompare := ADR(TestStructure2),
+	sizeInBytes := THIS^.UsedBufferSize,
+	messageInputs := 'with two different structure buffer first one is smaller ',
+	messageExpectedOuts := 'FALSE'	
+);
+
+(* Test with two different struct first one is bigger *)
+CreateDefinedStruct(
+	SmallestStruct => TestStructure2,
+	BiggestStruct => TestStructure
+);
+
+THIS^.UsedBufferSize := SIZEOF (TestStructure2) ;
+
+THIS^.testIsGreaterThan(
+	assertionMask := TRUE,
+	bufferAddress := ADR(TestStructure),
+	bufferToCompare := ADR(TestStructure2),
+	sizeInBytes := THIS^.UsedBufferSize,
+	messageInputs := 'with two different structure buffer first one is bigger ',
+	messageExpectedOuts := 'TRUE'	
+);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ExecuteIsLessThanBooleanTests" Id="{08369e55-f1c7-4f89-81d1-a6ecf0d0ef77}">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+
+This method tests the BinaryAssertionTest's IsLessThan method with boolean inputs
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+METHOD PROTECTED ExecuteIsLessThanBooleanTests
+VAR
+	BooleanBuffer	: ARRAY[1..2] OF BitStructure;
+	BooleanBuffer2	: ARRAY[1..2] OF BitStructure;
+	UnionByteBool	: IntSintBoolUnion;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[(* Test with two equal boolean buffer inputs *)
+UnionByteBool.ValInt := 35;
+
+BooleanBuffer := UnionByteBool.ValBool;
+
+BooleanBuffer2 := UnionByteBool.ValBool;
+
+THIS^.UsedBufferSize := SIZEOF (BooleanBuffer2);
+
+THIS^.testIsLessThan(
+	assertionMask := FALSE,
+	bufferAddress := ADR(BooleanBuffer),
+	bufferToCompare := ADR(BooleanBuffer2),
+	sizeInBytes := THIS^.UsedBufferSize,
+	messageInputs := 'with two equal boolean buffer ',
+	messageExpectedOuts := 'FALSE'	
+);
+
+(* Test with two reverse signed boolean buffer inputs *)
+UnionByteBool.ValInt := 35;
+
+BooleanBuffer := UnionByteBool.ValBool;
+
+UnionByteBool.ValInt := -35;
+
+BooleanBuffer2 := UnionByteBool.ValBool;
+
+THIS^.UsedBufferSize := SIZEOF (BooleanBuffer2);
+
+THIS^.testIsLessThan(
+	assertionMask := FALSE,
+	bufferAddress := ADR(BooleanBuffer),
+	bufferToCompare := ADR(BooleanBuffer2),
+	sizeInBytes := THIS^.UsedBufferSize,
+	messageInputs := 'with two reverse signed boolean buffer ',
+	messageExpectedOuts := 'FALSE'	
+);
+
+(* Test with same content different byte order *)
+UnionByteBool.ValSint[1] := 0;
+
+UnionByteBool.ValSint[2] := 35;
+
+BooleanBuffer := UnionByteBool.ValBool;
+
+UnionByteBool.ValSint[1] := 35;
+
+UnionByteBool.ValSint[2] := 0;
+
+BooleanBuffer2 := UnionByteBool.ValBool;
+
+THIS^.UsedBufferSize := SIZEOF (BooleanBuffer2);
+
+THIS^.testIsLessThan(
+	assertionMask := TRUE,
+	bufferAddress := ADR(BooleanBuffer),
+	bufferToCompare := ADR(BooleanBuffer2),
+	sizeInBytes := THIS^.UsedBufferSize,
+	messageInputs := 'with same content different byte order boolean buffer ',
+	messageExpectedOuts := 'TRUE'	
+);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ExecuteIsLessThanDateNTimeTests" Id="{17037dfc-fae8-4d34-b152-27655cc83566}">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+
+This method tests the BinaryAssertionTest's IsLessThan method with Date and Time inputs
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+METHOD PROTECTED ExecuteIsLessThanDateNTimeTests
+VAR
+	DateAndTimeBuffer	: DATE_AND_TIME;
+	DateAndTimeBuffer2	: DATE_AND_TIME;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[(* With two equal date and time input *)
+DateAndTimeBuffer := TO_DT (F_GetSystemTime());
+
+DateAndTimeBuffer2 := TO_DT (F_GetSystemTime());
+
+THIS^.UsedBufferSize := SIZEOF (DateAndTimeBuffer);
+
+THIS^.testIsLessThan(
+	assertionMask := FALSE,
+	bufferAddress := ADR(DateAndTimeBuffer),
+	bufferToCompare := ADR(DateAndTimeBuffer2),
+	sizeInBytes := THIS^.UsedBufferSize,
+	messageInputs := 'with two equal date and time buffer ',
+	messageExpectedOuts := 'FALSE'	
+);
+
+(*With two non equal date and time input first input is smaller *)
+DateAndTimeBuffer := TO_DT (F_GetSystemTime());
+
+DateAndTimeBuffer2 := TO_DT (F_GetSystemTime()+5);
+
+THIS^.UsedBufferSize := SIZEOF (DateAndTimeBuffer);
+
+THIS^.testIsLessThan(
+	assertionMask := TRUE,
+	bufferAddress := ADR(DateAndTimeBuffer),
+	bufferToCompare := ADR(DateAndTimeBuffer2),
+	sizeInBytes := THIS^.UsedBufferSize,
+	messageInputs := 'with two non equal date and time buffer first input is smaller ',
+	messageExpectedOuts := 'TRUE'	
+);
+
+(*With two non equal date and time input first input is greater *)
+DateAndTimeBuffer := TO_DT (F_GetSystemTime()+5);
+
+DateAndTimeBuffer2 := TO_DT (F_GetSystemTime());
+
+THIS^.UsedBufferSize := SIZEOF (DateAndTimeBuffer);
+
+THIS^.testIsLessThan(
+	assertionMask := FALSE,
+	bufferAddress := ADR(DateAndTimeBuffer),
+	bufferToCompare := ADR(DateAndTimeBuffer2),
+	sizeInBytes := THIS^.UsedBufferSize,
+	messageInputs := 'with two non equal date and time buffer first input is greater ',
+	messageExpectedOuts := 'FALSE'	
+);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ExecuteIsLessThanNumericTests" Id="{e7569569-d02b-4576-b619-d7445db13233}">
+      <Declaration><![CDATA[
+(*
+
+short summary
+==================
+
+This method tests the BinaryAssertionTest's IsLessThan method with Numeric inputs
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+METHOD ExecuteIsLessThanNumericTests
+
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[(* Test with two equal signed numeric inputs *)
+CreateNumericArray(
+	StartValueOfArray := 1,
+	StartIndexOfArray := 1,
+	NumberOfElementsToBeCreated := 20,
+	TargetNumericArray := THIS^.NumericArray
+);
+
+CreateNumericArray(
+	StartValueOfArray := 1,
+	StartIndexOfArray := 1,
+	NumberOfElementsToBeCreated := 20,
+	TargetNumericArray := THIS^.NumericArray2
+);
+
+THIS^.UsedBufferSize := SIZEOF (NumericArray2);
+
+THIS^.testIsLessThan(
+	assertionMask := FALSE,
+	bufferAddress := ADR(THIS^.NumericArray),
+	bufferToCompare := ADR(THIS^.NumericArray2),
+	sizeInBytes := THIS^.UsedBufferSize,
+	messageInputs := 'with two equal signed numeric buffer',
+	messageExpectedOuts := 'FALSE'	
+);
+
+(* Test with two equal unsigned numeric inputs *)
+CreateNumericArray(
+	StartValueOfArray := -5,
+	StartIndexOfArray := 1,
+	NumberOfElementsToBeCreated := 20,
+	TargetNumericArray := THIS^.NumericArray
+);
+
+CreateNumericArray(
+	StartValueOfArray := -5,
+	StartIndexOfArray := 1,
+	NumberOfElementsToBeCreated := 20,
+	TargetNumericArray := THIS^.NumericArray2
+);
+
+THIS^.UsedBufferSize := SIZEOF (NumericArray2);
+
+THIS^.testIsLessThan(
+	assertionMask := FALSE,
+	bufferAddress := ADR(THIS^.NumericArray),
+	bufferToCompare := ADR(THIS^.NumericArray2),
+	sizeInBytes := THIS^.UsedBufferSize,
+	messageInputs := 'with two equal unsigned numeric buffer',
+	messageExpectedOuts := 'FALSE'	
+);
+
+(* Test with one unsigned one signed numeric inputs *)
+CreateNumericArray(
+	StartValueOfArray := 5,
+	StartIndexOfArray := 1,
+	NumberOfElementsToBeCreated := 20,
+	TargetNumericArray := THIS^.NumericArray
+);
+
+CreateNumericArray(
+	StartValueOfArray := -5,
+	StartIndexOfArray := 1,
+	NumberOfElementsToBeCreated := 20,
+	TargetNumericArray := THIS^.NumericArray2
+);
+
+THIS^.UsedBufferSize := SIZEOF (NumericArray2);
+
+THIS^.testIsLessThan(
+	assertionMask := FALSE,
+	bufferAddress := ADR(THIS^.NumericArray),
+	bufferToCompare := ADR(THIS^.NumericArray2),
+	sizeInBytes := THIS^.UsedBufferSize,
+	messageInputs := 'with one signed one unsigned buffer ',
+	messageExpectedOuts := 'FALSE'	
+);
+
+(* Test with two unsigned different size buffer inputs *)
+CreateNumericArray(
+	StartValueOfArray := -5,
+	StartIndexOfArray := 1,
+	NumberOfElementsToBeCreated := 1,
+	TargetNumericArray := THIS^.NumericArray
+);
+
+CreateNumericArray(
+	StartValueOfArray := -10,
+	StartIndexOfArray := 1,
+	NumberOfElementsToBeCreated := 1,
+	TargetNumericArray := THIS^.NumericArray2
+);
+
+THIS^.UsedBufferSize := SIZEOF (NumericArray2);
+
+THIS^.testIsLessThan(
+	assertionMask := FALSE,
+	bufferAddress := ADR(THIS^.NumericArray),
+	bufferToCompare := ADR(THIS^.NumericArray2),
+	sizeInBytes := THIS^.UsedBufferSize,
+	messageInputs := 'with two unsigned  different size buffer inputs ',
+	messageExpectedOuts := 'FALSE'	
+);
+
+(* Test with same value but byte order changed *)
+CreateNumericArray(
+	StartValueOfArray := 3,
+	StartIndexOfArray := 50,
+	NumberOfElementsToBeCreated := 1,
+	TargetNumericArray := THIS^.NumericArray
+);
+
+CreateNumericArray(
+	StartValueOfArray := 3,
+	StartIndexOfArray := 1,
+	NumberOfElementsToBeCreated := 1,
+	TargetNumericArray := THIS^.NumericArray2
+);
+
+THIS^.UsedBufferSize := SIZEOF (NumericArray2);
+
+THIS^.testIsLessThan(
+	assertionMask := TRUE,
+	bufferAddress := ADR(THIS^.NumericArray),
+	bufferToCompare := ADR(THIS^.NumericArray2),
+	sizeInBytes := THIS^.UsedBufferSize,
+	messageInputs := 'with same values different byte orders ',
+	messageExpectedOuts := 'TRUE'	
+);
+
+
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ExecuteIsLessThanStringTests" Id="{4515d241-814f-4989-acb0-86c868cb2380}">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+
+This method tests the BinaryAssertionTest's IsLessThan method with string inputs
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+METHOD PROTECTED ExecuteIsLessThanStringTests
+
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[(*Test with two equal string buffers do not overflow on size*)
+THIS^.CreateStringArray(
+	TargetStringArray := ADR(THIS^.StringArray),
+	StartIndexOfStringArray := 1,
+	StartValueOfStringArray := 65,
+	NumberOfStringsToBeCreated := 20
+);
+
+THIS^.CreateStringArray(
+	TargetStringArray := ADR(THIS^.StringArray2),
+	StartIndexOfStringArray := 1,
+	StartValueOfStringArray := 65,
+	NumberOfStringsToBeCreated := 20
+);
+
+THIS^.UsedBufferSize := SIZEOF (ARRAY[1..20] OF STRING) ;
+
+THIS^.testIsLessThan(
+	assertionMask := FALSE,
+	bufferAddress := ADR(THIS^.StringArray),
+	bufferToCompare := ADR(THIS^.StringArray2),
+	sizeInBytes := THIS^.UsedBufferSize,
+	messageInputs := 'with two equal string buffer',
+	messageExpectedOuts := 'FALSE'	
+);
+
+(*Test with two equal string buffers overflow on size *)
+THIS^.CreateStringArray(
+	TargetStringArray := ADR(THIS^.StringArray),
+	StartIndexOfStringArray := 1,
+	StartValueOfStringArray := 65,
+	NumberOfStringsToBeCreated := 20
+);
+
+THIS^.CreateStringArray(
+	TargetStringArray := ADR(THIS^.StringArray2),
+	StartIndexOfStringArray := 1,
+	StartValueOfStringArray := 65,
+	NumberOfStringsToBeCreated := 20
+);
+
+THIS^.UsedBufferSize := SIZEOF (StringArray2)+2;
+
+THIS^.testIsLessThan(
+	assertionMask := FALSE,
+	bufferAddress := ADR(THIS^.StringArray),
+	bufferToCompare := ADR(THIS^.StringArray2),
+	sizeInBytes := THIS^.UsedBufferSize,
+	messageInputs := 'with two equal string buffer but size overflow',
+	messageExpectedOuts := 'FALSE'	
+);
+
+(*Test with two different string buffers different size *)
+THIS^.CreateStringArray(
+	TargetStringArray := ADR(THIS^.StringArray),
+	StartIndexOfStringArray := 1,
+	StartValueOfStringArray := 65,
+	NumberOfStringsToBeCreated := 20
+);
+
+THIS^.CreateStringArray(
+	TargetStringArray := ADR(THIS^.StringArray2),
+	StartIndexOfStringArray := 1,
+	StartValueOfStringArray := 65,
+	NumberOfStringsToBeCreated := 22
+);
+
+THIS^.UsedBufferSize := SIZEOF (THIS^.StringArray) ;
+
+THIS^.testIsLessThan(
+	assertionMask := TRUE,
+	bufferAddress := ADR(THIS^.StringArray),
+	bufferToCompare := ADR(THIS^.StringArray2),
+	sizeInBytes := THIS^.UsedBufferSize,
+	messageInputs := 'with different string buffer different size ',
+	messageExpectedOuts := 'TRUE'	
+);
+
+(*Test with two different string buffers but equal on size *)
+THIS^.CreateStringArray(
+	TargetStringArray := ADR(THIS^.StringArray),
+	StartIndexOfStringArray := 1,
+	StartValueOfStringArray := 66,
+	NumberOfStringsToBeCreated := 20
+);
+
+THIS^.CreateStringArray(
+	TargetStringArray := ADR(THIS^.StringArray2),
+	StartIndexOfStringArray := 1,
+	StartValueOfStringArray := 65,
+	NumberOfStringsToBeCreated := 20
+);
+
+THIS^.UsedBufferSize := SIZEOF (THIS^.StringArray) ;
+
+THIS^.testIsLessThan(
+	assertionMask := FALSE,
+	bufferAddress := ADR(THIS^.StringArray),
+	bufferToCompare := ADR(THIS^.StringArray2),
+	sizeInBytes := THIS^.UsedBufferSize,
+	messageInputs := 'with different string buffer equal on size ',
+	messageExpectedOuts := 'FALSE'	
+);
+
+MEMSET (
+	ADR(THIS^.StringArray2),
+	0,
+	SIZEOF (THIS^.StringArray2)
+);
+
+(*Just to make a mirror of first buffer with the half *)
+FOR (
+	THIS^.SimpleForCnt := 1 
+) TO ( 
+	10 
+) DO
+	THIS^.StringArray2[THIS^.SimpleForCnt+10] := THIS^.StringArray[THIS^.SimpleForCnt];
+	THIS^.StringArray2[THIS^.SimpleForCnt] := THIS^.StringArray[THIS^.SimpleForCnt+10];
+END_FOR
+
+THIS^.UsedBufferSize := SIZEOF (ARRAY[1..20] OF STRING) ;
+
+THIS^.testIsLessThan(
+	assertionMask := TRUE,
+	bufferAddress := ADR(THIS^.StringArray),
+	bufferToCompare := ADR(THIS^.StringArray2),
+	sizeInBytes := THIS^.UsedBufferSize,
+	messageInputs := 'with a mirror of first buffer with the half ',
+	messageExpectedOuts := 'TRUE'	
+);
+
+(*Test with same content but different byte order *)
+THIS^.CreateStringArray(
+	TargetStringArray := ADR(THIS^.StringArray),
+	StartIndexOfStringArray := 2,
+	StartValueOfStringArray := 65,
+	NumberOfStringsToBeCreated := 20
+);
+
+THIS^.CreateStringArray(
+	TargetStringArray := ADR(THIS^.StringArray2),
+	StartIndexOfStringArray := 1,
+	StartValueOfStringArray := 65,
+	NumberOfStringsToBeCreated := 20
+);
+
+THIS^.UsedBufferSize := SIZEOF (THIS^.StringArray) ;
+
+THIS^.testIsLessThan(
+	assertionMask := TRUE,
+	bufferAddress := ADR(THIS^.StringArray),
+	bufferToCompare := ADR(THIS^.StringArray2),
+	sizeInBytes := THIS^.UsedBufferSize,
+	messageInputs := 'with same content different byte order',
+	messageExpectedOuts := 'TRUE'	
+);
+
+
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ExecuteIsLessThanStructTests" Id="{54db0454-928d-4b96-9067-cfbedd3a8862}">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+
+This method tests the BinaryAssertionTest's IsLessThan method with structure inputs
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+METHOD ExecuteIsLessThanStructTests
+VAR
+	TestStructure	: UnitTestStructGroup;
+	TestStructure2	: UnitTestStructGroup;	
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[(* Test with two equal struct *)
+CreateDefinedStruct(
+	SmallestStruct => TestStructure,
+);
+
+TestStructure2 := TestStructure;
+
+THIS^.UsedBufferSize := SIZEOF (TestStructure2) ;
+
+THIS^.testIsLessThan(
+	assertionMask := FALSE,
+	bufferAddress := ADR(TestStructure),
+	bufferToCompare := ADR(TestStructure2),
+	sizeInBytes := THIS^.UsedBufferSize,
+	messageInputs := 'with two equal structure buffer',
+	messageExpectedOuts := 'FALSE'	
+);
+
+(* Test with two different struct first one is smaller *)
+CreateDefinedStruct(
+	SmallestStruct => TestStructure,
+	BiggestStruct => TestStructure2
+);
+
+THIS^.UsedBufferSize := SIZEOF (TestStructure2) ;
+
+THIS^.testIsLessThan(
+	assertionMask := TRUE,
+	bufferAddress := ADR(TestStructure),
+	bufferToCompare := ADR(TestStructure2),
+	sizeInBytes := THIS^.UsedBufferSize,
+	messageInputs := 'with two different structure buffer first one is smaller ',
+	messageExpectedOuts := 'TRUE'	
+);
+
+(* Test with two different struct first one is bigger *)
+CreateDefinedStruct(
+	SmallestStruct => TestStructure2,
+	BiggestStruct => TestStructure
+);
+
+THIS^.UsedBufferSize := SIZEOF (TestStructure2) ;
+
+THIS^.testIsLessThan(
+	assertionMask := FALSE,
+	bufferAddress := ADR(TestStructure),
+	bufferToCompare := ADR(TestStructure2),
+	sizeInBytes := THIS^.UsedBufferSize,
+	messageInputs := 'with two different structure buffer first one is bigger ',
+	messageExpectedOuts := 'FALSE'	
+);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ExecuteIsNotEqualToBooleanTests" Id="{8b2569b9-f17f-44d5-893a-cd64bb068e91}">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+
+This method tests the BinaryAssertionTest's IsNotEqualTo method with boolean inputs
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+METHOD PROTECTED ExecuteIsNotEqualToBooleanTests
+VAR
+	BooleanBuffer	: ARRAY[1..2] OF BitStructure;
+	BooleanBuffer2	: ARRAY[1..2] OF BitStructure;
+	UnionByteBool	: IntSintBoolUnion;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[(* Test with two equal boolean buffer inputs *)
+UnionByteBool.ValInt := 35;
+
+BooleanBuffer := UnionByteBool.ValBool;
+
+BooleanBuffer2 := UnionByteBool.ValBool;
+
+THIS^.UsedBufferSize := SIZEOF (BooleanBuffer2);
+
+THIS^.testIsNotEqualTo(
+	assertionMask := FALSE,
+	bufferAddress := ADR(BooleanBuffer),
+	bufferToCompare := ADR(BooleanBuffer2),
+	sizeInBytes := THIS^.UsedBufferSize,
+	messageInputs := 'with two equal boolean buffer ',
+	messageExpectedOuts := 'FALSE'	
+);
+
+(* Test with two reverse signed boolean buffer inputs *)
+UnionByteBool.ValInt := 35;
+
+BooleanBuffer := UnionByteBool.ValBool;
+
+UnionByteBool.ValInt := -35;
+
+BooleanBuffer2 := UnionByteBool.ValBool;
+
+THIS^.UsedBufferSize := SIZEOF (BooleanBuffer2);
+
+THIS^.testIsNotEqualTo(
+	assertionMask := TRUE,
+	bufferAddress := ADR(BooleanBuffer),
+	bufferToCompare := ADR(BooleanBuffer2),
+	sizeInBytes := THIS^.UsedBufferSize,
+	messageInputs := 'with two reverse signed boolean buffer ',
+	messageExpectedOuts := 'TRUE'	
+);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ExecuteIsNotEqualToDateNTimeTests" Id="{d86de7ad-1451-44c3-a7bf-f2a3f3fc7394}">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+
+This method tests the BinaryAssertionTest's IsNotEqualTo method with date and time inputs
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+
+METHOD PROTECTED ExecuteIsNotEqualToDateNTimeTests
+
+VAR
+	DateAndTimeBuffer	: DATE_AND_TIME;
+	DateAndTimeBuffer2	: DATE_AND_TIME;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[(* With two equal date and time input *)
+
+DateAndTimeBuffer := TO_DT (F_GetSystemTime());
+
+DateAndTimeBuffer2 := TO_DT (F_GetSystemTime());
+
+THIS^.UsedBufferSize := SIZEOF (DateAndTimeBuffer);
+
+THIS^.testIsNotEqualTo(
+	assertionMask := FALSE,
+	bufferAddress := ADR(DateAndTimeBuffer),
+	bufferToCompare := ADR(DateAndTimeBuffer2),
+	sizeInBytes := THIS^.UsedBufferSize,
+	messageInputs := 'with two equal date and time buffer ',
+	messageExpectedOuts := 'FALSE'	
+);
+
+(*With two non equal date and time input*)
+DateAndTimeBuffer := TO_DT (F_GetSystemTime());
+
+DateAndTimeBuffer2 := TO_DT (F_GetSystemTime()+5);
+
+THIS^.UsedBufferSize := SIZEOF (DateAndTimeBuffer);
+
+THIS^.testIsNotEqualTo(
+	assertionMask := TRUE,
+	bufferAddress := ADR(DateAndTimeBuffer),
+	bufferToCompare := ADR(DateAndTimeBuffer2),
+	sizeInBytes := THIS^.UsedBufferSize,
+	messageInputs := 'with two non equal date and time buffer ',
+	messageExpectedOuts := 'TRUE'	
+);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ExecuteIsNotEqualToMiscelansTests" Id="{3ff2fe74-2847-4493-890e-590183cfc909}">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+
+This method tests the BinaryAssertionTest's IsNotEqualTo method with miscellaneous inputs
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+METHOD PROTECTED ExecuteIsNotEqualToMiscelansTests
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[{warning 'got exception here'}
+//(* Test with unassigned pointers *)
+//
+//THIS^.UsedBufferSize := 10;
+//
+//THIS^.IsNotEqualTo(
+//	assertionMask := TRUE,
+//	bufferAddress := ADR(THIS^.UnassignedPointer),
+//	bufferToCompare := ADR(THIS^.UnassignedPointer),
+//	sizeInBytes := THIS^.UsedBufferSize,
+//	messageInputs := 'with unassigned address input',
+//	messageExpectedOuts := 'TRUE'	
+//);
+//
+
+(* Test with zero size input *)
+CreateNumericArray(
+	StartValueOfArray := 1,
+	StartIndexOfArray := 1,
+	NumberOfElementsToBeCreated := 20,
+	TargetNumericArray := THIS^.NumericArray
+);
+
+CreateNumericArray(
+	StartValueOfArray := 1,
+	StartIndexOfArray := 1,
+	NumberOfElementsToBeCreated := 20,
+	TargetNumericArray := THIS^.NumericArray2
+);
+
+THIS^.UsedBufferSize := 0;
+
+THIS^.testIsNotEqualTo(
+	assertionMask := TRUE,
+	bufferAddress := ADR(THIS^.UnassignedPointer),
+	bufferToCompare := ADR(THIS^.UnassignedPointer),
+	sizeInBytes := THIS^.UsedBufferSize,
+	messageInputs := 'with zero size input',
+	messageExpectedOuts := 'TRUE'	
+);
+
+{warning 'got exception here'}
+//(*Test with unknown memory areas *)
+//
+//THIS^.UsedBufferSize := SIZEOF (ARRAY[1..20] OF STRING) ;
+//
+//THIS^.IsNotEqualTo(
+//	assertionMask := TRUE,
+//	bufferAddress := ADR(THIS^.StringArray) + THIS^.AddressOffsetForUnknownArea,
+//	bufferToCompare := ADR(THIS^.StringArray2) + THIS^.AddressOffsetForUnknownArea,
+//	sizeInBytes := THIS^.UsedBufferSize,
+//	messageInputs := 'with unknown memory areas ',
+//	messageExpectedOuts := 'TRUE'	
+//);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ExecuteIsNotEqualToNumericTests" Id="{b2a1445a-7209-4582-93f3-e0a085296734}">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+
+This method tests the BinaryAssertionTest's IsNotEqualTo method numeric inputs
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+METHOD PROTECTED ExecuteIsNotEqualToNumericTests]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[(* Test with two equal signed numeric inputs *)
+CreateNumericArray(
+	StartValueOfArray := 1,
+	StartIndexOfArray := 1,
+	NumberOfElementsToBeCreated := 20,
+	TargetNumericArray := THIS^.NumericArray
+);
+
+CreateNumericArray(
+	StartValueOfArray := 1,
+	StartIndexOfArray := 1,
+	NumberOfElementsToBeCreated := 20,
+	TargetNumericArray := THIS^.NumericArray2
+);
+
+THIS^.UsedBufferSize := SIZEOF (NumericArray2);
+
+THIS^.testIsNotEqualTo(
+	assertionMask := FALSE,
+	bufferAddress := ADR(THIS^.NumericArray),
+	bufferToCompare := ADR(THIS^.NumericArray2),
+	sizeInBytes := THIS^.UsedBufferSize,
+	messageInputs := 'with two equal signed numeric buffer',
+	messageExpectedOuts := 'FALSE'	
+);
+
+(* Test with two equal unsigned numeric inputs *)
+CreateNumericArray(
+	StartValueOfArray := -5,
+	StartIndexOfArray := 1,
+	NumberOfElementsToBeCreated := 20,
+	TargetNumericArray := THIS^.NumericArray
+);
+
+CreateNumericArray(
+	StartValueOfArray := -5,
+	StartIndexOfArray := 1,
+	NumberOfElementsToBeCreated := 20,
+	TargetNumericArray := THIS^.NumericArray2
+);
+
+THIS^.UsedBufferSize := SIZEOF (NumericArray2);
+
+THIS^.testIsNotEqualTo(
+	assertionMask := FALSE,
+	bufferAddress := ADR(THIS^.NumericArray),
+	bufferToCompare := ADR(THIS^.NumericArray2),
+	sizeInBytes := THIS^.UsedBufferSize,
+	messageInputs := 'with two equal unsigned numeric buffer',
+	messageExpectedOuts := 'FALSE'	
+);
+
+(* Test with one unsigned one signed numeric inputs *)
+CreateNumericArray(
+	StartValueOfArray := 5,
+	StartIndexOfArray := 1,
+	NumberOfElementsToBeCreated := 20,
+	TargetNumericArray := THIS^.NumericArray
+);
+
+CreateNumericArray(
+	StartValueOfArray := -5,
+	StartIndexOfArray := 1,
+	NumberOfElementsToBeCreated := 20,
+	TargetNumericArray := THIS^.NumericArray2
+);
+
+THIS^.UsedBufferSize := SIZEOF (NumericArray2);
+
+THIS^.testIsNotEqualTo(
+	assertionMask := TRUE,
+	bufferAddress := ADR(THIS^.NumericArray),
+	bufferToCompare := ADR(THIS^.NumericArray2),
+	sizeInBytes := THIS^.UsedBufferSize,
+	messageInputs := 'with one signed one unsigned buffer ',
+	messageExpectedOuts := 'TRUE'	
+);
+
+(* Test with two unsigned summary is zero numerical inputs *)
+CreateNumericArray(
+	StartValueOfArray := -5,
+	StartIndexOfArray := 1,
+	NumberOfElementsToBeCreated := 10,
+	TargetNumericArray := THIS^.NumericArray
+);
+
+CreateNumericArray(
+	StartValueOfArray := -10,
+	StartIndexOfArray := 1,
+	NumberOfElementsToBeCreated := 20,
+	TargetNumericArray := THIS^.NumericArray2
+);
+
+THIS^.UsedBufferSize := SIZEOF (NumericArray2);
+
+THIS^.testIsNotEqualTo(
+	assertionMask := TRUE,
+	bufferAddress := ADR(THIS^.NumericArray),
+	bufferToCompare := ADR(THIS^.NumericArray2),
+	sizeInBytes := THIS^.UsedBufferSize,
+	messageInputs := 'with two unsigned summary is zero buffer ',
+	messageExpectedOuts := 'TRUE'	
+);
+
+
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ExecuteIsNotEqualToStringTests" Id="{0b244181-3133-459a-b514-80b6937c65df}">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+
+This method tests the BinaryAssertionTest's IsNotEqualTo method string inputs
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+METHOD PROTECTED ExecuteIsNotEqualToStringTests
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[
+(* Test with two equal string buffers do not overflow on size *)
+THIS^.CreateStringArray(
+	TargetStringArray := ADR(THIS^.StringArray),
+	StartIndexOfStringArray := 1,
+	StartValueOfStringArray := 65,
+	NumberOfStringsToBeCreated := 20
+);
+
+THIS^.CreateStringArray(
+	TargetStringArray := ADR(THIS^.StringArray2),
+	StartIndexOfStringArray := 1,
+	StartValueOfStringArray := 65,
+	NumberOfStringsToBeCreated := 20
+);
+
+THIS^.UsedBufferSize := SIZEOF (ARRAY[1..20] OF STRING) ;
+
+THIS^.testIsNotEqualTo(
+	assertionMask := FALSE,
+	bufferAddress := ADR(THIS^.StringArray),
+	bufferToCompare := ADR(THIS^.StringArray2),
+	sizeInBytes := THIS^.UsedBufferSize,
+	messageInputs := 'with two equal string buffer',
+	messageExpectedOuts := 'FALSE'	
+);
+
+(*Test with two equal string buffers overflow on size *)
+THIS^.CreateStringArray(
+	TargetStringArray := ADR(THIS^.StringArray),
+	StartIndexOfStringArray := 1,
+	StartValueOfStringArray := 65,
+	NumberOfStringsToBeCreated := 20
+);
+
+THIS^.CreateStringArray(
+	TargetStringArray := ADR(THIS^.StringArray2),
+	StartIndexOfStringArray := 1,
+	StartValueOfStringArray := 65,
+	NumberOfStringsToBeCreated := 20
+);
+
+THIS^.UsedBufferSize := SIZEOF (ARRAY[1..20] OF STRING)+2;
+
+THIS^.testIsNotEqualTo(
+	assertionMask := FALSE,
+	bufferAddress := ADR(THIS^.StringArray),
+	bufferToCompare := ADR(THIS^.StringArray2),
+	sizeInBytes := THIS^.UsedBufferSize,
+	messageInputs := 'with two equal string buffer but size overflow',
+	messageExpectedOuts := 'FALSE'	
+);
+
+(*Test with two different string buffers *)
+THIS^.CreateStringArray(
+	TargetStringArray := ADR(THIS^.StringArray),
+	StartIndexOfStringArray := 1,
+	StartValueOfStringArray := 65,
+	NumberOfStringsToBeCreated := 20
+);
+
+THIS^.CreateStringArray(
+	TargetStringArray := ADR(THIS^.StringArray2),
+	StartIndexOfStringArray := 1,
+	StartValueOfStringArray := 66,
+	NumberOfStringsToBeCreated := 22
+);
+
+THIS^.UsedBufferSize := SIZEOF (THIS^.StringArray) ;
+
+THIS^.testIsNotEqualTo(
+	assertionMask := TRUE,
+	bufferAddress := ADR(THIS^.StringArray),
+	bufferToCompare := ADR(THIS^.StringArray2),
+	sizeInBytes := THIS^.UsedBufferSize,
+	messageInputs := 'with different string buffer',
+	messageExpectedOuts := 'TRUE'	
+);
+
+(*Test with two different string buffers but equal on size *)
+THIS^.CreateStringArray(
+	TargetStringArray := ADR(THIS^.StringArray),
+	StartIndexOfStringArray := 1,
+	StartValueOfStringArray := 65,
+	NumberOfStringsToBeCreated := 20
+);
+
+MEMSET (
+	ADR(THIS^.StringArray2),
+	0,
+	SIZEOF (THIS^.StringArray2)
+);
+
+(*Just to make a mirror of first buffer with the half *)
+FOR (
+	THIS^.SimpleForCnt := 1 
+) TO (
+	10 
+) DO
+	THIS^.StringArray2[THIS^.SimpleForCnt+10] := THIS^.StringArray[THIS^.SimpleForCnt];
+	THIS^.StringArray2[THIS^.SimpleForCnt] := THIS^.StringArray[THIS^.SimpleForCnt+10];
+END_FOR
+
+THIS^.UsedBufferSize := SIZEOF (ARRAY[1..20] OF STRING) ;
+
+THIS^.testIsNotEqualTo(
+	assertionMask := TRUE,
+	bufferAddress := ADR(THIS^.StringArray),
+	bufferToCompare := ADR(THIS^.StringArray2),
+	sizeInBytes := THIS^.UsedBufferSize,
+	messageInputs := 'with different string buffer but equal size',
+	messageExpectedOuts := 'TRUE'	
+);
+
+
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ExecuteIsNotEqualToStructTests" Id="{47240111-8041-4f28-9454-cbfdb3b586a1}">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+
+This method tests the BinaryAssertionTest's IsNotEqualTo method with structure inputs
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+METHOD PROTECTED ExecuteIsNotEqualToStructTests
+VAR
+	TestStructure	: UnitTestStructGroup;
+	TestStructure2	: UnitTestStructGroup;	
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[(* Test with two equal struct *)
+CreateDefinedStruct(
+	SmallestStruct => TestStructure,
+);
+
+TestStructure2 := TestStructure;
+
+THIS^.UsedBufferSize := SIZEOF (TestStructure2) ;
+
+THIS^.testIsNotEqualTo(
+	assertionMask := FALSE,
+	bufferAddress := ADR(TestStructure),
+	bufferToCompare := ADR(TestStructure2),
+	sizeInBytes := THIS^.UsedBufferSize,
+	messageInputs := 'with two equal structure buffer',
+	messageExpectedOuts := 'FALSE'	
+);
+
+(* Test with two different struct first one is smaller *)
+CreateDefinedStruct(
+	SmallestStruct => TestStructure,
+	BiggestStruct => TestStructure2
+);
+
+THIS^.UsedBufferSize := SIZEOF (TestStructure2) ;
+
+THIS^.testIsNotEqualTo(
+	assertionMask := TRUE,
+	bufferAddress := ADR(TestStructure),
+	bufferToCompare := ADR(TestStructure2),
+	sizeInBytes := THIS^.UsedBufferSize,
+	messageInputs := 'with two different structure buffer first one is smaller ',
+	messageExpectedOuts := 'TRUE'	
+);
+
+(* Test with two different struct first one is bigger *)
+CreateDefinedStruct(
+	SmallestStruct => TestStructure2,
+	BiggestStruct => TestStructure
+);
+
+THIS^.UsedBufferSize := SIZEOF (TestStructure2) ;
+
+THIS^.testIsNotEqualTo(
+	assertionMask := TRUE,
+	bufferAddress := ADR(TestStructure),
+	bufferToCompare := ADR(TestStructure2),
+	sizeInBytes := THIS^.UsedBufferSize,
+	messageInputs := 'with two different structure buffer first one is bigger ',
+	messageExpectedOuts := 'TRUE'	
+);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="FB_init" Id="{c69d16a3-d1fd-4a3b-819a-a11f38795745}">
+      <Declaration><![CDATA[METHOD FB_init : BOOL
+VAR_INPUT
+    bInitRetains : BOOL; // if TRUE, the retain variables are initialized (warm start / cold start)
+    bInCopyCode : BOOL;  // if TRUE, the instance afterwards gets moved into the copy code (online change)
+	concrete :IAssertionTestable;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.concrete := concrete;
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="initializeMethodConditions" Id="{f96f9a0a-7647-4c11-b6c7-15a19f0683e4}">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+
+This method needs to be called before test methods to initialize all conditions to start the test.
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+METHOD PROTECTED initializeMethodConditions 
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.concrete.assertionWasWrong := FALSE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testIsEqualTo" Id="{6e4298dd-865d-4668-97ce-8370e8e95787}">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+
+This test method tests isEqualTo method of BinaryAssertions library with various inputs
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+
+===========
+
+
+*)
+METHOD PROTECTED testIsEqualTo
+VAR_INPUT
+	(*start adress of the subjected buffer*)
+	bufferAddress			: PVOID;
+	(*start address of the buffer to be compared*)
+	bufferToCompare			: PVOID;
+	(*number of bytes to be compared*)
+	sizeInBytes				: UDINT;
+	(*text refers to conditions of inputs*)
+	messageInputs			: T_MAXSTRING;
+	(*text refers to expected outputs*)
+	messageExpectedOuts		: T_MAXSTRING;
+	(*Mask of assertion. TRUE if expecting result TRUE, false of expecting result is FALSE *)
+	assertionMask			:BOOL;
+END_VAR
+
+VAR
+	concatenatedText	: Tc2_System.T_MaxString;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[concatenatedText := CONCAT(
+	'Binary Assertions isEqualTo test with ',
+	 messageInputs
+);
+
+concatenatedText := CONCAT(
+	concatenatedText,
+	'expecting '
+);
+
+concatenatedText := CONCAT(
+	concatenatedText,
+	messageExpectedOuts
+);
+
+TEST(concatenatedText);
+
+THIS^.initializeMethodConditions();
+
+THIS^.concrete.assert.binary.isEqualTo(
+	bufferAddress := bufferAddress,
+	bufferToCompare := bufferToCompare,
+	sizeInBytes := sizeInBytes,
+	message := CONCAT(concatenatedText,'failed')
+);
+
+IF assertionMask = TRUE THEN	
+	THIS^.AssertTrue(
+		Condition := NOT THIS^.concrete.assertionWasWrong,
+		Message := 'BinaryAssertions isEqualTo test failed'
+	);
+ELSE	
+	THIS^.AssertFalse(
+		Condition := NOT THIS^.concrete.assertionWasWrong,
+		Message := 'BinaryAssertions isEqualTo test failed'
+	);	
+END_IF
+
+TEST_FINISHED();
+	]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testIsGreaterThan" Id="{e0386c04-c670-4b28-9b69-d184e88ffdaa}">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+
+This test method tests isGreaterThan method of BinaryAssertions library with various inputs
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+
+===========
+
+*)
+
+METHOD PROTECTED testIsGreaterThan
+VAR_INPUT
+	(*start adress of the subjected buffer*)
+	bufferAddress			: PVOID;
+	(*start address of the buffer to be compared*)
+	bufferToCompare			: PVOID;
+	(*number of bytes to be compared*)
+	sizeInBytes				: UDINT;
+	(*text refers to conditions of inputs*)
+	messageInputs			: T_MAXSTRING;
+	(*text refers to expected outputs*)
+	messageExpectedOuts		: T_MAXSTRING;
+	(*Mask of assertion. TRUE if expecting result TRUE, false of expecting result is FALSE *)
+	assertionMask			:BOOL;
+END_VAR
+
+VAR
+	concatenatedText	: Tc2_System.T_MaxString;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[concatenatedText := CONCAT(
+	'Binary Assertions isGreaterThan test with ',
+	 messageInputs
+);
+
+concatenatedText := CONCAT(
+	concatenatedText,
+	'expecting '
+);
+
+concatenatedText := CONCAT(
+	concatenatedText,
+	messageExpectedOuts
+);
+
+TEST(concatenatedText);
+
+THIS^.initializeMethodConditions();
+
+THIS^.concrete.assert.binary.isGreaterThan(
+	bufferAddress := bufferAddress,
+	bufferToCompare := bufferToCompare,
+	sizeInBytes := sizeInBytes,
+	message := CONCAT(concatenatedText,'failed')
+);
+
+IF assertionMask = TRUE THEN	
+	THIS^.AssertTrue(
+		Condition := NOT THIS^.concrete.assertionWasWrong,
+		Message := 'BinaryAssertions isGreaterThan test failed'
+);
+ELSE
+	THIS^.AssertFalse(
+		Condition := NOT THIS^.concrete.assertionWasWrong,
+		Message := 'BinaryAssertions isGreaterThan test failed'
+);	
+END_IF
+
+TEST_FINISHED();
+	]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testIsLessThan" Id="{3ca277bf-8ab2-4b43-8416-1af05850c2a6}">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+
+This test method tests isLessThan method of BinaryAssertions library with various inputs
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+
+===========
+
+*)
+
+METHOD PROTECTED testIsLessThan
+VAR_INPUT
+	(*start adress of the subjected buffer*)
+	bufferAddress			: PVOID;
+	(*start address of the buffer to be compared*)
+	bufferToCompare			: PVOID;
+	(*number of bytes to be compared*)
+	sizeInBytes				: UDINT;
+	(*text refers to conditions of inputs*)
+	messageInputs			: T_MAXSTRING;
+	(*text refers to expected outputs*)
+	messageExpectedOuts		: T_MAXSTRING;
+	(*Mask of assertion. TRUE if expecting result TRUE, false of expecting result is FALSE *)
+	assertionMask			:BOOL;
+END_VAR
+
+VAR
+	concatenatedText	: Tc2_System.T_MaxString;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[concatenatedText := CONCAT(
+	'Binary Assertions isLessThan test with ',
+	 messageInputs
+);
+
+concatenatedText := CONCAT(
+	concatenatedText,
+	'expecting '
+);
+
+concatenatedText := CONCAT(
+	concatenatedText,
+	messageExpectedOuts
+);
+
+TEST(concatenatedText);
+
+THIS^.initializeMethodConditions();
+
+THIS^.concrete.assert.binary.isLessThan(
+	bufferAddress := bufferAddress,
+	bufferToCompare := bufferToCompare,
+	sizeInBytes := sizeInBytes,
+	message := CONCAT(concatenatedText,'failed')
+);
+
+IF assertionMask = TRUE THEN	
+	THIS^.AssertTrue(
+		Condition := NOT THIS^.concrete.assertionWasWrong,
+		Message := 'BinaryAssertions isLessThan test failed'
+);
+ELSE	
+	THIS^.AssertFalse(
+		Condition := NOT THIS^.concrete.assertionWasWrong,
+		Message := 'BinaryAssertions isLessThan test failed'
+);	
+END_IF
+
+TEST_FINISHED();
+	]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testIsNotEqualTo" Id="{72e0694b-6040-4afd-a512-c6ee31924159}">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+
+This test method tests isNotEqualTo method of BinaryAssertions library with various inputs
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+
+===========
+
+*)
+
+METHOD PROTECTED testIsNotEqualTo
+VAR_INPUT
+	(*start adress of the subjected buffer*)
+	bufferAddress			: PVOID;
+	(*start address of the buffer to be compared*)
+	bufferToCompare			: PVOID;
+	(*number of bytes to be compared*)
+	sizeInBytes				: UDINT;
+	(*text refers to conditions of inputs*)
+	messageInputs			: T_MAXSTRING;
+	(*text refers to expected outputs*)
+	messageExpectedOuts		: T_MAXSTRING;
+	(*Mask of assertion. TRUE if expecting result TRUE, false of expecting result is FALSE *)
+	assertionMask			:BOOL;
+END_VAR
+
+VAR
+	concatenatedText	: Tc2_System.T_MaxString;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[concatenatedText := CONCAT(
+	'Binary Assertions isNotEqualTo test with ',
+	 messageInputs
+);
+
+concatenatedText := CONCAT(
+	concatenatedText,
+	'expecting '
+);
+
+concatenatedText := CONCAT(
+	concatenatedText,
+	messageExpectedOuts
+);
+
+TEST(concatenatedText);
+
+THIS^.initializeMethodConditions();
+
+THIS^.concrete.assert.binary.isNotEqualTo(
+	bufferAddress := bufferAddress,
+	bufferToCompare := bufferToCompare,
+	sizeInBytes := sizeInBytes,
+	message := CONCAT(concatenatedText,'failed')
+);
+
+IF assertionMask = TRUE THEN	
+	THIS^.AssertTrue(
+		Condition := NOT THIS^.concrete.assertionWasWrong,
+		Message := 'BinaryAssertions isNotEqualTo test failed'
+);
+ELSE
+	THIS^.AssertFalse(
+		Condition := NOT THIS^.concrete.assertionWasWrong,
+		Message := 'BinaryAssertions isNotEqualTo test failed'
+);	
+END_IF
+
+TEST_FINISHED();
+	]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

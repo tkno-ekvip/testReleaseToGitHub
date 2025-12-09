@@ -1,0 +1,84 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.11">
+  <Itf Name="IIntergerAssertions" Id="{4ead521c-d2c5-4960-9ec1-80b6de37451e}">
+    <Declaration><![CDATA[(*
+
+short summary
+=================
+This interface provides assert statements for signed/unsigned integers from 8~64 bit length 
+For signed integers use :ref:`IIntergerAssertions.signed`
+For unsigned integers use :ref:`IIntergerAssertions.unsigned`
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+properties
+==================
+
+*)
+
+INTERFACE IIntergerAssertions EXTENDS __SYSTEM.IQueryInterface
+]]></Declaration>
+    <Property Name="signed" Id="{490bb9b5-84e8-4a35-9746-514334e2d94e}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+Returns the interface :ref:`ISignedIntegerAssertions` with assert statements for signed integers from 8~64 bit length 
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+PROPERTY signed :ISignedIntegerAssertions]]></Declaration>
+      <Get Name="Get" Id="{b6403d2f-6fd0-434c-91a6-400186d30208}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Property Name="unsigned" Id="{19fb0e8c-a0f4-4cc1-8504-377d8ec4ae6f}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+Returns the interface :ref:`IUnsignedIntegerAssertions` with assert statements for unsigned integers from 8~64 bit length 
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+PROPERTY unsigned :IUnsignedIntegerAssertions]]></Declaration>
+      <Get Name="Get" Id="{5db91a6a-27fe-4312-b70a-161be03b5004}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+  </Itf>
+</TcPlcObject>

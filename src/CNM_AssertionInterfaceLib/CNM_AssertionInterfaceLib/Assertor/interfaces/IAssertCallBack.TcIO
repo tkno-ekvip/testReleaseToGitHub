@@ -1,0 +1,67 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.11">
+  <Itf Name="IAssertCallBack" Id="{3912fe76-4ec6-496a-9029-725f9b7caa18}">
+    <Declaration><![CDATA[(*
+
+short summary
+=================
+This interface provides the a callback
+method for which is called if an assertions
+is worng
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+methods
+==================
+
+*)
+
+INTERFACE IAssertCallBack EXTENDS CNM_AbstractObject.IObject
+]]></Declaration>
+    <Method Name="assertionWasWrong" Id="{e88f80a5-b816-4c89-9d3d-b7847450c15f}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This method is called if an assertion was ``FALSE``
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD assertionWasWrong
+VAR_INPUT
+	(* caller object of the method *)
+	caller			:CNM_AbstractObject.IObject;
+	(* alarm message *)
+	message			:AssertMessage;
+	(* debugging information *) 
+	additionalText	:Tc2_System.T_MaxString;
+END_VAR
+]]></Declaration>
+    </Method>
+  </Itf>
+</TcPlcObject>

@@ -1,0 +1,86 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.8">
+  <Itf Name="IDateAndTimeAssertions" Id="{834e8fd6-87ce-4da3-b193-2914ed40ebce}">
+    <Declaration><![CDATA[(*
+
+short summary
+=================
+| This interface provides assert statements for date and time types
+| For 32 bit date and time types use :ref:`IDateAndTimeAssertions.simple`
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+methods
+==================
+
+*)
+
+INTERFACE IDateAndTimeAssertions EXTENDS __SYSTEM.IQueryInterface
+]]></Declaration>
+    <Property Name="long" Id="{cd97ac26-075e-4ebb-a509-27c93efe4648}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+Returns an interface with assert statements for 64 bit times 
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+PROPERTY long :ILongDateAndTimeAssertions]]></Declaration>
+      <Get Name="Get" Id="{0bced989-eda6-477c-ba3c-c3e1d2b268c6}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Property Name="simple" Id="{1c022d49-7fe3-4a8e-a5e2-2d724d677952}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+Returns the interface :ref:`ISimpleDateAndTimeAssertions` with assert statements for date and time types with 32 bit length
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+methods
+==================
+
+*)
+
+PROPERTY simple :ISimpleDateAndTimeAssertions]]></Declaration>
+      <Get Name="Get" Id="{5368e6b3-c8c3-4c29-bb9d-5e8d17c74589}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+  </Itf>
+</TcPlcObject>

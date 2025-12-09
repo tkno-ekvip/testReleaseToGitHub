@@ -1,0 +1,45 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Refactors>
+  <Renames>
+    <RenamedType>
+      <Type guid="b080e1d3-243a-4c28-a166-d83b8fe8f3b9">DATEASSERTIONS32BIT_1</Type>
+      <From>DateAssertions32Bit_1</From>
+      <To>DateAssertions64Bit</To>
+    </RenamedType>
+    <RenamedType>
+      <Type guid="822ae77e-1cf7-43ca-9abe-bb34b6d90df6">I32BITDATEASSERTIONS_1</Type>
+      <From>I32BitDateAssertions_1</From>
+      <To>I64BitDateAssertions</To>
+    </RenamedType>
+    <RenamedType>
+      <Type guid="9cf4e535-d3d2-4d31-9db6-b79978092d2b">DATETIMEASSERTIONS32BIT_1</Type>
+      <From>DateTimeAssertions32Bit_1</From>
+      <To>DateTimeAssertions64Bit</To>
+    </RenamedType>
+    <RenamedType>
+      <Type guid="eb80d75d-b6ba-4495-aa03-17d5c7d27736">I32BITDTASSERTIONS_1</Type>
+      <From>I32BitDtAssertions_1</From>
+      <To>I64BitDtAssertions</To>
+    </RenamedType>
+    <RenamedType>
+      <Type guid="1d325c30-b335-4956-a759-90b7a09638ae">TIMEOFDAYASSERTIONS32BIT_1</Type>
+      <From>TimeOfDayAssertions32Bit_1</From>
+      <To>TimeOfDayAssertions64Bit</To>
+    </RenamedType>
+    <RenamedType>
+      <Type guid="f42a8ab0-3ada-461b-a6b8-86eefef0d552">I32BITTODASSERTIONS_1</Type>
+      <From>I32BitTodAssertions_1</From>
+      <To>I64BitTodAssertions</To>
+    </RenamedType>
+    <RenamedType>
+      <Type guid="947be7dd-b3de-461b-b26a-dd355d77593e">SIMPLELDATEANDTIMEASSERTIONS</Type>
+      <From>SimpleDateAndTimeAssertions_1</From>
+      <To>LongDateAndTimeAssertions</To>
+    </RenamedType>
+    <RenamedType>
+      <Type guid="601e1489-ef8b-41a6-b23a-b519279a23e4">ISIMPLELDATEANDTIMEASSERTIONS</Type>
+      <From>ISimpleDateAndTimeAssertions_1</From>
+      <To>ILongDateAndTimeAssertions</To>
+    </RenamedType>
+  </Renames>
+</Refactors>

@@ -1,0 +1,104 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="ConcreteAssertions" Id="{81987a0e-d932-45b6-ab4b-b2c6b593d05f}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK ConcreteAssertions EXTENDS CNM_AssertionInterfaceLib.AbstractAssertor IMPLEMENTS CNM_AssertionInterfaceTests.IAssertorContainer
+VAR
+	wrongAssertion	:BOOL;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Method Name="assertionWasWrong" Id="{86beb84b-11a1-4994-8a22-1223b2108d6e}">
+      <Declaration><![CDATA[METHOD assertionWasWrong
+VAR_INPUT
+	caller			:CNM_AbstractObject.IObject;
+	message			:AssertMessage;
+	additionalText	:Tc2_System.T_MaxString;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.wrongAssertion := TRUE;
+]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="assertor" Id="{a62cdb6e-56fd-4462-a276-71e81161234c}">
+      <Declaration><![CDATA[PROPERTY assertor : CNM_AssertionInterfaceTests.CNM_AssertionInterfaceLib.IAssertor
+]]></Declaration>
+      <Get Name="Get" Id="{9f4ac83f-a96b-44f1-b934-b437662da28e}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[assertor := THIS^;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="className" Id="{31a7334d-7454-4b79-9894-5185decc6e93}">
+      <Declaration><![CDATA[PROPERTY className : CNM_AbstractObject.ClassName]]></Declaration>
+      <Get Name="Get" Id="{a2ef7755-faad-44dd-b625-8a084e287aff}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[className := 'ConcreteAssertions';
+]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="resetAssertor" Id="{60871598-b112-4277-8f57-07b9c429874b}">
+      <Declaration><![CDATA[METHOD resetAssertor
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.wasAssertionWrong := FALSE;
+]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="wasAssertionWrong" Id="{d15b8142-368c-4004-93b7-a6615ae61805}">
+      <Declaration><![CDATA[PROPERTY wasAssertionWrong : BOOL]]></Declaration>
+      <Get Name="Get" Id="{4134aee8-9d1f-4c1b-a289-44894e17f9b3}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[wasAssertionWrong := THIS^.wrongAssertion;
+]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{f1235e34-ffc0-4fce-aac4-366234334135}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[THIS^.wrongAssertion := wasAssertionWrong;
+]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <LineIds Name="ConcreteAssertions">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="ConcreteAssertions.assertionWasWrong">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="ConcreteAssertions.assertor.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="ConcreteAssertions.className.Get">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="ConcreteAssertions.resetAssertor">
+      <LineId Id="4" Count="1" />
+    </LineIds>
+    <LineIds Name="ConcreteAssertions.wasAssertionWrong.Get">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="ConcreteAssertions.wasAssertionWrong.Set">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

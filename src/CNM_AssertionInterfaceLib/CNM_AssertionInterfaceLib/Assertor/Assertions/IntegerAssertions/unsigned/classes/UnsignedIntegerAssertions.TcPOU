@@ -1,0 +1,320 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.11">
+  <POU Name="UnsignedIntegerAssertions" Id="{d26d2d05-0d86-4837-8178-4e02e7d3d780}" SpecialFunc="None">
+    <Declaration><![CDATA[(*
+
+short summary
+=================
+| This class provides assert statements for unsigned integers from 8~64 bit length 
+| It implements the interface :ref:`IUnsignedIntegerAssertions`
+| For 8 bit intgers use :ref:`UnsignedIntegerAssertions.short`
+| For 16 bit intgers use :ref:`UnsignedIntegerAssertions.simple`
+| For 32 bit intgers use :ref:`UnsignedIntegerAssertions.double`
+| For 64 bit intgers use :ref:`UnsignedIntegerAssertions.long`
+| For integers in register length use :ref:`UnsignedIntegerAssertions.x`
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+methods and properties
+=======================
+
+*)
+
+{attribute 'reflection'}
+FUNCTION_BLOCK INTERNAL UnsignedIntegerAssertions EXTENDS CNM_AbstractObject.Object IMPLEMENTS IUnsignedIntegerAssertions
+VAR
+	(* class to handle assert statements for unsigned short integers *)
+	usintAssertions	:UsintAssertions();
+	(* class to handle assert statements for unsigned integers *)
+	uintAssertions	:UintAssertions();
+	(* class to handle assert statements for unsigned double integers *)
+	udintAssertions	:UdintAssertions();
+	(* class to handle assert statements for unsigned register length integers *)
+	uxintAssertions	:UxintAssertions();
+	(* class to handle assert statements for unsigned long integers *)
+	ulintAssertions	:UlintAssertions();
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Property Name="className" Id="{e8ab4c70-40a2-4660-bc50-a670906e80ff}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This abstract property returns the class name of the concrete object, 
+It's for debugging purpose
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+PROPERTY className :CNM_AbstractObject.ClassName]]></Declaration>
+      <Get Name="Get" Id="{3fa71b51-3f22-4b14-995c-0306e7ed152f}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[className := 'CNM_AssertionInterfaceLib.UnsignedIntegerAssertions';
+]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="double" Id="{0b4db36d-1d7e-4d25-b3c5-0ccd390d6639}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+Returns the interface :ref:`IUdintAssertions` with assert statements for unsigned 32 bit integers 
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+PROPERTY double :IUdintAssertions
+]]></Declaration>
+      <Get Name="Get" Id="{7c990063-2502-416f-adc8-265bd1037562}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[double := THIS^.udintAssertions;
+]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="long" Id="{7aa11f53-2289-4f5f-ab40-9dc9506ab775}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+Returns the interface :ref:`IUlintAssertions` with assert statements for unsigned 64 bit integers 
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+PROPERTY long :IUlintAssertions
+]]></Declaration>
+      <Get Name="Get" Id="{c68bd8bd-8cf6-497e-8cea-1564dea08408}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[long := THIS^.ulintAssertions;
+]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="setCallBack" Id="{145eb7fa-8974-4bd9-b18b-3e0d74cd9984}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This methods is the setter for the callback class if an assertion was false
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD setCallBack
+VAR_INPUT
+	(* the class that must be informed if an assertion is false *)
+	callBack	:IAssertCallback;  
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.usintAssertions.setCallBack(callBack);
+THIS^.uintAssertions.setCallBack(callBack);
+THIS^.udintAssertions.setCallBack(callBack);
+THIS^.uxintAssertions.setCallBack(callBack);
+THIS^.ulintAssertions.setCallBack(callBack);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="short" Id="{9160085d-91ac-4c1c-a84f-d3e2ff342b1c}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+Returns the interface :ref:`IUsintAssertions` with assert statements for unsigned 8 bit integers 
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+PROPERTY short :IUsintAssertions
+]]></Declaration>
+      <Get Name="Get" Id="{a0ec1e1d-bf72-4951-8ce2-1a0efd4fbcec}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[short := THIS^.usintAssertions;
+]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="simple" Id="{b73e7c32-727b-4d75-891c-563b36a028d3}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+Returns the interface :ref:`IUintAssertions` with assert statements for unsigned 16 bit integers 
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+PROPERTY simple :IUintAssertions
+]]></Declaration>
+      <Get Name="Get" Id="{272da927-4366-495c-a1e8-a79d8c288246}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[simple := THIS^.uintAssertions;
+]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="x" Id="{baedee3b-e75c-495b-8ed9-6238b278e602}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+Returns the interface :ref:`IUxintAssertions` with assert statements for unsigned integers register length 
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+PROPERTY x :IUxintAssertions
+]]></Declaration>
+      <Get Name="Get" Id="{a0c5b920-c10a-4e6f-a867-dbd8f53eb59e}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[x := THIS^.uxintAssertions;
+]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <LineIds Name="UnsignedIntegerAssertions">
+      <LineId Id="9" Count="0" />
+    </LineIds>
+    <LineIds Name="UnsignedIntegerAssertions.className.Get">
+      <LineId Id="5" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="UnsignedIntegerAssertions.double.Get">
+      <LineId Id="2" Count="0" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="UnsignedIntegerAssertions.long.Get">
+      <LineId Id="2" Count="0" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="UnsignedIntegerAssertions.setCallBack">
+      <LineId Id="31" Count="4" />
+      <LineId Id="30" Count="0" />
+    </LineIds>
+    <LineIds Name="UnsignedIntegerAssertions.short.Get">
+      <LineId Id="2" Count="0" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="UnsignedIntegerAssertions.simple.Get">
+      <LineId Id="2" Count="0" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="UnsignedIntegerAssertions.x.Get">
+      <LineId Id="2" Count="0" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

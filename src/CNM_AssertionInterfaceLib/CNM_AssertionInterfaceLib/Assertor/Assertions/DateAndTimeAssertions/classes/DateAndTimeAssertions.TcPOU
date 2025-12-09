@@ -1,0 +1,201 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.8">
+  <POU Name="DateAndTimeAssertions" Id="{53385353-02b0-42a0-b691-66e800470802}" SpecialFunc="None">
+    <Declaration><![CDATA[(*
+
+short summary
+=================
+| This class provides assert statements for date and time types
+| It implements :ref:`IDateAndTimeAssertions`
+| For 32 bit date and time types use :ref:`DateAndTimeAssertions.simple`
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+methods and properties
+=======================
+
+*)
+
+{attribute 'reflection'}
+FUNCTION_BLOCK INTERNAL DateAndTimeAssertions
+EXTENDS CNM_AbstractObject.Object
+IMPLEMENTS IDateAndTimeAssertions, IAssertCallBacksetter
+VAR
+	(* class to handle 32 bit date and time assertions *)
+	assertionsFor32BitTypes	:SimpleDateAndTimeAssertions();
+	(* class to handle 64 bit date and time assertions *)
+	assertionsFor64BitTypes	:LongDateAndTimeAssertions();
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Property Name="className" Id="{11e0bfa9-2ead-4f6b-9b93-22212ea736b0}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This abstract property returns the class name of the concrete object, 
+It's for debugging purpose
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+PROPERTY className :CNM_AbstractObject.ClassName]]></Declaration>
+      <Get Name="Get" Id="{343b398a-08c2-4cab-8206-2815786a7725}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[className := 'CNM_AssertionInterfaceLib.DateAndTimeAssertions';
+]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="long" Id="{0835d015-cacc-4bb5-964d-1d1a603d12af}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+Returns an interface with assert statements for 64 bit times 
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+PROPERTY long :ILongDateAndTimeAssertions]]></Declaration>
+      <Get Name="Get" Id="{f7543acb-d3b2-4734-8613-805cb64a45c4}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[long := THIS^.assertionsFor64BitTypes;
+]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="setCallBack" Id="{4e31c649-5f75-4d78-808d-eb927234c3ac}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This methods is the setter for the callback class if an assertion was false
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD setCallBack
+VAR_INPUT
+	(* the class that must be informed if an assertion is false *)
+	callBack	:IAssertCallback;  
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.assertionsFor32BitTypes.setCallBack(callBack);
+THIS^.assertionsFor64BitTypes.setCallBack(callBack);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="simple" Id="{ce98ce2a-31c2-40d0-8199-146aaf89df45}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+Returns the interface :ref:`ISimpleDateAndTimeAssertions`
+with assert statements for date and time types with 32 bit length
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+methods
+==================
+
+*)
+
+PROPERTY simple :ISimpleDateAndTimeAssertions
+]]></Declaration>
+      <Get Name="Get" Id="{6ddc94e8-1ef4-4b5e-b599-a442890025a7}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[simple := THIS^.assertionsFor32BitTypes;
+]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <LineIds Name="DateAndTimeAssertions">
+      <LineId Id="9" Count="0" />
+    </LineIds>
+    <LineIds Name="DateAndTimeAssertions.className.Get">
+      <LineId Id="5" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="DateAndTimeAssertions.long.Get">
+      <LineId Id="1" Count="1" />
+    </LineIds>
+    <LineIds Name="DateAndTimeAssertions.setCallBack">
+      <LineId Id="30" Count="0" />
+      <LineId Id="32" Count="0" />
+      <LineId Id="31" Count="0" />
+    </LineIds>
+    <LineIds Name="DateAndTimeAssertions.simple.Get">
+      <LineId Id="2" Count="0" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

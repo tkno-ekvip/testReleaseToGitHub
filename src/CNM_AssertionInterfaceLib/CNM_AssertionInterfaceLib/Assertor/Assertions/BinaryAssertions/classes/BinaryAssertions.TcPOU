@@ -1,0 +1,1110 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="BinaryAssertions" Id="{716c6ad5-0053-4aac-928d-711886214de6}" SpecialFunc="None">
+    <Declaration><![CDATA[(*
+
+short summary
+=================
+This class provides assert statements for binaries
+e.g. structures, arrays etc...
+It implements the interface :ref:`IBinaryAssertions`
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+methods and properties
+=======================
+
+*)
+
+{attribute 'reflection'}
+FUNCTION_BLOCK INTERNAL BinaryAssertions EXTENDS AbstactAssertion IMPLEMENTS IBinaryAssertions
+VAR CONSTANT
+	(* to check if binary data points to nowhere *)
+	NULL_POINTER	:POINTER TO BYTE := 0;
+	(* to check if the binary data has no size *)
+	ZERO_SIZE		:DINT := 0;
+	(* register size of the plattform, shall be always 8 byte *)
+	REGISTER_SIZE	:DINT := SIZEOF(__XWORD);
+	(* first index of a pointer *) 
+	FIRST_DATA		:LINT := 0;
+	(* direction for little endian *)
+	DIRECTION_LE	:LINT := -1;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Folder Name="protected" Id="{2cd520c4-c568-406d-893c-0c9791dca949}" />
+    <Method Name="binaryCompare" Id="{4578db9b-24ed-493e-9b2b-69b2c6761e36}" FolderPath="protected\">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This method comapres the data of two any pointers. 
+The table below shows with some examples how it works.
+
++-------------------+------------------+----------------------------+---------------------------+---------------------------------------+
+| **value of data** | **size of data** | **value of dataToCompare** | **size of dataToCompare** | **CNM_ReturnTypes.ComparationResult** |
++===================+==================+============================+===========================+=======================================+
+| null              | 0                | null                       | 0                         | EQUAL                                 |
++-------------------+------------------+----------------------------+---------------------------+---------------------------------------+
+| null              | 0                | 16#01                      | 1                         | SMALLER                               |
++-------------------+------------------+----------------------------+---------------------------+---------------------------------------+
+| 16#01             | 1                | null                       | 0                         | GREATER                               |
++-------------------+------------------+----------------------------+---------------------------+---------------------------------------+
+| 16#00FF           | 2                | 16#FF                      | 1                         | EQUAL                                 |
++-------------------+------------------+----------------------------+---------------------------+---------------------------------------+
+| 16#0100           | 2                | 16#FF                      | 1                         | GREATER                               |
++-------------------+------------------+----------------------------+---------------------------+---------------------------------------+
+| 16#FF             | 1                | 16#0100                    | 2                         | SMALLER                               |
++-------------------+------------------+----------------------------+---------------------------+---------------------------------------+
+| 16#FF             | 1                | 16#00FF                    | 2                         | EQUAL                                 |
++-------------------+------------------+----------------------------+---------------------------+---------------------------------------+
+| 16#0FF0           | 2                | 16#F00F                    | 2                         | SMALLER                               |
++-------------------+------------------+----------------------------+---------------------------+---------------------------------------+
+
+.. attention:: 
+	Binary comparison means it compares values byte by byte, regardless of type information (signs, ``REAL`` etc...)
+	and it compares padding bytes, too.
+
+.. attention:: 
+	``STRING`` and ``WSTRING`` is null terminated
+	that means TwinCAT sets null byte/word at the end of the string and touches nothing else
+	For example ``foo :STRING(3) := 'foo';`` looks binary 16#66 16#6F 16#6F 16#00.
+	if you set foo to an empty string ``foo := ''`` it looks like 16#00 16#6F 16#6F 16#00.
+
+.. attention:: 
+	It works not for bits because the minimum size must be at least one byte. If the ``__SYSTEM.TYPE_CLASS``
+	of ``data`` ``AND`` ``dataToCompare is ``__SYSTEM.TYPE_CLASS.TYPE_BOOL`` ``OR`` ``__SYSTEM.TYPE_CLASS.TYPE_BIT``
+	it uses the ``TO_BOOL`` operator for comarison. That means for ``__SYSTEM.TYPE_CLASS.TYPE_BIT`` it has no idea
+	if the single ``BIT`` is set or unset, it compares just the whole ``BYTE``.
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+:return: ``SMALLER``: ``data`` is smaller than ``dataToCompare``, 
+``EQUAL``: ``data`` is equal to ``dataToCompare``,
+``Greater``: ``data`` is greater to ``dataToCompare``
+
+*)
+
+METHOD PROTECTED binaryCompare :CNM_ReturnTypes.ComparationResult
+VAR_INPUT
+	(* current binary data *)
+	data			:ANY;
+	(* binary data with smaller values *)
+	dataToCompare	:ANY;
+END_VAR
+VAR CONSTANT
+	(* for boolens to figure out if the size exactly one byte *) 
+	SIZE_OF_ONE_BYTE	:DINT := 1;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[binaryCompare := CNM_ReturnTypes.ComparationResult.EQUAL;
+RETURN ((data.pValue = THIS^.NULL_POINTER) AND (dataToCompare.pValue = THIS^.NULL_POINTER));
+RETURN ((data.diSize = THIS^.ZERO_SIZE) AND (dataToCompare.diSize = THIS^.ZERO_SIZE));
+IF (
+	((data.pValue = THIS^.NULL_POINTER) AND (dataToCompare.pValue <> THIS^.NULL_POINTER))
+	OR ((data.diSize = THIS^.ZERO_SIZE) AND (dataToCompare.diSize <> THIS^.ZERO_SIZE))
+)THEN
+	binaryCompare := CNM_ReturnTypes.ComparationResult.SMALLER;
+ELSIF (
+	((data.pValue <> THIS^.NULL_POINTER) AND (dataToCompare.pValue = THIS^.NULL_POINTER))
+	OR ((data.diSize <> THIS^.ZERO_SIZE) AND (dataToCompare.diSize = THIS^.ZERO_SIZE))
+)THEN
+	binaryCompare := CNM_ReturnTypes.ComparationResult.GREATER;
+ELSIF (data.diSize < dataToCompare.diSize) THEN
+	IF (THIS^.isDataZero(
+		data := dataToCompare.pValue,
+		size := dataToCompare.diSize,
+		end := dataToCompare.diSize - data.diSize
+	)) THEN
+		binaryCompare := THIS^.compareData(
+			data := data.pValue,
+			dataToCompare := dataToCompare.pValue,
+			size := data.diSize
+		);
+	ELSE
+		binaryCompare := CNM_ReturnTypes.ComparationResult.SMALLER;
+	END_IF
+ELSIF (data.diSize > dataToCompare.diSize) THEN
+	IF (THIS^.isDataZero(
+		data := data.pValue,
+		size := data.diSize,
+		end := data.diSize - dataToCompare.diSize
+	)) THEN
+		binaryCompare := THIS^.compareData(
+			data := data.pValue,
+			dataToCompare := dataToCompare.pValue,
+			size := dataToCompare.diSize
+		);
+	ELSE
+		binaryCompare := CNM_ReturnTypes.ComparationResult.GREATER;
+	END_IF
+ELSIF (
+	(data.diSize = SIZE_OF_ONE_BYTE)
+	AND (dataToCompare.diSize = SIZE_OF_ONE_BYTE)
+	AND (
+		(data.TypeClass = __SYSTEM.TYPE_CLASS.TYPE_BOOL)
+		OR (data.TypeClass = __SYSTEM.TYPE_CLASS.TYPE_BIT)
+	)AND(
+		(dataToCompare.TypeClass = __SYSTEM.TYPE_CLASS.TYPE_BOOL)
+		OR (dataToCompare.TypeClass = __SYSTEM.TYPE_CLASS.TYPE_BIT)
+	)	
+)THEN
+	IF (TO_BOOL(data.pValue^) AND (NOT TO_BOOL(dataToCompare.pValue^))) THEN
+		binaryCompare := CNM_ReturnTypes.ComparationResult.GREATER;
+	ELSIF  ((NOT TO_BOOL(data.pValue^)) AND TO_BOOL(dataToCompare.pValue^)) THEN
+		binaryCompare := CNM_ReturnTypes.ComparationResult.SMALLER;
+	END_IF
+ELSIF (data.diSize = dataToCompare.diSize) THEN
+	binaryCompare := THIS^.compareData(
+		data := data.pValue,
+		dataToCompare := dataToCompare.pValue,
+		size := data.diSize
+	);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="className" Id="{7e152899-a18c-4a0e-adfa-143f141134d7}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This abstract property returns the class name of the concrete object, 
+It's for debugging purpose
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+PROPERTY className :CNM_AbstractObject.ClassName]]></Declaration>
+      <Get Name="Get" Id="{084ba099-2629-4452-8586-ad8cbc0e12d7}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[className := 'CNM_AssertionInterfaceLib.BinaryAssertions';
+]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="compareBytewise" Id="{3a1c97f7-979d-432d-a2de-7d9cdecb1a67}" FolderPath="protected\">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This method comapres the data of two byte pointers. 
+The table below shows with some examples how it works.
+
++-------------------+----------------------------+----------+---------------------------------------+
+| **value of data** | **value of dataToCompare** | **size** | **CNM_ReturnTypes.ComparationResult** |
++===================+============================+==========+=======================================+
+| 16#00FF           | 16#FF                      | 1        | EQUAL                                 |
++-------------------+----------------------------+----------+---------------------------------------+
+| 16#0100           | 16#FF                      | 1        | SMALLER                               |
++-------------------+----------------------------+----------+---------------------------------------+
+| 16#FF             | 16#0100                    | 1        | GREATER                               |
++-------------------+----------------------------+----------+---------------------------------------+
+| 16#FF             | 16#00FF                    | 1        | EQUAL                                 |
++-------------------+----------------------------+----------+---------------------------------------+
+| 16#0FF0           | 16#F00F                    | 1        | GREATER                               |
++-------------------+----------------------------+----------+---------------------------------------+
+| 16#0FF0           | 16#F00F                    | 2        | SMALLER                               |
++-------------------+----------------------------+----------+---------------------------------------+
+
+.. attention:: 
+	Binary comparison means it compares values byte by byte, regardless of type information (signs, ``REAL`` etc...)
+	and it compares padding bytes, too.
+
+.. attention:: 
+	``STRING`` and ``WSTRING`` is null terminated
+	that means TwinCAT sets null byte/word at the end of the string and touches nothing else
+	For example ``foo :STRING(3) := 'foo';`` looks binary 16#66 16#6F 16#6F 16#00.
+	if you set foo to an empty string ``foo := ''`` it looks like 16#00 16#6F 16#6F 16#00.
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+:return: ``SMALLER``: ``data`` is smaller than ``dataToCompare``, 
+``EQUAL``: ``data`` is equal to ``dataToCompare``,
+``Greater``: ``data`` is greater to ``dataToCompare``
+
+*)
+
+METHOD PROTECTED compareBytewise :CNM_ReturnTypes.ComparationResult
+VAR_INPUT
+	(* current binary data *)
+	data			:POINTER TO BYTE;
+	(* current binary data to compare *)
+	dataToCompare	:POINTER TO BYTE;
+	(* size to compare in bytes, it must be smaller or equal to the smaller size of both data *)
+	size			:DINT;
+	(* last address to comapre *)
+	end				:LINT;
+END_VAR
+VAR
+	(* index of the current address *)
+	pointerIndex	:LINT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[compareBytewise := CNM_ReturnTypes.ComparationResult.EQUAL;
+
+FOR pointerIndex := (size-1) TO end BY THIS^.DIRECTION_LE DO
+	IF (data[pointerIndex] < dataToCompare[pointerIndex]) THEN
+		compareBytewise := CNM_ReturnTypes.ComparationResult.SMALLER;
+		RETURN;
+	ELSIF (data[pointerIndex] > dataToCompare[pointerIndex]) THEN
+		compareBytewise := CNM_ReturnTypes.ComparationResult.GREATER;
+		RETURN;
+	END_IF
+END_FOR;
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="compareData" Id="{1389599e-a087-4365-b3b7-e20c49cb4e46}" FolderPath="protected\">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This method comapres the data of two byte pointers.
+It tries to compare registerwise if it makes sens (pointers are aligned and size big enough)
+The table below shows with some examples how it works.
+
++-------------------+------------------+----------------------------+---------------------------+---------------------------------------+
+| **value of data** | **size of data** | **value of dataToCompare** | **size of dataToCompare** | **CNM_ReturnTypes.ComparationResult** |
++===================+==================+============================+===========================+=======================================+
+| 16#00FF           | 2                | 16#FF                      | 1                         | EQUAL                                 |
++-------------------+------------------+----------------------------+---------------------------+---------------------------------------+
+| 16#0100           | 2                | 16#FF                      | 1                         | GREATER                               |
++-------------------+------------------+----------------------------+---------------------------+---------------------------------------+
+| 16#FF             | 1                | 16#0100                    | 2                         | SMALLER                               |
++-------------------+------------------+----------------------------+---------------------------+---------------------------------------+
+| 16#FF             | 1                | 16#00FF                    | 2                         | EQUAL                                 |
++-------------------+------------------+----------------------------+---------------------------+---------------------------------------+
+| 16#0FF0           | 2                | 16#F00F                    | 2                         | SMALLER                               |
++-------------------+------------------+----------------------------+---------------------------+---------------------------------------+
+
+.. attention:: 
+	Binary comparison means it compares values byte by byte, regardless of type information (signs, ``REAL`` etc...)
+	and it compares padding bytes, too.
+
+.. attention:: 
+	``STRING`` and ``WSTRING`` is null terminated
+	that means TwinCAT sets null byte/word at the end of the string and touches nothing else
+	For example ``foo :STRING(3) := 'foo';`` looks binary 16#66 16#6F 16#6F 16#00.
+	if you set foo to an empty string ``foo := ''`` it looks like 16#00 16#6F 16#6F 16#00.
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+:return: ``SMALLER``: ``data`` is smaller than ``dataToCompare``, 
+``EQUAL``: ``data`` is equal to ``dataToCompare``,
+``Greater``: ``data`` is greater to ``dataToCompare``
+
+*)
+
+METHOD PROTECTED compareData :CNM_ReturnTypes.ComparationResult
+VAR_INPUT
+	(* current binary data *)
+	data			:POINTER TO BYTE;
+	(* current binary data to compare *)
+	dataToCompare	:POINTER TO BYTE;
+	(* size to compare in bytes, it must be smaller or equal to the smaller size of both data *)
+	size			:DINT;
+END_VAR
+VAR
+	(* just a flag to store if both pointer addresses are aligned *)
+	arePointersAligned			:BOOL;
+	(* number of remaining bytes if it iterates regiterwise through the data*)
+	remainingBytes				:DINT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[arePointersAligned := (THIS^.isPointerAligend(data) AND THIS^.isPointerAligend(dataToCompare));
+
+IF (arePointersAligned AND (size >= THIS^.REGISTER_SIZE)) THEN
+	remainingBytes := THIS^.getRemainingBytes(size);
+	IF (remainingBytes > THIS^.ZERO_SIZE) THEN
+		compareData := THIS^.compareBytewise(
+			data := data,
+			dataToCompare := dataToCompare,
+			size := size,
+			end := (size - remainingBytes)
+		);
+		RETURN (compareData <> CNM_ReturnTypes.ComparationResult.EQUAL);
+	END_IF
+	compareData := THIS^.compareRegisterwise(
+		data := data,
+		dataToCompare := dataToCompare,
+		size := (size - remainingBytes)
+	);	
+ELSE	
+	compareData := THIS^.compareBytewise(
+		data := data,
+		dataToCompare := dataToCompare,
+		size := size,
+		end := THIS^.FIRST_DATA
+	);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="compareRegisterwise" Id="{fdfa35d2-7caa-44de-a9aa-57b222af0f20}" FolderPath="protected\">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This method comapres the data of two byte pointers, but it iterates registerwise through the data.
+The table below shows with some examples how it works.
+
++------------------------+----------------------------+----------+---------------------------------------+
+|    **value of data**   | **value of dataToCompare** | **size** | **CNM_ReturnTypes.ComparationResult** |
++========================+============================+==========+=======================================+
+| 16#00FF_FFFF_0000_FFFF | 16#00FF_FFFF_0000_FFFF     | 8        | EQUAL                                 |
++------------------------+----------------------------+----------+---------------------------------------+
+| 16#00FF_FFFF_0000_FFFF | 16#80FF_FFFF_0000_FFFF     | 8        | SMALLER                               |
++------------------------+----------------------------+----------+---------------------------------------+
+| 16#80FF_FFFF_0000_FFFF | 16#00FF_FFFF_0000_FFFF     | 8        | GREATER                               |
++------------------------+----------------------------+----------+---------------------------------------+
+| 16#FFFF_FFFF_0000_FFFF | 16#FFFF_FFFF_0000_FFFF     | 8        | EQUAL                                 |
++------------------------+----------------------------+----------+---------------------------------------+
+| 16#80FF_FFFF_0000_FFFF | 16#70FF_FFFF_FFFF_FFFF     | 8        | GREATER                               |
++------------------------+----------------------------+----------+---------------------------------------+
+| 16#70FF_FFFF_FFFF_FFFF | 16#80FF_FFFF_0000_FFFF     | 8        | SMALLER                               |
++------------------------+----------------------------+----------+---------------------------------------+
+
+.. attention:: 
+	Binary comparison means it compares values register by register, regardless of type information (signs, ``REAL`` etc...)
+	and it compares padding bytes, too.
+
+.. attention:: 
+	``STRING`` and ``WSTRING`` is null terminated
+	that means TwinCAT sets null byte/word at the end of the string and touches nothing else
+	For example ``foo :STRING(3) := 'foo';`` looks binary 16#66 16#6F 16#6F 16#00.
+	if you set foo to an empty string ``foo := ''`` it looks like 16#00 16#6F 16#6F 16#00.
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+:return: ``SMALLER``: ``data`` is smaller than ``dataToCompare``, 
+``EQUAL``: ``data`` is equal to ``dataToCompare``,
+``Greater``: ``data`` is greater to ``dataToCompare``
+
+*)
+
+METHOD PROTECTED compareRegisterwise :CNM_ReturnTypes.ComparationResult
+VAR_INPUT
+	(* current binary data *)
+	data			:POINTER TO __XWORD;
+	(* current binary data to compare *)
+	dataToCompare	:POINTER TO __XWORD;
+	(* size to compare in bytes, size must be a muliple of register size *)
+	size			:DINT;
+END_VAR
+VAR
+	(* index of the current address *)
+	pointerIndex	:LINT;
+END_VAR
+VAR CONSTANT
+	(* direction for little endian *)
+	DIRECTION_LE	:LINT := -1;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[compareRegisterwise := CNM_ReturnTypes.ComparationResult.EQUAL;
+
+FOR pointerIndex := (((size)/THIS^.REGISTER_SIZE)-1) TO THIS^.FIRST_DATA BY THIS^.DIRECTION_LE DO
+	IF (data[pointerIndex] < dataToCompare[pointerIndex]) THEN
+		compareRegisterwise := CNM_ReturnTypes.ComparationResult.SMALLER;
+		RETURN;
+	ELSIF (data[pointerIndex] > dataToCompare[pointerIndex]) THEN
+		compareRegisterwise := CNM_ReturnTypes.ComparationResult.GREATER;
+		RETURN;
+	END_IF
+END_FOR;
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="getRemainingBytes" Id="{cd25364d-6567-44e8-afdd-85b13f461d28}" FolderPath="protected\">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This method calculates the number of bytes that are remaining
+if size is devided by register size.
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+:return: number of bytes that are remaining if it iterates registerwise through the data
+
+*)
+
+METHOD PROTECTED getRemainingBytes :DINT
+VAR_INPUT
+	(* size in bytes *)
+	size			:DINT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[getRemainingBytes := (size MOD THIS^.REGISTER_SIZE);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="isDataZero" Id="{7a11a03c-fde8-4344-9da4-ec890608b7f3}" FolderPath="protected\">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This method checks if the data of a pointer is zero through all bytes (``size-1``)
+
++------------------------+----------+---------+------------------+
+|    **value of data**   | **size** | **end** | **return value** |
++========================+==========+=========+==================+
+| 16#00FF_FFFF_0000_0000 | 8        | 7       | TRUE             |
++------------------------+----------+---------+------------------+
+| 16#00FF_FFFF_0000_0000 | 8        | 6       | FALSE            |
++------------------------+----------+---------+------------------+
+| 16#80FF_FFFF_0000_0000 | 8        | 7       | FALSE            |
++------------------------+----------+---------+------------------+
+| 16#0000_0000_0000_FFFF | 8        | 2       | TRUE             |
++------------------------+----------+---------+------------------+
+| 16#0000_0000_0000_FFFF | 8        | 1       | FALSE            |
++------------------------+----------+---------+------------------+
+| 16#70FF_FFFF_FFFF_FFFF | 8        | 8       | TRUE             |
++------------------------+----------+---------+------------------+
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+:return: ``TRUE`` all bytes are zero, ``FALSE`` at least one byte isn't zero
+
+*)
+
+METHOD PROTECTED isDataZero :BOOL
+VAR_INPUT
+	(* current binary data *)
+	data			:POINTER TO BYTE;
+	(* size to compare in bytes *)
+	size			:DINT;
+	(* last address to comapre *)
+	end				:LINT;	
+END_VAR
+VAR
+	isPointerAligned			:BOOL;
+	remainingBytes				:DINT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[isPointerAligned := THIS^.isPointerAligend(data);
+
+IF (isPointerAligned AND ((size-end) >= THIS^.REGISTER_SIZE)) THEN;
+	remainingBytes := THIS^.getRemainingBytes(size);
+	IF (remainingBytes > THIS^.ZERO_SIZE) THEN
+		isDataZero := THIS^.isDataZeroBytewise(
+			data := data,
+			size := size,
+			end := (size - remainingBytes)
+		);
+		RETURN (NOT isDataZero);
+	END_IF
+	isDataZero := THIS^.isDataZeroRegisterwise(
+		data := data,
+		size := (size - remainingBytes),
+		end := end
+	);	
+ELSE	
+	isDataZero := THIS^.isDataZeroBytewise(
+		data := data,
+		size := size,
+		end := end
+	);
+END_IF;
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="isDataZeroBytewise" Id="{3d402eb0-6a63-48ec-b8e1-874b0af5d8de}" FolderPath="protected\">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This method checks if the data of a byte pointer is zero through all bytes form (``size-1``) to ``end``.
+The table below shows how it works.
+
++------------------------+----------+---------+------------------+
+|    **value of data**   | **size** | **end** | **return value** |
++========================+==========+=========+==================+
+| 16#00FF_FFFF_0000_0000 | 8        | 7       | TRUE             |
++------------------------+----------+---------+------------------+
+| 16#00FF_FFFF_0000_0000 | 8        | 6       | FALSE            |
++------------------------+----------+---------+------------------+
+| 16#80FF_FFFF_0000_0000 | 8        | 7       | FALSE            |
++------------------------+----------+---------+------------------+
+| 16#0000_0000_0000_FFFF | 8        | 2       | TRUE             |
++------------------------+----------+---------+------------------+
+| 16#0000_0000_0000_FFFF | 8        | 1       | FALSE            |
++------------------------+----------+---------+------------------+
+| 16#70FF_FFFF_FFFF_FFFF | 8        | 8       | TRUE             |
++------------------------+----------+---------+------------------+
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+:return: ``TRUE`` all bytes are zero, ``FALSE`` at least one byte isn't zero
+
+*)
+
+METHOD PROTECTED isDataZeroBytewise :BOOL
+VAR_INPUT
+	(* current binary data *)
+	data			:POINTER TO BYTE;
+	(* size to compare in bytes *)
+	size			:DINT;
+	(* last index to comapre *)
+	end				:LINT;
+END_VAR
+VAR
+	(* index of the current address *)
+	pointerIndex	:LINT;
+END_VAR
+VAR CONSTANT
+	NULL			:BYTE := 16#00;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[isDataZeroBytewise := TRUE;
+
+FOR pointerIndex := (size-1) TO end BY THIS^.DIRECTION_LE DO
+	IF (data[pointerIndex] <> NULL) THEN
+		isDataZeroBytewise := FALSE;
+		RETURN;
+	END_IF
+END_FOR;
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="isDataZeroRegisterwise" Id="{b93fcdd4-3aa8-46e9-9eae-5349f06f3fdb}" FolderPath="protected\">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This method checks if the data of a ``__XWORD pointer`` is zero
+through all bytes form (``size-1``) to ``end``.
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+:return: ``TRUE`` all bytes are zero, ``FALSE`` at least one byte isn't zero
+
+*)
+
+METHOD PROTECTED isDataZeroRegisterwise :BOOL
+VAR_INPUT
+	(* current binary data *)
+	data			:POINTER TO __XWORD;
+	(* size to compare in bytes *)
+	size			:DINT;
+	(* last address to comapre *)
+	end				:LINT;
+END_VAR
+VAR
+	(* index of the current address *)
+	pointerIndex	:LINT;
+END_VAR
+VAR CONSTANT
+	NULL			:__XWORD := 0;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[isDataZeroRegisterwise := TRUE;
+
+FOR pointerIndex := (size-1) TO end BY THIS^.DIRECTION_LE DO
+	IF (data[pointerIndex] <> NULL) THEN
+		isDataZeroRegisterwise := FALSE;
+		RETURN;
+	END_IF
+END_FOR;
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="isEqualTo" Id="{dc268479-c6e3-4f06-ab1e-6d3c8e20c01a}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if all bytes of memory of
+``data`` and ``dataToCompare`` are equal
+
+.. attention:: 
+	Binary comparison means it compares values byte by byte, regardless of type information (signs, ``REAL`` etc...)
+	and it compares padding bytes, too.
+
+.. attention:: 
+	``STRING`` and ``WSTRING`` is null terminated
+	that means TwinCAT sets null byte/word at the end of the string and touches nothing else
+	For example ``foo :STRING(3) := 'foo';`` looks binary 16#66 16#6F 16#6F 16#00.
+	if you set foo to an empty string ``foo := ''`` it looks like 16#00 16#6F 16#6F 16#00.
+
+.. attention:: 
+	It works not for bits because the minimum size must be at least one byte. If the ``__SYSTEM.TYPE_CLASS``
+	of ``data`` ``AND`` ``dataToCompare is ``__SYSTEM.TYPE_CLASS.TYPE_BOOL`` ``OR`` ``__SYSTEM.TYPE_CLASS.TYPE_BIT``
+	it uses the ``TO_BOOL`` operator for comarison. That means for ``__SYSTEM.TYPE_CLASS.TYPE_BIT`` it has no idea
+	if the single ``BIT`` is set or unset, it compares just the whole ``BYTE``.
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD isEqualTo
+VAR_INPUT
+	(* current binary data *)
+	data			:ANY;
+	(* binary data with the expected values *)
+	dataToCompare	:ANY;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (THIS^.binaryCompare(data, dataToCompare) <> CNM_ReturnTypes.ComparationResult.EQUAL) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('isEqualTo'));
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="isGreaterThan" Id="{f3e319da-09b0-4c85-9538-96e4cc2c6ace}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks the bytes of memory of
+``data`` and ``dataToCompare`` if the content of the first unequal
+``data`` byte is greater than the byte of ``dataToCompare``
+the assertion is true. Direction of comaprison is little endian.
+
+.. attention:: 
+	Binary comparison means it compares values byte by byte, regardless of type information (signs, ``REAL`` etc...)
+	and it compares padding bytes, too.
+
+.. attention:: 
+	``STRING`` and ``WSTRING`` is null terminated
+	that means TwinCAT sets null byte/word at the end of the string and touches nothing else
+	For example ``foo :STRING(3) := 'foo';`` looks binary 16#66 16#6F 16#6F 16#00.
+	if you set foo to an empty string ``foo := ''`` it looks like 16#00 16#6F 16#6F 16#00.
+
+.. attention:: 
+	It works not for bits because the minimum size must be at least one byte. If the ``__SYSTEM.TYPE_CLASS``
+	of ``data`` ``AND`` ``dataToCompare is ``__SYSTEM.TYPE_CLASS.TYPE_BOOL`` ``OR`` ``__SYSTEM.TYPE_CLASS.TYPE_BIT``
+	it uses the ``TO_BOOL`` operator for comarison. That means for ``__SYSTEM.TYPE_CLASS.TYPE_BIT`` it has no idea
+	if the single ``BIT`` is set or unset, it compares just the whole ``BYTE``.
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD isGreaterThan
+VAR_INPUT
+	(* current binary data *)
+	data			:ANY;
+	(* binary data with smaller values *)
+	dataToCompare	:ANY;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (THIS^.binaryCompare(data, dataToCompare) <> CNM_ReturnTypes.ComparationResult.GREATER) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('isGreaterThan'));
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="isLessThan" Id="{2aeb4fc0-f751-4513-a70f-812386b6718e}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks the bytes of memory of
+``data`` and ``dataToCompare`` if the content of the first unequal
+``data`` byte is less than the byte of ``dataToCompare``
+the assertion is true. Direction of comaprison is little endian.
+
+.. <legal notes>
+
+.. attention:: 
+	Binary comparison means it compares values byte by byte, regardless of type information (signs, ``REAL`` etc...)
+	and it compares padding bytes, too.
+
+.. attention:: 
+	``STRING`` and ``WSTRING`` is null terminated
+	that means TwinCAT sets null byte/word at the end of the string and touches nothing else
+	For example ``foo :STRING(3) := 'foo';`` looks binary 16#66 16#6F 16#6F 16#00.
+	if you set foo to an empty string ``foo := ''`` it looks like 16#00 16#6F 16#6F 16#00.
+
+.. attention:: 
+	It works not for bits because the minimum size must be at least one byte. If the ``__SYSTEM.TYPE_CLASS``
+	of ``data`` ``AND`` ``dataToCompare is ``__SYSTEM.TYPE_CLASS.TYPE_BOOL`` ``OR`` ``__SYSTEM.TYPE_CLASS.TYPE_BIT``
+	it uses the ``TO_BOOL`` operator for comarison. That means for ``__SYSTEM.TYPE_CLASS.TYPE_BIT`` it has no idea
+	if the single ``BIT`` is set or unset, it compares just the whole ``BYTE``.
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD isLessThan
+VAR_INPUT
+	(* current binary data *)
+	data			:ANY;
+	(* binary data with greater values *)
+	dataToCompare	:ANY;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (THIS^.binaryCompare(data, dataToCompare) <> CNM_ReturnTypes.ComparationResult.SMALLER) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('isLessThan'));
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="isNotEqualTo" Id="{6c45cfea-9c5a-4b19-8227-7c0b71df293d}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if minimal one byte of memory of
+``data`` and ``dataToCompare`` is not equal
+
+.. attention:: 
+	Binary comparison means it compares values byte by byte, regardless of type information (signs, ``REAL`` etc...)
+	and it compares padding bytes, too.
+
+.. attention:: 
+	``STRING`` and ``WSTRING`` is null terminated
+	that means TwinCAT sets null byte/word at the end of the string and touches nothing else
+	For example ``foo :STRING(3) := 'foo';`` looks binary 16#66 16#6F 16#6F 16#00.
+	if you set foo to an empty string ``foo := ''`` it looks like 16#00 16#6F 16#6F 16#00.
+
+.. attention:: 
+	It works not for bits because the minimum size must be at least one byte. If the ``__SYSTEM.TYPE_CLASS``
+	of ``data`` ``AND`` ``dataToCompare is ``__SYSTEM.TYPE_CLASS.TYPE_BOOL`` ``OR`` ``__SYSTEM.TYPE_CLASS.TYPE_BIT``
+	it uses the ``TO_BOOL`` operator for comarison. That means for ``__SYSTEM.TYPE_CLASS.TYPE_BIT`` it has no idea
+	if the single ``BIT`` is set or unset, it compares just the whole ``BYTE``.
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD isNotEqualTo
+VAR_INPUT
+	(* current binary data *)
+	data			:ANY;
+	(* binary data with the unexpected values *)
+	dataToCompare	:ANY;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (THIS^.binaryCompare(data, dataToCompare) = CNM_ReturnTypes.ComparationResult.EQUAL) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('isNotEqualTo'));
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="isPointerAligend" Id="{e4f327ee-0899-4b91-b56c-200a0857d280}" FolderPath="protected\">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This method checks if an address is aligned to a register
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+:return: ``TRUE`` pointer address **is** aligned to a register,
+``FALSE`` pointer address **isn't** aligned to a register
+
+*)
+
+METHOD PROTECTED isPointerAligend :BOOL
+VAR_INPUT
+	(* address to check *)
+	in :PVOID;
+END_VAR
+VAR CONSTANT
+	(* 
+	for 32 bit systems address is aligned if 2#111 is unset,
+	for 64 bit systems address is aligned if 2#1111 is unset
+	*)
+	ALIGNMENT_MASK	:__XWORD := (SIZEOF(__XWORD)-1);
+	(* just to check if relevant bits unset *)
+	WELL_ALIGNED	:__XWORD := 0;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[isPointerAligend := ((in AND ALIGNMENT_MASK) = WELL_ALIGNED);
+]]></ST>
+      </Implementation>
+    </Method>
+    <LineIds Name="BinaryAssertions">
+      <LineId Id="9" Count="0" />
+    </LineIds>
+    <LineIds Name="BinaryAssertions.binaryCompare">
+      <LineId Id="45" Count="14" />
+      <LineId Id="66" Count="3" />
+      <LineId Id="71" Count="3" />
+      <LineId Id="70" Count="0" />
+      <LineId Id="75" Count="16" />
+      <LineId Id="157" Count="0" />
+      <LineId Id="161" Count="0" />
+      <LineId Id="163" Count="4" />
+      <LineId Id="169" Count="2" />
+      <LineId Id="162" Count="0" />
+      <LineId Id="172" Count="1" />
+      <LineId Id="175" Count="1" />
+      <LineId Id="174" Count="0" />
+      <LineId Id="60" Count="5" />
+      <LineId Id="24" Count="0" />
+      <LineId Id="92" Count="0" />
+    </LineIds>
+    <LineIds Name="BinaryAssertions.className.Get">
+      <LineId Id="5" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="BinaryAssertions.compareBytewise">
+      <LineId Id="55" Count="10" />
+      <LineId Id="28" Count="0" />
+    </LineIds>
+    <LineIds Name="BinaryAssertions.compareData">
+      <LineId Id="157" Count="0" />
+      <LineId Id="160" Count="16" />
+      <LineId Id="178" Count="7" />
+      <LineId Id="22" Count="0" />
+    </LineIds>
+    <LineIds Name="BinaryAssertions.compareRegisterwise">
+      <LineId Id="86" Count="10" />
+      <LineId Id="28" Count="0" />
+    </LineIds>
+    <LineIds Name="BinaryAssertions.getRemainingBytes">
+      <LineId Id="5" Count="0" />
+      <LineId Id="8" Count="0" />
+    </LineIds>
+    <LineIds Name="BinaryAssertions.isDataZero">
+      <LineId Id="5" Count="0" />
+      <LineId Id="26" Count="5" />
+      <LineId Id="33" Count="6" />
+      <LineId Id="41" Count="0" />
+      <LineId Id="50" Count="0" />
+      <LineId Id="42" Count="3" />
+      <LineId Id="47" Count="2" />
+      <LineId Id="25" Count="0" />
+      <LineId Id="51" Count="0" />
+    </LineIds>
+    <LineIds Name="BinaryAssertions.isDataZeroBytewise">
+      <LineId Id="55" Count="5" />
+      <LineId Id="64" Count="1" />
+      <LineId Id="28" Count="0" />
+    </LineIds>
+    <LineIds Name="BinaryAssertions.isDataZeroRegisterwise">
+      <LineId Id="55" Count="5" />
+      <LineId Id="64" Count="1" />
+      <LineId Id="28" Count="0" />
+    </LineIds>
+    <LineIds Name="BinaryAssertions.isEqualTo">
+      <LineId Id="162" Count="0" />
+      <LineId Id="285" Count="1" />
+      <LineId Id="38" Count="0" />
+    </LineIds>
+    <LineIds Name="BinaryAssertions.isGreaterThan">
+      <LineId Id="251" Count="2" />
+      <LineId Id="215" Count="0" />
+    </LineIds>
+    <LineIds Name="BinaryAssertions.isLessThan">
+      <LineId Id="209" Count="1" />
+      <LineId Id="173" Count="0" />
+      <LineId Id="39" Count="0" />
+    </LineIds>
+    <LineIds Name="BinaryAssertions.isNotEqualTo">
+      <LineId Id="189" Count="2" />
+      <LineId Id="155" Count="0" />
+    </LineIds>
+    <LineIds Name="BinaryAssertions.isPointerAligend">
+      <LineId Id="5" Count="0" />
+      <LineId Id="13" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

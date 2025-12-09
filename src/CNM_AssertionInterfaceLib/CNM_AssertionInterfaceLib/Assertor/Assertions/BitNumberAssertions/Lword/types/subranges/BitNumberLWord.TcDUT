@@ -1,0 +1,35 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.11">
+  <DUT Name="BitNumberLWord" Id="{01c3dabd-5a1a-4b75-b753-1aa4914b32b4}">
+    <Declaration><![CDATA[(*
+
+short summary
+=================
+| BitNumberLWord is an alias of ``USINT(0..63)``.
+| This data type exists so that no one can provoke an overflow of the bit numbers.
+| It's used as parameter of 
+| :ref:`ILwordAssertions.bitXIsEqualTo` 
+| :ref:`ILwordAssertions.bitXIsNotEqualTo` 
+| :ref:`ILwordAssertions.bitXIsSet` 
+| :ref:`ILwordAssertions.bitXIsUnset` 
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+TYPE
+	BitNumberLWord :USINT(0..63);
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

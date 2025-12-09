@@ -1,0 +1,188 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <GVL Name="IsLengthBetweenDataSet" Id="{ccde1b7b-ec8d-44bb-b36c-4b3307074440}">
+    <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+{warning 'header is generated please add your documentation'}
+{attribute 'qualified_only'}
+VAR_GLOBAL CONSTANT
+	SIZE_OF_LENGTHBETWEEN_DATASET:USINT := 18;
+END_VAR
+
+VAR_GLOBAL
+	isLenghtBetweenToDataSetCommon : ARRAY[0..SIZE_OF_LENGTHBETWEEN_DATASET] OF IsLengthBetweenBasicData := [
+		// test number 0
+		( 	StringToTest	:= 'hello',
+			WStringToTest	:= "hello",
+			ExpectedResult 	:= FALSE,
+			maxLength		:= 9,
+			minLength		:= 3,
+			typeToTest      :=  TypeToTest.TEST_WSTRING   )	,
+
+		// test number 1
+		( 	StringToTest	:= 'привет',
+			WStringToTest	:= "привет",
+			ExpectedResult 	:= FALSE,
+			maxLength		:= 9,
+			minLength		:= 3,
+			typeToTest      :=  TypeToTest.TEST_WSTRING   ),	
+
+		// test number 2
+		( 	StringToTest	:= 'hello',
+			WStringToTest	:= "hello",
+			ExpectedResult 	:= FALSE,
+			maxLength		:= 9,
+			minLength		:= 3,
+			typeToTest      :=  TypeToTest.TEST_STRING   ),
+
+		// test number 3
+		( 	StringToTest	:= 'привет',
+			WStringToTest	:= "привет",
+			ExpectedResult 	:= FALSE,
+			maxLength		:= 9,
+			minLength		:= 3,
+			typeToTest      :=  TypeToTest.TEST_STRING   ),
+
+		// test number 4
+		( 	StringToTest	:= '',
+			WStringToTest	:= "",
+			ExpectedResult 	:= FALSE,
+			maxLength		:= 1,
+			minLength		:= 0,
+			typeToTest      :=  TypeToTest.TEST_STRING   ),
+			
+		// test number 5
+		( 	StringToTest	:= '   ',
+			WStringToTest	:= "   ",
+			ExpectedResult 	:= FALSE,
+			maxLength		:= 4,
+			minLength		:= 0,
+			typeToTest      :=  TypeToTest.TEST_STRING   ),
+			
+		// test number 6
+		( 	StringToTest	:= 'computer',
+			WStringToTest	:= "computer",
+			ExpectedResult 	:= TRUE,
+			maxLength		:= 4,
+			minLength		:= 0,
+			typeToTest      :=  TypeToTest.TEST_STRING   ),
+			
+		// test number 7
+		( 	StringToTest	:= 'העלא',
+			WStringToTest	:= "העלא",
+			ExpectedResult 	:= TRUE,
+			maxLength		:= 2,
+			minLength		:= 0,
+			typeToTest      :=  TypeToTest.TEST_STRING   ),
+
+		// test number 8
+		( 	StringToTest	:= '',
+			WStringToTest	:= "",
+			ExpectedResult 	:= FALSE,
+			maxLength		:= 1,
+			minLength		:= 0,
+			typeToTest      :=  TypeToTest.TEST_WSTRING   ),
+			
+		// test number 9
+		( 	StringToTest	:= '   ',
+			WStringToTest	:= "   ",
+			ExpectedResult 	:= FALSE,
+			maxLength		:= 4,
+			minLength		:= 0,
+			typeToTest      :=  TypeToTest.TEST_WSTRING   ),
+			
+		// test number 10
+		( 	StringToTest	:= 'computer',
+			WStringToTest	:= "computer",
+			ExpectedResult 	:= TRUE,
+			maxLength		:= 4,
+			minLength		:= 0,
+			typeToTest      :=  TypeToTest.TEST_WSTRING   ),
+			
+		// test number 11
+		( 	StringToTest	:= 'העלא',
+			WStringToTest	:= "העלא",
+			ExpectedResult 	:= TRUE,
+			maxLength		:= 2,
+			minLength		:= 0,
+			typeToTest      :=  TypeToTest.TEST_WSTRING   ),
+			
+		// test number 12
+		( 	StringToTest	:= 'העלא',
+			WStringToTest	:= "העלא",
+			ExpectedResult 	:= TRUE,
+			maxLength		:= 2,
+			minLength		:= 0,
+			typeToTest      :=  TypeToTest.TEST_WSTRING   ),
+
+		// test number 13
+		( 	StringToTest	:= 'העלא asdsda  sadad',
+			WStringToTest	:= "העלא asdsda  sadad",
+			ExpectedResult 	:= FALSE,
+			maxLength		:= 20,
+			minLength		:= 10,
+			typeToTest      :=  TypeToTest.TEST_WSTRING   ),
+
+		// test number 14
+		( 	StringToTest	:= 'העלא asdsda  sadad',
+			WStringToTest	:= "העלא asdsda  sadad",
+			ExpectedResult 	:= FALSE,
+			maxLength		:= 20,
+			minLength		:= 10,
+			typeToTest      :=  TypeToTest.TEST_STRING   ),
+
+		// test number 15
+		( 	StringToTest	:= '',
+			WStringToTest	:= "👩‍🔧",
+			ExpectedResult 	:= FALSE,
+			maxLength		:= 10,
+			minLength		:= 0,
+			typeToTest      :=  TypeToTest.TEST_WSTRING   ),
+
+		// test number 16
+		( 	StringToTest	:= '',
+			WStringToTest	:= "👩‍🔧",
+			ExpectedResult 	:= TRUE,
+			maxLength		:= 2,
+			minLength		:= 0,
+			typeToTest      :=  TypeToTest.TEST_WSTRING   ),
+
+		// test number 17
+		( 	StringToTest	:= '595',
+			WStringToTest	:= "595",
+			ExpectedResult 	:= FALSE,
+			maxLength		:= 5,
+			minLength		:= 2,
+			typeToTest      :=  TypeToTest.TEST_WSTRING  ),	
+
+		// test number 18
+		( 	StringToTest	:= '595',
+			WStringToTest	:= "595",
+			ExpectedResult 	:= FALSE,
+			maxLength		:= 5,
+			minLength		:= 2,
+			typeToTest      :=  TypeToTest.TEST_STRING  )
+
+		
+			
+	];
+END_VAR]]></Declaration>
+  </GVL>
+</TcPlcObject>

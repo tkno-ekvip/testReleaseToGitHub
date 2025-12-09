@@ -1,0 +1,171 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.11">
+  <Itf Name="IBitNumberAssertions" Id="{895eff78-c4a0-4ee1-bf26-cc1689b19a34}">
+    <Declaration><![CDATA[(*
+
+short summary
+=================
+| This interface provides assert statements for bit numbers:
+| For ``BYTE`` use :ref:`IBitNumberAssertions.short`
+| For ``WORD`` use :ref:`IBitNumberAssertions.simple`
+| For ``DWORD`` use :ref:`IBitNumberAssertions.double`
+| For ``LWORD`` use :ref:`IBitNumberAssertions.long`
+| For ``__XWORD`` use :ref:`IBitNumberAssertions.x`
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+properties
+==================
+
+*)
+
+INTERFACE IBitNumberAssertions EXTENDS __SYSTEM.IQueryInterface
+]]></Declaration>
+    <Property Name="double" Id="{be1b6755-03f0-4cbb-a198-494b2784a469}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+Returns the interface :ref:`IDwordAssertions`
+with assert statements for double words ``DWORD`` 
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+PROPERTY double :IDwordAssertions]]></Declaration>
+      <Get Name="Get" Id="{9bb9bd76-3cd4-45fa-bebb-9931a6ea8f2b}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Property Name="long" Id="{587dc4f8-0531-41fd-91e8-27e69dd7baa7}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+Returns the interface :ref:`ILwordAssertions`
+with assert statements for long words ``LWORD`` 
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+PROPERTY long :ILwordAssertions]]></Declaration>
+      <Get Name="Get" Id="{3adf3dfa-6af4-46d9-bdf0-3cee1a719f38}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Property Name="short" Id="{f4237945-ec7b-48b7-9410-edfa9257f61f}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+Returns the interface :ref:`IByteAssertions`
+with assert statements for bytes
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+PROPERTY short :IByteAssertions
+]]></Declaration>
+      <Get Name="Get" Id="{eb6215df-d0dd-4ad2-bd11-9c7cc998a599}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Property Name="simple" Id="{3b50a78e-7cc9-4c5d-88fa-05ea12958332}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+Returns the interface :ref:`IWordAssertions`
+with assert statements for words 
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+PROPERTY simple :IWordAssertions]]></Declaration>
+      <Get Name="Get" Id="{a567337e-c9e4-4dbf-b73f-96f3c582ef2c}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Property Name="x" Id="{94c1e8bf-9196-429a-ac21-956783054882}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+Returns the interface :ref:`IXwordAssertions`
+with assert statements for register length words ``__XWORD``
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+PROPERTY x :IXwordAssertions]]></Declaration>
+      <Get Name="Get" Id="{da951896-3f43-4dbd-8832-1e48c115dcc3}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+  </Itf>
+</TcPlcObject>

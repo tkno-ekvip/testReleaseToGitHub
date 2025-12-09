@@ -1,0 +1,290 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="IntValue" Id="{64c7d687-09e1-462d-8ce9-960a3e8a3771}" SpecialFunc="None">
+    <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+methods and properties
+======================
+
+*)
+
+{warning 'header is generated please add your documentation'}
+{attribute 'enable_dynamic_creation'}
+FUNCTION_BLOCK IntValue EXTENDS Object IMPLEMENTS IInt
+VAR
+	myValue	:INT;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Property Name="className" Id="{e816de97-9c72-4857-a165-cce728aa5eb7}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This abstract property returns the class name of the concrete object, 
+which is useful to check the class name for ``__DELETE``.
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+PROPERTY className : CNM_AbstractObject.ClassName
+]]></Declaration>
+      <Get Name="Get" Id="{30f8815a-02bb-452a-a145-b663d3074683}">
+        <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+{warning 'header is generated please add your documentation'}
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="compareTo" Id="{61776a89-e293-4741-8fe4-2f7f614488e7}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This method compares a foreign object with the own one, this is needed for sort orders.
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+:return:``SMALLER``: ``THIS`` precedes in order,
+``EQUAL``: ``THIS`` and ``object`` at the same position in order,
+``GREATER``: ``THIS`` is after in order.
+Checkout the library CNM_ReturnTypes.
+
+*)
+METHOD compareTo : CNM_AbstractObject.CNM_ReturnTypes.ComparationResult
+VAR_INPUT
+	(* foreign objet to compare*)
+	object	: CNM_AbstractObject.IObject;
+END_VAR
+VAR
+	intObject	:IInt;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (__QUERYINTERFACE(object, intObject)) THEN
+	IF (THIS^.value < intObject.value) THEN
+		compareTo := CNM_ReturnTypes.ComparationResult.SMALLER;
+	ELSIF (THIS^.value = intObject.value) THEN
+		compareTo := CNM_ReturnTypes.ComparationResult.EQUAL;
+	ELSE
+		compareTo := CNM_ReturnTypes.ComparationResult.GREATER;
+	END_IF
+ELSE
+	compareTo := CNM_ReturnTypes.ComparationResult.SMALLER;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="FB_init" Id="{c3891304-dff8-4419-b2eb-b9e71da75570}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+The constructor ``FB_init`` is needed to create an unique hash code.
+The hash code is a pseudo random number create with a xorshift_ algorithm.
+It can be overwritten on derivations, because it will be called implicit, ``SUPER^.FB_init()`` is not required.
+For more information check: `Behavoir with derived function blocks`_
+
+.. _Behavoir with derived function blocks: https://infosys.beckhoff.com/content/1033/tc3_plc_intro/5482088715.html?id=6983869892358031022
+.. _xorshift: https://en.wikipedia.org/wiki/Xorshift
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD FB_init
+VAR_INPUT
+	(* if TRUE, the retain variables are initialized (warm start / cold start)*)
+	bInitRetains	:BOOL;
+	(* if TRUE, the instance afterwards gets moved into the copy code (online change) *)
+	bInCopyCode		:BOOL;  
+	(* inital value of class *)
+	initValue		:INT;
+END_VAR
+VAR
+	{attribute 'hide'}
+	newHashstate3		:Hashcode;
+END_VAR
+VAR CONSTANT
+	{attribute 'hide'}
+	NUMBER_OF_LEFT_SHIFTS		:UINT	:= 17;
+	{attribute 'hide'}
+	NUMBER_OF_LEFT_ROTATIONS	:UINT   := 45;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.myValue := initValue;]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="value" Id="{f878c20e-a634-4190-9794-33ed0f188ee1}">
+      <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+{warning 'header is generated please add your documentation'}
+PROPERTY value : INT
+]]></Declaration>
+      <Get Name="Get" Id="{e74eced2-a5b5-4a10-b4c8-e869ba8a542f}">
+        <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+{warning 'header is generated please add your documentation'}
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[value := THIS^.myValue;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{b6be2425-e500-4b4e-8fc0-2bfe1d3730b4}">
+        <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+{warning 'header is generated please add your documentation'}
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[THIS^.myValue := value;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <LineIds Name="IntValue">
+      <LineId Id="9" Count="0" />
+    </LineIds>
+    <LineIds Name="IntValue.className.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="IntValue.compareTo">
+      <LineId Id="38" Count="9" />
+      <LineId Id="34" Count="0" />
+    </LineIds>
+    <LineIds Name="IntValue.FB_init">
+      <LineId Id="47" Count="0" />
+    </LineIds>
+    <LineIds Name="IntValue.value.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="IntValue.value.Set">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

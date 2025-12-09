@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.11">
+  <DUT Name="WordStringUnion" Id="{269e64fa-437e-4f91-80fa-e0ee3febceb6}">
+    <Declaration><![CDATA[TYPE WordStringUnion :
+UNION
+	ValWord	: WORD;
+	ValString	: STRING;
+END_UNION
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

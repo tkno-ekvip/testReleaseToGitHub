@@ -1,0 +1,326 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.11">
+  <POU Name="BitNumberAssertions" Id="{2ead55c8-2e4c-4015-a504-fca6cfad9f9a}" SpecialFunc="None">
+    <Declaration><![CDATA[(*
+
+short summary
+=================
+| This class provides assert statements for bit numbers:
+| It implements the interface :ref:`IBitNumberAssertions`
+| For ``BYTE`` use :ref:`BitNumberAssertions.short`
+| For ``WORD`` use :ref:`BitNumberAssertions.simple`
+| For ``DWORD`` use :ref:`BitNumberAssertions.double`
+| For ``LWORD`` use :ref:`BitNumberAssertions.long`
+| For ``__XWORD`` use :ref:`BitNumberAssertions.x`
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+methods and properties
+=======================
+
+*)
+
+{attribute 'reflection'}
+FUNCTION_BLOCK INTERNAL BitNumberAssertions 
+EXTENDS CNM_AbstractObject.Object 
+IMPLEMENTS IBitNumberAssertions, IAssertCallBacksetter
+VAR
+	(* class to handle byte assertions *)
+	byteAssertions	:ByteAssertions();
+	(* class to handle word assertions *)
+	wordAssertions	:WordAssertions();
+	(* class to handle dword assertions *)
+	dwordAssertions	:DWordAssertions();
+	(* class to handle lword assertions *)
+	lwordAssertions	:LWordAssertions();
+	(* class to handle xword assertions *)
+	xwordAssertions	:XWordAssertions();
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Property Name="className" Id="{9abb6fe9-b2a9-4679-9967-bc9e41c50911}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This abstract property returns the class name of the concrete object, 
+It's for debugging purpose
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+PROPERTY className :CNM_AbstractObject.ClassName]]></Declaration>
+      <Get Name="Get" Id="{3ba0b279-2ae6-4c89-86c1-1f46a8bed2f5}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[className := 'CNM_AssertionInterfaceLib.BitNumberAssertions';
+]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="double" Id="{63de1f3c-a05a-405a-928b-1d33431d394f}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+Returns the interface :ref:`IDwordAssertions`
+with assert statements for double words ``DWORD`` 
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+PROPERTY double :IDwordAssertions
+]]></Declaration>
+      <Get Name="Get" Id="{f2a94e87-41cb-4efc-88d3-d9f355a5a7a4}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[double := THIS^.dwordAssertions;
+]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="long" Id="{061674f5-1b27-48e0-89b5-d84e08998a56}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+Returns the interface :ref:`ILwordAssertions`
+with assert statements for long words ``LWORD`` 
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+PROPERTY long :ILwordAssertions
+]]></Declaration>
+      <Get Name="Get" Id="{dc703786-ff9b-4cd9-a65b-2f9f1314becc}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[long := THIS^.lwordAssertions;
+]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="setCallBack" Id="{d7a0802a-9fa3-4bc2-93e7-fcefe8940580}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This methods is the setter for the callback class if an assertion was false
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD setCallBack
+VAR_INPUT
+	(* the class that must be informed if an assertion is false *)
+	callBack	:IAssertCallback;  
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.byteAssertions.setCallBack(callBack);
+THIS^.wordAssertions.setCallBack(callBack);
+THIS^.dwordAssertions.setCallBack(callBack);
+THIS^.lwordAssertions.setCallBack(callBack);
+THIS^.xwordAssertions.setCallBack(callBack);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="short" Id="{78bcc1e5-6812-459a-bcda-8272509f0579}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+Returns the interface :ref:`IByteAssertions`
+with assert statements for bytes
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+PROPERTY short :IByteAssertions
+]]></Declaration>
+      <Get Name="Get" Id="{685ae73e-1fcc-4f57-921f-4486a545bbac}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[short := THIS^.byteAssertions;
+]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="simple" Id="{9865352b-6ff3-47b1-9160-6c4dc2c87cc0}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+Returns the interface :ref:`IWordAssertions`
+with assert statements for words 
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+PROPERTY simple :IWordAssertions
+]]></Declaration>
+      <Get Name="Get" Id="{a9b30889-2686-45d9-83ab-e28dda14db97}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[simple := THIS^.wordAssertions;
+]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="x" Id="{e9f29fdf-fd4d-42ad-a399-bb25f4312c4a}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+Returns the interface :ref:`IXwordAssertions`
+with assert statements for register length words ``__XWORD``
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+PROPERTY x :IXwordAssertions
+]]></Declaration>
+      <Get Name="Get" Id="{d3268e29-96c0-407d-8b17-3eeecc7e5bfc}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[x := THIS^.xwordAssertions;
+]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <LineIds Name="BitNumberAssertions">
+      <LineId Id="9" Count="0" />
+    </LineIds>
+    <LineIds Name="BitNumberAssertions.className.Get">
+      <LineId Id="5" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="BitNumberAssertions.double.Get">
+      <LineId Id="2" Count="0" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="BitNumberAssertions.long.Get">
+      <LineId Id="2" Count="0" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="BitNumberAssertions.setCallBack">
+      <LineId Id="30" Count="5" />
+    </LineIds>
+    <LineIds Name="BitNumberAssertions.short.Get">
+      <LineId Id="2" Count="0" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="BitNumberAssertions.simple.Get">
+      <LineId Id="2" Count="0" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="BitNumberAssertions.x.Get">
+      <LineId Id="2" Count="0" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

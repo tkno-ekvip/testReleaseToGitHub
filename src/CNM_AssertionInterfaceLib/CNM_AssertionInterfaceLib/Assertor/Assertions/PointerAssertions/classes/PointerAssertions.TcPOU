@@ -1,0 +1,775 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="PointerAssertions" Id="{26a0ce92-84f1-468d-9fe1-b917e2dfc179}" SpecialFunc="None">
+    <Declaration><![CDATA[(*
+
+short summary
+=================
+This class provides assert statements for pointers  
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+methods and properties
+=======================
+
+*)
+
+{attribute 'reflection'}
+FUNCTION_BLOCK PointerAssertions EXTENDS AbstactAssertion IMPLEMENTS IPointerAssertions
+VAR
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Property Name="className" Id="{3b83cf82-b6aa-426d-98fd-a94474afac43}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This abstract property returns the class name of the concrete object, 
+It's for debugging purpose
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+PROPERTY className :CNM_AbstractObject.ClassName]]></Declaration>
+      <Get Name="Get" Id="{f1923636-e634-46a8-895b-4b12e3a796c7}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[className := 'CNM_AssertionInterfaceLib.PointerAssertions';
+]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="isEqualTo" Id="{4a623468-b8c5-43af-af3a-ae6295531a4d}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if ``address1`` and ``address2`` refer to the same object
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD isEqualTo
+VAR_INPUT
+	(* memory address *)
+	address1	:PVOID;
+	(* memory address *)
+	address2	:PVOID;
+	(* message if the assertion is false *)
+	message		:AssertMessage;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (address1 <> address2) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('isEqualTo'));
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="isNotEqualTo" Id="{54c4cb28-3f80-45df-ab44-82d97f69320a}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if ``address1`` and ``address2`` refer not to the same object
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD isNotEqualTo
+VAR_INPUT
+	(* memory address *)
+	address1	:PVOID;
+	(* memory address *)
+	address2	:PVOID;
+	(* message if the assertion is false *)
+	message		:AssertMessage;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (address1 = address2) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('isNotEqualTo'));
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="isNotNull" Id="{cd96bfa3-4cfb-41b2-b219-9b0c0a444683}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if pointer is not null
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD isNotNull
+VAR_INPUT
+	(* memory address *)
+	address	:PVOID;
+	(* message if the assertion is false *)
+	message	:AssertMessage;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (address = 0) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('isNotNull'));
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="isNull" Id="{544670de-ebfc-4740-85f3-1d121f65c90b}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if pointer is null
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD isNull
+VAR_INPUT
+	(* memory address *)
+	address	:PVOID;
+	(* message if the assertion is false *)
+	message	:AssertMessage;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (address <> 0) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('isNull'));
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="isValid" Id="{4d85afcc-514f-4d0b-8ec9-b6734eb2854b}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if pointer is valid.
+That means the pointer and size are not zero,
+the pointer is in a valid area.
+
+.. attention:: 
+	Validity of the pointer will be proofed for 32 bit systems only.
+	For other systems it's an optimistic estimate.
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD isValid
+VAR_INPUT
+	(* memory address *)
+	address		:PVOID;
+	(* number of bytes *)
+	sizeInBytes	:UDINT;
+	(* message if the assertion is false *)
+	message		:AssertMessage;
+END_VAR
+VAR
+	{attribute 'displaymode':='hex'}
+	stackAddress	:__XWORD;
+	{IF hasvalue(RegisterSize, '32')}
+	testPointer		:POINTER TO BYTE := NULL;
+	testByte		:BYTE;
+	exc				: __SYSTEM.ExceptionCode;
+	{END_IF}
+END_VAR
+VAR CONSTANT
+	{attribute 'displaymode':='hex'}
+	NULL :__XWORD := 0;
+	{attribute 'displaymode':='hex'}
+	REGISTER_SIZE :UDINT := SIZEOF(__XWORD);
+	(* 0x400000 is 4096kb and this is the max configurable stack size *)
+	{attribute 'displaymode':='hex'}
+	MAX_STACK_SIZE :__XWORD := 16#0040_0000;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (address = NULL) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('isValid'));
+ELSIF (sizeInBytes <= NULL) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('isValid'));
+ELSIF (Tc2_System.F_CheckMemoryArea(pData := address, nSize := sizeInBytes) = Tc2_System.E_TcMemoryArea.Unknown) THEN
+	stackAddress := ADR(stackAddress);
+	IF (address < ABS(stackAddress - MAX_STACK_SIZE)) THEN
+		THIS^.assertionWasWrong(message, THIS^.getDebugInfo('isValid'));
+	ELSE;
+		{IF hasvalue(RegisterSize, '32')}
+		testPointer := address;
+		{END_IF}
+	END_IF	
+ELSE;
+	{IF hasvalue(RegisterSize, '32')}
+	testPointer := address;
+	{END_IF}
+END_IF
+
+{IF hasvalue(RegisterSize, '32')}
+RETURN (testPointer = NULL);
+__TRY
+	testByte := testPointer^;
+__CATCH(exc)
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('isValid'));
+__ENDTRY
+{END_IF}
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="memoryAreaIsCnc" Id="{37f1e5c3-6d9b-406b-8449-a9977bd4d8c0}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if pointer refers to cnc area
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD memoryAreaIsCnc
+VAR_INPUT
+	(* memory address *)
+	address		:PVOID;
+	(* number of bytes *)
+	sizeInBytes	:UDINT;
+	(* message if the assertion is false *)
+	message		:AssertMessage;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (
+	Tc2_System.F_CheckMemoryArea(
+		pData := address,
+		nSize := sizeInBytes
+	) <> Tc2_System.E_TcMemoryArea.CNC
+) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('memoryAreaIsCnc'));
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="memoryAreaIsDynamic" Id="{079c9284-01fe-40fe-b00c-97291b8dc55f}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if pointer refers to dynamic area
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD memoryAreaIsDynamic
+VAR_INPUT
+	(* memory address *)
+	address		:PVOID;
+	(* number of bytes *)
+	sizeInBytes	:UDINT;
+	(* message if the assertion is false *)
+	message		:AssertMessage;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (
+	Tc2_System.F_CheckMemoryArea(
+		pData := address,
+		nSize := sizeInBytes
+	) <> Tc2_System.E_TcMemoryArea.Dynamic
+) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('memoryAreaIsDynamic'));
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="memoryAreaIsNotCnc" Id="{20bbc746-04de-48d9-b522-d9702a64d96a}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if pointer refers not to cnc area
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD memoryAreaIsNotCnc
+VAR_INPUT
+	(* memory address *)
+	address		:PVOID;
+	(* number of bytes *)
+	sizeInBytes	:UDINT;
+	(* message if the assertion is false *)
+	message		:AssertMessage;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (
+	Tc2_System.F_CheckMemoryArea(
+		pData := address,
+		nSize := sizeInBytes
+	) = Tc2_System.E_TcMemoryArea.CNC
+) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('memoryAreaIsNotCnc'));
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="memoryAreaIsNotDynamic" Id="{0395fb6f-7304-47d0-82a8-761411f58114}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if pointer refers not to dynamic area
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD memoryAreaIsNotDynamic
+VAR_INPUT
+	(* memory address *)
+	address		:PVOID;
+	(* number of bytes *)
+	sizeInBytes	:UDINT;
+	(* message if the assertion is false *)
+	message		:AssertMessage;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (
+	Tc2_System.F_CheckMemoryArea(
+		pData := address,
+		nSize := sizeInBytes
+	) = Tc2_System.E_TcMemoryArea.Dynamic
+) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('memoryAreaIsNotDynamic'));
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="memoryAreaIsNotStatic" Id="{329f55cf-3ab2-4189-8598-9d554de84359}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if pointer refers not to static area
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD memoryAreaIsNotStatic
+VAR_INPUT
+	(* memory address *)
+	address		:PVOID;
+	(* number of bytes *)
+	sizeInBytes	:UDINT;
+	(* message if the assertion is false *)
+	message		:AssertMessage;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (
+	Tc2_System.F_CheckMemoryArea(
+		pData := address,
+		nSize := sizeInBytes
+	) = Tc2_System.E_TcMemoryArea.Static
+) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('memoryAreaIsNotStatic'));
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="memoryAreaIsNotUnkown" Id="{95ccdc3f-cf8c-43ab-9fe0-2ac0cc87ccad}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if pointer is not at memory area unknown
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD memoryAreaIsNotUnkown
+VAR_INPUT
+	(* memory address *)
+	address		:PVOID;
+	(* number of bytes *)
+	sizeInBytes	:UDINT;
+	(* message if the assertion is false *)
+	message		:AssertMessage;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (
+	Tc2_System.F_CheckMemoryArea(
+		pData := address,
+		nSize := sizeInBytes
+	) = Tc2_System.E_TcMemoryArea.Unknown
+) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('memoryAreaIsNotUnkown'));
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="memoryAreaIsStatic" Id="{7d735cd4-b968-41b3-87f1-2705a698bbd1}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if pointer refers to static area
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD memoryAreaIsStatic
+VAR_INPUT
+	(* memory address *)
+	address		:PVOID;
+	(* number of bytes *)
+	sizeInBytes	:UDINT;
+	(* message if the assertion is false *)
+	message		:AssertMessage;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (
+	Tc2_System.F_CheckMemoryArea(
+		pData := address,
+		nSize := sizeInBytes
+	) <> Tc2_System.E_TcMemoryArea.Static
+) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('memoryAreaIsStatic'));
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="memoryAreaIsUnkown" Id="{3731cdf9-9711-436d-97e4-2c40d31deba7}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if pointer refers not to an unknown area
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD memoryAreaIsUnkown
+VAR_INPUT
+	(* memory address *)
+	address		:PVOID;
+	(* number of bytes *)
+	sizeInBytes	:UDINT;
+	(* message if the assertion is false *)
+	message		:AssertMessage;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (
+	Tc2_System.F_CheckMemoryArea(
+		pData := address,
+		nSize := sizeInBytes
+	) <> Tc2_System.E_TcMemoryArea.Unknown
+) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('memoryAreaIsUnkown'));
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <LineIds Name="PointerAssertions">
+      <LineId Id="9" Count="0" />
+    </LineIds>
+    <LineIds Name="PointerAssertions.className.Get">
+      <LineId Id="5" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PointerAssertions.isEqualTo">
+      <LineId Id="34" Count="0" />
+      <LineId Id="38" Count="0" />
+      <LineId Id="36" Count="0" />
+      <LineId Id="39" Count="0" />
+    </LineIds>
+    <LineIds Name="PointerAssertions.isNotEqualTo">
+      <LineId Id="35" Count="1" />
+      <LineId Id="34" Count="0" />
+      <LineId Id="37" Count="0" />
+    </LineIds>
+    <LineIds Name="PointerAssertions.isNotNull">
+      <LineId Id="32" Count="0" />
+      <LineId Id="35" Count="0" />
+      <LineId Id="34" Count="0" />
+      <LineId Id="36" Count="0" />
+    </LineIds>
+    <LineIds Name="PointerAssertions.isNull">
+      <LineId Id="33" Count="1" />
+      <LineId Id="32" Count="0" />
+      <LineId Id="35" Count="0" />
+    </LineIds>
+    <LineIds Name="PointerAssertions.isValid">
+      <LineId Id="37" Count="0" />
+      <LineId Id="49" Count="0" />
+      <LineId Id="40" Count="0" />
+      <LineId Id="50" Count="0" />
+      <LineId Id="42" Count="0" />
+      <LineId Id="132" Count="0" />
+      <LineId Id="137" Count="0" />
+      <LineId Id="51" Count="0" />
+      <LineId Id="140" Count="0" />
+      <LineId Id="169" Count="0" />
+      <LineId Id="141" Count="0" />
+      <LineId Id="170" Count="0" />
+      <LineId Id="138" Count="0" />
+      <LineId Id="142" Count="0" />
+      <LineId Id="171" Count="0" />
+      <LineId Id="143" Count="0" />
+      <LineId Id="172" Count="0" />
+      <LineId Id="39" Count="0" />
+      <LineId Id="154" Count="0" />
+      <LineId Id="145" Count="0" />
+      <LineId Id="166" Count="0" />
+      <LineId Id="148" Count="1" />
+      <LineId Id="151" Count="1" />
+      <LineId Id="150" Count="0" />
+      <LineId Id="146" Count="0" />
+      <LineId Id="91" Count="0" />
+    </LineIds>
+    <LineIds Name="PointerAssertions.memoryAreaIsCnc">
+      <LineId Id="35" Count="6" />
+      <LineId Id="34" Count="0" />
+      <LineId Id="42" Count="0" />
+    </LineIds>
+    <LineIds Name="PointerAssertions.memoryAreaIsDynamic">
+      <LineId Id="35" Count="7" />
+      <LineId Id="34" Count="0" />
+    </LineIds>
+    <LineIds Name="PointerAssertions.memoryAreaIsNotCnc">
+      <LineId Id="35" Count="7" />
+      <LineId Id="34" Count="0" />
+    </LineIds>
+    <LineIds Name="PointerAssertions.memoryAreaIsNotDynamic">
+      <LineId Id="35" Count="7" />
+      <LineId Id="34" Count="0" />
+    </LineIds>
+    <LineIds Name="PointerAssertions.memoryAreaIsNotStatic">
+      <LineId Id="35" Count="7" />
+      <LineId Id="34" Count="0" />
+    </LineIds>
+    <LineIds Name="PointerAssertions.memoryAreaIsNotUnkown">
+      <LineId Id="35" Count="7" />
+      <LineId Id="34" Count="0" />
+    </LineIds>
+    <LineIds Name="PointerAssertions.memoryAreaIsStatic">
+      <LineId Id="35" Count="7" />
+      <LineId Id="34" Count="0" />
+    </LineIds>
+    <LineIds Name="PointerAssertions.memoryAreaIsUnkown">
+      <LineId Id="35" Count="7" />
+      <LineId Id="34" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

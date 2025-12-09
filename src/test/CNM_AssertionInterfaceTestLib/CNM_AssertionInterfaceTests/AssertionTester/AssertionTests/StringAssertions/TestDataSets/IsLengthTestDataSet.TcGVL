@@ -1,0 +1,467 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <GVL Name="IsLengthTestDataSet" Id="{3d5f0a47-33cc-4277-8f99-ab1fa62fc5a1}">
+    <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+{warning 'header is generated please add your documentation'}
+{attribute 'qualified_only'}
+VAR_GLOBAL CONSTANT
+	SIZE_OF_IS_DATASET:USINT := 61;
+END_VAR
+
+VAR_GLOBAL
+	IsLenghtDataSetCommon : ARRAY[0..SIZE_OF_IS_DATASET] OF IsLengthBasicData := [
+
+	// test number 0 
+	  (	StringToTest	:= '',     	
+		ExpectedResult	:= FALSE, 
+		ExpectedLength 	:= 0,   
+		funcType 		:= FunctionType.EXACT, 	
+		typeToTest		:= TypeToTest.TEST_STRING),
+
+	// test number 1 		
+   	 (	StringToTest	:= 'abgf', 	
+		ExpectedResult	:= FALSE, 
+		ExpectedLength 	:= 4 , 
+		funcType 		:= FunctionType.EXACT, 	
+		typeToTest		:= TypeToTest.TEST_STRING),
+		
+	// test number 2		
+	  ( StringToTest	:= '    ', 	
+		ExpectedResult	:= FALSE, 
+		ExpectedLength 	:= 4 , 
+		funcType 		:= FunctionType.EXACT, 	
+		typeToTest		:= TypeToTest.TEST_STRING),
+		
+	// test number 3			
+	  ( StringToTest	:= '',     	
+		ExpectedResult	:= TRUE,  
+		ExpectedLength 	:= 3,   
+		funcType 		:= FunctionType.EXACT,	
+		typeToTest		:= TypeToTest.TEST_STRING),
+		
+	// test number 4	   			
+	  ( StringToTest	:= 'abgf', 	
+		ExpectedResult	:= TRUE,  
+		ExpectedLength 	:= 6 , 
+		funcType 		:= FunctionType.EXACT,  	
+		typeToTest		:= TypeToTest.TEST_STRING),
+		
+	// test number 5			
+	  ( StringToTest	:= '    ', 	
+		ExpectedResult	:= TRUE,  
+		ExpectedLength 	:= 6 , 
+		funcType 		:= FunctionType.EXACT,  	
+		typeToTest		:= TypeToTest.TEST_STRING),
+		
+	// test number 6		  
+	  ( StringToTest	:= '%/&)(/)//',
+		ExpectedResult	:= FALSE, 
+		ExpectedLength 	:= 9, 
+		funcType		:= FunctionType.EXACT,  
+		typeToTest		:= TypeToTest.TEST_STRING),
+
+	// test number 7		  
+	  (  					   	
+		ExpectedResult	:= FALSE , 
+		ExpectedLength 	:= 0, 
+		funcType		:= FunctionType.EXACT,  
+		typeToTest		:= TypeToTest.TEST_STRING),
+	
+	// test number 8
+	  ( StringToTest	:= '',     
+		ExpectedResult	:= FALSE, 
+		ExpectedLength 	:= 0,   
+		funcType		:= FunctionType.MAXIMUM, 	
+ 		typeToTest		:= TypeToTest.TEST_STRING),
+
+	// test number 9   			
+	  ( StringToTest	:= 'abgf', 
+		ExpectedResult	:= FALSE, 
+		ExpectedLength 	:= 4, 
+		funcType		:= FunctionType.MAXIMUM, 	
+		typeToTest		:= TypeToTest.TEST_STRING),
+
+	// test number 10		
+	  ( StringToTest	:= '    ', 
+		ExpectedResult	:= FALSE, 
+		ExpectedLength 	:= 4 , 
+		funcType		:= FunctionType.MAXIMUM, 	
+		typeToTest		:= TypeToTest.TEST_STRING),
+
+	// test number 11		
+	  ( StringToTest	:= '',     
+		ExpectedResult	:= FALSE, 
+		ExpectedLength 	:= 8,   
+		funcType		:= FunctionType.MAXIMUM,	
+		typeToTest		:= TypeToTest.TEST_STRING),
+
+	// test number 12   			
+	  ( StringToTest	:= 'abgf', 
+		ExpectedResult	:= FALSE, 
+		ExpectedLength 	:= 6, 
+		funcType		:= FunctionType.MAXIMUM,  
+		typeToTest		:= TypeToTest.TEST_STRING),
+
+	// test number 13		
+	  ( StringToTest	:= '    ', 
+		ExpectedResult	:= FALSE, 
+		ExpectedLength 	:= 6, 
+		funcType		:= FunctionType.MAXIMUM,  
+		typeToTest		:= TypeToTest.TEST_STRING),
+
+	// test number 14		
+	  ( ExpectedResult	:= FALSE , 
+		ExpectedLength 	:= 0 , 
+		funcType		:= FunctionType.MAXIMUM,  
+		typeToTest		:= TypeToTest.TEST_STRING),
+
+	// test number 15
+	  ( StringToTest	:= '', 
+		ExpectedResult	:= FALSE, 
+		ExpectedLength 	:= 0, 
+		funcType		:= FunctionType.MINIMUM,  
+		typeToTest		:= TypeToTest.TEST_STRING),
+
+	// test number 16	  
+	  ( StringToTest	:= 'hello', 
+		ExpectedResult	:= FALSE, 
+		ExpectedLength 	:= 5, 
+		funcType		:= FunctionType.MINIMUM,  
+		typeToTest		:= TypeToTest.TEST_STRING),
+
+	// test number 17	
+	  ( StringToTest	:= 'привет', 
+		ExpectedResult	:= FALSE, 
+		ExpectedLength 	:= 5, 
+		funcType		:= FunctionType.MINIMUM,  
+		typeToTest		:= TypeToTest.TEST_STRING),
+
+	// test number 18
+	  ( StringToTest	:= '', 
+		ExpectedResult	:= TRUE, 
+		ExpectedLength 	:= 4, 
+		funcType		:= FunctionType.MINIMUM,  
+		typeToTest		:= TypeToTest.TEST_STRING),
+	  
+	// test number 19	
+	  ( StringToTest	:= 'hello', 
+		ExpectedResult	:= TRUE, 
+		ExpectedLength 	:= 7, 
+		funcType		:= FunctionType.MINIMUM,  
+		typeToTest		:= TypeToTest.TEST_STRING),
+
+	// test number 20	
+	  ( StringToTest	:= 'привет', 
+		ExpectedResult	:= TRUE, 
+		ExpectedLength 	:= 10, 
+		funcType		:= FunctionType.MINIMUM,  
+		typeToTest		:= TypeToTest.TEST_STRING),
+
+	// test number 21	
+	  ( StringToTest	:= '    ', 
+		ExpectedResult	:= FALSE, 
+		ExpectedLength 	:= 4, 
+		funcType		:= FunctionType.MINIMUM,  
+		typeToTest		:= TypeToTest.TEST_STRING),
+	
+	// test number 22	
+	  ( StringToTest	:= '    ', 
+		ExpectedResult	:= TRUE, 
+		ExpectedLength 	:= 5, 
+		funcType		:= FunctionType.MINIMUM,  
+		typeToTest		:= TypeToTest.TEST_STRING),
+
+	// test number 23	
+	  ( StringToTest	:= '    ', 
+		ExpectedResult	:= TRUE, 
+		ExpectedLength 	:= 10, 
+		funcType		:= FunctionType.MINIMUM,  
+		typeToTest		:= TypeToTest.TEST_STRING),
+		
+	// test number 24	
+	  ( StringToTest	:= '%/&)(/)//',
+		ExpectedResult	:= FALSE, 
+		ExpectedLength 	:= 9, 
+		funcType		:= FunctionType.MINIMUM,  
+		typeToTest		:= TypeToTest.TEST_STRING),
+		
+	// test number 25	
+	  ( StringToTest	:= '%/&)(/)//',
+		ExpectedResult	:= TRUE, 
+		ExpectedLength 	:= 10, 
+		funcType		:= FunctionType.MINIMUM,  
+		typeToTest		:= TypeToTest.TEST_STRING),
+
+	// test number 26	
+	  ( WStringToTest	:= "", 			
+		ExpectedResult	:= FALSE,	
+		ExpectedLength 	:= 0, 	
+		funcType		:= FunctionType.EXACT, 
+		typeToTest		:= TypeToTest.TEST_WSTRING),
+
+	// test number 27		
+	  ( WStringToTest	:= "abc" , 			
+		ExpectedResult	:= FALSE, 
+		ExpectedLength 	:= 3 , 	
+		funcType		:= FunctionType.EXACT ,	
+		typeToTest		:= TypeToTest.TEST_WSTRING),
+
+	// test number 28		
+	  ( WStringToTest	:= "хороший", 		
+		ExpectedResult	:= FALSE, 
+		ExpectedLength 	:= 7, 	
+		funcType		:= FunctionType.EXACT , 
+		typeToTest		:= TypeToTest.TEST_WSTRING),
+
+	// test number 29		
+	  ( WStringToTest	:= "хороший abc", 	
+		ExpectedResult	:= FALSE, 
+		ExpectedLength 	:= 11, 	
+		funcType		:= FunctionType.EXACT , 
+		typeToTest		:= TypeToTest.TEST_WSTRING),
+
+	// test number 30		
+	  ( WStringToTest	:= "", 			
+		ExpectedResult	:= TRUE, 	
+		ExpectedLength 	:= 2, 	
+		funcType		:= FunctionType.EXACT , 
+		typeToTest		:= TypeToTest.TEST_WSTRING),
+		
+	// test number 31		
+	  ( WStringToTest	:= "abc", 			
+		ExpectedResult	:= TRUE, 	
+		ExpectedLength 	:= 2,  	
+		funcType		:= FunctionType.EXACT , 
+		typeToTest		:= TypeToTest.TEST_WSTRING),
+		
+	// test number 32		
+	  ( WStringToTest	:= "хороший", 		
+		ExpectedResult	:= TRUE, 	
+		ExpectedLength	:= 2, 	
+		funcType		:= FunctionType.EXACT, 	
+		typeToTest		:= TypeToTest.TEST_WSTRING),
+
+	// test number 33		
+	  ( WStringToTest	:= "хороший abc", 	
+		ExpectedResult	:= TRUE, 	
+		ExpectedLength 	:= 10, 	
+		funcType		:= FunctionType.EXACT, 	
+		typeToTest		:= TypeToTest.TEST_WSTRING),
+		
+	// test number 34		
+	  ( WStringToTest	:= "    ", 		
+		ExpectedResult	:= FALSE, 
+		ExpectedLength 	:= 4, 	
+		funcType		:= FunctionType.EXACT, 	
+		typeToTest		:= TypeToTest.TEST_WSTRING),
+
+	// test number 35		
+	  ( WStringToTest	:= "صباح الخي", 	
+		ExpectedResult	:= FALSE, 
+		ExpectedLength 	:= 9,  	
+		funcType		:= FunctionType.EXACT, 	
+		typeToTest		:= TypeToTest.TEST_WSTRING),
+
+	// test number 36		
+	  ( WStringToTest	:= "😀", 			
+		ExpectedResult	:= FALSE, 
+		ExpectedLength 	:= 1,  	
+		funcType		:= FunctionType.EXACT, 	
+		typeToTest		:= TypeToTest.TEST_WSTRING),
+
+	// test number 37		
+	  ( WStringToTest	:= "%/&)(/)//", 	
+		ExpectedResult	:= FALSE,
+		ExpectedLength 	:= 9, 
+		funcType		:= FunctionType.EXACT,  	
+		typeToTest		:= TypeToTest.TEST_WSTRING),
+
+	// test number 38		
+	  ( ExpectedResult	:= FALSE ,
+		ExpectedLength 	:= 0 , 
+		funcType		:= FunctionType.EXACT,  	
+		typeToTest		:= TypeToTest.TEST_WSTRING),
+
+	// test number 39	
+	  ( WStringToTest	:= "", 			
+		ExpectedResult	:= FALSE,	
+		ExpectedLength 	:= 0, 	
+		funcType		:= FunctionType.MAXIMUM, 	
+		typeToTest		:= TypeToTest.TEST_WSTRING),
+		
+	// test number 40		
+	  ( WStringToTest	:= "abc", 			
+		ExpectedResult	:= FALSE, 
+		ExpectedLength	:= 3 , 	
+       	funcType		:= FunctionType.MAXIMUM ,	
+		typeToTest		:= TypeToTest.TEST_WSTRING),
+		
+	// test number 41		
+	  ( WStringToTest	:= "хороший" , 		
+		ExpectedResult	:= FALSE, 
+		ExpectedLength 	:= 7, 	
+		funcType		:= FunctionType.MAXIMUM , 	
+		typeToTest		:= TypeToTest.TEST_WSTRING),
+		
+	// test number 42		
+	  ( WStringToTest	:= "хороший abc", 	
+		ExpectedResult	:= FALSE, 
+		ExpectedLength 	:= 11, 	
+		funcType		:= FunctionType.MAXIMUM ,	
+		typeToTest		:= TypeToTest.TEST_WSTRING),
+		
+	// test number 43		
+	  ( WStringToTest	:= "" , 			
+		ExpectedResult	:= FALSE, 
+		ExpectedLength 	:= 2, 	
+		funcType		:= FunctionType.MAXIMUM ,
+		typeToTest		:= TypeToTest.TEST_WSTRING),
+		
+	// test number 44		
+	  ( WStringToTest	:= "abc" , 			
+		ExpectedResult	:= TRUE,  
+		ExpectedLength 	:= 2,  	
+		funcType		:= FunctionType.MAXIMUM , 	
+		typeToTest		:= TypeToTest.TEST_WSTRING),
+		
+	// test number 45		
+	  ( WStringToTest	:= "хороший" , 		
+		ExpectedResult	:= TRUE,  
+		ExpectedLength 	:= 2, 	
+		funcType		:= FunctionType.MAXIMUM, 	
+		typeToTest		:= TypeToTest.TEST_WSTRING),
+		
+	// test number 46		
+	  ( WStringToTest	:= "хороший abc" , 	
+		ExpectedResult	:= FALSE, 
+		ExpectedLength 	:= 18 , 	
+		funcType		:= FunctionType.MAXIMUM, 	
+		typeToTest		:= TypeToTest.TEST_WSTRING),
+		
+	// test number 47		
+	  ( WStringToTest 	:= "    ", 		
+		ExpectedResult	:= FALSE,  
+		ExpectedLength 	:= 4 , 	
+		funcType		:= FunctionType.MAXIMUM, 	
+		typeToTest		:= TypeToTest.TEST_WSTRING),
+		
+	// test number 48		
+	  ( WStringToTest	:= "صباح الخي" , 	
+		ExpectedResult	:= FALSE, 
+		ExpectedLength 	:= 9 ,  	
+		funcType		:= FunctionType.MAXIMUM, 	
+		typeToTest		:= TypeToTest.TEST_WSTRING),
+		
+	// test number 49		
+	  ( WStringToTest	:= "😀" , 			
+		ExpectedResult	:= FALSE, 
+		ExpectedLength 	:= 9 ,  	
+		funcType		:= FunctionType.MAXIMUM, 	
+		typeToTest		:= TypeToTest.TEST_WSTRING),
+		
+	// test number 50		
+	  ( ExpectedResult	:= FALSE, 
+		ExpectedLength 	:= 0 , 	
+		funcType		:= FunctionType.MAXIMUM,	
+		typeToTest		:= TypeToTest.TEST_WSTRING),
+
+	// test number 51
+	  ( WStringToTest	:= "", 
+		ExpectedResult	:= FALSE, 
+		ExpectedLength 	:= 0, 
+		funcType		:= FunctionType.MINIMUM,  
+		typeToTest		:= TypeToTest.TEST_WSTRING),
+
+	// test number 52	  
+	  ( WStringToTest	:= "hello", 
+		ExpectedResult	:= FALSE, 
+		ExpectedLength 	:= 5, 
+		funcType		:= FunctionType.MINIMUM,  
+		typeToTest		:= TypeToTest.TEST_WSTRING),
+
+	// test number 53	
+	  ( WStringToTest	:= "привет", 
+		ExpectedResult	:= FALSE, 
+		ExpectedLength 	:= 5, 
+		funcType		:= FunctionType.MINIMUM,  
+		typeToTest		:= TypeToTest.TEST_WSTRING),
+
+	// test number 54
+	  ( WStringToTest	:= "", 
+		ExpectedResult	:= TRUE, 
+		ExpectedLength 	:= 4, 
+		funcType		:= FunctionType.MINIMUM,  
+		typeToTest		:= TypeToTest.TEST_WSTRING),
+	  
+	// test number 55	
+	  ( WStringToTest	:= "hello", 
+		ExpectedResult	:= TRUE, 
+		ExpectedLength 	:= 7, 
+		funcType		:= FunctionType.MINIMUM,  
+		typeToTest		:= TypeToTest.TEST_WSTRING),
+
+	// test number 56	
+	  ( WStringToTest	:= "привет", 
+		ExpectedResult	:= TRUE, 
+		ExpectedLength 	:= 10, 
+		funcType		:= FunctionType.MINIMUM,  
+		typeToTest		:= TypeToTest.TEST_WSTRING),
+
+	// test number 57	
+	  ( WStringToTest	:= "    ", 
+		ExpectedResult	:= FALSE, 
+		ExpectedLength 	:= 4, 
+		funcType		:= FunctionType.MINIMUM,  
+		typeToTest		:= TypeToTest.TEST_WSTRING),
+	
+	// test number 58	
+	  ( WStringToTest	:= "    ", 
+		ExpectedResult	:= TRUE, 
+		ExpectedLength 	:= 5, 
+		funcType		:= FunctionType.MINIMUM,  
+		typeToTest		:= TypeToTest.TEST_WSTRING),
+
+	// test number 59	
+	  ( WStringToTest	:= "    ", 
+		ExpectedResult	:= TRUE, 
+		ExpectedLength 	:= 10, 
+		funcType		:= FunctionType.MINIMUM,  
+		typeToTest		:= TypeToTest.TEST_WSTRING),
+		
+	// test number 60	
+	  ( WStringToTest	:= "%/&)(/)//",
+		ExpectedResult	:= FALSE, 
+		ExpectedLength 	:= 9, 
+		funcType		:= FunctionType.MINIMUM,  
+		typeToTest		:= TypeToTest.TEST_WSTRING),
+		
+	// test number 61	
+	  ( WStringToTest	:= "%/&)(/)//",
+		ExpectedResult	:= TRUE, 
+		ExpectedLength 	:= 10, 
+		funcType		:= FunctionType.MINIMUM,  
+		typeToTest		:= TypeToTest.TEST_WSTRING)
+
+	
+];
+END_VAR]]></Declaration>
+  </GVL>
+</TcPlcObject>

@@ -1,0 +1,1530 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="UlintAssertionTests" Id="{0d0f8133-a8b8-4d73-a9c6-ca70c959cac0}" SpecialFunc="None">
+    <Declaration><![CDATA[(*
+
+short summary
+==================
+This class tests all methods of ulint assertions
+with various combinations of inputs and checks expected 
+outputs are satisfied or not
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+methods and properties
+======================
+
+*)
+
+FUNCTION_BLOCK UlintAssertionTests EXTENDS AbstractAssertorTest
+VAR_INPUT
+END_VAR
+VAR CONSTANT
+	(* prefix to unify the test names *)
+	TEST_NAME_PREFIX	:Tc2_System.T_MaxString := 'assert.integer.unsigned.long.';
+	(* number of the lsb *)
+	FIRST_BIT				:USINT := 0;
+	(* number of the msb *)
+	LAST_BIT				:USINT := 63;
+	(* multiplicand for the ``multiplier`` *)
+	MULTIPLICAND			:ULINT := 16#1111_1111_1111_1111;
+	(* first of all multipliers the test iterates *)
+	FIRST_MULTIPLIER		:ULINT := 0;
+	(* last of all multipliers the test iterates *)
+	LAST_MULTIPLIER			:ULINT := 15;
+	(* just the value zero *)
+	ZERO					:ULINT := 0;
+	(* just the lsb is set, it's just the value one *)
+	LSB_ONLY				:ULINT := 1;
+	(* all bits are set *)
+	ALL_BITS_SET			:ULINT := (NOT ZERO);
+	(* the msb is set only *)
+	MSB_IS_SET				:ULINT := 16#8000_0000_0000_0000;
+	(* the msb is unset only *)
+	MSB_IS_UNSET			:ULINT := 16#7FFF_FFFF_FFFF_FFFF;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[THIS^.runValueIsEqualToTests();
+THIS^.runValueIsEvenTests();
+THIS^.runValueIsGreaterTests();
+THIS^.runValueIsInRangeOfTests();
+THIS^.runValueIsLessThanTests();
+THIS^.runValueIsMaxTests();
+THIS^.runValueIsMinTests();
+THIS^.runValueIsNotEqualToTests();
+THIS^.runValueIsOddTests();
+]]></ST>
+    </Implementation>
+    <Folder Name="internal" Id="{3c5a2782-a7aa-4578-b64e-52f89d4bae2e}" />
+    <Folder Name="valueIsEqualTo" Id="{34fc567e-a495-42be-b238-3b093661b083}" />
+    <Folder Name="valueIsEven" Id="{84a4492f-4559-4450-b126-83976a7643bd}" />
+    <Folder Name="valueIsGreaterThan" Id="{bb8752f7-16fc-4eb7-a365-cfda96e14d0e}" />
+    <Folder Name="valueIsInRangeOf" Id="{b16a7738-be7e-4de9-8f35-6fb3cda6ccd9}" />
+    <Folder Name="valueIsLessThan" Id="{db7a0dd0-113b-4db6-b2fc-b8227720aba2}" />
+    <Folder Name="valueIsMax" Id="{558ed414-0af5-4731-81a1-b440772b135c}" />
+    <Folder Name="valueIsMin" Id="{e8c90d76-d0c1-4214-9672-4f044d4bcae8}" />
+    <Folder Name="valueIsNotEqual" Id="{ac2acc76-5339-49df-aa47-36aa314441e2}" />
+    <Folder Name="valueIsOdd" Id="{e2d6bfdf-18c3-403e-b24d-e170d72379a0}" />
+    <Method Name="getTestNameFor" Id="{21219264-3080-4198-b91e-92c2cb535e45}" FolderPath="internal\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method is a helper function to create a unified test name
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+METHOD PROTECTED getTestNameFor :Tc2_System.T_MaxString
+VAR_INPUT
+	(* name of the method to test, to create a unified test name *)
+	nameOfMethodToTest	:Tc2_System.T_MaxString;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[getTestNameFor := Tc2_Standard.CONCAT(THIS^.TEST_NAME_PREFIX, nameOfMethodToTest);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="runValueIsEqualToTests" Id="{50e0a253-42db-4bd2-a864-6364f59100e3}" FolderPath="valueIsEqualTo\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.integer.unsigned.long.valueIsEqualTo``
+method of CNM_AssertionInterfaceLib library with various inputs
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+METHOD runValueIsEqualToTests
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[RETURN (NOT TcUnit.TEST_ORDERED(THIS^.getTestNameFor('valueIsEqualTo')));
+
+THIS^.testValueIsEqualTo(
+	valueToTest := THIS^.ZERO,
+	expected := THIS^.ALL_BITS_SET
+);
+THIS^.testValueIsEqualTo(
+	valueToTest := THIS^.ZERO,
+	expected := THIS^.ZERO
+);
+THIS^.testValueIsEqualTo(
+	valueToTest := THIS^.ALL_BITS_SET,
+	expected := THIS^.ALL_BITS_SET
+);
+THIS^.testValueIsEqualTo(
+	valueToTest := THIS^.ALL_BITS_SET,
+	expected := THIS^.ZERO
+);
+THIS^.testValueIsEqualTo(
+	valueToTest := THIS^.LSB_ONLY,
+	expected := THIS^.LSB_ONLY
+);
+THIS^.testValueIsEqualTo(
+	valueToTest := THIS^.LSB_ONLY,
+	expected := THIS^.MSB_IS_SET
+);
+THIS^.testValueIsEqualTo(
+	valueToTest := THIS^.MSB_IS_SET,
+	expected := THIS^.MSB_IS_SET
+);
+THIS^.testValueIsEqualTo(
+	valueToTest := THIS^.MSB_IS_SET,
+	expected := THIS^.LSB_ONLY
+);
+THIS^.testValueIsEqualTo(
+	valueToTest := THIS^.MSB_IS_SET,
+	expected := THIS^.MSB_IS_UNSET
+);
+
+TcUnit.TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="runValueIsEvenTests" Id="{52dd0bb6-f343-4c64-854e-ede60753cad1}" FolderPath="valueIsEven\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.integer.unsigned.long.valueIsEven``
+of CNM_AssertionInterfaceLib library with various inputs
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+METHOD runValueIsEvenTests
+VAR
+	(* it's just part of the test data *)
+	valueToTest	:ULINT;
+	(* multiplier to get various bit patterns *)
+	multiplier	:ULINT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[RETURN (NOT TcUnit.TEST_ORDERED(THIS^.getTestNameFor('valueIsEven')));
+
+FOR multiplier := THIS^.FIRST_MULTIPLIER TO THIS^.LAST_MULTIPLIER DO
+	valueToTest := (THIS^.MULTIPLICAND * multiplier);
+	THIS^.testValueIsEven(
+		valueToTest := valueToTest
+	);
+END_FOR
+
+TcUnit.TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="runValueIsGreaterTests" Id="{d536053d-6eec-4900-a5d9-832776c709a9}" FolderPath="valueIsGreaterThan\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.integer.unsigned.long.valueIsGreaterThan``
+method of CNM_AssertionInterfaceLib library with various inputs
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+METHOD runValueIsGreaterTests
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[RETURN (NOT TcUnit.TEST_ORDERED(THIS^.getTestNameFor('valueIsGreaterThan')));
+
+THIS^.testValueIsGreater(
+	valueToTest := THIS^.ZERO,
+	less := THIS^.ALL_BITS_SET
+);
+THIS^.testValueIsGreater(
+	valueToTest := THIS^.ZERO,
+	less := THIS^.ZERO
+);
+THIS^.testValueIsGreater(
+	valueToTest := THIS^.ALL_BITS_SET,
+	less := THIS^.ALL_BITS_SET
+);
+THIS^.testValueIsGreater(
+	valueToTest := THIS^.ALL_BITS_SET,
+	less := THIS^.ZERO
+);
+THIS^.testValueIsGreater(
+	valueToTest := THIS^.LSB_ONLY,
+	less := THIS^.LSB_ONLY
+);
+THIS^.testValueIsGreater(
+	valueToTest := THIS^.LSB_ONLY,
+	less := THIS^.ZERO
+);
+THIS^.testValueIsGreater(
+	valueToTest := THIS^.LSB_ONLY,
+	less := (THIS^.LSB_ONLY+THIS^.LSB_ONLY)
+);
+THIS^.testValueIsGreater(
+	valueToTest := THIS^.MSB_IS_SET,
+	less := THIS^.MSB_IS_SET
+);
+THIS^.testValueIsGreater(
+	valueToTest := THIS^.MSB_IS_SET,
+	less := THIS^.ALL_BITS_SET
+);
+THIS^.testValueIsGreater(
+	valueToTest := THIS^.MSB_IS_SET,
+	less := THIS^.MSB_IS_UNSET
+);
+THIS^.testValueIsGreater(
+	valueToTest := THIS^.MSB_IS_UNSET,
+	less := THIS^.MSB_IS_SET
+);
+
+TcUnit.TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="runValueIsInRangeOfTests" Id="{c285fc43-8156-4f6b-815a-04d8a6651f1f}" FolderPath="valueIsInRangeOf\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.integer.unsigned.long.valueIsInRangeOf``
+method of CNM_AssertionInterfaceLib library with various inputs
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+METHOD runValueIsInRangeOfTests
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[RETURN (NOT TcUnit.TEST_ORDERED(THIS^.getTestNameFor('valueIsInRangeOf')));
+
+THIS^.testValueIsInRangeOf(
+	lower := THIS^.ZERO,
+	valueToTest := THIS^.LSB_ONLY,
+	upper := THIS^.ALL_BITS_SET
+);
+THIS^.testValueIsInRangeOf(
+	lower := THIS^.ZERO,
+	valueToTest := THIS^.ZERO,
+	upper := THIS^.ZERO
+);
+THIS^.testValueIsInRangeOf(
+	lower := THIS^.ALL_BITS_SET,
+	valueToTest := THIS^.ALL_BITS_SET,
+	upper := THIS^.ALL_BITS_SET
+);
+THIS^.testValueIsInRangeOf(
+	lower := THIS^.ALL_BITS_SET,
+	valueToTest := THIS^.LSB_ONLY,
+	upper := THIS^.ZERO
+);
+THIS^.testValueIsInRangeOf(
+	lower := THIS^.ALL_BITS_SET,
+	valueToTest := THIS^.ZERO,
+	upper := THIS^.ZERO
+);
+THIS^.testValueIsInRangeOf(
+	lower := THIS^.MSB_IS_UNSET,
+	valueToTest := THIS^.ZERO,
+	upper := THIS^.MSB_IS_SET
+);
+THIS^.testValueIsInRangeOf(
+	lower := THIS^.MSB_IS_SET,
+	valueToTest := THIS^.ZERO,
+	upper := THIS^.MSB_IS_UNSET
+);
+THIS^.testValueIsInRangeOf(
+	lower := THIS^.MSB_IS_UNSET,
+	valueToTest := THIS^.MSB_IS_SET,
+	upper := THIS^.MSB_IS_SET
+);
+THIS^.testValueIsInRangeOf(
+	lower := THIS^.MSB_IS_SET,
+	valueToTest := THIS^.MSB_IS_UNSET,
+	upper := THIS^.MSB_IS_UNSET
+);
+THIS^.testValueIsInRangeOf(
+	lower := THIS^.MSB_IS_SET,
+	valueToTest := THIS^.MSB_IS_SET,
+	upper := THIS^.MSB_IS_UNSET
+);
+
+TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="runValueIsLessThanTests" Id="{f6b3a1f7-722a-478c-83f7-d561ee9c072f}" FolderPath="valueIsLessThan\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.integer.unsigned.long.valueIsLessThan``
+method of CNM_AssertionInterfaceLib library with various inputs
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+METHOD runValueIsLessThanTests
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[RETURN (NOT TcUnit.TEST_ORDERED(THIS^.getTestNameFor('valueIsLessThan')));
+
+THIS^.testValueIsLessThan(
+	valueToTest := THIS^.ZERO,
+	greater := THIS^.ALL_BITS_SET
+);
+THIS^.testValueIsLessThan(
+	valueToTest := THIS^.ZERO,
+	greater := THIS^.ZERO
+);
+THIS^.testValueIsLessThan(
+	valueToTest := THIS^.ALL_BITS_SET,
+	greater := THIS^.ALL_BITS_SET
+);
+THIS^.testValueIsLessThan(
+	valueToTest := THIS^.ALL_BITS_SET,
+	greater := THIS^.ZERO
+);
+THIS^.testValueIsLessThan(
+	valueToTest := THIS^.LSB_ONLY,
+	greater := THIS^.LSB_ONLY
+);
+THIS^.testValueIsLessThan(
+	valueToTest := THIS^.LSB_ONLY,
+	greater := THIS^.ZERO
+);
+THIS^.testValueIsLessThan(
+	valueToTest := THIS^.MSB_IS_SET,
+	greater := (THIS^.MSB_IS_SET+THIS^.LSB_ONLY)
+);
+THIS^.testValueIsLessThan(
+	valueToTest := THIS^.MSB_IS_SET,
+	greater := THIS^.MSB_IS_SET
+);
+THIS^.testValueIsLessThan(
+	valueToTest := THIS^.MSB_IS_SET,
+	greater := THIS^.ALL_BITS_SET
+);
+THIS^.testValueIsLessThan(
+	valueToTest := THIS^.MSB_IS_SET,
+	greater := THIS^.MSB_IS_UNSET
+);
+THIS^.testValueIsLessThan(
+	valueToTest := THIS^.MSB_IS_UNSET,
+	greater := THIS^.MSB_IS_SET
+);
+
+TcUnit.TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="runValueIsMaxTests" Id="{781ed986-98c8-40f9-a7bc-dbcd0905c02c}" FolderPath="valueIsMax\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.integer.unsigned.long.valueIsMax``
+method of CNM_AssertionInterfaceLib library with various inputs
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+METHOD runValueIsMaxTests
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[RETURN (NOT TcUnit.TEST_ORDERED(THIS^.getTestNameFor('valueIsMax')));
+
+THIS^.testValueIsMax(
+	valueToTest := THIS^.ZERO,
+	maximum := THIS^.LSB_ONLY
+);
+THIS^.testValueIsMax(
+	valueToTest := THIS^.LSB_ONLY,
+	maximum := THIS^.ZERO
+);
+THIS^.testValueIsMax(
+	valueToTest := THIS^.ZERO,
+	maximum := THIS^.ZERO
+);
+THIS^.testValueIsMax(
+	valueToTest := THIS^.ALL_BITS_SET,
+	maximum := ALL_BITS_SET
+);
+THIS^.testValueIsMax(
+	valueToTest := (THIS^.ALL_BITS_SET-THIS^.LSB_ONLY),
+	maximum := THIS^.ALL_BITS_SET
+);
+THIS^.testValueIsMax(
+	valueToTest := THIS^.ALL_BITS_SET,
+	maximum := (THIS^.ALL_BITS_SET-THIS^.LSB_ONLY)
+);
+THIS^.testValueIsMax(
+	valueToTest := THIS^.MSB_IS_SET,
+	maximum := (THIS^.MSB_IS_SET+THIS^.LSB_ONLY)
+);
+THIS^.testValueIsMax(
+	valueToTest := (THIS^.MSB_IS_SET+THIS^.LSB_ONLY),
+	maximum := THIS^.MSB_IS_SET
+);
+THIS^.testValueIsMax(
+	valueToTest := THIS^.MSB_IS_SET,
+	maximum := THIS^.MSB_IS_SET
+);
+THIS^.testValueIsMax(
+	valueToTest := THIS^.MSB_IS_SET,
+	maximum := THIS^.MSB_IS_UNSET
+);
+THIS^.testValueIsMax(
+	valueToTest := THIS^.MSB_IS_UNSET,
+	maximum := THIS^.MSB_IS_SET
+);
+
+TcUnit.TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="runValueIsMinTests" Id="{a9bb27ca-5f74-4f7e-af68-8709b5562df6}" FolderPath="valueIsMin\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.integer.unsigned.long.valueIsMin``
+method of CNM_AssertionInterfaceLib library with various inputs
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+METHOD runValueIsMinTests
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[RETURN (NOT TcUnit.TEST_ORDERED(THIS^.getTestNameFor('valueIsMin')));
+
+THIS^.testValueIsMin(
+	valueToTest := THIS^.ZERO,
+	minimum := THIS^.LSB_ONLY
+);
+THIS^.testValueIsMin(
+	valueToTest := THIS^.LSB_ONLY,
+	minimum := THIS^.ZERO
+);
+THIS^.testValueIsMin(
+	valueToTest := THIS^.ZERO,
+	minimum := THIS^.ZERO
+);
+THIS^.testValueIsMin(
+	valueToTest := THIS^.ALL_BITS_SET,
+	minimum := ALL_BITS_SET
+);
+THIS^.testValueIsMin(
+	valueToTest := (THIS^.ALL_BITS_SET-THIS^.LSB_ONLY),
+	minimum := THIS^.ALL_BITS_SET
+);
+THIS^.testValueIsMin(
+	valueToTest := THIS^.ALL_BITS_SET,
+	minimum := (THIS^.ALL_BITS_SET-THIS^.LSB_ONLY)
+);
+THIS^.testValueIsMin(
+	valueToTest := THIS^.MSB_IS_SET,
+	minimum := (THIS^.MSB_IS_SET+THIS^.LSB_ONLY)
+);
+THIS^.testValueIsMin(
+	valueToTest := (THIS^.MSB_IS_SET+THIS^.LSB_ONLY),
+	minimum := THIS^.MSB_IS_SET
+);
+THIS^.testValueIsMin(
+	valueToTest := THIS^.MSB_IS_SET,
+	minimum := THIS^.MSB_IS_SET
+);
+THIS^.testValueIsMin(
+	valueToTest := THIS^.MSB_IS_SET,
+	minimum := THIS^.MSB_IS_UNSET
+);
+THIS^.testValueIsMin(
+	valueToTest := THIS^.MSB_IS_UNSET,
+	minimum := THIS^.MSB_IS_SET
+);
+
+TcUnit.TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="runValueIsNotEqualToTests" Id="{582b7ac2-790b-438a-8e6e-34f660710e5c}" FolderPath="valueIsNotEqual\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.integer.unsigned.long.valueIsNotEqualTo``
+method of CNM_AssertionInterfaceLib library with various inputs
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+METHOD runValueIsNotEqualToTests
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[RETURN (NOT TcUnit.TEST_ORDERED(THIS^.getTestNameFor('valueIsNotEqualTo')));
+
+THIS^.testValueIsNotEqualTo(
+	valueToTest := THIS^.ZERO,
+	unexpected := THIS^.ALL_BITS_SET
+);
+THIS^.testValueIsNotEqualTo(
+	valueToTest := THIS^.ZERO,
+	unexpected := THIS^.ZERO
+);
+THIS^.testValueIsNotEqualTo(
+	valueToTest := THIS^.ALL_BITS_SET,
+	unexpected := THIS^.ALL_BITS_SET
+);
+THIS^.testValueIsNotEqualTo(
+	valueToTest := THIS^.ALL_BITS_SET,
+	unexpected := THIS^.ZERO
+);
+THIS^.testValueIsNotEqualTo(
+	valueToTest := THIS^.LSB_ONLY,
+	unexpected := THIS^.LSB_ONLY
+);
+THIS^.testValueIsNotEqualTo(
+	valueToTest := THIS^.LSB_ONLY,
+	unexpected := THIS^.MSB_IS_SET
+);
+THIS^.testValueIsNotEqualTo(
+	valueToTest := THIS^.MSB_IS_SET,
+	unexpected := THIS^.MSB_IS_SET
+);
+THIS^.testValueIsNotEqualTo(
+	valueToTest := THIS^.MSB_IS_SET,
+	unexpected := THIS^.LSB_ONLY
+);
+THIS^.testValueIsNotEqualTo(
+	valueToTest := THIS^.MSB_IS_SET,
+	unexpected := THIS^.MSB_IS_UNSET
+);
+
+TcUnit.TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="runValueIsOddTests" Id="{96301bad-f9b9-44d0-8be1-92b6048c6294}" FolderPath="valueIsOdd\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.integer.unsigned.long.valueIsOdd``
+of CNM_AssertionInterfaceLib library with various inputs
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+METHOD runValueIsOddTests
+VAR
+	(* it's just part of the test data *)
+	valueToTest	:ULINT;
+	(* multiplier to get various bit patterns *)
+	multiplier	:ULINT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[RETURN (NOT TcUnit.TEST_ORDERED(THIS^.getTestNameFor('valueIsOdd')));
+
+FOR multiplier := THIS^.FIRST_MULTIPLIER TO THIS^.LAST_MULTIPLIER DO
+	valueToTest := (THIS^.MULTIPLICAND * multiplier);
+	THIS^.testValueIsOdd(
+		valueToTest := valueToTest
+	);
+END_FOR
+
+TcUnit.TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testValueIsEqualTo" Id="{47fb3c2c-7769-4511-83de-39cff69ca9d8}" FolderPath="valueIsEqualTo\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.integer.unsigned.long.valueIsEqualTo``
+method of CNM_AssertionInterfaceLib library, 
+it provides the possibility to handover test data via parameter 
+
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+METHOD testValueIsEqualTo
+VAR_INPUT
+	(* for the test it's the parameter ``currentValue`` *)
+	valueToTest	:ULINT;
+	(* for the test it's the parameter ``expectedValue`` *)
+	expected	:ULINT;
+END_VAR
+VAR
+	(* just the expectation if the assertion to test must be worng or true *)
+	assertionIsWrong		:BOOL;
+	(* contains the format string for the test message *)
+	message					:Tc2_System.T_MaxString;
+	(* TwinCAT printf with the test message *)
+	messageStringBuilder	:Tc2_Utilities.FB_FormatString;
+END_VAR
+
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.assertorContainer.resetAssertor();
+
+assertionIsWrong := (valueToTest <> expected);
+message := SEL(
+	assertionIsWrong,
+	'currentValue is %d expectedValue is %d assertion must be TRUE', 
+	'currentValue is %d expectedValue is %d assertion must be FALSE'
+);
+messageStringBuilder(
+	sFormat := message,
+	arg1 := THIS^.AnyToArg(valueToTest),
+	arg2 := THIS^.AnyToArg(expected)
+);
+
+THIS^.assertorContainer.assertor.assert.integer.unsigned.long.valueIsEqualTo(
+	currentValue := valueToTest,
+	expectedValue := expected,
+	message := ''
+);
+
+THIS^.AssertEquals_BOOL(
+	Expected 	:= assertionIsWrong,
+	Actual 		:= THIS^.assertorContainer.wasAssertionWrong,
+	Message 	:= messageStringBuilder.sOut
+);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testValueIsEven" Id="{fe564e2b-ff84-4d41-9143-86972cb350b2}" FolderPath="valueIsEven\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.integer.unsigned.long.valueIsEven``
+of CNM_AssertionInterfaceLib library, 
+it provides the possibility to handover test data via parameter 
+
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+METHOD testValueIsEven
+VAR_INPUT
+	(* for the test it's the parameter ``currentValue`` *)
+	valueToTest	:ULINT;
+END_VAR
+VAR
+	(* just the expectation if the assertion to test must be worng or true *)
+	assertionIsWrong		:BOOL;
+	(* contains the format string for the test message *)
+	message					:Tc2_System.T_MaxString;
+	(* TwinCAT printf with the test message *)
+	messageStringBuilder	:Tc2_Utilities.FB_FormatString;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.assertorContainer.resetAssertor();
+
+assertionIsWrong := (valueToTest.FIRST_BIT);
+
+message := SEL(
+	assertionIsWrong,
+	'currentValue is %d assertion must be TRUE',
+	'currentValue is %d assertion must be FALSE'
+);
+
+messageStringBuilder(
+	sFormat := message,
+	arg1 := THIS^.AnyToArg(valueToTest)
+);
+
+THIS^.assertorContainer.assertor.assert.integer.unsigned.long.valueIsEven(
+	currentValue 	:= valueToTest,
+	message			:= ''  
+); 
+
+THIS^.AssertEquals_BOOL(
+	Expected 	:= assertionIsWrong,
+	Actual 		:= THIS^.assertorContainer.wasAssertionWrong,
+	Message 	:= messageStringBuilder.sOut
+);
+
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testValueIsGreater" Id="{a104d841-3035-4779-85c6-6a999b01472f}" FolderPath="valueIsGreaterThan\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.integer.unsigned.long.valueIsGreaterThan``
+method of CNM_AssertionInterfaceLib library, 
+it provides the possibility to handover test data via parameter 
+
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+METHOD testValueIsGreater
+VAR_INPUT
+	(* for the test it's the parameter ``currentValue`` *)
+	valueToTest	:ULINT;
+	(* for the test it's the parameter ``lessValue`` *)
+	less		:ULINT;
+END_VAR
+VAR
+	(* just the expectation if the assertion to test must be worng or true *)
+	assertionIsWrong		:BOOL;
+	(* contains the format string for the test message *)
+	message					:Tc2_System.T_MaxString;
+	(* TwinCAT printf with the test message *)
+	messageStringBuilder	:Tc2_Utilities.FB_FormatString;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.assertorContainer.resetAssertor();
+
+assertionIsWrong := (valueToTest <= less);
+message := SEL(
+	assertionIsWrong,
+	'currentValue is %d lessValue is %d assertion must be TRUE', 
+	'currentValue is %d lessValue is %d assertion must be FALSE'
+);
+messageStringBuilder(
+	sFormat := message,
+	arg1 := THIS^.AnyToArg(valueToTest),
+	arg2 := THIS^.AnyToArg(less)
+);
+
+THIS^.assertorContainer.assertor.assert.integer.unsigned.long.valueIsGreaterThan(
+	currentValue := valueToTest,
+	lessValue := less,
+	message := ''
+);
+
+THIS^.AssertEquals_BOOL(
+	Expected 	:= assertionIsWrong,
+	Actual 		:= THIS^.assertorContainer.wasAssertionWrong,
+	Message 	:= messageStringBuilder.sOut
+);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testValueIsInRangeOf" Id="{65bc73c3-3975-4708-acb3-e9dcd64dc1a5}" FolderPath="valueIsInRangeOf\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.integer.unsigned.long.valueIsInRangeOf``
+method of CNM_AssertionInterfaceLib library, 
+it provides the possibility to handover test data via parameter 
+
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+METHOD testValueIsInRangeOf
+VAR_INPUT
+	(* for the test it's the parameter ``lowerLimit`` *)
+	lower		:ULINT;
+	(* for the test it's the parameter ``currentValue`` *)
+	valueToTest	:ULINT;
+	(* for the test it's the parameter ``upperLimit`` *)
+	upper		:ULINT;
+END_VAR          
+VAR
+	(* just the expectation if the assertion to test must be worng or true *)
+	assertionIsWrong		:BOOL;
+	(* contains the format string for the test message *)
+	message					:Tc2_System.T_MaxString;
+	(* TwinCAT printf with the test message *)
+	messageStringBuilder	:Tc2_Utilities.FB_FormatString;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.assertorContainer.resetAssertor();
+
+assertionIsWrong := ((valueToTest < lower) OR (valueToTest > upper)); 
+
+message := SEL(
+	assertionIsWrong,
+	'lowerLimit is %d currentValue is %d upperLimit is %d assertion must be TRUE', 
+	'lowerLimit is %d currentValue is %d upperLimit is %d assertion must be FALSE'
+);
+
+messageStringBuilder(
+	sFormat := message,
+	arg1 := THIS^.AnyToArg(lower),
+	arg2 := THIS^.AnyToArg(valueToTest),
+	arg3 := THIS^.AnyToArg(upper)
+);
+
+THIS^.assertorContainer.assertor.assert.integer.unsigned.long.valueIsInRangeOf(
+	lowerLimit := lower,
+	currentValue := valueToTest,
+	upperLimit := upper,
+	message := ''
+);
+
+THIS^.AssertEquals_BOOL(
+	Expected 	:= assertionIsWrong,
+	Actual 		:= THIS^.assertorContainer.wasAssertionWrong,
+	Message 	:= messageStringBuilder.sOut
+);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testValueIsLessThan" Id="{6a3d79ed-4f9c-44ba-bc95-8e3fad2547cb}" FolderPath="valueIsLessThan\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.integer.unsigned.long.valueIsLessThan``
+method of CNM_AssertionInterfaceLib library, 
+it provides the possibility to handover test data via parameter 
+
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+METHOD testValueIsLessThan
+VAR_INPUT
+	(* for the test it's the parameter ``currentValue`` *)
+	valueToTest	:ULINT;
+	(* for the test it's the parameter ``greaterValue`` *)
+	greater		:ULINT;
+END_VAR
+VAR
+	(* just the expectation if the assertion to test must be worng or true *)
+	assertionIsWrong		:BOOL;
+	(* contains the format string for the test message *)
+	message					:Tc2_System.T_MaxString;
+	(* TwinCAT printf with the test message *)
+	messageStringBuilder	:Tc2_Utilities.FB_FormatString;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.assertorContainer.resetAssertor();
+
+assertionIsWrong := (valueToTest >= greater);
+message := SEL(
+	assertionIsWrong,
+	'currentValue is %d greaterValue is %d assertion must be TRUE',
+	'currentValue is %d greaterValue is %d assertion must be FALSE'
+);
+messageStringBuilder(
+	sFormat := message,
+	arg1 := THIS^.AnyToArg(valueToTest),
+	arg2 := THIS^.AnyToArg(greater)
+);
+
+THIS^.assertorContainer.assertor.assert.integer.unsigned.long.valueIsLessThan(
+	currentValue := valueToTest,
+	greaterValue := greater,
+	message := ''
+);
+
+THIS^.AssertEquals_BOOL(
+	Expected 	:= assertionIsWrong,
+	Actual 		:= THIS^.assertorContainer.wasAssertionWrong,
+	Message 	:= messageStringBuilder.sOut
+);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testValueIsMax" Id="{df8cee4b-42fc-40a8-96e4-046ceee288b6}" FolderPath="valueIsMax\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.integer.unsigned.long.valueIsMax``
+method of CNM_AssertionInterfaceLib library, 
+it provides the possibility to handover test data via parameter 
+
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+METHOD testValueIsMax 
+VAR_INPUT
+	(* for the test it's the parameter ``currentValue`` *)
+	valueToTest	:ULINT;
+	(* for the test it's the parameter ``maximumValue`` *)
+	maximum		:ULINT;
+END_VAR
+VAR
+	(* just the expectation if the assertion to test must be worng or true *)
+	assertionIsWrong		:BOOL;
+	(* contains the format string for the test message *)
+	message					:Tc2_System.T_MaxString;
+	(* TwinCAT printf with the test message *)
+	messageStringBuilder	:Tc2_Utilities.FB_FormatString;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.assertorContainer.resetAssertor();
+
+assertionIsWrong := (valueToTest > maximum);
+message := SEL(
+	assertionIsWrong,
+	'currentValue is %d maximumValue is %d assertion must be TRUE',
+	'currentValue is %d maximumValue is %d assertion must be FALSE'
+);
+messageStringBuilder(
+	sFormat := message,
+	arg1 := THIS^.AnyToArg(valueToTest),
+	arg2 := THIS^.AnyToArg(maximum)
+);
+
+THIS^.assertorContainer.assertor.assert.integer.unsigned.long.valueIsMax(
+	currentValue := valueToTest,
+	maximumValue := maximum,
+	message := ''
+);
+
+THIS^.AssertEquals_BOOL(
+	Expected 	:= assertionIsWrong,
+	Actual 		:= THIS^.assertorContainer.wasAssertionWrong,
+	Message 	:= messageStringBuilder.sOut
+);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testValueIsMin" Id="{32c1919c-7070-487d-9042-e4af7c78c8ed}" FolderPath="valueIsMin\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.integer.unsigned.long.valueIsMin``
+method of CNM_AssertionInterfaceLib library, 
+it provides the possibility to handover test data via parameter 
+
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+METHOD testValueIsMin 
+VAR_INPUT
+	(* for the test it's the parameter ``currentValue`` *)
+	valueToTest	:ULINT;
+	(* for the test it's the parameter ``minimumValue`` *)
+	minimum		:ULINT;
+END_VAR
+VAR
+	(* just the expectation if the assertion to test must be worng or true *)
+	assertionIsWrong		:BOOL;
+	(* contains the format string for the test message *)
+	message					:Tc2_System.T_MaxString;
+	(* TwinCAT printf with the test message *)
+	messageStringBuilder	:Tc2_Utilities.FB_FormatString;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.assertorContainer.resetAssertor();
+
+assertionIsWrong := (valueToTest < minimum);
+message := SEL(
+	assertionIsWrong,
+	'currentValue is %d minimumValue is %d assertion must be TRUE',
+	'currentValue is %d minimumValue is %d assertion must be FALSE'
+);
+messageStringBuilder(
+	sFormat := message,
+	arg1 := THIS^.AnyToArg(valueToTest),
+	arg2 := THIS^.AnyToArg(minimum)
+);
+
+THIS^.assertorContainer.assertor.assert.integer.unsigned.long.valueIsMin(
+	currentValue := valueToTest,
+	minimumValue := minimum,
+	message := ''
+);
+
+THIS^.AssertEquals_BOOL(
+	Expected 	:= assertionIsWrong,
+	Actual 		:= THIS^.assertorContainer.wasAssertionWrong,
+	Message 	:= messageStringBuilder.sOut
+);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testValueIsNotEqualTo" Id="{d8861e65-cdd2-4c32-87f7-8e22fc824188}" FolderPath="valueIsNotEqual\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.integer.unsigned.long.valueIsNotEqualTo``
+method of CNM_AssertionInterfaceLib library, 
+it provides the possibility to handover test data via parameter 
+
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+METHOD testValueIsNotEqualTo
+VAR_INPUT
+	(* for the test it's the parameter ``currentValue`` *)
+	valueToTest	:ULINT;
+	(* for the test it's the parameter ``unexpectedValue`` *)
+	unexpected	:ULINT;
+END_VAR
+VAR
+	(* just the expectation if the assertion to test must be worng or true *)
+	assertionIsWrong		:BOOL;
+	(* contains the format string for the test message *)
+	message					:Tc2_System.T_MaxString;
+	(* TwinCAT printf with the test message *)
+	messageStringBuilder	:Tc2_Utilities.FB_FormatString;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.assertorContainer.resetAssertor();
+
+assertionIsWrong := (valueToTest = unexpected);
+message := SEL(
+	assertionIsWrong,
+	'currentValue is %d unexpectedValue is %d assertion must be TRUE', 
+	'currentValue is %d unexpectedValue is %d assertion must be FALSE'
+);
+messageStringBuilder(
+	sFormat := message,
+	arg1 := THIS^.AnyToArg(valueToTest),
+	arg2 := THIS^.AnyToArg(unexpected)
+);
+
+THIS^.assertorContainer.assertor.assert.integer.unsigned.long.valueIsNotEqualTo(
+	currentValue := valueToTest,
+	unexpectedValue := unexpected,
+	message := ''
+);
+
+THIS^.AssertEquals_BOOL(
+	Expected 	:= assertionIsWrong,
+	Actual 		:= THIS^.assertorContainer.wasAssertionWrong,
+	Message 	:= messageStringBuilder.sOut
+);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testValueIsOdd" Id="{1178f400-b289-40d9-b666-2ec9556da828}" FolderPath="valueIsOdd\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.integer.unsigned.long.valueIsOdd``
+of CNM_AssertionInterfaceLib library, 
+it provides the possibility to handover test data via parameter 
+
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+METHOD testValueIsOdd
+VAR_INPUT
+	(* for the test it's the parameter ``currentValue`` *)
+	valueToTest	:ULINT;
+END_VAR
+VAR
+	(* just the expectation if the assertion to test must be worng or true *)
+	assertionIsWrong		:BOOL;
+	(* contains the format string for the test message *)
+	message					:Tc2_System.T_MaxString;
+	(* TwinCAT printf with the test message *)
+	messageStringBuilder	:Tc2_Utilities.FB_FormatString;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.assertorContainer.resetAssertor();
+
+assertionIsWrong := (NOT valueToTest.FIRST_BIT);
+
+message := SEL(
+	assertionIsWrong,
+	'currentValue is %d assertion must be TRUE',
+	'currentValue is %d assertion must be FALSE'
+);
+
+messageStringBuilder(
+	sFormat := message,
+	arg1 := THIS^.AnyToArg(valueToTest)
+);
+
+THIS^.assertorContainer.assertor.assert.integer.unsigned.long.valueIsOdd(
+	currentValue 	:= valueToTest,
+	message			:= ''  
+); 
+
+THIS^.AssertEquals_BOOL(
+	Expected 	:= assertionIsWrong,
+	Actual 		:= THIS^.assertorContainer.wasAssertionWrong,
+	Message 	:= messageStringBuilder.sOut
+);
+]]></ST>
+      </Implementation>
+    </Method>
+    <LineIds Name="UlintAssertionTests">
+      <LineId Id="36" Count="0" />
+      <LineId Id="104" Count="5" />
+      <LineId Id="111" Count="1" />
+      <LineId Id="271" Count="0" />
+    </LineIds>
+    <LineIds Name="UlintAssertionTests.getTestNameFor">
+      <LineId Id="5" Count="0" />
+      <LineId Id="7" Count="0" />
+    </LineIds>
+    <LineIds Name="UlintAssertionTests.runValueIsEqualToTests">
+      <LineId Id="101" Count="25" />
+      <LineId Id="185" Count="3" />
+      <LineId Id="131" Count="3" />
+      <LineId Id="159" Count="3" />
+      <LineId Id="135" Count="1" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="UlintAssertionTests.runValueIsEvenTests">
+      <LineId Id="64" Count="1" />
+      <LineId Id="125" Count="5" />
+      <LineId Id="96" Count="0" />
+      <LineId Id="73" Count="0" />
+      <LineId Id="37" Count="0" />
+    </LineIds>
+    <LineIds Name="UlintAssertionTests.runValueIsGreaterTests">
+      <LineId Id="3" Count="1" />
+      <LineId Id="67" Count="23" />
+      <LineId Id="102" Count="2" />
+      <LineId Id="101" Count="0" />
+      <LineId Id="161" Count="3" />
+      <LineId Id="105" Count="2" />
+      <LineId Id="99" Count="0" />
+      <LineId Id="131" Count="7" />
+      <LineId Id="130" Count="0" />
+      <LineId Id="100" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="UlintAssertionTests.runValueIsInRangeOfTests">
+      <LineId Id="3" Count="0" />
+      <LineId Id="67" Count="1" />
+      <LineId Id="70" Count="17" />
+      <LineId Id="69" Count="0" />
+      <LineId Id="88" Count="3" />
+      <LineId Id="11" Count="0" />
+      <LineId Id="115" Count="9" />
+      <LineId Id="147" Count="14" />
+      <LineId Id="12" Count="1" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="UlintAssertionTests.runValueIsLessThanTests">
+      <LineId Id="3" Count="1" />
+      <LineId Id="67" Count="31" />
+      <LineId Id="103" Count="3" />
+      <LineId Id="130" Count="7" />
+      <LineId Id="107" Count="0" />
+      <LineId Id="13" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="UlintAssertionTests.runValueIsMaxTests">
+      <LineId Id="3" Count="0" />
+      <LineId Id="64" Count="4" />
+      <LineId Id="73" Count="3" />
+      <LineId Id="107" Count="2" />
+      <LineId Id="106" Count="0" />
+      <LineId Id="77" Count="7" />
+      <LineId Id="111" Count="2" />
+      <LineId Id="110" Count="0" />
+      <LineId Id="89" Count="7" />
+      <LineId Id="117" Count="0" />
+      <LineId Id="102" Count="2" />
+      <LineId Id="140" Count="7" />
+      <LineId Id="105" Count="0" />
+      <LineId Id="2" Count="0" />
+      <LineId Id="37" Count="0" />
+    </LineIds>
+    <LineIds Name="UlintAssertionTests.runValueIsMinTests">
+      <LineId Id="3" Count="0" />
+      <LineId Id="63" Count="32" />
+      <LineId Id="100" Count="3" />
+      <LineId Id="132" Count="7" />
+      <LineId Id="104" Count="1" />
+      <LineId Id="37" Count="0" />
+    </LineIds>
+    <LineIds Name="UlintAssertionTests.runValueIsNotEqualToTests">
+      <LineId Id="98" Count="33" />
+      <LineId Id="156" Count="3" />
+      <LineId Id="132" Count="1" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="UlintAssertionTests.runValueIsOddTests">
+      <LineId Id="64" Count="1" />
+      <LineId Id="125" Count="5" />
+      <LineId Id="96" Count="0" />
+      <LineId Id="73" Count="0" />
+      <LineId Id="37" Count="0" />
+    </LineIds>
+    <LineIds Name="UlintAssertionTests.testValueIsEqualTo">
+      <LineId Id="108" Count="0" />
+      <LineId Id="110" Count="10" />
+      <LineId Id="122" Count="2" />
+      <LineId Id="128" Count="0" />
+      <LineId Id="136" Count="1" />
+      <LineId Id="129" Count="6" />
+      <LineId Id="61" Count="0" />
+    </LineIds>
+    <LineIds Name="UlintAssertionTests.testValueIsEven">
+      <LineId Id="88" Count="23" />
+      <LineId Id="38" Count="1" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="UlintAssertionTests.testValueIsGreater">
+      <LineId Id="69" Count="23" />
+      <LineId Id="2" Count="0" />
+      <LineId Id="93" Count="0" />
+    </LineIds>
+    <LineIds Name="UlintAssertionTests.testValueIsInRangeOf">
+      <LineId Id="2" Count="0" />
+      <LineId Id="81" Count="1" />
+      <LineId Id="89" Count="0" />
+      <LineId Id="85" Count="3" />
+      <LineId Id="83" Count="0" />
+      <LineId Id="90" Count="5" />
+      <LineId Id="84" Count="0" />
+      <LineId Id="69" Count="0" />
+      <LineId Id="68" Count="0" />
+      <LineId Id="70" Count="4" />
+      <LineId Id="97" Count="4" />
+      <LineId Id="96" Count="0" />
+      <LineId Id="102" Count="0" />
+    </LineIds>
+    <LineIds Name="UlintAssertionTests.testValueIsLessThan">
+      <LineId Id="70" Count="23" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="UlintAssertionTests.testValueIsMax">
+      <LineId Id="70" Count="23" />
+      <LineId Id="2" Count="0" />
+      <LineId Id="94" Count="0" />
+    </LineIds>
+    <LineIds Name="UlintAssertionTests.testValueIsMin">
+      <LineId Id="69" Count="23" />
+      <LineId Id="2" Count="0" />
+      <LineId Id="93" Count="0" />
+    </LineIds>
+    <LineIds Name="UlintAssertionTests.testValueIsNotEqualTo">
+      <LineId Id="70" Count="24" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="UlintAssertionTests.testValueIsOdd">
+      <LineId Id="88" Count="23" />
+      <LineId Id="38" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

@@ -1,0 +1,68 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <Itf Name="IAssertorContainer" Id="{0aa55e67-a447-43ff-a4d9-4d283ae67d0e}">
+    <Declaration><![CDATA[(*
+
+short summary
+=============
+An assertion is handled internally, and there is no common way to determine if an assertion was wrong.
+This interface is just a helper to build containers to test assertions in a unified way.
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+properties
+==========
+
+*)
+
+INTERFACE IAssertorContainer //EXTENDS CNM_AbstractObject.IObject]]></Declaration>
+    <Property Name="assertor" Id="{ac0f499e-7899-424e-837d-50966f5c899a}">
+      <Declaration><![CDATA[PROPERTY assertor :CNM_AssertionInterfaceLib.IAssertor]]></Declaration>
+      <Get Name="Get" Id="{d089bdfb-6d59-4676-92d8-3a7d61f5dcf5}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Method Name="resetAssertor" Id="{f29d7910-0fbf-4563-b3c9-2a15b885cf2c}">
+      <Declaration><![CDATA[METHOD resetAssertor
+VAR_INPUT
+END_VAR
+]]></Declaration>
+    </Method>
+    <Property Name="wasAssertionWrong" Id="{1bb34dbe-e8ba-4e27-9f46-260f606c401d}">
+      <Declaration><![CDATA[(*
+
+short summary
+=============
+This property is used by the tests to determine if the assertion was right or wrong (getter)
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+PROPERTY wasAssertionWrong :BOOL]]></Declaration>
+      <Get Name="Get" Id="{2c3322ad-1609-4944-adc8-b4d6d8c7b9f8}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+  </Itf>
+</TcPlcObject>

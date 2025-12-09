@@ -1,0 +1,1953 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.8">
+  <POU Name="Utf8StringPointerAssertions" Id="{058fba8f-673b-4a67-89b3-ae2fece30c06}" SpecialFunc="None">
+    <Declaration><![CDATA[(*
+
+short summary
+=================
+This class provides assert statements for UTF-8 strings
+
+.. attention:: 
+	All strings are handled as null-terminated byte streams.
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2024 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+methods and properties
+=======================
+
+*)
+
+{attribute 'reflection'}
+FUNCTION_BLOCK INTERNAL Utf8StringPointerAssertions EXTENDS AbstarctStringPointerAssertions IMPLEMENTS IUtf8StringPointerAssertions]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Folder Name="internal" Id="{b670746b-973d-4a5f-989e-872c460b8cb9}" />
+    <Property Name="className" Id="{f358869d-bf2a-4726-9775-6246e3ac07c5}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This abstract property returns the class name of the concrete object, 
+It's for debugging purpose
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2024 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+PROPERTY className :CNM_AbstractObject.ClassName]]></Declaration>
+      <Get Name="Get" Id="{5d993d13-307e-4f53-a77e-d00ebcfae2ee}">
+        <Declaration><![CDATA[]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[className := 'CNM_AssertionInterfaceLib.Utf8StringPointerAssertions';]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="contains" Id="{ad46c82b-a10e-4903-bc23-00d824ba1fcb}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current string ``stringToCheck`` contains the search string ``searchString``.
+Processed strings must be in UTF-8 encoding
+
+.. attention:: 
+	All strings are handled as null-terminated byte streams
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2024 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD contains : IUtf8StringPointerAssertions
+VAR_INPUT
+	(* current string to check *)
+	stringToCheck	:POINTER TO BYTE;
+	(* string must be found in ``stringToCheck`` *)
+	searchString	:POINTER TO BYTE;
+	(* ``TRUE`` means ignore cases; ``FALSE`` means that cases must be equal too *)
+	ignoreCases		:BOOL;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+VAR
+	(* length of current string to check in bytes *)
+	stringToCheckByteCount		:UDINT;
+	(* length of current string to check in characters *)
+	stringToCheckCodePointCount	:UDINT;
+	(* length of ``searchString`` in bytes *)
+	searchStringByteCount		:UDINT;
+	(* length of ``searchString`` in characters *)
+	searchStringCodePointCount	:UDINT;
+	
+	(* DWORD array we use to check *)
+	usedCodePointsToCheck		:POINTER TO UnicodeCodePoint;
+	usedCodePointToCheckCount	:UDINT;
+	
+	(* DWORD array we use to compare *)
+	usedSearchCodePoints		:POINTER TO UnicodeCodePoint;
+	usedSearchCodePointCount	:UDINT;
+	
+	(* code point index for the comperation *)
+	codePointIndex				:DINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[contains := THIS^;
+
+THIS^.getStringLength(stringToCheck, byteCount => stringToCheckByteCount, codePointCount => stringToCheckCodePointCount);
+THIS^.getStringLength(searchString, byteCount => searchStringByteCount, codePointCount => searchStringCodePointCount);
+
+(* convert ``stringToCheck`` to code points *)
+getCodePointsFromUtf8String(
+	utf8StringAddress 	:= stringToCheck, 
+	utf8StringByteCount	:= stringToCheckByteCount, 
+	addressOfCodePoints	=> usedCodePointsToCheck, 
+	codePointCount		=> usedCodePointToCheckCount);
+IF (usedCodePointsToCheck = 0) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('contains'));
+	RETURN;
+END_IF
+
+(* convert ``searchString`` to code points *)
+getCodePointsFromUtf8String(
+	utf8StringAddress 	:= searchString, 
+	utf8StringByteCount	:= searchStringByteCount, 
+	addressOfCodePoints	=> usedSearchCodePoints, 
+	codePointCount 		=> usedSearchCodePointCount);
+IF (usedSearchCodePoints = 0) THEN
+	__DELETE(usedCodePointsToCheck);
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('contains'));
+	RETURN;
+END_IF
+
+IF (
+	NOT THIS^.isContainsNoCheckNecessary(
+		stringToCheck		:= usedCodePointsToCheck,
+		searchString		:= usedSearchCodePoints,
+		lenghtStringToCheck	:= usedCodePointToCheckCount * SIZEOF(UnicodeCodePoint),
+		lengthSearchString	:= usedSearchCodePointCount * SIZEOF(UnicodeCodePoint),
+		additionalText		:= THIS^.getDebugInfo('contains'),
+		message				:= message
+	)
+) THEN
+	RETURN;
+END_IF
+
+IF (ignoreCases) THEN
+	upperCase(usedCodePointsToCheck, usedCodePointToCheckCount);
+	upperCase(usedSearchCodePoints, usedSearchCodePointCount);
+END_IF
+
+WHILE (codePointIndex <= TO_DINT(usedCodePointToCheckCount - usedSearchCodePointCount)) DO
+	IF (
+		Tc2_System.MEMCMP(
+			ADR(usedCodePointsToCheck[codePointIndex]), 
+			usedSearchCodePoints, 
+			usedSearchCodePointCount * SIZEOF(UnicodeCodePoint)
+		) = CNM_ReturnTypes.ComparationResult.EQUAL
+	) THEN	
+		__DELETE(usedCodePointsToCheck);
+		__DELETE(usedSearchCodePoints);
+		
+		RETURN;
+	END_IF;
+
+	codePointIndex := codePointIndex + 1;
+END_WHILE
+
+THIS^.assertionWasWrong(message, THIS^.getDebugInfo('contains'));
+
+__DELETE(usedCodePointsToCheck);
+__DELETE(usedSearchCodePoints);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="containsNo" Id="{3f7d09ac-95ab-4cd1-a097-b615995a84f2}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current string ``stringToCheck`` doesn't contain the search string ``searchString``.
+Processed strings must be in UTF-8 encoding
+
+.. attention:: 
+	All strings are handled as null-terminated byte streams
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2024 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD containsNo : IUtf8StringPointerAssertions
+VAR_INPUT
+	(* current string to check *)
+	stringToCheck	:POINTER TO BYTE;
+	(* string must be found in ``stringToCheck`` *)
+	searchString	:POINTER TO BYTE;
+	(* ``TRUE`` means ignore cases; ``FALSE`` means that cases must be equal too *)
+	ignoreCases		:BOOL;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+VAR
+	(* length of current string to check in bytes *)
+	stringToCheckByteCount			:UDINT;
+	(* length of current string to check in characters *)
+	stringToCheckCodePointCount		:UDINT;
+	(* length of ``searchString`` in bytes *)
+	searchStringByteCount			:UDINT;
+	(* length of ``searchString`` in characters *)
+	searchStringCodePointCount		:UDINT;
+	
+	(* DWORD array we use to check *)
+	usedCodePointsToCheck		:POINTER TO UnicodeCodePoint;
+	usedCodePointToCheckCount	:UDINT;
+	
+	(* DWORD array we use to compare *)
+	usedSearchCodePoints		:POINTER TO UnicodeCodePoint;
+	usedSearchCodePointCount	:UDINT;
+	
+	(* code point index for the comperation *)
+	codePointIndex				:DINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[containsNo := THIS^;
+
+THIS^.getStringLength(stringToCheck, byteCount => stringToCheckByteCount, codePointCount => stringToCheckCodePointCount);
+THIS^.getStringLength(searchString, byteCount => searchStringByteCount, codePointCount => searchStringCodePointCount);
+
+(* convert ``stringToCheck`` to code points *)
+getCodePointsFromUtf8String(
+	utf8StringAddress	:= stringToCheck, 
+	utf8StringByteCount	:= stringToCheckByteCount, 
+	addressOfCodePoints	=> usedCodePointsToCheck, 
+	codePointCount	=> usedCodePointToCheckCount);
+IF (usedCodePointsToCheck = 0) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('containsNo'));
+	RETURN;
+END_IF
+
+(* convert ``searchString`` to code points *)
+getCodePointsFromUtf8String(
+	utf8StringAddress	:= searchString, 
+	utf8StringByteCount	:= searchStringByteCount, 
+	addressOfCodePoints	=> usedSearchCodePoints, 
+	codePointCount		=> usedSearchCodePointCount);
+IF (usedSearchCodePoints = 0) THEN
+	__DELETE(usedCodePointsToCheck);
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('containsNo'));
+	RETURN;
+END_IF	
+
+IF (
+	NOT THIS^.isContainsCheckNecessary(
+		stringToCheck		:= usedCodePointsToCheck,
+		searchString		:= usedSearchCodePoints,
+		lenghtStringToCheck	:= usedCodePointToCheckCount * SIZEOF(UnicodeCodePoint),
+		lengthSearchString	:= usedSearchCodePointCount * SIZEOF(UnicodeCodePoint),
+		additionalText		:= THIS^.getDebugInfo('containsNo'),
+		message				:= message
+	)
+) THEN
+	RETURN;
+END_IF
+
+IF (ignoreCases) THEN
+	upperCase(usedCodePointsToCheck, usedCodePointToCheckCount);
+	upperCase(usedSearchCodePoints, usedSearchCodePointCount);
+END_IF
+
+codePointIndex := 0;
+WHILE (codePointIndex <= TO_DINT(usedCodePointToCheckCount - usedSearchCodePointCount)) DO
+	IF (
+		Tc2_System.MEMCMP(
+			ADR(usedCodePointsToCheck[codePointIndex]), 
+			usedSearchCodePoints, 
+			usedSearchCodePointCount * SIZEOF(UnicodeCodePoint)
+		) = CNM_ReturnTypes.ComparationResult.EQUAL
+	) THEN	
+		THIS^.assertionWasWrong(message, THIS^.getDebugInfo('containsNo'));	
+	
+		__DELETE(usedCodePointsToCheck);
+		__DELETE(usedSearchCodePoints);
+		
+		RETURN;
+	END_IF;
+
+	codePointIndex := codePointIndex + 1;
+END_WHILE
+
+__DELETE(usedCodePointsToCheck);
+__DELETE(usedSearchCodePoints);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="decodeCodePointFromOctets" Id="{22b8aedc-89c3-429a-831e-8ed8f87cdd0e}" FolderPath="internal\">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This method decodes one code point from octets 
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2024 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD PRIVATE decodeCodePointFromOctets
+VAR_INPUT
+	octetsToDecode		:POINTER TO ARRAY [0..3] OF BYTE; 
+	octetToDecodeCount	:BYTE(1..4);
+END_VAR
+VAR_OUTPUT
+	codePoint			:UnicodeCodePoint;
+END_VAR
+VAR
+	codePointBytes 		:POINTER TO ARRAY [0..3] OF BYTE; 
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[codePointBytes := ADR(codePoint);
+
+CASE octetToDecodeCount OF
+	1: 
+		codePointBytes^[0] := (octetsToDecode^[0] AND 2#01111111); // decoded as is
+	
+	2:
+		codePointBytes^[0] := (octetsToDecode^[1] AND 2#00111111) + SHL(octetsToDecode^[0] AND 2#00000011, 6);	  
+		codePointBytes^[1] := SHR(octetsToDecode^[0] AND 2#00011100, 2);										
+	
+	3:
+		codePointBytes^[0] := (octetsToDecode^[2] AND 2#00111111) + SHL(octetsToDecode^[1] AND 2#00000011, 6);
+		codePointBytes^[1] := SHR(octetsToDecode^[1] AND 2#00111100, 2) + SHL(octetsToDecode^[0] AND 2#00001111, 4);
+	
+	4:
+		codePointBytes^[0] := (octetsToDecode^[3] AND 2#00111111) + SHL(octetsToDecode^[2] AND 2#00000011, 6); 
+		codePointBytes^[1] := SHR(octetsToDecode^[2] AND 2#00111100, 2) + SHL(octetsToDecode^[1] AND 2#00001111, 4);
+		codePointBytes^[2] := SHR(octetsToDecode^[2] AND 2#00110000, 4) + SHL(octetsToDecode^[3] AND 2#00000111, 3);
+END_CASE]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="encodeEncodeCodePointToOctets" Id="{d2de82cc-fdf9-4fc7-9bde-e1848e593b97}" FolderPath="internal\">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This method encodes one code point to octets 
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2024 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD PRIVATE encodeEncodeCodePointToOctets 
+VAR_INPUT
+	codePoint			:UnicodeCodePoint;
+	octetCount			:BYTE(1..4);		
+	targetOctetBuffer	:POINTER TO BYTE;
+END_VAR
+VAR
+	codePointBytes 	:POINTER TO ARRAY [0..3] OF BYTE; 
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[codePointBytes := ADR(codePoint);
+
+CASE octetCount OF
+	1:
+		targetOctetBuffer[0] := codePointBytes^[0] AND 2#01111111;
+		
+	2:
+		targetOctetBuffer[0] := 2#11000000 + SHL(codePointBytes^[1] AND 2#00000111, 2) + SHR(codePointBytes^[0] AND 2#11000000, 6);
+		targetOctetBuffer[1] := 2#10000000 + (codePointBytes^[0] AND 2#00111111);
+	
+	3:
+		targetOctetBuffer[0] := 2#11100000 + SHR(codePointBytes^[1] AND 2#11110000, 4);
+		targetOctetBuffer[1] := 2#10000000 + SHL(codePointBytes^[1] AND 2#00001111, 2) + SHR(codePointBytes^[0] AND 2#11000000, 6);
+		targetOctetBuffer[2] := 2#10000000 + (codePointBytes^[0] AND 2#00111111);
+	
+	4:
+		targetOctetBuffer[0] := 2#11110000 + SHR(codePointBytes^[2] AND 2#00011100, 2);
+		targetOctetBuffer[1] := 2#10000000 + SHL(codePointBytes^[2] AND 2#00000011, 4) + SHR(codePointBytes^[1] AND 2#11110000, 4);
+		targetOctetBuffer[2] := 2#10000000 + SHL(codePointBytes^[1] AND 2#00001111, 2) + SHR(codePointBytes^[0] AND 2#11000000, 6);
+		targetOctetBuffer[3] := 2#10000000 + (codePointBytes^[0] AND 2#00111111);
+END_CASE]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="endsWith" Id="{35d35b3a-1853-4a37-b16c-a2459a4e2b6f}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current string ``stringToCheck`` ends with the string ``end``.
+Processed strings must be in UTF-8 encoding
+
+.. attention:: 
+	All strings are handled as null-terminated byte streams
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2024 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD endsWith : IUtf8StringPointerAssertions
+VAR_INPUT
+	(* current string to check *)
+	stringToCheck	:POINTER TO BYTE;
+	(* string must be the end of ``stringToCheck`` *)
+	end				:POINTER TO BYTE;
+	(* ``TRUE`` means ignore cases; ``FALSE`` means that cases must be equal too *)
+	ignoreCases		:BOOL;
+	(* ``TRUE`` means truncation of spaces on the right side of ``stringToCheck``*)
+	trimRight		:BOOL;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+VAR
+	(* length of current string to check in bytes *)
+	stringToCheckByteCount		:UDINT;
+	(* length of current string to check in characters *)
+	stringToCheckCodePointCount	:UDINT;
+	(* length of ``end`` in bytes *)
+	endStringByteCount			:UDINT;
+	(* length of ``end`` in characters *)
+	endStringCodePointCount		:UDINT;
+
+	(* DWORD array we use to check *)
+	usedCodePointsToCheck		:POINTER TO UnicodeCodePoint;
+	usedCodePointToCheckCount	:UDINT;
+	
+	(* DWORD array we use to compare *)
+	usedEndCodePoints			:POINTER TO UnicodeCodePoint;
+	usedEndCodePointCount		:UDINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[endsWith := THIS^;
+
+THIS^.getStringLength(stringToCheck, byteCount => stringToCheckByteCount, codePointCount => stringToCheckCodePointCount);
+THIS^.getStringLength(end, byteCount => endStringByteCount, codePointCount => endStringCodePointCount);
+
+(* convert ``stringToCheck`` to code points *)
+getCodePointsFromUtf8String(
+	utf8StringAddress 	:= stringToCheck, 
+	utf8StringByteCount	:= stringToCheckByteCount, 
+	addressOfCodePoints	=> usedCodePointsToCheck, 
+	codePointCount 		=> usedCodePointToCheckCount);
+IF (usedCodePointsToCheck = 0) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('endsWith'));
+	RETURN;
+END_IF
+
+(* convert ``end`` to code points *)
+getCodePointsFromUtf8String(
+	utf8StringAddress 	:= end, 
+	utf8StringByteCount := endStringByteCount, 
+	addressOfCodePoints	=> usedEndCodePoints, 
+	codePointCount 		=> usedEndCodePointCount);
+IF usedEndCodePoints = 0 THEN
+	__DELETE(usedCodePointsToCheck);
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('endsWith'));
+	RETURN;
+END_IF	
+
+IF (trimRight) THEN
+	THIS^.trimRight(usedCodePointsToCheck, usedCodePointToCheckCount);		
+END_IF
+
+IF (
+	NOT THIS^.isContainsCheckNecessary(
+		stringToCheck		:= usedCodePointsToCheck,
+		searchString		:= usedEndCodePoints,
+		lenghtStringToCheck	:= usedCodePointToCheckCount * SIZEOF(UnicodeCodePoint),
+		lengthSearchString	:= usedEndCodePointCount * SIZEOF(UnicodeCodePoint),
+		additionalText		:= THIS^.getDebugInfo('endsWith'),
+		message				:= message
+	)
+) THEN
+	RETURN;
+END_IF
+
+IF (ignoreCases) THEN
+	upperCase(usedCodePointsToCheck, usedCodePointToCheckCount);
+	upperCase(usedEndCodePoints, usedEndCodePointCount);
+END_IF
+
+IF (Tc2_System.MEMCMP(
+		ADR(usedCodePointsToCheck[usedCodePointToCheckCount - usedEndCodePointCount]),
+		usedEndCodePoints, 
+		usedEndCodePointCount
+	) <> CNM_ReturnTypes.ComparationResult.EQUAL
+) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('endsWith'));
+END_IF;
+
+__DELETE(usedCodePointsToCheck);
+__DELETE(usedEndCodePoints);	]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="getCodePointsFromUtf8String" Id="{9e4979aa-6702-45ba-beab-f8f6a49d762e}" FolderPath="internal\">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This methods creates a code point array from an UTF-8 string
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2024 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD PROTECTED getCodePointsFromUtf8String
+VAR_INPUT
+	utf8StringAddress	:POINTER TO BYTE;
+	utf8StringByteCount	:UDINT;
+END_VAR
+VAR_OUTPUT	
+	addressOfCodePoints	:POINTER TO UnicodeCodePoint;
+	codePointCount		:UDINT;
+END_VAR
+VAR CONSTANT
+	END_OF_STRING		:BYTE := 16#00;
+END_VAR
+VAR
+	byteIndex			:UDINT;
+	octetCount			:BYTE(1..4);
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (utf8StringAddress = 0) THEN
+	RETURN;
+END_IF
+
+addressOfCodePoints := __NEW(UnicodeCodePoint, utf8StringByteCount);
+
+WHILE (byteIndex < utf8StringByteCount AND_THEN utf8StringAddress[byteIndex] <> END_OF_STRING) DO
+	octetCount := getOctetCountByFirstOctet(utf8StringAddress[byteIndex]);
+	
+	IF (octetCount = 0) THEN	
+		codePointCount := 0;
+		__DELETE(addressOfCodePoints);		
+		RETURN;
+	END_IF
+
+	IF (octetCount <= utf8StringByteCount - byteIndex) THEN
+		addressOfCodePoints[codePointCount] := decodeCodePointFromOctets(ADR(utf8StringAddress[byteIndex]), octetCount);
+		
+		byteIndex := byteIndex + octetCount;		
+		codePointCount := codePointCount + 1;
+	ELSE
+		RETURN;
+	END_IF
+END_WHILE]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="getOctetCountByCodePoint" Id="{fab66af4-1b50-46c1-90b1-a4350879d48e}" FolderPath="internal\">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This methods returns required octets amount to encode code point 
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2024 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD PRIVATE getOctetCountByCodePoint : BYTE(0..4)
+VAR_INPUT
+	codePoint : UnicodeCodePoint;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (codePoint <= 16#007F) THEN
+	getOctetCountByCodePoint := 1;
+ELSIF (codePoint <= 16#07FF) THEN
+	getOctetCountByCodePoint := 2;
+ELSIF (codePoint <= 16#FFFF) THEN
+	getOctetCountByCodePoint := 3;
+ELSIF (codePoint <= 16#10FFFF) THEN
+	getOctetCountByCodePoint := 4;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="getOctetCountByFirstOctet" Id="{d1b8ddb8-63ba-45f3-a049-322651d64a85}" FolderPath="internal\">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This methods returns octets amount by first octet
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2024 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD PRIVATE getOctetCountByFirstOctet : BYTE(0..4)
+VAR_INPUT
+	firstByte : BYTE;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (SHR(firstByte, 7) = 2#0) THEN
+	getOctetCountByFirstOctet := 1;	
+ELSIF (SHR(firstByte, 5) = 2#110) THEN
+	getOctetCountByFirstOctet := 2;	
+ELSIF (SHR(firstByte, 4) = 2#1110) THEN
+	getOctetCountByFirstOctet := 3;	
+ELSIF (SHR(firstByte, 3) = 2#11110) THEN
+	getOctetCountByFirstOctet := 4;	
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="getStringLength" Id="{0c8d7c08-edae-407d-8d67-26093a7c9f36}" FolderPath="internal\">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This methods returns the length of an UTF-8 string in bytes and characters 
+
+.. attention:: 
+	All strings are handled as null-terminated byte streams
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2024 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD PROTECTED getStringLength
+VAR_INPUT
+	stringAddress	:POINTER TO BYTE;
+END_VAR
+VAR_OUTPUT
+	byteCount		:UDINT;
+	codePointCount	:UDINT;
+END_VAR
+VAR CONSTANT
+	(* the end of string marker *)
+	END_OF_STRING	:BYTE := 16#00;
+END_VAR
+VAR
+	octetsCount 	:BYTE(0..4);
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (stringAddress = 0) THEN
+	RETURN;
+END_IF
+
+WHILE (stringAddress[byteCount] <> END_OF_STRING) DO
+	codePointCount := codePointCount + 1;
+	
+	octetsCount := getOctetCountByFirstOctet(stringAddress[byteCount]);
+	
+	IF (octetsCount > 0) THEN
+		byteCount := byteCount + octetsCount;
+	ELSE		
+		codePointCount := 0;
+		byteCount := 0;
+		RETURN;
+	END_IF
+END_WHILE
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="getUtf8StringFromCodePoints" Id="{a73395eb-eaf2-40a0-b9b4-572a5ce8c205}" FolderPath="internal\">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This methods creates an UTF-8 string from a code points array
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2024 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD PROTECTED getUtf8StringFromCodePoints
+VAR_INPUT
+	addressOfCodePoints		:POINTER TO UnicodeCodePoint;
+	codePointCount			:UDINT;
+END_VAR
+VAR_OUTPUT	
+	utf8StringAddress		:POINTER TO BYTE;
+	utf8StringByteCount		:UDINT;
+END_VAR
+VAR CONSTANT
+	END_OF_STRING			:BYTE := 16#00;
+END_VAR
+VAR
+	codePointIndex			:UDINT;
+	currentCodePoint 		:UnicodeCodePoint;
+	octetCount 				:BYTE(0..4);
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (addressOfCodePoints = 0) THEN
+	RETURN;
+END_IF
+
+utf8StringAddress := __NEW(BYTE, (codePointCount * SIZEOF(UnicodeCodePoint) + 1));
+
+WHILE (codePointIndex < codePointCount AND_THEN addressOfCodePoints[codePointIndex] > 0) DO
+	currentCodePoint := addressOfCodePoints[codePointIndex];
+	
+	octetCount := getOctetCountByCodePoint(currentCodePoint);
+	
+	IF (octetCount = 0) THEN
+		RETURN;	
+	END_IF
+
+	encodeEncodeCodePointToOctets(currentCodePoint, octetCount, ADR(utf8StringAddress[utf8StringByteCount]));
+		
+	codePointIndex := codePointIndex + 1;
+	utf8StringByteCount := utf8StringByteCount + octetCount;
+END_WHILE]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="isCodePointWhiteSpace" Id="{0400a462-8d4a-4f85-8351-337f1b2c4fb4}" FolderPath="internal\">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This methods checks if a unicode character (code point) is a whitespace
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2024 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+:return: ``TRUE`` means ``code point`` is whitespace,
+``FALSE`` means ``code point`` is no whitespace 
+
+*)
+
+METHOD PROTECTED isCodePointWhiteSpace : BOOL
+VAR_INPUT
+	(* character to check if it's whitespace *)
+	codePoint	:UnicodeCodePoint;
+END_VAR
+VAR CONSTANT
+	CHARACTER_TABULATION		:UnicodeCodePoint := 16#0009;
+	LINE_FEED					:UnicodeCodePoint := 16#000A; 
+	LINE_TABULATION				:UnicodeCodePoint := 16#000B;
+	FORM_FEED					:UnicodeCodePoint := 16#000C;
+	CARRIAGE_RETURN				:UnicodeCodePoint := 16#000D;
+
+	SPACE						:UnicodeCodePoint := 16#0020;
+	
+	NEXT_LINE					:UnicodeCodePoint := 16#0085;
+	
+	NO_BREAK_SPACE				:UnicodeCodePoint := 16#00A0;
+	
+ 	OGHAM_SPACE_MARK			:UnicodeCodePoint := 16#1680;
+	
+	EN_QUAD						:UnicodeCodePoint := 16#2000;
+	EM_QUAD						:UnicodeCodePoint := 16#2001;
+	EN_SPACE					:UnicodeCodePoint := 16#2002;
+	EM_SPACE					:UnicodeCodePoint := 16#2003;
+	THREE_PER_EM_SPACE			:UnicodeCodePoint := 16#2004;
+	FOUR_PER_EM_SPACE			:UnicodeCodePoint := 16#2005;
+	SIX_PER_EM_SPACE			:UnicodeCodePoint := 16#2006;
+	FIGURE_SPACE				:UnicodeCodePoint := 16#2007;
+	PUNCTUATION_SPACE 			:UnicodeCodePoint := 16#2008;
+	THIN_SPACE					:UnicodeCodePoint := 16#2009;
+	HAIR_SPACE					:UnicodeCodePoint := 16#200A;
+	
+	LINE_SEPARATOR				:UnicodeCodePoint := 16#2028;
+	PARAGRAPH_SEPARATOR			:UnicodeCodePoint := 16#2029;
+	
+	NARROW_NO_BREAK_SPACE		:UnicodeCodePoint := 16#202F;
+	
+	MEDIUM_MATHEMATICAL_SPACE	:UnicodeCodePoint := 16#205F;
+	
+	IDEOGRAPHIC_SPACE			:UnicodeCodePoint := 16#3000;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[CASE codePoint OF
+	CHARACTER_TABULATION .. CARRIAGE_RETURN,
+	SPACE,
+	NEXT_LINE,
+	NO_BREAK_SPACE,
+	OGHAM_SPACE_MARK,
+	EN_QUAD..HAIR_SPACE,
+	LINE_SEPARATOR .. PARAGRAPH_SEPARATOR,
+	NARROW_NO_BREAK_SPACE,
+	MEDIUM_MATHEMATICAL_SPACE,
+	IDEOGRAPHIC_SPACE:
+		isCodePointWhiteSpace := TRUE;
+	ELSE
+		isCodePointWhiteSpace := FALSE;	
+END_CASE
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="isEqualTo" Id="{83c5b15e-beb4-4429-b063-376322bd70de}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current string ``stringToCheck`` is equal to ``expected``.
+Processed strings must be in UTF-8 encoding
+
+.. attention:: 
+	All strings are handled as null-terminated byte streams
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2024 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD isEqualTo : IUtf8StringPointerAssertions
+VAR_INPUT
+	(* current string to check *)
+	stringToCheck	:POINTER TO BYTE;
+	(* ``stringToCheck`` must be equal to expected *)
+	expected		:POINTER TO BYTE;
+	(* ``TRUE`` means ignore cases; ``FALSE`` means that cases must be equal too *)
+	ignoreCases		:BOOL;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+VAR
+	(* length of current string to check in bytes *)
+	stringToCheckByteCount			:UDINT;
+	(* length of current string to check in characters *)
+	stringToCheckCodePointCount		:UDINT;
+	(* length of ``expected`` in bytes *)
+	expectedStringByteCount			:UDINT;
+	(* length of ``expected`` in characters *)
+	expectedStringCodePointCount	:UDINT;
+	
+	(* DWORD array we use to check *)
+	usedCodePointsToCheck			:POINTER TO UnicodeCodePoint;
+	usedCodePointToCheckCount		:UDINT;
+	
+	(* DWORD array we use to compare *)
+	usedExpectedCodePoints			:POINTER TO UnicodeCodePoint;
+	usedExpectedCodePointCount		:UDINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[isEqualTo := THIS^;
+
+THIS^.getStringLength(stringToCheck, byteCount => stringToCheckByteCount, codePointCount => stringToCheckCodePointCount);
+THIS^.getStringLength(expected, byteCount => expectedStringByteCount, codePointCount => expectedStringCodePointCount);
+
+IF (stringToCheckCodePointCount <> expectedStringCodePointCount) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('isEqualTo'));
+	RETURN;
+ELSIF (expectedStringCodePointCount = 0) THEN
+	RETURN;
+END_IF
+
+(* convert ``stringToCheck`` to code points *)
+getCodePointsFromUtf8String(
+	utf8StringAddress 	:= stringToCheck, 
+	utf8StringByteCount	:= stringToCheckByteCount, 
+	addressOfCodePoints	=> usedCodePointsToCheck, 
+	codePointCount		=> usedCodePointToCheckCount);
+IF (usedCodePointsToCheck = 0) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('isEqualTo'));
+	RETURN;
+END_IF
+
+(* convert ``expected`` to code points *)
+getCodePointsFromUtf8String(
+	utf8StringAddress 	:= expected, 
+	utf8StringByteCount	:= expectedStringByteCount, 
+	addressOfCodePoints	=> usedExpectedCodePoints, 
+	codePointCount 		=> usedExpectedCodePointCount);
+IF (usedExpectedCodePoints = 0) THEN
+	__DELETE(usedCodePointsToCheck);
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('isEqualTo'));
+	RETURN;
+END_IF
+
+IF (ignoreCases) THEN
+	upperCase(usedCodePointsToCheck, usedCodePointToCheckCount);
+	upperCase(usedExpectedCodePoints, usedExpectedCodePointCount);
+END_IF
+
+IF (Tc2_System.MEMCMP(
+		usedCodePointsToCheck,
+		usedExpectedCodePoints, 
+		usedExpectedCodePointCount * SIZEOF(UnicodeCodePoint)
+	) <> CNM_ReturnTypes.ComparationResult.EQUAL
+) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('isEqualTo'));
+END_IF;
+
+__DELETE(usedCodePointsToCheck);
+__DELETE(usedExpectedCodePoints);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="isNotEqualTo" Id="{6428bff8-9fd7-42b1-8844-c5eed685521e}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current string ``stringToCheck`` is not equal to ``unexpected``.
+Processed strings must be in UTF-8 encoding
+
+.. attention:: 
+	All strings are handled as null-terminated byte streams
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2024 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD isNotEqualTo : IUtf8StringPointerAssertions
+VAR_INPUT
+	(* current string to check *)
+	stringToCheck	:POINTER TO BYTE;
+	(* ``stringToCheck`` must be not equal to expected *)
+	unexpected		:POINTER TO BYTE;
+	(* ``TRUE`` means ignore cases; ``FALSE`` means that cases must be equal too *)
+	ignoreCases		:BOOL;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+VAR
+	(* length of current string to check in bytes *)
+	stringToCheckByteCount			:UDINT;
+	(* length of current string to check in characters *)
+	stringToCheckCodePointCount		:UDINT;
+	(* length of ``unexpected`` in bytes *)
+	unexpectedStringByteCount		:UDINT;
+	(* length of ``unexpected`` in characters *)
+	unexpectedStringCodePointCount	:UDINT;
+	
+	(* DWORD array we use to check *)
+	usedCodePointsToCheck			:POINTER TO UnicodeCodePoint;
+	usedCodePointToCheckCount		:UDINT;
+	
+	(* DWORD array we use to compare *)
+	usedUnexpectedCodePoints		:POINTER TO UnicodeCodePoint;
+	usedUnexpectedCodePointCount	:UDINT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[isNotEqualTo := THIS^;
+
+THIS^.getStringLength(stringToCheck, byteCount => stringToCheckByteCount, codePointCount => stringToCheckCodePointCount);
+THIS^.getStringLength(unexpected, byteCount => unexpectedStringByteCount, codePointCount => unexpectedStringCodePointCount);
+
+IF (stringToCheckCodePointCount = 0 AND_THEN unexpectedStringCodePointCount = 0) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('isNotEqualTo'));
+	RETURN;
+END_IF
+
+(* convert ``stringToCheck`` to code points *)
+getCodePointsFromUtf8String(
+	utf8StringAddress 	:= stringToCheck, 
+	utf8StringByteCount	:= stringToCheckByteCount, 
+	addressOfCodePoints	=> usedCodePointsToCheck, 
+	codePointCount		=> usedCodePointToCheckCount);
+IF (usedCodePointsToCheck = 0) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('isNotEqualTo'));
+	RETURN;
+END_IF
+
+(* convert ``unexpected`` to code points *)
+getCodePointsFromUtf8String(
+	utf8StringAddress 	:= unexpected, 
+	utf8StringByteCount	:= unexpectedStringByteCount, 
+	addressOfCodePoints	=> usedUnexpectedCodePoints, 
+	codePointCount 		=> usedUnexpectedCodePointCount);
+IF (usedUnexpectedCodePoints = 0) THEN
+	__DELETE(usedCodePointsToCheck);
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('isNotEqualTo'));
+	RETURN;
+END_IF
+
+IF (ignoreCases) THEN
+	upperCase(usedCodePointsToCheck, usedCodePointToCheckCount);
+	upperCase(usedUnexpectedCodePoints, usedUnexpectedCodePointCount);
+END_IF
+
+IF (Tc2_System.MEMCMP(
+		usedCodePointsToCheck,
+		usedUnexpectedCodePoints, 
+		usedUnexpectedCodePointCount * SIZEOF(UnicodeCodePoint)
+	) = CNM_ReturnTypes.ComparationResult.EQUAL
+) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('isNotEqualTo'));
+END_IF;
+
+__DELETE(usedCodePointsToCheck);
+__DELETE(usedUnexpectedCodePoints);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="lenghtIsExact" Id="{a7db3866-36c8-4d01-9fd5-e9ed1c4e7420}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current string ``stringToCheck`` length is equal to ``expectedLength``.
+Processed strings must be in UTF-8 encoding
+
+.. attention:: 
+	All strings are handled as null-terminated byte streams
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2024 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD lenghtIsExact : IUtf8StringPointerAssertions
+VAR_INPUT
+	(* current string to check *)
+	stringToCheck		:POINTER TO BYTE;
+	(* expected length of ``stringToCheck`` *)
+	expectedLength		:UDINT;
+	(* string length units of measurement *)
+	stringLengthUnit	:UnicodeStringLengthUnit;
+	(* message if the assertion is false *)
+	message				:AssertMessage;
+END_VAR
+VAR
+	(* length of current string to check in bytes *)
+	stringToCheckByteCount		:UDINT;
+	(* length of current string to check in characters *)
+	stringToCheckCodePointCount	:UDINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[lenghtIsExact := THIS^;
+
+THIS^.getStringLength(stringToCheck, byteCount => stringToCheckByteCount, codePointCount => stringToCheckCodePointCount);
+
+CASE (stringLengthUnit) OF
+	UnicodeStringLengthUnit.BYTES:
+		IF (stringToCheckByteCount <> expectedLength) THEN
+			THIS^.assertionWasWrong(message, THIS^.getDebugInfo('lenghtIsExact'));
+		END_IF
+	
+	UnicodeStringLengthUnit.CHARACTERS:
+		IF (stringToCheckCodePointCount <> expectedLength) THEN
+			THIS^.assertionWasWrong(message, THIS^.getDebugInfo('lenghtIsExact'));
+		END_IF	
+END_CASE]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="lenghtIsMax" Id="{fbf92828-e50e-4e71-8c86-a12c507560f3}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current string ``stringToCheck`` length is equal or less than to ``maxLength``.
+Processed strings must be in UTF-8 encoding
+
+.. attention:: 
+	All strings are handled as null-terminated byte streams
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2024 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD lenghtIsMax : IUtf8StringPointerAssertions
+VAR_INPUT
+	(* current string to check *)
+	stringToCheck		:POINTER TO BYTE;
+	(* upper limit of the length of ``stringToCheck`` *)
+	maxLength			:UDINT;
+	(* string length units of measurement *)
+	stringLengthUnit	:UnicodeStringLengthUnit;
+	(* message if the assertion is false *)
+	message				:AssertMessage;
+END_VAR
+VAR
+	(* length of current string to check in bytes *)
+	stringToCheckByteCount		:UDINT;
+	(* length of current string to check in characters *)
+	stringToCheckCodePointCount	:UDINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[lenghtIsMax := THIS^;
+
+THIS^.getStringLength(stringToCheck, byteCount => stringToCheckByteCount, codePointCount => stringToCheckCodePointCount);
+
+CASE (stringLengthUnit) OF
+	UnicodeStringLengthUnit.BYTES:
+		IF (stringToCheckByteCount > maxLength) THEN
+			THIS^.assertionWasWrong(message, THIS^.getDebugInfo('lenghtIsMax'));
+		END_IF
+	
+	UnicodeStringLengthUnit.CHARACTERS:
+		IF (stringToCheckCodePointCount > maxLength) THEN
+			THIS^.assertionWasWrong(message, THIS^.getDebugInfo('lenghtIsMax'));
+		END_IF	
+END_CASE]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="lenghtIsMin" Id="{e5267083-99db-4030-94ce-c8ee07c1d259}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current string ``stringToCheck`` length is equal or grater than to ``minLength``.
+Processed strings must be in UTF-8 encoding
+
+.. attention:: 
+	All strings are handled as null-terminated byte streams
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2024 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD lenghtIsMin : IUtf8StringPointerAssertions
+VAR_INPUT
+	(* current string to check *)
+	stringToCheck		:POINTER TO BYTE;
+	(* lower limit of the length of ``stringToCheck`` *)
+	minLength			:UDINT;
+	(* string length units of measurement *)
+	stringLengthUnit	:UnicodeStringLengthUnit;
+	(* message if the assertion is false *)
+	message				:AssertMessage;
+END_VAR
+VAR
+	(* length of current string to check in bytes *)
+	stringToCheckByteCount		:UDINT;
+	(* length of current string to check in characters *)
+	stringToCheckCodePointCount	:UDINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[lenghtIsMin := THIS^;
+
+THIS^.getStringLength(stringToCheck, byteCount => stringToCheckByteCount, codePointCount => stringToCheckCodePointCount);
+
+CASE (stringLengthUnit) OF
+	UnicodeStringLengthUnit.BYTES:
+		IF (stringToCheckByteCount < minLength) THEN
+			THIS^.assertionWasWrong(message, THIS^.getDebugInfo('lenghtIsMin'));
+		END_IF
+	
+	UnicodeStringLengthUnit.CHARACTERS:
+		IF (stringToCheckCodePointCount < minLength) THEN
+			THIS^.assertionWasWrong(message, THIS^.getDebugInfo('lenghtIsMin'));
+		END_IF	
+END_CASE]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="lengthIsBetween" Id="{5d51ff67-584e-4310-80c3-54875d8f6545}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current string ``stringToCheck`` length is between ``minLenght`` and ``maxLenght``.
+Processed strings must be in UTF-8 encoding
+
+.. attention:: 
+	All strings are handled as null-terminated byte streams
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2024 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD lengthIsBetween : IUtf8StringPointerAssertions
+VAR_INPUT
+	(* current string to check *)
+	stringToCheck		:POINTER TO BYTE;
+	(* lower limit of the string length *)
+	minLenght			:UDINT;
+	(* upper limit of the string length *)
+	maxLenght			:UDINT;
+	(* string length units of measurement *)
+	stringLengthUnit	:UnicodeStringLengthUnit;
+	(* message if the assertion is false *)
+	message				:AssertMessage;
+END_VAR
+VAR
+	(* length of current string to check in bytes *)
+	stringToCheckByteCount		:UDINT;
+	(* length of current string to check in characters *)
+	stringToCheckCodePointCount	:UDINT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[lengthIsBetween := THIS^;
+
+IF minLenght > maxLenght THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('lengthIsBetween'));
+	RETURN;
+END_IF
+
+THIS^.getStringLength(stringToCheck, byteCount => stringToCheckByteCount, codePointCount => stringToCheckCodePointCount);
+
+CASE (stringLengthUnit) OF
+	UnicodeStringLengthUnit.BYTES:
+		IF (stringToCheckByteCount < minLenght OR_ELSE stringToCheckByteCount > maxLenght) THEN
+			THIS^.assertionWasWrong(message, THIS^.getDebugInfo('lengthIsBetween'));
+		END_IF
+	
+	UnicodeStringLengthUnit.CHARACTERS:
+		IF (stringToCheckCodePointCount < minLenght OR_ELSE stringToCheckCodePointCount > maxLenght) THEN
+			THIS^.assertionWasWrong(message, THIS^.getDebugInfo('lengthIsBetween'));
+		END_IF	
+END_CASE]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="startsWith" Id="{667d2c7d-d6aa-42c3-9b57-c3ac1d0ada59}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current string ``stringToCheck`` starts with string ``start``.
+Processed strings must be in UTF-8 encoding
+
+.. attention:: 
+	All strings are handled as null-terminated byte streams
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2024 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD startsWith : IUtf8StringPointerAssertions
+VAR_INPUT
+	(* current string to check *)
+	stringToCheck	:POINTER TO BYTE;
+	(* expected start of ``stringToCheck`` *)
+	start			:POINTER TO BYTE;
+	(* ``TRUE`` means ignore cases; ``FALSE`` means that cases must be equal too *)
+	ignoreCases		:BOOL;
+	(* ``TRUE`` means truncation of spaces on the left side of ``stringToCheck``*)
+	trimLeft		:BOOL;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+VAR
+	(* length of current string to check in bytes *)
+	stringToCheckByteCount		:UDINT;
+	(* length of current string to check in characters *)
+	stringToCheckCodePointCount	:UDINT;
+	(* length of ``start`` in bytes *)
+	startStringByteCount		:UDINT;
+	(* length of ``start`` in characters *)
+	startStringCodePointCount	:UDINT;
+
+	(* DWORD array we use to check *)
+	usedCodePointsToCheck		:POINTER TO UnicodeCodePoint;
+	usedCodePointsToCheckCopy	:POINTER TO UnicodeCodePoint;
+	usedCodePointToCheckCount	:UDINT;
+	
+	(* DWORD array we use to compare *)
+	usedStartCodePoints			:POINTER TO UnicodeCodePoint;
+	usedStartCodePointCount		:UDINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[startsWith := THIS^;
+
+THIS^.getStringLength(stringToCheck, byteCount => stringToCheckByteCount, codePointCount => stringToCheckCodePointCount);
+THIS^.getStringLength(start, byteCount => startStringByteCount, codePointCount => startStringCodePointCount);
+
+(* convert ``stringToCheck`` to code points *)
+getCodePointsFromUtf8String(
+	utf8StringAddress 	:= stringToCheck, 
+	utf8StringByteCount	:= stringToCheckByteCount, 
+	addressOfCodePoints	=> usedCodePointsToCheck, 
+	codePointCount 		=> usedCodePointToCheckCount);
+IF (usedCodePointsToCheck = 0) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('startsWith'));
+	RETURN;
+ELSE
+	usedCodePointsToCheckCopy := usedCodePointsToCheck;
+END_IF
+
+(* convert ``start`` to code points *)
+getCodePointsFromUtf8String(
+	utf8StringAddress 	:= start, 
+	utf8StringByteCount := startStringByteCount, 
+	addressOfCodePoints	=> usedStartCodePoints, 
+	codePointCount 		=> usedStartCodePointCount);
+IF usedStartCodePoints = 0 THEN
+	__DELETE(usedCodePointsToCheck);
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('startsWith'));
+	RETURN;
+END_IF	
+
+IF (trimLeft) THEN
+	THIS^.trimLeft(usedCodePointsToCheck, usedCodePointToCheckCount);
+END_IF
+
+IF (
+	NOT THIS^.isContainsCheckNecessary(
+		stringToCheck		:= usedCodePointsToCheck,
+		searchString		:= usedStartCodePoints,
+		lenghtStringToCheck	:= usedCodePointToCheckCount * SIZEOF(UnicodeCodePoint),
+		lengthSearchString	:= usedStartCodePointCount * SIZEOF(UnicodeCodePoint),
+		additionalText		:= THIS^.getDebugInfo('startsWith'),
+		message				:= message
+	)
+) THEN
+	RETURN;
+END_IF
+
+IF (ignoreCases) THEN
+	upperCase(usedCodePointsToCheck, usedCodePointToCheckCount);
+	upperCase(usedStartCodePoints, usedStartCodePointCount);
+END_IF
+
+IF (Tc2_System.MEMCMP(
+		usedCodePointsToCheck,
+		usedStartCodePoints, 
+		usedStartCodePointCount
+	) <> CNM_ReturnTypes.ComparationResult.EQUAL
+) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('startsWith'));
+END_IF;
+
+__DELETE(usedCodePointsToCheckCopy);
+__DELETE(usedStartCodePoints);	]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="trimLeft" Id="{0592a087-f919-4631-bc83-a028cf9e835d}" FolderPath="internal\">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This method is used to remove the whitespace from the start of the string
+in code points form. It does not really remove it, it just moves the start 
+code point address and decreases the code points count
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2024 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD PROTECTED trimLeft
+VAR_IN_OUT
+	addressOfCodePoints	:POINTER TO UnicodeCodePoint;
+	codePointCount		:UDINT;
+END_VAR
+VAR
+	codePointIndex		:UDINT;
+	whitespaceCount 	:UDINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (addressOfCodePoints = 0 OR_ELSE codePointCount <= 0) THEN
+	RETURN;
+END_IF
+
+FOR codePointIndex := 0 TO codePointCount - 1 DO
+	IF (THIS^.isCodePointWhiteSpace(addressOfCodePoints[codePointIndex])) THEN
+		whitespaceCount := whitespaceCount + 1;
+	ELSE
+		EXIT;
+	END_IF
+END_FOR
+
+addressOfCodePoints := ADR(addressOfCodePoints[whitespaceCount]);
+codePointCount := codePointCount - whitespaceCount;
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="trimRight" Id="{aa01984d-badc-4426-8cf0-cb6533f481d4}" FolderPath="internal\">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This method is used to remove the whitespace from the end of the string
+in the code points form. It does not really remove it, it just decreases 
+the code points count.
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2024 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD PROTECTED trimRight
+VAR_INPUT
+	addressOfCodePoints	:POINTER TO UnicodeCodePoint;
+END_VAR
+VAR_IN_OUT
+	codePointCount		:UDINT;
+END_VAR
+VAR
+	codePointIndex		:DINT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (addressOfCodePoints = 0 OR_ELSE codePointCount <= 0) THEN
+	RETURN;
+END_IF
+
+FOR codePointIndex := TO_DINT(codePointCount) - 1 TO 0 BY -1 DO
+	IF (THIS^.isCodePointWhiteSpace(addressOfCodePoints[codePointIndex])) THEN
+		codePointCount := codePointCount - 1;
+	ELSE
+		RETURN;
+	END_IF
+END_FOR]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="upperCase" Id="{2c3b17da-6bdc-4ca8-b1c8-f1f2397db392}" FolderPath="internal\">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This method converts the lowercase code points to upper case code points
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2024 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD PROTECTED upperCase
+VAR_INPUT
+	addressOfCodePoints	:POINTER TO UnicodeCodePoint;
+	codePointCount		:UDINT;
+END_VAR
+VAR
+	codePointIndex		:UDINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (addressOfCodePoints = 0) THEN
+	RETURN;
+END_IF
+
+WHILE (codePointIndex < codePointCount AND_THEN addressOfCodePoints[codePointIndex] <> 0) DO
+	CASE addressOfCodePoints[codePointIndex] OF
+		// code points without gaps
+		16#0061 .. 16#007A:	
+			addressOfCodePoints[codePointIndex] := addressOfCodePoints[codePointIndex] - 32;
+		16#00B5:			
+			addressOfCodePoints[codePointIndex] := addressOfCodePoints[codePointIndex] + 743;
+		16#00DF:			
+			addressOfCodePoints[codePointIndex] := addressOfCodePoints[codePointIndex] - 140;
+		16#00E0 .. 16#00F6,
+		16#00F8 .. 16#00FE:	
+			addressOfCodePoints[codePointIndex] := addressOfCodePoints[codePointIndex] - 32;
+		16#00FF:			
+			addressOfCodePoints[codePointIndex] := addressOfCodePoints[codePointIndex] + 121;
+		16#0131:			
+			addressOfCodePoints[codePointIndex] := addressOfCodePoints[codePointIndex] - 232;
+		16#017F:			
+			addressOfCodePoints[codePointIndex] := addressOfCodePoints[codePointIndex] - 300;
+		16#0180:			
+			addressOfCodePoints[codePointIndex] := addressOfCodePoints[codePointIndex] + 195;
+		16#01C6,
+		16#01C9,
+		16#01CC,
+		16#01F3:			
+			addressOfCodePoints[codePointIndex] := addressOfCodePoints[codePointIndex] - 2;
+		16#0253:			
+			addressOfCodePoints[codePointIndex] := addressOfCodePoints[codePointIndex] - 210;
+		16#0254:			
+			addressOfCodePoints[codePointIndex] := addressOfCodePoints[codePointIndex] - 206;
+		16#0257:			
+			addressOfCodePoints[codePointIndex] := addressOfCodePoints[codePointIndex] - 205;
+		16#0258 .. 16#0259:	
+			addressOfCodePoints[codePointIndex] := addressOfCodePoints[codePointIndex] - 202;
+		16#025B:			
+			addressOfCodePoints[codePointIndex] := addressOfCodePoints[codePointIndex] - 203;
+		16#0260:			
+			addressOfCodePoints[codePointIndex] := addressOfCodePoints[codePointIndex] - 205;
+		16#0263:			
+			addressOfCodePoints[codePointIndex] := addressOfCodePoints[codePointIndex] - 207;
+		16#0268:			
+			addressOfCodePoints[codePointIndex] := addressOfCodePoints[codePointIndex] - 209;
+		16#0269,
+		16#026F:			
+			addressOfCodePoints[codePointIndex] := addressOfCodePoints[codePointIndex] - 211;
+		16#0272:			
+			addressOfCodePoints[codePointIndex] := addressOfCodePoints[codePointIndex] - 213;
+		16#0275:			
+			addressOfCodePoints[codePointIndex] := addressOfCodePoints[codePointIndex] - 214;
+		16#0283,
+		16#0288:			
+			addressOfCodePoints[codePointIndex] := addressOfCodePoints[codePointIndex] - 218;
+		16#028A .. 16#028B:	
+			addressOfCodePoints[codePointIndex] := addressOfCodePoints[codePointIndex] - 217;
+		16#0292:			
+			addressOfCodePoints[codePointIndex] := addressOfCodePoints[codePointIndex] - 219;
+		16#03AC:			
+			addressOfCodePoints[codePointIndex] := addressOfCodePoints[codePointIndex] - 38;
+		16#03AD .. 16#03AF:	
+			addressOfCodePoints[codePointIndex] := addressOfCodePoints[codePointIndex] - 37;
+		16#03B1 .. 16#03C1,
+		16#03C3 .. 16#03CB:	
+			addressOfCodePoints[codePointIndex] := addressOfCodePoints[codePointIndex] - 32;
+		16#03CC:			
+			addressOfCodePoints[codePointIndex] := addressOfCodePoints[codePointIndex] - 64;
+		16#03CD .. 16#03CE:	
+			addressOfCodePoints[codePointIndex] := addressOfCodePoints[codePointIndex] - 63;
+		16#0430 .. 16#044F:	
+			addressOfCodePoints[codePointIndex] := addressOfCodePoints[codePointIndex] - 32;
+		16#0451 .. 16#045C,
+		16#045E .. 16#045F:	
+			addressOfCodePoints[codePointIndex] := addressOfCodePoints[codePointIndex] - 80;
+		16#0561 .. 16#0586,
+		16#10D0 .. 16#10F5:	
+			addressOfCodePoints[codePointIndex] := addressOfCodePoints[codePointIndex] - 48;
+		16#1F00 .. 16#1F07,
+		16#1F10 .. 16#1F15,
+		16#1F20 .. 16#1F27,
+		16#1F30 .. 16#1F37,
+		16#1F40 .. 16#1F45,
+		16#1F51,
+		16#1F53,
+		16#1F55,
+		16#1F57,
+		16#1F60 .. 16#1F67,
+		16#1F80 .. 16#1F87,
+		16#1F90 .. 16#1F97,
+		16#1FA0 .. 16#1FA7,
+		16#1FB0 .. 16#1FB1,
+		16#1FD0 .. 16#1FD1,
+		16#1FE0 .. 16#1FE1:	
+			addressOfCodePoints[codePointIndex] := addressOfCodePoints[codePointIndex] + 8;
+		16#24D0 .. 16#24E9:	
+			addressOfCodePoints[codePointIndex] := addressOfCodePoints[codePointIndex] - 26;
+		16#FF41 .. 16#FF5A:	
+			addressOfCodePoints[codePointIndex] := addressOfCodePoints[codePointIndex] - 32;
+		16#00010428 .. 16#0001044F,
+		16#000104D8 .. 16#000104FB:	
+			addressOfCodePoints[codePointIndex] := addressOfCodePoints[codePointIndex] - 40;
+		16#00010CC0 .. 16#00010CF2:	
+			addressOfCodePoints[codePointIndex] := addressOfCodePoints[codePointIndex] - 64;
+		16#000118C0 .. 16#000118DF,
+		16#00016E60 .. 16#00016E7F:	
+			addressOfCodePoints[codePointIndex] := addressOfCodePoints[codePointIndex] - 32;
+		16#0001D41A .. 16#0001D433,
+		16#0001D44E .. 16#0001D454,
+		16#0001D456 .. 16#0001D467,
+		16#0001D482 .. 16#0001D49B,
+		16#0001D4B6,
+		16#0001D4B8 .. 16#0001D4B9,
+		16#0001D4BF .. 16#0001D4C0,
+		16#0001D4C3,
+		16#0001D4C5 .. 16#0001D4C6,
+		16#0001D4C8 .. 16#0001D4CF,
+		16#0001D4EA .. 16#0001D503,
+		16#0001D51E .. 16#0001D51F,
+		16#0001D521 .. 16#0001D524,
+		16#0001D527 .. 16#0001D52E,
+		16#0001D530 .. 16#0001D536,
+		16#0001D552 .. 16#0001D553,
+		16#0001D555 .. 16#0001D558,
+		16#0001D55A .. 16#0001D55E,
+		16#0001D560,
+		16#0001D564 .. 16#0001D56A,
+		16#0001D586 .. 16#0001D59F,
+		16#0001D5BA .. 16#0001D5D3,
+		16#0001D5EE .. 16#0001D607,
+		16#0001D622 .. 16#0001D63B,
+		16#0001D656 .. 16#0001D66F,
+		16#0001D68A .. 16#0001D6A3,
+		16#0001D6C2 .. 16#0001D6E1,
+		16#0001D6FC .. 16#0001D71B,
+		16#0001D736 .. 16#0001D755,
+		16#0001D770 .. 16#0001D78F,
+		16#0001D7AA .. 16#0001D7C9:	
+			addressOfCodePoints[codePointIndex] := addressOfCodePoints[codePointIndex] - 26;
+		16#0001E922 .. 16#0001E943:	
+			addressOfCodePoints[codePointIndex] := addressOfCodePoints[codePointIndex] - 34;		
+		
+		// only odd code points with diffirence = 1
+		16#0101 .. 16#012F,
+		16#0133 .. 16#0137,
+		16#014B .. 16#0177,
+		16#0183 .. 16#0185,
+		16#0199,
+		16#01A1 .. 16#01A5,
+		16#01AD,
+		16#01B9,
+		16#01BD,
+		16#01DF .. 16#01EF,
+		16#01F5,
+		16#01FB .. 16#0217,
+		16#03E3 .. 16#03EF,
+		16#0461 .. 16#0481,
+		16#0491 .. 16#04BF,
+		16#04D1 .. 16#04EB,
+		16#04EF .. 16#04F5,
+		16#04F9,
+		16#1E01 .. 16#1E95,
+		16#1EA1 .. 16#1EF9,
+		16#0001D7CB:			
+			IF (addressOfCodePoints[codePointIndex] MOD 2 = 1) THEN
+				addressOfCodePoints[codePointIndex] := addressOfCodePoints[codePointIndex] - 1;				
+			END_IF		
+		
+		// only even code points with diffirence = 1
+		16#013A .. 16#0148,		
+		16#017A .. 16#017E,		
+		16#0188,		
+		16#018C,		
+		16#0192,		
+		16#01A8,		
+		16#01B0,
+		16#01B4 .. 16#01B6,		
+		16#01CE .. 16#01DC,		
+		16#04C2 .. 16#04C4,
+		16#04C8,
+		16#04CC:	
+			IF (addressOfCodePoints[codePointIndex] MOD 2 = 0) THEN
+				addressOfCodePoints[codePointIndex] := addressOfCodePoints[codePointIndex] - 1;				
+			END_IF
+	END_CASE
+	
+	codePointIndex := codePointIndex + 1;
+END_WHILE
+]]></ST>
+      </Implementation>
+    </Method>
+    <LineIds Name="Utf8StringPointerAssertions">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="Utf8StringPointerAssertions.className.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="Utf8StringPointerAssertions.contains">
+      <LineId Id="3" Count="65" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="Utf8StringPointerAssertions.containsNo">
+      <LineId Id="3" Count="66" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="Utf8StringPointerAssertions.decodeCodePointFromOctets">
+      <LineId Id="3" Count="17" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="Utf8StringPointerAssertions.encodeEncodeCodePointToOctets">
+      <LineId Id="3" Count="19" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="Utf8StringPointerAssertions.endsWith">
+      <LineId Id="3" Count="59" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="Utf8StringPointerAssertions.getCodePointsFromUtf8String">
+      <LineId Id="3" Count="22" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="Utf8StringPointerAssertions.getOctetCountByCodePoint">
+      <LineId Id="3" Count="7" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="Utf8StringPointerAssertions.getOctetCountByFirstOctet">
+      <LineId Id="3" Count="8" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="Utf8StringPointerAssertions.getStringLength">
+      <LineId Id="3" Count="16" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="Utf8StringPointerAssertions.getUtf8StringFromCodePoints">
+      <LineId Id="3" Count="18" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="Utf8StringPointerAssertions.isCodePointWhiteSpace">
+      <LineId Id="3" Count="14" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="Utf8StringPointerAssertions.isEqualTo">
+      <LineId Id="3" Count="49" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="Utf8StringPointerAssertions.isNotEqualTo">
+      <LineId Id="3" Count="47" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="Utf8StringPointerAssertions.lenghtIsExact">
+      <LineId Id="3" Count="13" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="Utf8StringPointerAssertions.lenghtIsMax">
+      <LineId Id="3" Count="13" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="Utf8StringPointerAssertions.lenghtIsMin">
+      <LineId Id="3" Count="13" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="Utf8StringPointerAssertions.lengthIsBetween">
+      <LineId Id="3" Count="18" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="Utf8StringPointerAssertions.startsWith">
+      <LineId Id="3" Count="61" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="Utf8StringPointerAssertions.trimLeft">
+      <LineId Id="3" Count="13" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="Utf8StringPointerAssertions.trimRight">
+      <LineId Id="3" Count="9" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="Utf8StringPointerAssertions.upperCase">
+      <LineId Id="3" Count="187" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

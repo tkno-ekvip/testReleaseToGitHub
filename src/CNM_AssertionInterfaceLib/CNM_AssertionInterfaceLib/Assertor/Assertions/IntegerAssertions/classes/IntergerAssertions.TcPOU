@@ -1,0 +1,196 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.11">
+  <POU Name="IntergerAssertions" Id="{47fa951a-e2ba-45bf-8ed7-ac4f5e0b6344}" SpecialFunc="None">
+    <Declaration><![CDATA[(*
+
+short summary
+=================
+| This class provides assert statements for signed/unsigned integers from 8~64 bit length.
+| It implements the interface :ref:`IIntergerAssertions`
+| For signed integers use :ref:`IntergerAssertions.signed`
+| For unsigned integers use :ref:`IntergerAssertions.unsigned`
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+methods aand properties
+========================
+
+*)
+
+{attribute 'reflection'}
+FUNCTION_BLOCK INTERNAL IntergerAssertions EXTENDS CNM_AbstractObject.Object IMPLEMENTS IIntergerAssertions, IAssertCallBacksetter
+VAR
+	(* class to handle assert statements for signed integers *)
+	signedIntegerAssertions		:SignedIntegerAssertions();
+	(* class to handle assert statements for unsigned integers *)
+	unsignedIntegerAssertions	:UnsignedIntegerAssertions();
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Property Name="className" Id="{ea418b79-6fc3-4065-bdce-46a5da0509af}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This abstract property returns the class name of the concrete object, 
+It's for debugging purpose
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+PROPERTY className :CNM_AbstractObject.ClassName]]></Declaration>
+      <Get Name="Get" Id="{bbb004cd-0fe5-48d4-94f8-60777e4a5f29}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[className := 'CNM_AssertionInterfaceLib.IntergerAssertions';
+]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="setCallBack" Id="{6d8c9851-18cf-4094-9661-bd46de76a360}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This methods is the setter for the callback class if an assertion was false
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD setCallBack
+VAR_INPUT
+	(* the class that must be informed if an assertion is false *)
+	callBack	:IAssertCallback;  
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.signedIntegerAssertions.setCallBack(callBack);
+THIS^.unsignedIntegerAssertions.setCallBack(callBack);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="signed" Id="{3b6adec8-1d6a-4a06-b529-89779fee8602}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+Returns the interface :ref:`ISignedIntegerAssertions` with assert statements for signed integers from 8~64 bit length 
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+PROPERTY signed :ISignedIntegerAssertions
+]]></Declaration>
+      <Get Name="Get" Id="{ee9201e6-5ed3-4340-b7b3-2589e775dccf}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[signed := THIS^.signedIntegerAssertions;
+]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="unsigned" Id="{684eabc0-bf68-422f-913c-25d616e281b8}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+Returns the interface :ref:`IUnsignedIntegerAssertions` with assert statements for unsigned integers from 8~64 bit length 
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+PROPERTY unsigned :IUnsignedIntegerAssertions
+]]></Declaration>
+      <Get Name="Get" Id="{c9df154d-e898-4fe6-a6b8-c070a47ba18f}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[unsigned := THIS^.unsignedIntegerAssertions;
+]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <LineIds Name="IntergerAssertions">
+      <LineId Id="9" Count="0" />
+    </LineIds>
+    <LineIds Name="IntergerAssertions.className.Get">
+      <LineId Id="5" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="IntergerAssertions.setCallBack">
+      <LineId Id="30" Count="2" />
+    </LineIds>
+    <LineIds Name="IntergerAssertions.signed.Get">
+      <LineId Id="2" Count="0" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="IntergerAssertions.unsigned.Get">
+      <LineId Id="2" Count="0" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

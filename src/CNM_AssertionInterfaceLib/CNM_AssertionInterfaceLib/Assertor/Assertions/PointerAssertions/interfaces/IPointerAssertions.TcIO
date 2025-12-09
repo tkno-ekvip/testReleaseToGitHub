@@ -1,0 +1,487 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.11">
+  <Itf Name="IPointerAssertions" Id="{0dcedde9-5073-479c-8c95-0c0cd4d1ae6e}">
+    <Declaration><![CDATA[(*
+
+short summary
+=================
+This interface provides assert statements for pointers  
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+methods
+==================
+
+*)
+
+INTERFACE IPointerAssertions EXTENDS __SYSTEM.IQueryInterface
+]]></Declaration>
+    <Method Name="isEqualTo" Id="{c0748b8d-1e27-4ef7-87b4-4d1d02547335}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if ``address1`` and ``address2`` refer to the same object
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD isEqualTo
+VAR_INPUT
+	(* memory address *)
+	address1	:PVOID;
+	(* memory address *)
+	address2	:PVOID;
+	(* message if the assertion is false *)
+	message		:AssertMessage;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="isNotEqualTo" Id="{d73b28b3-a8ee-4e4e-a6e5-d5b66c480076}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if ``address1`` and ``address2`` refer not to the same object
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD isNotEqualTo
+VAR_INPUT
+	(* memory address *)
+	address1	:PVOID;
+	(* memory address *)
+	address2	:PVOID;
+	(* message if the assertion is false *)
+	message		:AssertMessage;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="isNotNull" Id="{8a14cc32-0203-46dc-8978-674b4c122f13}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if pointer is not null
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD isNotNull
+VAR_INPUT
+	(* memory address *)
+	address		:PVOID;
+	(* message if the assertion is false *)
+	message		:AssertMessage;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="isNull" Id="{fe3aa613-6cf4-4504-a06a-0fc2c620c0f3}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if pointer is null
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD isNull
+VAR_INPUT
+	(* memory address *)
+	address		:PVOID;
+	(* message if the assertion is false *)
+	message		:AssertMessage;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="isValid" Id="{956f9b95-e669-433f-87de-2e0a8f79c970}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if pointer is valid.
+That means the pointer is not zero,
+the pointer is not in the memory area unknown.
+
+.. attention:: 
+	A pointer to a variable on the stack is also in an unknown area of memory, but it is a valid pointer.
+	That means the method does not work for pointers to stack variables
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD isValid
+VAR_INPUT
+	(* memory address *)
+	address		:PVOID;
+	(* number of bytes *)
+	sizeInBytes	:UDINT;
+	(* message if the assertion is false *)
+	message		:AssertMessage;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="memoryAreaIsCnc" Id="{636ff844-6133-4f20-b9bc-b31a160fdf0b}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if pointer refers to cnc area
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD memoryAreaIsCnc
+VAR_INPUT
+	(* memory address *)
+	address		:PVOID;
+	(* number of bytes *)
+	sizeInBytes	:UDINT;
+	(* message if the assertion is false *)
+	message		:AssertMessage;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="memoryAreaIsDynamic" Id="{1f772c36-abaa-4c4d-8d98-c11c8dcc673e}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if pointer refers to dynamic area
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD memoryAreaIsDynamic
+VAR_INPUT
+	(* memory address *)
+	address		:PVOID;
+	(* number of bytes *)
+	sizeInBytes	:UDINT;
+	(* message if the assertion is false *)
+	message		:AssertMessage;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="memoryAreaIsNotCnc" Id="{04e253cc-c481-4759-a798-b171944357b1}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if pointer refers not to cnc area
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD memoryAreaIsNotCnc
+VAR_INPUT
+	(* memory address *)
+	address		:PVOID;
+	(* number of bytes *)
+	sizeInBytes	:UDINT;
+	(* message if the assertion is false *)
+	message		:AssertMessage;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="memoryAreaIsNotDynamic" Id="{2f63edd5-2073-45e9-84e8-e644fe6467d0}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if pointer refers not to dynamic area
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD memoryAreaIsNotDynamic
+VAR_INPUT
+	(* memory address *)
+	address		:PVOID;
+	(* number of bytes *)
+	sizeInBytes	:UDINT;
+	(* message if the assertion is false *)
+	message		:AssertMessage;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="memoryAreaIsNotStatic" Id="{e8c31a9a-8c45-47d3-89c0-23d127edb669}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if pointer refers not to static area
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD memoryAreaIsNotStatic
+VAR_INPUT
+	(* memory address *)
+	address		:PVOID;
+	(* number of bytes *)
+	sizeInBytes	:UDINT;
+	(* message if the assertion is false *)
+	message		:AssertMessage;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="memoryAreaIsNotUnkown" Id="{72567fe8-617c-4776-8e01-bdf8ae474ef0}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if pointer is not at memory area unknown
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD memoryAreaIsNotUnkown
+VAR_INPUT
+	(* memory address *)
+	address		:PVOID;
+	(* number of bytes *)
+	sizeInBytes	:UDINT;
+	(* message if the assertion is false *)
+	message		:AssertMessage;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="memoryAreaIsStatic" Id="{7da4ecda-4f0a-40df-9e41-93c790a02429}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if pointer refers to static area
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD memoryAreaIsStatic
+VAR_INPUT
+	(* memory address *)
+	address		:PVOID;
+	(* number of bytes *)
+	sizeInBytes	:UDINT;
+	(* message if the assertion is false *)
+	message		:AssertMessage;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="memoryAreaIsUnkown" Id="{1093015b-5b6d-4664-b345-36ccd0ec9c73}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if pointer refers not to an unknown area
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD memoryAreaIsUnkown
+VAR_INPUT
+	(* memory address *)
+	address		:PVOID;
+	(* number of bytes *)
+	sizeInBytes	:UDINT;
+	(* message if the assertion is false *)
+	message		:AssertMessage;
+END_VAR
+]]></Declaration>
+    </Method>
+  </Itf>
+</TcPlcObject>

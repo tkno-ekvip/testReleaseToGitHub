@@ -1,0 +1,3653 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="PointerAssertionsTests" Id="{f966415f-df04-4a32-8a29-16669983edb0}" SpecialFunc="None">
+    <Declaration><![CDATA[(*
+
+short summary
+=================
+This class designed for the Unit Tests of Assertions Class Library. Each method is testing the Assertion Class's methods with different input and expect different outputs.
+The message of the test output is extended version of method itself.
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+methods and properties
+=======================
+
+*)
+
+FUNCTION_BLOCK PointerAssertionsTests EXTENDS AbstractAssertorTest
+VAR
+	(* pointer to dynamic allocated memory with one byte *)
+	oneByte							:POINTER TO BYTE;
+	(* pointer to a dynmic allocated array with the size of ``ARRAY_SIZE`` *)
+	byteArray						:POINTER TO BYTE;
+	(* cnc function block to create cnc data *)
+	{attribute 'hide'}
+	hli								:Tc2_CncHli.MCV_HliInterface;
+	(* pointer to a cnc memory area *)
+	cncAddress						:POINTER TO Tc2_CncHli.HLI_V_E_DATA;
+	(* size of cnc object *)
+	cncSize							:UDINT;
+	(* alternative this pointer *)
+	me								:POINTER TO PointerAssertionsTests := THIS;
+	(* weired THIS pointer *)
+	itsMeAgain						:POINTER TO POINTER TO PointerAssertionsTests := ADR(me);
+	(* alternative Super pointer *)
+	myMom							:POINTER TO AbstractAssertorTest := SUPER;
+	(* invalid pointer to dynamic allocated memory *)
+	invalidByte						:POINTER TO BYTE;
+END_VAR
+VAR CONSTANT
+	(* prefix to unify the test names *)
+	TEST_NAME_PREFIX		:Tc2_System.T_MaxString := 'assert.pointers.';
+	(* contains no address	*)
+	NULL_POINTER			:PVOID := 0;
+	(* size of this test class *)
+	I_AM_FAT				:UDINT := SIZEOF(PointerAssertionsTests);
+	(* just zero to test with valid pointer but size zero *)
+	SIZE_ZERO				:UDINT := 0;
+	(* size of dynamic byte array *)
+	ARRAY_SIZE				:UDINT := 15;
+	(* since we don't know the lenght of a POINTER we need it to initialize ``INVALID_POINTER`` *)
+	{attribute 'hide'}
+	INIT_INVALID_POINTER	:__XWORD := 16#FFFF_FFFF;
+	(* just a non null invalid ``POINTER`` *)
+	INVALID_POINTER			:PVOID := 16#20;//(ROR(INIT_INVALID_POINTER, 32) OR INIT_INVALID_POINTER);
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[THIS^.init();
+THIS^.runIsNotNullTests();
+THIS^.runIsNullTests();
+THIS^.runIsEqualToTests();
+THIS^.runIsNotEqualToTests();
+THIS^.runIsValidTests();
+THIS^.runMemoryAreaIsCncTests();
+THIS^.runMemoryAreaIsDynamicTests();
+THIS^.runMemoryAreaIsStaticTests();
+THIS^.runMemoryAreaIsUnknownTests();
+THIS^.runMemoryAreaIsNotCncTests();
+THIS^.runMemoryAreaIsNotDynamicTests();
+THIS^.runMemoryAreaIsNotStaticTests();
+THIS^.runMemoryAreaIsNotUnknownTests();
+THIS^.leave();]]></ST>
+    </Implementation>
+    <Folder Name="internal" Id="{16a01329-6f8f-4715-8438-d07ad7e6161f}" />
+    <Folder Name="isEqualTo" Id="{f6a4cbf1-1207-400c-99f3-38a94c446efb}" />
+    <Folder Name="isNotEqualTo" Id="{a76f4de4-418b-46ad-9551-2a2f68744474}" />
+    <Folder Name="isNotNull" Id="{73627d3c-6876-48c6-b7af-7c1e1daf0942}" />
+    <Folder Name="isNull" Id="{604d06f0-4dea-4ec9-b145-281256ca6ab4}" />
+    <Folder Name="isValid" Id="{f785936a-463a-4e46-bca8-36861bda4c93}" />
+    <Folder Name="memoryAreaIsCnc" Id="{1bb6cf7e-554e-46f4-90a6-26133547b0ef}" />
+    <Folder Name="memoryAreaIsDynamic" Id="{750e0adf-6744-46d2-b1a1-2cc6f692575c}" />
+    <Folder Name="memoryAreaIsNotCnc" Id="{40777263-6112-44dc-934d-32a2b65a1248}" />
+    <Folder Name="memoryAreaIsNotDynamic" Id="{fa684f57-7343-401e-8aed-882ea90a09cd}" />
+    <Folder Name="memoryAreaIsNotStatic" Id="{4cd59dfe-7b75-45b3-9276-a3be6fba4123}" />
+    <Folder Name="memoryAreaIsNotUnknwon" Id="{6c5b8299-2fec-4da7-887f-fc80176e8fe2}" />
+    <Folder Name="memoryAreaIsStatic" Id="{da7f60f0-4a54-4af0-b56a-bfd12c528964}" />
+    <Folder Name="memoryAreaIsUnknwon" Id="{6ad6294c-941b-4393-9953-88dbead16455}" />
+    <Method Name="FB_exit" Id="{203b1e30-c834-457e-9f98-e6fa2d484222}">
+      <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+{warning 'header is generated please add your documentation'}
+METHOD FB_exit : BOOL
+VAR_INPUT
+	bInCopyCode : BOOL; // if TRUE, the exit method is called for exiting an instance that is copied afterwards (online change).
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.leave();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="FB_reinit" Id="{1d8b88d2-ae53-4f73-892b-9f4114a239c3}">
+      <Declaration><![CDATA[METHOD FB_reinit : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.leave();
+THIS^.init();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="getTestNameFor" Id="{edd87b13-f3ad-45f5-8400-b2f842dc34b7}" FolderPath="internal\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method is a helper function to create a unified test name
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+METHOD PROTECTED getTestNameFor :Tc2_System.T_MaxString
+VAR_INPUT
+	(* name of the method to test, to create a unified test name *)
+	nameOfMethodToTest	:Tc2_System.T_MaxString;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[getTestNameFor := Tc2_Standard.CONCAT(THIS^.TEST_NAME_PREFIX, nameOfMethodToTest);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="init" Id="{5081676b-37ce-409c-9cdd-a95d75abc2b2}" FolderPath="internal\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+it initilaze dynamic and cnc pointers
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+METHOD PROTECTED init
+VAR_INPUT
+END_VAR
+VAR
+	(* this is just a dummy pointer to create an invalid dynamic pointer *)
+	dmy	:POINTER TO BYTE;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.hli();
+THIS^.cncAddress := Tc2_CncHli.HLI_Global_Variables.gpVEGlobal;
+THIS^.cncSize := Tc2_CncHli.HLI_Global_Variables.gVEGlobMemSize;
+THIS^.oneByte := __NEW(BYTE);
+THIS^.byteArray := __NEW(BYTE, THIS^.ARRAY_SIZE);
+dmy := __NEW(BYTE);
+THIS^.invalidByte := dmy;
+__DELETE(dmy);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="leave" Id="{f9313cde-9eb9-405d-b95c-ef4f2470faf0}" FolderPath="internal\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+it free the memory of dynamic pointers again
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+METHOD PROTECTED leave
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (THIS^.oneByte <> 0) THEN
+	__DELETE(THIS^.oneByte);
+END_IF
+IF (THIS^.byteArray <> 0) THEN
+	__DELETE(THIS^.byteArray);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="memoryAreaToString" Id="{e825c5cc-8329-4502-bb5f-f952316a7745}" FolderPath="internal\">
+      <Declaration><![CDATA[METHOD PROTECTED memoryAreaToString :Tc2_System.T_MaxString
+VAR_INPUT
+	area	:Tc2_System.E_TcMemoryArea;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[CASE area OF
+Tc2_System.E_TcMemoryArea.CNC: memoryAreaToString := 'CNC';
+Tc2_System.E_TcMemoryArea.Dynamic: memoryAreaToString := 'Dynamic';
+Tc2_System.E_TcMemoryArea.Static: memoryAreaToString := 'Static';
+ELSE memoryAreaToString := 'Unkown';
+END_CASE
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="runIsEqualToTests" Id="{854ff968-96bd-478d-b06b-24df12472a0b}" FolderPath="isEqualTo\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.pointers.isEqualTo``
+method of CNM_AssertionInterfaceLib library with various inputs
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+METHOD runIsEqualToTests
+VAR
+	foo				:__XWORD;
+	stackAddress	:PVOID;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[RETURN (NOT TcUnit.TEST_ORDERED(THIS^.getTestNameFor('isEqualTo')));
+stackAddress := ADR(foo);
+THIS^.testIsEqualTo(
+	address1 := THIS,
+	address2 := THIS
+);
+THIS^.testIsEqualTo(
+	address1 := THIS^.NULL_POINTER,
+	address2 := THIS^.NULL_POINTER
+);
+THIS^.testIsEqualTo(
+	address1 := stackAddress,
+	address2 := stackAddress
+);
+THIS^.testIsEqualTo(
+	address1 := THIS^.oneByte,
+	address2 := THIS^.oneByte
+);
+THIS^.testIsEqualTo(
+	address1 := THIS^.byteArray,
+	address2 := THIS^.byteArray
+);
+THIS^.testIsEqualTo(
+	address1 := THIS^.cncAddress,
+	address2 := THIS^.cncAddress
+);
+THIS^.testIsEqualTo(
+	address1 := THIS^.itsMeAgain,
+	address2 := THIS^.itsMeAgain
+);
+THIS^.testIsEqualTo(
+	address1 := THIS^.itsMeAgain^,
+	address2 := THIS^.itsMeAgain^
+);
+THIS^.testIsEqualTo(
+	address1 := THIS^.me,
+	address2 := THIS
+);
+
+THIS^.testIsEqualTo(
+	address1 := THIS^.itsMeAgain,
+	address2 := THIS
+);
+THIS^.testIsEqualTo(
+	address1 := THIS,
+	address2 := THIS^.NULL_POINTER
+);
+THIS^.testIsEqualTo(
+	address1 := THIS^.NULL_POINTER,
+	address2 := stackAddress
+);
+THIS^.testIsEqualTo(
+	address1 := stackAddress,
+	address2 := THIS^.oneByte
+);
+THIS^.testIsEqualTo(
+	address1 := THIS^.oneByte,
+	address2 := THIS^.byteArray
+);
+THIS^.testIsEqualTo(
+	address1 := THIS^.byteArray,
+	address2 := THIS^.cncAddress
+);
+THIS^.testIsEqualTo(
+	address1 := THIS^.itsMeAgain,
+	address2 := THIS^.itsMeAgain
+);
+THIS^.testIsEqualTo(
+	address1 := THIS^.cncAddress,
+	address2 := THIS^.itsMeAgain^
+);
+THIS^.testIsEqualTo(
+	address1 := THIS^.itsMeAgain^,
+	address2 := THIS^.itsMeAgain
+);
+THIS^.testIsEqualTo(
+	address1 := THIS^.itsMeAgain,
+	address2 := THIS
+);
+
+TcUnit.TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="runIsNotEqualToTests" Id="{0595c8c7-a657-41f3-a49b-4de819720503}" FolderPath="isNotEqualTo\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.pointers.isNotEqualTo``
+method of CNM_AssertionInterfaceLib library with various inputs
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+METHOD runIsNotEqualToTests
+VAR
+	foo				:__XWORD;
+	stackAddress	:PVOID;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[RETURN (NOT TcUnit.TEST_ORDERED(THIS^.getTestNameFor('isNotEqualTo')));
+stackAddress := ADR(foo);
+THIS^.testNotIsEqualTo(
+	address1 := THIS,
+	address2 := THIS
+);
+THIS^.testNotIsEqualTo(
+	address1 := THIS^.NULL_POINTER,
+	address2 := THIS^.NULL_POINTER
+);
+THIS^.testNotIsEqualTo(
+	address1 := stackAddress,
+	address2 := stackAddress
+);
+THIS^.testNotIsEqualTo(
+	address1 := THIS^.oneByte,
+	address2 := THIS^.oneByte
+);
+THIS^.testNotIsEqualTo(
+	address1 := THIS^.byteArray,
+	address2 := THIS^.byteArray
+);
+THIS^.testNotIsEqualTo(
+	address1 := THIS^.cncAddress,
+	address2 := THIS^.cncAddress
+);
+THIS^.testNotIsEqualTo(
+	address1 := THIS^.itsMeAgain,
+	address2 := THIS^.itsMeAgain
+);
+THIS^.testNotIsEqualTo(
+	address1 := THIS^.itsMeAgain^,
+	address2 := THIS^.itsMeAgain^
+);
+THIS^.testNotIsEqualTo(
+	address1 := THIS^.me,
+	address2 := THIS
+);
+
+THIS^.testNotIsEqualTo(
+	address1 := THIS^.itsMeAgain,
+	address2 := THIS
+);
+THIS^.testNotIsEqualTo(
+	address1 := THIS,
+	address2 := THIS^.NULL_POINTER
+);
+THIS^.testNotIsEqualTo(
+	address1 := THIS^.NULL_POINTER,
+	address2 := stackAddress
+);
+THIS^.testNotIsEqualTo(
+	address1 := stackAddress,
+	address2 := THIS^.oneByte
+);
+THIS^.testNotIsEqualTo(
+	address1 := THIS^.oneByte,
+	address2 := THIS^.byteArray
+);
+THIS^.testNotIsEqualTo(
+	address1 := THIS^.byteArray,
+	address2 := THIS^.cncAddress
+);
+THIS^.testNotIsEqualTo(
+	address1 := THIS^.itsMeAgain,
+	address2 := THIS^.itsMeAgain
+);
+THIS^.testNotIsEqualTo(
+	address1 := THIS^.cncAddress,
+	address2 := THIS^.itsMeAgain^
+);
+THIS^.testNotIsEqualTo(
+	address1 := THIS^.itsMeAgain^,
+	address2 := THIS^.itsMeAgain
+);
+THIS^.testNotIsEqualTo(
+	address1 := THIS^.itsMeAgain,
+	address2 := THIS
+);
+
+TcUnit.TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="runIsNotNullTests" Id="{30fa128d-070e-4399-9697-d18e6e23344d}" FolderPath="isNotNull\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.pointers.isNotNull``
+method of CNM_AssertionInterfaceLib library with various inputs
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+METHOD runIsNotNullTests
+VAR
+	foo				:__XWORD;
+	stackAddress	:PVOID;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[RETURN (NOT TcUnit.TEST_ORDERED(THIS^.getTestNameFor('isNotNull')));
+
+stackAddress := ADR(foo);
+
+THIS^.testIsNotNull(
+	address := THIS,
+	symbol := 'THIS'
+);
+THIS^.testIsNotNull(
+	address := THIS^.NULL_POINTER,
+	symbol := 'THIS^.NULL_POINTER'
+);
+THIS^.testIsNotNull(
+	address := stackAddress,
+	symbol := 'stackAddress'
+);
+THIS^.testIsNotNull(
+	address := THIS^.oneByte,
+	symbol := 'THIS^.oneByte'
+);
+THIS^.testIsNotNull(
+	address := THIS^.byteArray,
+	symbol := 'THIS^.byteArray'
+);
+THIS^.testIsNotNull(
+	address := THIS^.cncAddress,
+	symbol := 'THIS^.cncAddress'
+);
+THIS^.testIsNotNull(
+	address := THIS^.itsMeAgain,
+	symbol := 'THIS^.itsMeAgain'
+);
+THIS^.testIsNotNull(
+	address := THIS^.itsMeAgain^,
+	symbol := 'THIS^.itsMeAgain^'
+);
+THIS^.testIsNotNull(
+	address := THIS^.me,
+	symbol := 'THIS^.me'
+);
+
+TcUnit.TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="runIsNullTests" Id="{e4dcff5c-5914-494a-a6e3-3f0de7b5d2ad}" FolderPath="isNull\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.pointers.isNull``
+method of CNM_AssertionInterfaceLib library with various inputs
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+METHOD runIsNullTests
+VAR
+	foo				:__XWORD;
+	stackAddress	:PVOID;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[RETURN (NOT TcUnit.TEST_ORDERED(THIS^.getTestNameFor('isNull')));
+
+stackAddress := ADR(foo);
+
+THIS^.testIsNull(
+	address := THIS,
+	symbol := 'THIS'
+);
+THIS^.testIsNull(
+	address := THIS^.NULL_POINTER,
+	symbol := 'THIS^.NULL_POINTER'
+);
+THIS^.testIsNull(
+	address := stackAddress,
+	symbol := 'stackAddress'
+);
+THIS^.testIsNull(
+	address := THIS^.oneByte,
+	symbol := 'THIS^.oneByte'
+);
+THIS^.testIsNull(
+	address := THIS^.byteArray,
+	symbol := 'THIS^.byteArray'
+);
+THIS^.testIsNull(
+	address := THIS^.cncAddress,
+	symbol := 'THIS^.cncAddress'
+);
+THIS^.testIsNull(
+	address := THIS^.itsMeAgain,
+	symbol := 'THIS^.itsMeAgain'
+);
+THIS^.testIsNull(
+	address := THIS^.itsMeAgain^,
+	symbol := 'THIS^.itsMeAgain^'
+);
+THIS^.testIsNull(
+	address := THIS^.me,
+	symbol := 'THIS^.me'
+);
+
+TcUnit.TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="runIsValidTests" Id="{dbad4a73-c145-4443-a585-9a206ec69651}" FolderPath="isValid\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.pointers.isValid``
+method of CNM_AssertionInterfaceLib library with various inputs
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. _Apache-2.THIS^.SIZE_ZERO: https://www.apache.org/licenses/LICENSE-2.THIS^.SIZE_ZERO
+
+.. </legal notes>
+
+*)
+
+METHOD runIsValidTests
+VAR
+	foo				:__XWORD;
+	stackAddress	:PVOID;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[RETURN (NOT TcUnit.TEST_ORDERED(THIS^.getTestNameFor('isValid')));
+stackAddress := ADR(foo);
+
+THIS^.testIsValid(
+	address := THIS,
+	sizeInBytes := THIS^.I_AM_FAT,
+	symbol := 'THIS'
+);
+THIS^.testIsValid(
+	address := THIS^.NULL_POINTER,
+	sizeInBytes := THIS^.SIZE_ZERO,
+	symbol := 'THIS^.NULL_POINTER'
+);
+THIS^.testIsValid(
+	address := stackAddress,
+	sizeInBytes := SIZEOF(__XWORD),
+	symbol := 'stackAddress'
+);
+THIS^.testIsValid(
+	address := THIS^.oneByte,
+	sizeInBytes := SIZEOF(BYTE),
+	symbol := 'THIS^.oneByte'
+);
+THIS^.testIsValid(
+	address := THIS^.byteArray,
+	sizeInBytes := THIS^.ARRAY_SIZE,
+	symbol := 'THIS^.byteArray'
+);
+THIS^.testIsValid(
+	address := THIS^.cncAddress,
+	sizeInBytes := THIS^.cncSize,
+	symbol := 'THIS^.cncAddress'
+);
+THIS^.testIsValid(
+	address := THIS^.itsMeAgain,
+	sizeInBytes := SIZEOF(PVOID),
+	symbol := 'THIS^.itsMeAgain'
+);
+THIS^.testIsValid(
+	address := THIS^.itsMeAgain^,
+	sizeInBytes := THIS^.I_AM_FAT,
+	symbol := 'THIS^.itsMeAgain^'
+);
+THIS^.testIsValid(
+	address := THIS^.me,
+	sizeInBytes := THIS^.I_AM_FAT,
+	symbol := 'THIS^.me'
+);
+THIS^.testIsValid(
+	address := THIS^.myMom,
+	sizeInBytes := SIZEOF(AbstractAssertorTest),
+	symbol := 'THIS^.myMom'
+);
+THIS^.testIsValid(
+	address := THIS^.invalidByte,
+	sizeInBytes := SIZEOF(BYTE),
+	symbol := 'THIS^.invalidByte'
+);
+
+THIS^.testIsValid(
+	address := THIS^.itsMeAgain,
+	sizeInBytes := THIS^.SIZE_ZERO,
+	symbol := 'THIS^.itsMeAgain'
+);
+THIS^.testIsValid(
+	address := THIS,
+	sizeInBytes := THIS^.SIZE_ZERO,
+	symbol := 'THIS'
+);
+THIS^.testIsValid(
+	address := THIS^.NULL_POINTER,
+	sizeInBytes := SIZEOF(PVOID),
+	symbol := 'THIS^.NULL_POINTER'
+);
+THIS^.testIsValid(
+	address := stackAddress,
+	sizeInBytes := THIS^.SIZE_ZERO,
+	symbol := 'stackAddress'
+);
+THIS^.testIsValid(
+	address := THIS^.oneByte,
+	sizeInBytes := THIS^.SIZE_ZERO,
+	symbol := 'THIS^.oneByte'
+);
+THIS^.testIsValid(
+	address := THIS^.byteArray,
+	sizeInBytes := THIS^.SIZE_ZERO,
+	symbol := 'THIS^.byteArray'
+);
+THIS^.testIsValid(
+	address := THIS^.itsMeAgain,
+	sizeInBytes := THIS^.SIZE_ZERO,
+	symbol := 'THIS^.itsMeAgain'
+);
+THIS^.testIsValid(
+	address := THIS^.cncAddress,
+	sizeInBytes := THIS^.SIZE_ZERO,
+	symbol := 'THIS^.cncAddress'
+);
+THIS^.testIsValid(
+	address := THIS^.itsMeAgain^,
+	sizeInBytes := THIS^.SIZE_ZERO,
+	symbol := 'THIS^.itsMeAgain^'
+);
+THIS^.testIsValid(
+	address := THIS^.INVALID_POINTER,
+	sizeInBytes := SIZEOF(PVOID),
+	symbol := 'THIS^.INVALID_POINTER'
+);
+THIS^.testIsValid(
+	address := THIS^.myMom,
+	sizeInBytes := THIS^.SIZE_ZERO,
+	symbol := 'THIS^.myMom'
+);
+THIS^.testIsValid(
+	address := THIS^.invalidByte,
+	sizeInBytes := THIS^.SIZE_ZERO,
+	symbol := 'THIS^.invalidByte'
+);
+
+TcUnit.TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="runMemoryAreaIsCncTests" Id="{e8f74879-fcc3-45e1-a8a1-ad50845a806f}" FolderPath="memoryAreaIsCnc\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.pointers.memoryAreaIsCnc``
+method of CNM_AssertionInterfaceLib library with various inputs
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. _Apache-2.THIS^.SIZE_ZERO: https://www.apache.org/licenses/LICENSE-2.THIS^.SIZE_ZERO
+
+.. </legal notes>
+
+*)
+
+METHOD runMemoryAreaIsCncTests
+VAR
+	foo				:__XWORD;
+	stackAddress	:PVOID;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[RETURN (NOT TcUnit.TEST_ORDERED(THIS^.getTestNameFor('memoryAreaIsCnc')));
+stackAddress := ADR(foo);
+
+THIS^.testMemoryAreaIsCnc(
+	address := THIS,
+	sizeInBytes := THIS^.I_AM_FAT,
+	symbol := 'THIS'
+);
+THIS^.testMemoryAreaIsCnc(
+	address := THIS^.NULL_POINTER,
+	sizeInBytes := THIS^.SIZE_ZERO,
+	symbol := 'THIS^.NULL_POINTER'
+);
+THIS^.testMemoryAreaIsCnc(
+	address := stackAddress,
+	sizeInBytes := SIZEOF(__XWORD),
+	symbol := 'stackAddress'
+);
+THIS^.testMemoryAreaIsCnc(
+	address := THIS^.oneByte,
+	sizeInBytes := SIZEOF(BYTE),
+	symbol := 'THIS^.oneByte'
+);
+THIS^.testMemoryAreaIsCnc(
+	address := THIS^.byteArray,
+	sizeInBytes := THIS^.ARRAY_SIZE,
+	symbol := 'THIS^.byteArray'
+);
+THIS^.testMemoryAreaIsCnc(
+	address := THIS^.cncAddress,
+	sizeInBytes := THIS^.cncSize,
+	symbol := 'THIS^.cncAddress'
+);
+THIS^.testMemoryAreaIsCnc(
+	address := THIS^.itsMeAgain,
+	sizeInBytes := SIZEOF(PVOID),
+	symbol := 'THIS^.itsMeAgain'
+);
+THIS^.testMemoryAreaIsCnc(
+	address := THIS^.itsMeAgain^,
+	sizeInBytes := THIS^.I_AM_FAT,
+	symbol := 'THIS^.itsMeAgain^'
+);
+THIS^.testMemoryAreaIsCnc(
+	address := THIS^.me,
+	sizeInBytes := THIS^.I_AM_FAT,
+	symbol := 'THIS^.me'
+);
+THIS^.testMemoryAreaIsCnc(
+	address := THIS^.myMom,
+	sizeInBytes := SIZEOF(AbstractAssertorTest),
+	symbol := 'THIS^.myMom'
+);
+THIS^.testMemoryAreaIsCnc(
+	address := THIS^.invalidByte,
+	sizeInBytes := SIZEOF(BYTE),
+	symbol := 'THIS^.invalidByte'
+);
+
+THIS^.testMemoryAreaIsCnc(
+	address := THIS^.itsMeAgain,
+	sizeInBytes := THIS^.SIZE_ZERO,
+	symbol := 'THIS^.itsMeAgain'
+);
+THIS^.testMemoryAreaIsCnc(
+	address := THIS,
+	sizeInBytes := THIS^.SIZE_ZERO,
+	symbol := 'THIS'
+);
+THIS^.testMemoryAreaIsCnc(
+	address := THIS^.NULL_POINTER,
+	sizeInBytes := SIZEOF(PVOID),
+	symbol := 'THIS^.NULL_POINTER'
+);
+THIS^.testMemoryAreaIsCnc(
+	address := stackAddress,
+	sizeInBytes := THIS^.SIZE_ZERO,
+	symbol := 'stackAddress'
+);
+THIS^.testMemoryAreaIsCnc(
+	address := THIS^.oneByte,
+	sizeInBytes := THIS^.SIZE_ZERO,
+	symbol := 'THIS^.oneByte'
+);
+THIS^.testMemoryAreaIsCnc(
+	address := THIS^.byteArray,
+	sizeInBytes := THIS^.SIZE_ZERO,
+	symbol := 'THIS^.byteArray'
+);
+THIS^.testMemoryAreaIsCnc(
+	address := THIS^.itsMeAgain,
+	sizeInBytes := THIS^.SIZE_ZERO,
+	symbol := 'THIS^.itsMeAgain'
+);
+THIS^.testMemoryAreaIsCnc(
+	address := THIS^.cncAddress,
+	sizeInBytes := THIS^.SIZE_ZERO,
+	symbol := 'THIS^.cncAddress'
+);
+THIS^.testMemoryAreaIsCnc(
+	address := THIS^.itsMeAgain^,
+	sizeInBytes := THIS^.SIZE_ZERO,
+	symbol := 'THIS^.itsMeAgain^'
+);
+THIS^.testMemoryAreaIsCnc(
+	address := THIS^.INVALID_POINTER,
+	sizeInBytes := SIZEOF(PVOID),
+	symbol := 'THIS^.INVALID_POINTER'
+);
+THIS^.testMemoryAreaIsCnc(
+	address := THIS^.myMom,
+	sizeInBytes := THIS^.SIZE_ZERO,
+	symbol := 'THIS^.myMom'
+);
+THIS^.testMemoryAreaIsCnc(
+	address := THIS^.invalidByte,
+	sizeInBytes := THIS^.SIZE_ZERO,
+	symbol := 'THIS^.invalidByte'
+);
+
+TcUnit.TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="runMemoryAreaIsDynamicTests" Id="{6efd5f43-33cb-415d-8294-7c8294400f8f}" FolderPath="memoryAreaIsDynamic\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.pointers.memoryAreaIsDynamic``
+method of CNM_AssertionInterfaceLib library with various inputs
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. _Apache-2.THIS^.SIZE_ZERO: https://www.apache.org/licenses/LICENSE-2.THIS^.SIZE_ZERO
+
+.. </legal notes>
+
+*)
+
+METHOD runMemoryAreaIsDynamicTests
+VAR
+	foo				:__XWORD;
+	stackAddress	:PVOID;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[RETURN (NOT TcUnit.TEST_ORDERED(THIS^.getTestNameFor('memoryAreaIsDynamic')));
+stackAddress := ADR(foo);
+
+THIS^.testMemoryAreaIsDynamic(
+	address := THIS,
+	sizeInBytes := THIS^.I_AM_FAT,
+	symbol := 'THIS'
+);
+THIS^.testMemoryAreaIsDynamic(
+	address := THIS^.NULL_POINTER,
+	sizeInBytes := THIS^.SIZE_ZERO,
+	symbol := 'THIS^.NULL_POINTER'
+);
+THIS^.testMemoryAreaIsDynamic(
+	address := stackAddress,
+	sizeInBytes := SIZEOF(__XWORD),
+	symbol := 'stackAddress'
+);
+THIS^.testMemoryAreaIsDynamic(
+	address := THIS^.oneByte,
+	sizeInBytes := SIZEOF(BYTE),
+	symbol := 'THIS^.oneByte'
+);
+THIS^.testMemoryAreaIsDynamic(
+	address := THIS^.byteArray,
+	sizeInBytes := THIS^.ARRAY_SIZE,
+	symbol := 'THIS^.byteArray'
+);
+THIS^.testMemoryAreaIsDynamic(
+	address := THIS^.cncAddress,
+	sizeInBytes := THIS^.cncSize,
+	symbol := 'THIS^.cncAddress'
+);
+THIS^.testMemoryAreaIsDynamic(
+	address := THIS^.itsMeAgain,
+	sizeInBytes := SIZEOF(PVOID),
+	symbol := 'THIS^.itsMeAgain'
+);
+THIS^.testMemoryAreaIsDynamic(
+	address := THIS^.itsMeAgain^,
+	sizeInBytes := THIS^.I_AM_FAT,
+	symbol := 'THIS^.itsMeAgain^'
+);
+THIS^.testMemoryAreaIsDynamic(
+	address := THIS^.me,
+	sizeInBytes := THIS^.I_AM_FAT,
+	symbol := 'THIS^.me'
+);
+THIS^.testMemoryAreaIsDynamic(
+	address := THIS^.myMom,
+	sizeInBytes := SIZEOF(AbstractAssertorTest),
+	symbol := 'THIS^.myMom'
+);
+THIS^.testMemoryAreaIsDynamic(
+	address := THIS^.invalidByte,
+	sizeInBytes := SIZEOF(BYTE),
+	symbol := 'THIS^.invalidByte'
+);
+
+THIS^.testMemoryAreaIsDynamic(
+	address := THIS^.itsMeAgain,
+	sizeInBytes := THIS^.SIZE_ZERO,
+	symbol := 'THIS^.itsMeAgain'
+);
+THIS^.testMemoryAreaIsDynamic(
+	address := THIS,
+	sizeInBytes := THIS^.SIZE_ZERO,
+	symbol := 'THIS'
+);
+THIS^.testMemoryAreaIsDynamic(
+	address := THIS^.NULL_POINTER,
+	sizeInBytes := SIZEOF(PVOID),
+	symbol := 'THIS^.NULL_POINTER'
+);
+THIS^.testMemoryAreaIsDynamic(
+	address := stackAddress,
+	sizeInBytes := THIS^.SIZE_ZERO,
+	symbol := 'stackAddress'
+);
+THIS^.testMemoryAreaIsDynamic(
+	address := THIS^.oneByte,
+	sizeInBytes := THIS^.SIZE_ZERO,
+	symbol := 'THIS^.oneByte'
+);
+THIS^.testMemoryAreaIsDynamic(
+	address := THIS^.byteArray,
+	sizeInBytes := THIS^.SIZE_ZERO,
+	symbol := 'THIS^.byteArray'
+);
+THIS^.testMemoryAreaIsDynamic(
+	address := THIS^.itsMeAgain,
+	sizeInBytes := THIS^.SIZE_ZERO,
+	symbol := 'THIS^.itsMeAgain'
+);
+THIS^.testMemoryAreaIsDynamic(
+	address := THIS^.cncAddress,
+	sizeInBytes := THIS^.SIZE_ZERO,
+	symbol := 'THIS^.cncAddress'
+);
+THIS^.testMemoryAreaIsDynamic(
+	address := THIS^.itsMeAgain^,
+	sizeInBytes := THIS^.SIZE_ZERO,
+	symbol := 'THIS^.itsMeAgain^'
+);
+THIS^.testMemoryAreaIsDynamic(
+	address := THIS^.INVALID_POINTER,
+	sizeInBytes := SIZEOF(PVOID),
+	symbol := 'THIS^.INVALID_POINTER'
+);
+THIS^.testMemoryAreaIsDynamic(
+	address := THIS^.myMom,
+	sizeInBytes := THIS^.SIZE_ZERO,
+	symbol := 'THIS^.myMom'
+);
+THIS^.testMemoryAreaIsDynamic(
+	address := THIS^.invalidByte,
+	sizeInBytes := THIS^.SIZE_ZERO,
+	symbol := 'THIS^.invalidByte'
+);
+
+TcUnit.TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="runMemoryAreaIsNotCncTests" Id="{7b2f6fa1-535f-4715-bcdc-cb771e0882e2}" FolderPath="memoryAreaIsNotCnc\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.pointers.memoryAreaIsNotCnc``
+method of CNM_AssertionInterfaceLib library with various inputs
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. _Apache-2.THIS^.SIZE_ZERO: https://www.apache.org/licenses/LICENSE-2.THIS^.SIZE_ZERO
+
+.. </legal notes>
+
+*)
+
+METHOD runMemoryAreaIsNotCncTests
+VAR
+	foo				:__XWORD;
+	stackAddress	:PVOID;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[RETURN (NOT TcUnit.TEST_ORDERED(THIS^.getTestNameFor('memoryAreaIsNotCnc')));
+stackAddress := ADR(foo);
+
+THIS^.testMemoryAreaIsNotCnc(
+	address := THIS,
+	sizeInBytes := THIS^.I_AM_FAT,
+	symbol := 'THIS'
+);
+THIS^.testMemoryAreaIsNotCnc(
+	address := THIS^.NULL_POINTER,
+	sizeInBytes := THIS^.SIZE_ZERO,
+	symbol := 'THIS^.NULL_POINTER'
+);
+THIS^.testMemoryAreaIsNotCnc(
+	address := stackAddress,
+	sizeInBytes := SIZEOF(__XWORD),
+	symbol := 'stackAddress'
+);
+THIS^.testMemoryAreaIsNotCnc(
+	address := THIS^.oneByte,
+	sizeInBytes := SIZEOF(BYTE),
+	symbol := 'THIS^.oneByte'
+);
+THIS^.testMemoryAreaIsNotCnc(
+	address := THIS^.byteArray,
+	sizeInBytes := THIS^.ARRAY_SIZE,
+	symbol := 'THIS^.byteArray'
+);
+THIS^.testMemoryAreaIsNotCnc(
+	address := THIS^.cncAddress,
+	sizeInBytes := THIS^.cncSize,
+	symbol := 'THIS^.cncAddress'
+);
+THIS^.testMemoryAreaIsNotCnc(
+	address := THIS^.itsMeAgain,
+	sizeInBytes := SIZEOF(PVOID),
+	symbol := 'THIS^.itsMeAgain'
+);
+THIS^.testMemoryAreaIsNotCnc(
+	address := THIS^.itsMeAgain^,
+	sizeInBytes := THIS^.I_AM_FAT,
+	symbol := 'THIS^.itsMeAgain^'
+);
+THIS^.testMemoryAreaIsNotCnc(
+	address := THIS^.me,
+	sizeInBytes := THIS^.I_AM_FAT,
+	symbol := 'THIS^.me'
+);
+THIS^.testMemoryAreaIsNotCnc(
+	address := THIS^.myMom,
+	sizeInBytes := SIZEOF(AbstractAssertorTest),
+	symbol := 'THIS^.myMom'
+);
+THIS^.testMemoryAreaIsNotCnc(
+	address := THIS^.invalidByte,
+	sizeInBytes := SIZEOF(BYTE),
+	symbol := 'THIS^.invalidByte'
+);
+
+THIS^.testMemoryAreaIsNotCnc(
+	address := THIS^.itsMeAgain,
+	sizeInBytes := THIS^.SIZE_ZERO,
+	symbol := 'THIS^.itsMeAgain'
+);
+THIS^.testMemoryAreaIsNotCnc(
+	address := THIS,
+	sizeInBytes := THIS^.SIZE_ZERO,
+	symbol := 'THIS'
+);
+THIS^.testMemoryAreaIsNotCnc(
+	address := THIS^.NULL_POINTER,
+	sizeInBytes := SIZEOF(PVOID),
+	symbol := 'THIS^.NULL_POINTER'
+);
+THIS^.testMemoryAreaIsNotCnc(
+	address := stackAddress,
+	sizeInBytes := THIS^.SIZE_ZERO,
+	symbol := 'stackAddress'
+);
+THIS^.testMemoryAreaIsNotCnc(
+	address := THIS^.oneByte,
+	sizeInBytes := THIS^.SIZE_ZERO,
+	symbol := 'THIS^.oneByte'
+);
+THIS^.testMemoryAreaIsNotCnc(
+	address := THIS^.byteArray,
+	sizeInBytes := THIS^.SIZE_ZERO,
+	symbol := 'THIS^.byteArray'
+);
+THIS^.testMemoryAreaIsNotCnc(
+	address := THIS^.itsMeAgain,
+	sizeInBytes := THIS^.SIZE_ZERO,
+	symbol := 'THIS^.itsMeAgain'
+);
+THIS^.testMemoryAreaIsNotCnc(
+	address := THIS^.cncAddress,
+	sizeInBytes := THIS^.SIZE_ZERO,
+	symbol := 'THIS^.cncAddress'
+);
+THIS^.testMemoryAreaIsNotCnc(
+	address := THIS^.itsMeAgain^,
+	sizeInBytes := THIS^.SIZE_ZERO,
+	symbol := 'THIS^.itsMeAgain^'
+);
+THIS^.testMemoryAreaIsNotCnc(
+	address := THIS^.INVALID_POINTER,
+	sizeInBytes := SIZEOF(PVOID),
+	symbol := 'THIS^.INVALID_POINTER'
+);
+THIS^.testMemoryAreaIsNotCnc(
+	address := THIS^.myMom,
+	sizeInBytes := THIS^.SIZE_ZERO,
+	symbol := 'THIS^.myMom'
+);
+THIS^.testMemoryAreaIsNotCnc(
+	address := THIS^.invalidByte,
+	sizeInBytes := THIS^.SIZE_ZERO,
+	symbol := 'THIS^.invalidByte'
+);
+
+TcUnit.TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="runMemoryAreaIsNotDynamicTests" Id="{97ad892c-6dfc-4d0e-8fc1-47115ee0e2d5}" FolderPath="memoryAreaIsNotDynamic\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.pointers.memoryAreaIsNotDynamic``
+method of CNM_AssertionInterfaceLib library with various inputs
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. _Apache-2.THIS^.SIZE_ZERO: https://www.apache.org/licenses/LICENSE-2.THIS^.SIZE_ZERO
+
+.. </legal notes>
+
+*)
+
+METHOD runMemoryAreaIsNotDynamicTests
+VAR
+	foo				:__XWORD;
+	stackAddress	:PVOID;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[RETURN (NOT TcUnit.TEST_ORDERED(THIS^.getTestNameFor('memoryAreaIsNotDynamic')));
+stackAddress := ADR(foo);
+
+THIS^.testMemoryAreaIsNotDynamic(
+	address := THIS,
+	sizeInBytes := THIS^.I_AM_FAT,
+	symbol := 'THIS'
+);
+THIS^.testMemoryAreaIsNotDynamic(
+	address := THIS^.NULL_POINTER,
+	sizeInBytes := THIS^.SIZE_ZERO,
+	symbol := 'THIS^.NULL_POINTER'
+);
+THIS^.testMemoryAreaIsNotDynamic(
+	address := stackAddress,
+	sizeInBytes := SIZEOF(__XWORD),
+	symbol := 'stackAddress'
+);
+THIS^.testMemoryAreaIsNotDynamic(
+	address := THIS^.oneByte,
+	sizeInBytes := SIZEOF(BYTE),
+	symbol := 'THIS^.oneByte'
+);
+THIS^.testMemoryAreaIsNotDynamic(
+	address := THIS^.byteArray,
+	sizeInBytes := THIS^.ARRAY_SIZE,
+	symbol := 'THIS^.byteArray'
+);
+THIS^.testMemoryAreaIsNotDynamic(
+	address := THIS^.cncAddress,
+	sizeInBytes := THIS^.cncSize,
+	symbol := 'THIS^.cncAddress'
+);
+THIS^.testMemoryAreaIsNotDynamic(
+	address := THIS^.itsMeAgain,
+	sizeInBytes := SIZEOF(PVOID),
+	symbol := 'THIS^.itsMeAgain'
+);
+THIS^.testMemoryAreaIsNotDynamic(
+	address := THIS^.itsMeAgain^,
+	sizeInBytes := THIS^.I_AM_FAT,
+	symbol := 'THIS^.itsMeAgain^'
+);
+THIS^.testMemoryAreaIsNotDynamic(
+	address := THIS^.me,
+	sizeInBytes := THIS^.I_AM_FAT,
+	symbol := 'THIS^.me'
+);
+THIS^.testMemoryAreaIsNotDynamic(
+	address := THIS^.myMom,
+	sizeInBytes := SIZEOF(AbstractAssertorTest),
+	symbol := 'THIS^.myMom'
+);
+THIS^.testMemoryAreaIsNotDynamic(
+	address := THIS^.invalidByte,
+	sizeInBytes := SIZEOF(BYTE),
+	symbol := 'THIS^.invalidByte'
+);
+
+THIS^.testMemoryAreaIsNotDynamic(
+	address := THIS^.itsMeAgain,
+	sizeInBytes := THIS^.SIZE_ZERO,
+	symbol := 'THIS^.itsMeAgain'
+);
+THIS^.testMemoryAreaIsNotDynamic(
+	address := THIS,
+	sizeInBytes := THIS^.SIZE_ZERO,
+	symbol := 'THIS'
+);
+THIS^.testMemoryAreaIsNotDynamic(
+	address := THIS^.NULL_POINTER,
+	sizeInBytes := SIZEOF(PVOID),
+	symbol := 'THIS^.NULL_POINTER'
+);
+THIS^.testMemoryAreaIsNotDynamic(
+	address := stackAddress,
+	sizeInBytes := THIS^.SIZE_ZERO,
+	symbol := 'stackAddress'
+);
+THIS^.testMemoryAreaIsNotDynamic(
+	address := THIS^.oneByte,
+	sizeInBytes := THIS^.SIZE_ZERO,
+	symbol := 'THIS^.oneByte'
+);
+THIS^.testMemoryAreaIsNotDynamic(
+	address := THIS^.byteArray,
+	sizeInBytes := THIS^.SIZE_ZERO,
+	symbol := 'THIS^.byteArray'
+);
+THIS^.testMemoryAreaIsNotDynamic(
+	address := THIS^.itsMeAgain,
+	sizeInBytes := THIS^.SIZE_ZERO,
+	symbol := 'THIS^.itsMeAgain'
+);
+THIS^.testMemoryAreaIsNotDynamic(
+	address := THIS^.cncAddress,
+	sizeInBytes := THIS^.SIZE_ZERO,
+	symbol := 'THIS^.cncAddress'
+);
+THIS^.testMemoryAreaIsNotDynamic(
+	address := THIS^.itsMeAgain^,
+	sizeInBytes := THIS^.SIZE_ZERO,
+	symbol := 'THIS^.itsMeAgain^'
+);
+THIS^.testMemoryAreaIsNotDynamic(
+	address := THIS^.INVALID_POINTER,
+	sizeInBytes := SIZEOF(PVOID),
+	symbol := 'THIS^.INVALID_POINTER'
+);
+THIS^.testMemoryAreaIsNotDynamic(
+	address := THIS^.myMom,
+	sizeInBytes := THIS^.SIZE_ZERO,
+	symbol := 'THIS^.myMom'
+);
+THIS^.testMemoryAreaIsNotDynamic(
+	address := THIS^.invalidByte,
+	sizeInBytes := THIS^.SIZE_ZERO,
+	symbol := 'THIS^.invalidByte'
+);
+
+TcUnit.TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="runMemoryAreaIsNotStaticTests" Id="{74ad6a09-71bd-4b50-b84b-22df99df5048}" FolderPath="memoryAreaIsNotStatic\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.pointers.memoryAreaIsNotStatic``
+method of CNM_AssertionInterfaceLib library with various inputs
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. _Apache-2.THIS^.SIZE_ZERO: https://www.apache.org/licenses/LICENSE-2.THIS^.SIZE_ZERO
+
+.. </legal notes>
+
+*)
+
+METHOD runMemoryAreaIsNotStaticTests
+VAR
+	foo				:__XWORD;
+	stackAddress	:PVOID;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[RETURN (NOT TcUnit.TEST_ORDERED(THIS^.getTestNameFor('memoryAreaIsNotStatic')));
+stackAddress := ADR(foo);
+
+THIS^.testMemoryAreaIsNotStatic(
+	address := THIS,
+	sizeInBytes := THIS^.I_AM_FAT,
+	symbol := 'THIS'
+);
+THIS^.testMemoryAreaIsNotStatic(
+	address := THIS^.NULL_POINTER,
+	sizeInBytes := THIS^.SIZE_ZERO,
+	symbol := 'THIS^.NULL_POINTER'
+);
+THIS^.testMemoryAreaIsNotStatic(
+	address := stackAddress,
+	sizeInBytes := SIZEOF(__XWORD),
+	symbol := 'stackAddress'
+);
+THIS^.testMemoryAreaIsNotStatic(
+	address := THIS^.oneByte,
+	sizeInBytes := SIZEOF(BYTE),
+	symbol := 'THIS^.oneByte'
+);
+THIS^.testMemoryAreaIsNotStatic(
+	address := THIS^.byteArray,
+	sizeInBytes := THIS^.ARRAY_SIZE,
+	symbol := 'THIS^.byteArray'
+);
+THIS^.testMemoryAreaIsNotStatic(
+	address := THIS^.cncAddress,
+	sizeInBytes := THIS^.cncSize,
+	symbol := 'THIS^.cncAddress'
+);
+THIS^.testMemoryAreaIsNotStatic(
+	address := THIS^.itsMeAgain,
+	sizeInBytes := SIZEOF(PVOID),
+	symbol := 'THIS^.itsMeAgain'
+);
+THIS^.testMemoryAreaIsNotStatic(
+	address := THIS^.itsMeAgain^,
+	sizeInBytes := THIS^.I_AM_FAT,
+	symbol := 'THIS^.itsMeAgain^'
+);
+THIS^.testMemoryAreaIsNotStatic(
+	address := THIS^.me,
+	sizeInBytes := THIS^.I_AM_FAT,
+	symbol := 'THIS^.me'
+);
+THIS^.testMemoryAreaIsNotStatic(
+	address := THIS^.myMom,
+	sizeInBytes := SIZEOF(AbstractAssertorTest),
+	symbol := 'THIS^.myMom'
+);
+THIS^.testMemoryAreaIsNotStatic(
+	address := THIS^.invalidByte,
+	sizeInBytes := SIZEOF(BYTE),
+	symbol := 'THIS^.invalidByte'
+);
+
+THIS^.testMemoryAreaIsNotStatic(
+	address := THIS^.itsMeAgain,
+	sizeInBytes := THIS^.SIZE_ZERO,
+	symbol := 'THIS^.itsMeAgain'
+);
+THIS^.testMemoryAreaIsNotStatic(
+	address := THIS,
+	sizeInBytes := THIS^.SIZE_ZERO,
+	symbol := 'THIS'
+);
+THIS^.testMemoryAreaIsNotStatic(
+	address := THIS^.NULL_POINTER,
+	sizeInBytes := SIZEOF(PVOID),
+	symbol := 'THIS^.NULL_POINTER'
+);
+THIS^.testMemoryAreaIsNotStatic(
+	address := stackAddress,
+	sizeInBytes := THIS^.SIZE_ZERO,
+	symbol := 'stackAddress'
+);
+THIS^.testMemoryAreaIsNotStatic(
+	address := THIS^.oneByte,
+	sizeInBytes := THIS^.SIZE_ZERO,
+	symbol := 'THIS^.oneByte'
+);
+THIS^.testMemoryAreaIsNotStatic(
+	address := THIS^.byteArray,
+	sizeInBytes := THIS^.SIZE_ZERO,
+	symbol := 'THIS^.byteArray'
+);
+THIS^.testMemoryAreaIsNotStatic(
+	address := THIS^.itsMeAgain,
+	sizeInBytes := THIS^.SIZE_ZERO,
+	symbol := 'THIS^.itsMeAgain'
+);
+THIS^.testMemoryAreaIsNotStatic(
+	address := THIS^.cncAddress,
+	sizeInBytes := THIS^.SIZE_ZERO,
+	symbol := 'THIS^.cncAddress'
+);
+THIS^.testMemoryAreaIsNotStatic(
+	address := THIS^.itsMeAgain^,
+	sizeInBytes := THIS^.SIZE_ZERO,
+	symbol := 'THIS^.itsMeAgain^'
+);
+THIS^.testMemoryAreaIsNotStatic(
+	address := THIS^.INVALID_POINTER,
+	sizeInBytes := SIZEOF(PVOID),
+	symbol := 'THIS^.INVALID_POINTER'
+);
+THIS^.testMemoryAreaIsNotStatic(
+	address := THIS^.myMom,
+	sizeInBytes := THIS^.SIZE_ZERO,
+	symbol := 'THIS^.myMom'
+);
+THIS^.testMemoryAreaIsNotStatic(
+	address := THIS^.invalidByte,
+	sizeInBytes := THIS^.SIZE_ZERO,
+	symbol := 'THIS^.invalidByte'
+);
+
+TcUnit.TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="runMemoryAreaIsNotUnknownTests" Id="{4168dbef-5670-418c-9d5e-7b43659982fe}" FolderPath="memoryAreaIsNotUnknwon\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.pointers.memoryAreaIsNotUnkown``
+method of CNM_AssertionInterfaceLib library with various inputs
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. _Apache-2.THIS^.SIZE_ZERO: https://www.apache.org/licenses/LICENSE-2.THIS^.SIZE_ZERO
+
+.. </legal notes>
+
+*)
+
+METHOD runMemoryAreaIsNotUnknownTests
+VAR
+	foo				:__XWORD;
+	stackAddress	:PVOID;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[RETURN (NOT TcUnit.TEST_ORDERED(THIS^.getTestNameFor('memoryAreaIsNotUnkown')));
+stackAddress := ADR(foo);
+
+THIS^.testMemoryAreaIsNotUnknown(
+	address := THIS,
+	sizeInBytes := THIS^.I_AM_FAT,
+	symbol := 'THIS'
+);
+THIS^.testMemoryAreaIsNotUnknown(
+	address := THIS^.NULL_POINTER,
+	sizeInBytes := THIS^.SIZE_ZERO,
+	symbol := 'THIS^.NULL_POINTER'
+);
+THIS^.testMemoryAreaIsNotUnknown(
+	address := stackAddress,
+	sizeInBytes := SIZEOF(__XWORD),
+	symbol := 'stackAddress'
+);
+THIS^.testMemoryAreaIsNotUnknown(
+	address := THIS^.oneByte,
+	sizeInBytes := SIZEOF(BYTE),
+	symbol := 'THIS^.oneByte'
+);
+THIS^.testMemoryAreaIsNotUnknown(
+	address := THIS^.byteArray,
+	sizeInBytes := THIS^.ARRAY_SIZE,
+	symbol := 'THIS^.byteArray'
+);
+THIS^.testMemoryAreaIsNotUnknown(
+	address := THIS^.cncAddress,
+	sizeInBytes := THIS^.cncSize,
+	symbol := 'THIS^.cncAddress'
+);
+THIS^.testMemoryAreaIsNotUnknown(
+	address := THIS^.itsMeAgain,
+	sizeInBytes := SIZEOF(PVOID),
+	symbol := 'THIS^.itsMeAgain'
+);
+THIS^.testMemoryAreaIsNotUnknown(
+	address := THIS^.itsMeAgain^,
+	sizeInBytes := THIS^.I_AM_FAT,
+	symbol := 'THIS^.itsMeAgain^'
+);
+THIS^.testMemoryAreaIsNotUnknown(
+	address := THIS^.me,
+	sizeInBytes := THIS^.I_AM_FAT,
+	symbol := 'THIS^.me'
+);
+THIS^.testMemoryAreaIsNotUnknown(
+	address := THIS^.myMom,
+	sizeInBytes := SIZEOF(AbstractAssertorTest),
+	symbol := 'THIS^.myMom'
+);
+THIS^.testMemoryAreaIsNotUnknown(
+	address := THIS^.invalidByte,
+	sizeInBytes := SIZEOF(BYTE),
+	symbol := 'THIS^.invalidByte'
+);
+
+THIS^.testMemoryAreaIsNotUnknown(
+	address := THIS^.itsMeAgain,
+	sizeInBytes := THIS^.SIZE_ZERO,
+	symbol := 'THIS^.itsMeAgain'
+);
+THIS^.testMemoryAreaIsNotUnknown(
+	address := THIS,
+	sizeInBytes := THIS^.SIZE_ZERO,
+	symbol := 'THIS'
+);
+THIS^.testMemoryAreaIsNotUnknown(
+	address := THIS^.NULL_POINTER,
+	sizeInBytes := SIZEOF(PVOID),
+	symbol := 'THIS^.NULL_POINTER'
+);
+THIS^.testMemoryAreaIsNotUnknown(
+	address := stackAddress,
+	sizeInBytes := THIS^.SIZE_ZERO,
+	symbol := 'stackAddress'
+);
+THIS^.testMemoryAreaIsNotUnknown(
+	address := THIS^.oneByte,
+	sizeInBytes := THIS^.SIZE_ZERO,
+	symbol := 'THIS^.oneByte'
+);
+THIS^.testMemoryAreaIsNotUnknown(
+	address := THIS^.byteArray,
+	sizeInBytes := THIS^.SIZE_ZERO,
+	symbol := 'THIS^.byteArray'
+);
+THIS^.testMemoryAreaIsNotUnknown(
+	address := THIS^.itsMeAgain,
+	sizeInBytes := THIS^.SIZE_ZERO,
+	symbol := 'THIS^.itsMeAgain'
+);
+THIS^.testMemoryAreaIsNotUnknown(
+	address := THIS^.cncAddress,
+	sizeInBytes := THIS^.SIZE_ZERO,
+	symbol := 'THIS^.cncAddress'
+);
+THIS^.testMemoryAreaIsNotUnknown(
+	address := THIS^.itsMeAgain^,
+	sizeInBytes := THIS^.SIZE_ZERO,
+	symbol := 'THIS^.itsMeAgain^'
+);
+THIS^.testMemoryAreaIsNotUnknown(
+	address := THIS^.INVALID_POINTER,
+	sizeInBytes := SIZEOF(PVOID),
+	symbol := 'THIS^.INVALID_POINTER'
+);
+THIS^.testMemoryAreaIsNotUnknown(
+	address := THIS^.myMom,
+	sizeInBytes := THIS^.SIZE_ZERO,
+	symbol := 'THIS^.myMom'
+);
+THIS^.testMemoryAreaIsNotUnknown(
+	address := THIS^.invalidByte,
+	sizeInBytes := THIS^.SIZE_ZERO,
+	symbol := 'THIS^.invalidByte'
+);
+
+TcUnit.TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="runMemoryAreaIsStaticTests" Id="{477331cc-9d86-46be-878b-3a0f4ddd257d}" FolderPath="memoryAreaIsStatic\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.pointers.memoryAreaIsStatic``
+method of CNM_AssertionInterfaceLib library with various inputs
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. _Apache-2.THIS^.SIZE_ZERO: https://www.apache.org/licenses/LICENSE-2.THIS^.SIZE_ZERO
+
+.. </legal notes>
+
+*)
+
+METHOD runMemoryAreaIsStaticTests
+VAR
+	foo				:__XWORD;
+	stackAddress	:PVOID;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[RETURN (NOT TcUnit.TEST_ORDERED(THIS^.getTestNameFor('memoryAreaIsStatic')));
+stackAddress := ADR(foo);
+
+THIS^.testMemoryAreaIsStatic(
+	address := THIS,
+	sizeInBytes := THIS^.I_AM_FAT,
+	symbol := 'THIS'
+);
+THIS^.testMemoryAreaIsStatic(
+	address := THIS^.NULL_POINTER,
+	sizeInBytes := THIS^.SIZE_ZERO,
+	symbol := 'THIS^.NULL_POINTER'
+);
+THIS^.testMemoryAreaIsStatic(
+	address := stackAddress,
+	sizeInBytes := SIZEOF(__XWORD),
+	symbol := 'stackAddress'
+);
+THIS^.testMemoryAreaIsStatic(
+	address := THIS^.oneByte,
+	sizeInBytes := SIZEOF(BYTE),
+	symbol := 'THIS^.oneByte'
+);
+THIS^.testMemoryAreaIsStatic(
+	address := THIS^.byteArray,
+	sizeInBytes := THIS^.ARRAY_SIZE,
+	symbol := 'THIS^.byteArray'
+);
+THIS^.testMemoryAreaIsStatic(
+	address := THIS^.cncAddress,
+	sizeInBytes := THIS^.cncSize,
+	symbol := 'THIS^.cncAddress'
+);
+THIS^.testMemoryAreaIsStatic(
+	address := THIS^.itsMeAgain,
+	sizeInBytes := SIZEOF(PVOID),
+	symbol := 'THIS^.itsMeAgain'
+);
+THIS^.testMemoryAreaIsStatic(
+	address := THIS^.itsMeAgain^,
+	sizeInBytes := THIS^.I_AM_FAT,
+	symbol := 'THIS^.itsMeAgain^'
+);
+THIS^.testMemoryAreaIsStatic(
+	address := THIS^.me,
+	sizeInBytes := THIS^.I_AM_FAT,
+	symbol := 'THIS^.me'
+);
+THIS^.testMemoryAreaIsStatic(
+	address := THIS^.myMom,
+	sizeInBytes := SIZEOF(AbstractAssertorTest),
+	symbol := 'THIS^.myMom'
+);
+THIS^.testMemoryAreaIsStatic(
+	address := THIS^.invalidByte,
+	sizeInBytes := SIZEOF(BYTE),
+	symbol := 'THIS^.invalidByte'
+);
+
+THIS^.testMemoryAreaIsStatic(
+	address := THIS^.itsMeAgain,
+	sizeInBytes := THIS^.SIZE_ZERO,
+	symbol := 'THIS^.itsMeAgain'
+);
+THIS^.testMemoryAreaIsStatic(
+	address := THIS,
+	sizeInBytes := THIS^.SIZE_ZERO,
+	symbol := 'THIS'
+);
+THIS^.testMemoryAreaIsStatic(
+	address := THIS^.NULL_POINTER,
+	sizeInBytes := SIZEOF(PVOID),
+	symbol := 'THIS^.NULL_POINTER'
+);
+THIS^.testMemoryAreaIsStatic(
+	address := stackAddress,
+	sizeInBytes := THIS^.SIZE_ZERO,
+	symbol := 'stackAddress'
+);
+THIS^.testMemoryAreaIsStatic(
+	address := THIS^.oneByte,
+	sizeInBytes := THIS^.SIZE_ZERO,
+	symbol := 'THIS^.oneByte'
+);
+THIS^.testMemoryAreaIsStatic(
+	address := THIS^.byteArray,
+	sizeInBytes := THIS^.SIZE_ZERO,
+	symbol := 'THIS^.byteArray'
+);
+THIS^.testMemoryAreaIsStatic(
+	address := THIS^.itsMeAgain,
+	sizeInBytes := THIS^.SIZE_ZERO,
+	symbol := 'THIS^.itsMeAgain'
+);
+THIS^.testMemoryAreaIsStatic(
+	address := THIS^.cncAddress,
+	sizeInBytes := THIS^.SIZE_ZERO,
+	symbol := 'THIS^.cncAddress'
+);
+THIS^.testMemoryAreaIsStatic(
+	address := THIS^.itsMeAgain^,
+	sizeInBytes := THIS^.SIZE_ZERO,
+	symbol := 'THIS^.itsMeAgain^'
+);
+THIS^.testMemoryAreaIsStatic(
+	address := THIS^.INVALID_POINTER,
+	sizeInBytes := SIZEOF(PVOID),
+	symbol := 'THIS^.INVALID_POINTER'
+);
+THIS^.testMemoryAreaIsStatic(
+	address := THIS^.myMom,
+	sizeInBytes := THIS^.SIZE_ZERO,
+	symbol := 'THIS^.myMom'
+);
+THIS^.testMemoryAreaIsStatic(
+	address := THIS^.invalidByte,
+	sizeInBytes := THIS^.SIZE_ZERO,
+	symbol := 'THIS^.invalidByte'
+);
+
+TcUnit.TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="runMemoryAreaIsUnknownTests" Id="{e77b08b1-9891-4ece-af7b-db9c4b7bd3c2}" FolderPath="memoryAreaIsUnknwon\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.pointers.memoryAreaIsUnkown``
+method of CNM_AssertionInterfaceLib library with various inputs
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. _Apache-2.THIS^.SIZE_ZERO: https://www.apache.org/licenses/LICENSE-2.THIS^.SIZE_ZERO
+
+.. </legal notes>
+
+*)
+
+METHOD runMemoryAreaIsUnknownTests
+VAR
+	foo				:__XWORD;
+	stackAddress	:PVOID;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[RETURN (NOT TcUnit.TEST_ORDERED(THIS^.getTestNameFor('memoryAreaIsUnkown')));
+stackAddress := ADR(foo);
+
+THIS^.testMemoryAreaIsUnknown(
+	address := THIS,
+	sizeInBytes := THIS^.I_AM_FAT,
+	symbol := 'THIS'
+);
+THIS^.testMemoryAreaIsUnknown(
+	address := THIS^.NULL_POINTER,
+	sizeInBytes := THIS^.SIZE_ZERO,
+	symbol := 'THIS^.NULL_POINTER'
+);
+THIS^.testMemoryAreaIsUnknown(
+	address := stackAddress,
+	sizeInBytes := SIZEOF(__XWORD),
+	symbol := 'stackAddress'
+);
+THIS^.testMemoryAreaIsUnknown(
+	address := THIS^.oneByte,
+	sizeInBytes := SIZEOF(BYTE),
+	symbol := 'THIS^.oneByte'
+);
+THIS^.testMemoryAreaIsUnknown(
+	address := THIS^.byteArray,
+	sizeInBytes := THIS^.ARRAY_SIZE,
+	symbol := 'THIS^.byteArray'
+);
+THIS^.testMemoryAreaIsUnknown(
+	address := THIS^.cncAddress,
+	sizeInBytes := THIS^.cncSize,
+	symbol := 'THIS^.cncAddress'
+);
+THIS^.testMemoryAreaIsUnknown(
+	address := THIS^.itsMeAgain,
+	sizeInBytes := SIZEOF(PVOID),
+	symbol := 'THIS^.itsMeAgain'
+);
+THIS^.testMemoryAreaIsUnknown(
+	address := THIS^.itsMeAgain^,
+	sizeInBytes := THIS^.I_AM_FAT,
+	symbol := 'THIS^.itsMeAgain^'
+);
+THIS^.testMemoryAreaIsUnknown(
+	address := THIS^.me,
+	sizeInBytes := THIS^.I_AM_FAT,
+	symbol := 'THIS^.me'
+);
+THIS^.testMemoryAreaIsUnknown(
+	address := THIS^.myMom,
+	sizeInBytes := SIZEOF(AbstractAssertorTest),
+	symbol := 'THIS^.myMom'
+);
+THIS^.testMemoryAreaIsUnknown(
+	address := THIS^.invalidByte,
+	sizeInBytes := SIZEOF(BYTE),
+	symbol := 'THIS^.invalidByte'
+);
+
+THIS^.testMemoryAreaIsUnknown(
+	address := THIS^.itsMeAgain,
+	sizeInBytes := THIS^.SIZE_ZERO,
+	symbol := 'THIS^.itsMeAgain'
+);
+THIS^.testMemoryAreaIsUnknown(
+	address := THIS,
+	sizeInBytes := THIS^.SIZE_ZERO,
+	symbol := 'THIS'
+);
+THIS^.testMemoryAreaIsUnknown(
+	address := THIS^.NULL_POINTER,
+	sizeInBytes := SIZEOF(PVOID),
+	symbol := 'THIS^.NULL_POINTER'
+);
+THIS^.testMemoryAreaIsUnknown(
+	address := stackAddress,
+	sizeInBytes := THIS^.SIZE_ZERO,
+	symbol := 'stackAddress'
+);
+THIS^.testMemoryAreaIsUnknown(
+	address := THIS^.oneByte,
+	sizeInBytes := THIS^.SIZE_ZERO,
+	symbol := 'THIS^.oneByte'
+);
+THIS^.testMemoryAreaIsUnknown(
+	address := THIS^.byteArray,
+	sizeInBytes := THIS^.SIZE_ZERO,
+	symbol := 'THIS^.byteArray'
+);
+THIS^.testMemoryAreaIsUnknown(
+	address := THIS^.itsMeAgain,
+	sizeInBytes := THIS^.SIZE_ZERO,
+	symbol := 'THIS^.itsMeAgain'
+);
+THIS^.testMemoryAreaIsUnknown(
+	address := THIS^.cncAddress,
+	sizeInBytes := THIS^.SIZE_ZERO,
+	symbol := 'THIS^.cncAddress'
+);
+THIS^.testMemoryAreaIsUnknown(
+	address := THIS^.itsMeAgain^,
+	sizeInBytes := THIS^.SIZE_ZERO,
+	symbol := 'THIS^.itsMeAgain^'
+);
+THIS^.testMemoryAreaIsUnknown(
+	address := THIS^.INVALID_POINTER,
+	sizeInBytes := SIZEOF(PVOID),
+	symbol := 'THIS^.INVALID_POINTER'
+);
+THIS^.testMemoryAreaIsUnknown(
+	address := THIS^.myMom,
+	sizeInBytes := THIS^.SIZE_ZERO,
+	symbol := 'THIS^.myMom'
+);
+THIS^.testMemoryAreaIsUnknown(
+	address := THIS^.invalidByte,
+	sizeInBytes := THIS^.SIZE_ZERO,
+	symbol := 'THIS^.invalidByte'
+);
+
+TcUnit.TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testIsEqualTo" Id="{f1b6fba6-3f19-4c60-b7e3-969319878ad0}" FolderPath="isEqualTo\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.pointers.isEqualTo``
+method of CNM_AssertionInterfaceLib library, 
+it provides the possibility to handover test data via parameter 
+
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+METHOD testIsEqualTo
+VAR_INPUT
+	(* for the test it's the parameter ``address1`` *)
+	address1	:PVOID;
+	(* for the test it's the parameter ``address2`` *)
+	address2	:PVOID;
+END_VAR
+VAR
+	(* just the expectation if the assertion to test must be worng or true *)
+	assertionIsWrong		:BOOL;
+	(* contains the format string for the test message *)
+	message					:Tc2_System.T_MaxString;
+	(* TwinCAT printf with the test message *)
+	messageStringBuilder	:Tc2_Utilities.FB_FormatString;
+END_VAR
+
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.assertorContainer.resetAssertor();
+
+assertionIsWrong := (address1 <> address2);
+message := SEL(
+	assertionIsWrong,
+	'address1 is 16#%X address2 is 16#%X assertion must be TRUE', 
+	'address1 is 16#%X address2 is 16#%X assertion must be FALSE'
+);
+messageStringBuilder(
+	sFormat := message,
+	arg1 := THIS^.AnyToArg(address1),
+	arg2 := THIS^.AnyToArg(address2)
+);
+
+THIS^.assertorContainer.assertor.assert.pointers.isEqualTo(
+	address1 := address1,
+	address2 := address2,
+	message := ''
+);
+
+THIS^.AssertEquals_BOOL(
+	Expected 	:= assertionIsWrong,
+	Actual 		:= THIS^.assertorContainer.wasAssertionWrong,
+	Message 	:= messageStringBuilder.sOut
+);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testIsNotNull" Id="{020d7de3-0269-41e3-ad10-72fc760745b2}" FolderPath="isNotNull\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.pointers.isNotNull``
+method of CNM_AssertionInterfaceLib library, 
+it provides the possibility to handover test data via parameter 
+
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+METHOD testIsNotNull
+VAR_INPUT
+	(* for the test it's the parameter ``address`` *)
+	address		:PVOID;
+	(* just the name of the pointer *)
+	symbol		:Tc2_System.T_MaxString;
+END_VAR
+VAR
+	(* just the expectation if the assertion to test must be worng or true *)
+	assertionIsWrong		:BOOL;
+	(* contains the format string for the test message *)
+	message					:Tc2_System.T_MaxString;
+	(* TwinCAT printf with the test message *)
+	messageStringBuilder	:Tc2_Utilities.FB_FormatString;
+END_VAR
+
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.assertorContainer.resetAssertor();
+
+assertionIsWrong := (address = THIS^.NULL_POINTER);
+message := SEL(
+	assertionIsWrong,
+	'address is 16#%X ($'%s$') assertion must be TRUE', 
+	'address is 16#%X ($'%s$') assertion must be FALSE'
+);
+messageStringBuilder(
+	sFormat := message,
+	arg1 := THIS^.AnyToArg(address),
+	arg2 := THIS^.AnyToArg(symbol)
+);
+
+THIS^.assertorContainer.assertor.assert.pointers.isNotNull(
+	address := address,
+	message := ''
+);
+
+THIS^.AssertEquals_BOOL(
+	Expected 	:= assertionIsWrong,
+	Actual 		:= THIS^.assertorContainer.wasAssertionWrong,
+	Message 	:= messageStringBuilder.sOut
+);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testIsNull" Id="{228b3f4a-1bea-4d6a-a686-67ef4262b8e5}" FolderPath="isNull\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.pointers.isNull``
+method of CNM_AssertionInterfaceLib library, 
+it provides the possibility to handover test data via parameter 
+
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+METHOD testIsNull
+VAR_INPUT
+	(* for the test it's the parameter ``address`` *)
+	address		:PVOID;
+	(* just the name of the pointer *)
+	symbol		:Tc2_System.T_MaxString;
+END_VAR
+VAR
+	(* just the expectation if the assertion to test must be worng or true *)
+	assertionIsWrong		:BOOL;
+	(* contains the format string for the test message *)
+	message					:Tc2_System.T_MaxString;
+	(* TwinCAT printf with the test message *)
+	messageStringBuilder	:Tc2_Utilities.FB_FormatString;
+END_VAR
+
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.assertorContainer.resetAssertor();
+
+assertionIsWrong := (address <> THIS^.NULL_POINTER);
+message := SEL(
+	assertionIsWrong,
+	'address is 16#%X ($'%s$') assertion must be TRUE', 
+	'address is 16#%X ($'%s$') assertion must be FALSE'
+);
+messageStringBuilder(
+	sFormat := message,
+	arg1 := THIS^.AnyToArg(address),
+	arg2 := THIS^.AnyToArg(symbol)
+);
+
+THIS^.assertorContainer.assertor.assert.pointers.isNull(
+	address := address,
+	message := ''
+);
+
+THIS^.AssertEquals_BOOL(
+	Expected 	:= assertionIsWrong,
+	Actual 		:= THIS^.assertorContainer.wasAssertionWrong,
+	Message 	:= messageStringBuilder.sOut
+);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testIsValid" Id="{9c422e2f-ac8b-485c-89e5-893cda8483d2}" FolderPath="isValid\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.pointers.isValid``
+method of CNM_AssertionInterfaceLib library, 
+it provides the possibility to handover test data via parameter 
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+METHOD testIsValid
+VAR_INPUT
+	(* for the test it's the parameter ``address`` *)
+	address		:PVOID;
+	(* for the test it's the parameter ``sizeInBytes`` *)
+	sizeInBytes	:UDINT;
+	(* just the name of the pointer *)
+	symbol		:Tc2_System.T_MaxString;
+END_VAR
+VAR
+	(* just the expectation if the assertion to test must be worng or true *)
+	assertionIsWrong		:BOOL;
+	(* contains the format string for the test message *)
+	message					:Tc2_System.T_MaxString;
+	(* TwinCAT printf with the test message *)
+	messageStringBuilder	:Tc2_Utilities.FB_FormatString;
+	(* return value of Tc2_System.F_CheckMemoryArea *)
+	memoryArea				:Tc2_System.E_TcMemoryArea;
+	(*  return value of Tc2_System.F_CheckMemoryArea as string *)
+	areaString				:Tc2_System.T_MaxString;
+	{IF hasvalue (RegisterSize, '32')}
+	(* lets try if it's possible to read something from the address *)
+	validityTester			:POINTER TO BYTE;
+	(* dummy variable with the value *)
+	value					:BYTE;
+	(* exception code *)
+	e						:ExceptionCode;
+	(* just to test it over all elemets *)
+	count					:UDINT;
+	{END_IF}
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.assertorContainer.resetAssertor();
+
+memoryArea	:= Tc2_System.F_CheckMemoryArea(address, sizeInBytes);
+areaString	:= THIS^.memoryAreaToString(memoryArea);
+
+{IF hasvalue (RegisterSize, '32')}
+validityTester := address;
+assertionIsWrong := (
+	(sizeInBytes <= THIS^.SIZE_ZERO)
+	AND (address > THIS^.NULL_POINTER)
+);
+__TRY
+	IF (NOT assertionIsWrong) THEN
+		FOR byteCount := 0 TO (sizeInBytes-1) DO
+			value := validityTester[byteCount];
+		END_FOR
+	END_IF
+__CATCH(e)
+	assertionIsWrong := TRUE;
+__ENDTRY
+{ELSE}
+assertionIsWrong := (
+	(memoryArea = Tc2_System.E_TcMemoryArea.Unknown)
+	OR (sizeInBytes <= THIS^.SIZE_ZERO)
+);
+{END_IF}
+
+message := SEL(
+	assertionIsWrong,
+	'address is 16#%X ($'%s$') sizeInBytes is %d return value of Tc2_System.F_CheckMemoryArea is $'%s$' assertion must be TRUE', 
+	'address is 16#%X ($'%s$') sizeInBytes is %d return value of Tc2_System.F_CheckMemoryArea is $'%s$' assertion must be FALSE'
+);
+messageStringBuilder(
+	sFormat := message,
+	arg1 := THIS^.AnyToArg(address),
+	arg2 := THIS^.AnyToArg(symbol),
+	arg3 := THIS^.AnyToArg(sizeInBytes),
+	arg4 := THIS^.AnyToArg(areaString)
+);
+
+THIS^.assertorContainer.assertor.assert.pointers.isValid(
+	address := address,
+	sizeInBytes := sizeInBytes,
+	message := ''
+);
+
+THIS^.AssertEquals_BOOL(
+	Expected 	:= assertionIsWrong,
+	Actual 		:= THIS^.assertorContainer.wasAssertionWrong,
+	Message 	:= messageStringBuilder.sOut
+);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testMemoryAreaIsCnc" Id="{d238ec4f-866d-42d3-b252-e9d37c9e8e55}" FolderPath="memoryAreaIsCnc\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.pointers.memoryAreaIsCnc``
+method of CNM_AssertionInterfaceLib library, 
+it provides the possibility to handover test data via parameter 
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+METHOD testMemoryAreaIsCnc
+VAR_INPUT
+	(* for the test it's the parameter ``address`` *)
+	address		:PVOID;
+	(* for the test it's the parameter ``sizeInBytes`` *)
+	sizeInBytes	:UDINT;
+	(* just the name of the pointer *)
+	symbol		:Tc2_System.T_MaxString;
+END_VAR
+VAR
+	(* just the expectation if the assertion to test must be worng or true *)
+	assertionIsWrong		:BOOL;
+	(* contains the format string for the test message *)
+	message					:Tc2_System.T_MaxString;
+	(* TwinCAT printf with the test message *)
+	messageStringBuilder	:Tc2_Utilities.FB_FormatString;
+	(* return value of Tc2_System.F_CheckMemoryArea *)
+	memoryArea				:Tc2_System.E_TcMemoryArea;
+	(*  return value of Tc2_System.F_CheckMemoryArea as string *)
+	areaString				:Tc2_System.T_MaxString;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.assertorContainer.resetAssertor();
+
+memoryArea	:= Tc2_System.F_CheckMemoryArea(address, sizeInBytes);
+areaString	:= THIS^.memoryAreaToString(memoryArea);
+assertionIsWrong := (memoryArea <> Tc2_System.E_TcMemoryArea.CNC);
+
+message := SEL(
+	assertionIsWrong,
+	'address is 16#%X ($'%s$') sizeInBytes is %d return value of Tc2_System.F_CheckMemoryArea is $'%s$' assertion must be TRUE', 
+	'address is 16#%X ($'%s$') sizeInBytes is %d return value of Tc2_System.F_CheckMemoryArea is $'%s$' assertion must be FALSE'
+);
+messageStringBuilder(
+	sFormat := message,
+	arg1 := THIS^.AnyToArg(address),
+	arg2 := THIS^.AnyToArg(symbol),
+	arg3 := THIS^.AnyToArg(sizeInBytes),
+	arg4 := THIS^.AnyToArg(areaString)
+);
+
+THIS^.assertorContainer.assertor.assert.pointers.memoryAreaIsCnc(
+	address := address,
+	sizeInBytes := sizeInBytes,
+	message := ''
+);
+
+THIS^.AssertEquals_BOOL(
+	Expected 	:= assertionIsWrong,
+	Actual 		:= THIS^.assertorContainer.wasAssertionWrong,
+	Message 	:= messageStringBuilder.sOut
+);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testMemoryAreaIsDynamic" Id="{fa5e2dc9-9546-43f0-b75d-96bf4024a4c8}" FolderPath="memoryAreaIsDynamic\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.pointers.memoryAreaIsDynamic``
+method of CNM_AssertionInterfaceLib library, 
+it provides the possibility to handover test data via parameter 
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+METHOD testMemoryAreaIsDynamic
+VAR_INPUT
+	(* for the test it's the parameter ``address`` *)
+	address		:PVOID;
+	(* for the test it's the parameter ``sizeInBytes`` *)
+	sizeInBytes	:UDINT;
+	(* just the name of the pointer *)
+	symbol		:Tc2_System.T_MaxString;
+END_VAR
+VAR
+	(* just the expectation if the assertion to test must be worng or true *)
+	assertionIsWrong		:BOOL;
+	(* contains the format string for the test message *)
+	message					:Tc2_System.T_MaxString;
+	(* TwinCAT printf with the test message *)
+	messageStringBuilder	:Tc2_Utilities.FB_FormatString;
+	(* return value of Tc2_System.F_CheckMemoryArea *)
+	memoryArea				:Tc2_System.E_TcMemoryArea;
+	(*  return value of Tc2_System.F_CheckMemoryArea as string *)
+	areaString				:Tc2_System.T_MaxString;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.assertorContainer.resetAssertor();
+
+memoryArea	:= Tc2_System.F_CheckMemoryArea(address, sizeInBytes);
+areaString	:= THIS^.memoryAreaToString(memoryArea);
+assertionIsWrong := (memoryArea <> Tc2_System.E_TcMemoryArea.Dynamic);
+
+message := SEL(
+	assertionIsWrong,
+	'address is 16#%X ($'%s$') sizeInBytes is %d return value of Tc2_System.F_CheckMemoryArea is $'%s$' assertion must be TRUE', 
+	'address is 16#%X ($'%s$') sizeInBytes is %d return value of Tc2_System.F_CheckMemoryArea is $'%s$' assertion must be FALSE'
+);
+messageStringBuilder(
+	sFormat := message,
+	arg1 := THIS^.AnyToArg(address),
+	arg2 := THIS^.AnyToArg(symbol),
+	arg3 := THIS^.AnyToArg(sizeInBytes),
+	arg4 := THIS^.AnyToArg(areaString)
+);
+
+THIS^.assertorContainer.assertor.assert.pointers.memoryAreaIsDynamic(
+	address := address,
+	sizeInBytes := sizeInBytes,
+	message := ''
+);
+
+THIS^.AssertEquals_BOOL(
+	Expected 	:= assertionIsWrong,
+	Actual 		:= THIS^.assertorContainer.wasAssertionWrong,
+	Message 	:= messageStringBuilder.sOut
+);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testMemoryAreaIsNotCnc" Id="{d92129d3-03b1-47f9-a5ce-c18024cb8bb4}" FolderPath="memoryAreaIsNotCnc\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.pointers.memoryAreaIsNotCnc``
+method of CNM_AssertionInterfaceLib library, 
+it provides the possibility to handover test data via parameter 
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+METHOD testMemoryAreaIsNotCnc
+VAR_INPUT
+	(* for the test it's the parameter ``address`` *)
+	address		:PVOID;
+	(* for the test it's the parameter ``sizeInBytes`` *)
+	sizeInBytes	:UDINT;
+	(* just the name of the pointer *)
+	symbol		:Tc2_System.T_MaxString;
+END_VAR
+VAR
+	(* just the expectation if the assertion to test must be worng or true *)
+	assertionIsWrong		:BOOL;
+	(* contains the format string for the test message *)
+	message					:Tc2_System.T_MaxString;
+	(* TwinCAT printf with the test message *)
+	messageStringBuilder	:Tc2_Utilities.FB_FormatString;
+	(* return value of Tc2_System.F_CheckMemoryArea *)
+	memoryArea				:Tc2_System.E_TcMemoryArea;
+	(*  return value of Tc2_System.F_CheckMemoryArea as string *)
+	areaString				:Tc2_System.T_MaxString;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.assertorContainer.resetAssertor();
+
+memoryArea	:= Tc2_System.F_CheckMemoryArea(address, sizeInBytes);
+areaString	:= THIS^.memoryAreaToString(memoryArea);
+assertionIsWrong := (memoryArea = Tc2_System.E_TcMemoryArea.CNC);
+
+message := SEL(
+	assertionIsWrong,
+	'address is 16#%X ($'%s$') sizeInBytes is %d return value of Tc2_System.F_CheckMemoryArea is $'%s$' assertion must be TRUE', 
+	'address is 16#%X ($'%s$') sizeInBytes is %d return value of Tc2_System.F_CheckMemoryArea is $'%s$' assertion must be FALSE'
+);
+messageStringBuilder(
+	sFormat := message,
+	arg1 := THIS^.AnyToArg(address),
+	arg2 := THIS^.AnyToArg(symbol),
+	arg3 := THIS^.AnyToArg(sizeInBytes),
+	arg4 := THIS^.AnyToArg(areaString)
+);
+
+THIS^.assertorContainer.assertor.assert.pointers.memoryAreaIsNotCnc(
+	address := address,
+	sizeInBytes := sizeInBytes,
+	message := ''
+);
+
+THIS^.AssertEquals_BOOL(
+	Expected 	:= assertionIsWrong,
+	Actual 		:= THIS^.assertorContainer.wasAssertionWrong,
+	Message 	:= messageStringBuilder.sOut
+);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testMemoryAreaIsNotDynamic" Id="{ef2d64e5-a5b3-4e04-ad76-e61c89257f1d}" FolderPath="memoryAreaIsNotDynamic\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.pointers.memoryAreaIsNotDynamic``
+method of CNM_AssertionInterfaceLib library, 
+it provides the possibility to handover test data via parameter 
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+METHOD testMemoryAreaIsNotDynamic
+VAR_INPUT
+	(* for the test it's the parameter ``address`` *)
+	address		:PVOID;
+	(* for the test it's the parameter ``sizeInBytes`` *)
+	sizeInBytes	:UDINT;
+	(* just the name of the pointer *)
+	symbol		:Tc2_System.T_MaxString;
+END_VAR
+VAR
+	(* just the expectation if the assertion to test must be worng or true *)
+	assertionIsWrong		:BOOL;
+	(* contains the format string for the test message *)
+	message					:Tc2_System.T_MaxString;
+	(* TwinCAT printf with the test message *)
+	messageStringBuilder	:Tc2_Utilities.FB_FormatString;
+	(* return value of Tc2_System.F_CheckMemoryArea *)
+	memoryArea				:Tc2_System.E_TcMemoryArea;
+	(*  return value of Tc2_System.F_CheckMemoryArea as string *)
+	areaString				:Tc2_System.T_MaxString;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.assertorContainer.resetAssertor();
+
+memoryArea	:= Tc2_System.F_CheckMemoryArea(address, sizeInBytes);
+areaString	:= THIS^.memoryAreaToString(memoryArea);
+assertionIsWrong := (memoryArea = Tc2_System.E_TcMemoryArea.Dynamic);
+
+message := SEL(
+	assertionIsWrong,
+	'address is 16#%X ($'%s$') sizeInBytes is %d return value of Tc2_System.F_CheckMemoryArea is $'%s$' assertion must be TRUE', 
+	'address is 16#%X ($'%s$') sizeInBytes is %d return value of Tc2_System.F_CheckMemoryArea is $'%s$' assertion must be FALSE'
+);
+messageStringBuilder(
+	sFormat := message,
+	arg1 := THIS^.AnyToArg(address),
+	arg2 := THIS^.AnyToArg(symbol),
+	arg3 := THIS^.AnyToArg(sizeInBytes),
+	arg4 := THIS^.AnyToArg(areaString)
+);
+
+THIS^.assertorContainer.assertor.assert.pointers.memoryAreaIsNotDynamic(
+	address := address,
+	sizeInBytes := sizeInBytes,
+	message := ''
+);
+
+THIS^.AssertEquals_BOOL(
+	Expected 	:= assertionIsWrong,
+	Actual 		:= THIS^.assertorContainer.wasAssertionWrong,
+	Message 	:= messageStringBuilder.sOut
+);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testMemoryAreaIsNotStatic" Id="{ce89fe5c-47b0-40f0-bf18-b26d579556d6}" FolderPath="memoryAreaIsNotStatic\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.pointers.memoryAreaIsNotStatic``
+method of CNM_AssertionInterfaceLib library, 
+it provides the possibility to handover test data via parameter 
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+METHOD testMemoryAreaIsNotStatic
+VAR_INPUT
+	(* for the test it's the parameter ``address`` *)
+	address		:PVOID;
+	(* for the test it's the parameter ``sizeInBytes`` *)
+	sizeInBytes	:UDINT;
+	(* just the name of the pointer *)
+	symbol		:Tc2_System.T_MaxString;
+END_VAR
+VAR
+	(* just the expectation if the assertion to test must be worng or true *)
+	assertionIsWrong		:BOOL;
+	(* contains the format string for the test message *)
+	message					:Tc2_System.T_MaxString;
+	(* TwinCAT printf with the test message *)
+	messageStringBuilder	:Tc2_Utilities.FB_FormatString;
+	(* return value of Tc2_System.F_CheckMemoryArea *)
+	memoryArea				:Tc2_System.E_TcMemoryArea;
+	(*  return value of Tc2_System.F_CheckMemoryArea as string *)
+	areaString				:Tc2_System.T_MaxString;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.assertorContainer.resetAssertor();
+
+memoryArea	:= Tc2_System.F_CheckMemoryArea(address, sizeInBytes);
+areaString	:= THIS^.memoryAreaToString(memoryArea);
+assertionIsWrong := (memoryArea = Tc2_System.E_TcMemoryArea.Static);
+
+message := SEL(
+	assertionIsWrong,
+	'address is 16#%X ($'%s$') sizeInBytes is %d return value of Tc2_System.F_CheckMemoryArea is $'%s$' assertion must be TRUE', 
+	'address is 16#%X ($'%s$') sizeInBytes is %d return value of Tc2_System.F_CheckMemoryArea is $'%s$' assertion must be FALSE'
+);
+messageStringBuilder(
+	sFormat := message,
+	arg1 := THIS^.AnyToArg(address),
+	arg2 := THIS^.AnyToArg(symbol),
+	arg3 := THIS^.AnyToArg(sizeInBytes),
+	arg4 := THIS^.AnyToArg(areaString)
+);
+
+THIS^.assertorContainer.assertor.assert.pointers.memoryAreaIsNotStatic(
+	address := address,
+	sizeInBytes := sizeInBytes,
+	message := ''
+);
+
+THIS^.AssertEquals_BOOL(
+	Expected 	:= assertionIsWrong,
+	Actual 		:= THIS^.assertorContainer.wasAssertionWrong,
+	Message 	:= messageStringBuilder.sOut
+);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testMemoryAreaIsNotUnknown" Id="{b9b832c9-aa2f-49c3-bea3-572608f1f351}" FolderPath="memoryAreaIsNotUnknwon\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.pointers.memoryAreaIsNotUnkown``
+method of CNM_AssertionInterfaceLib library, 
+it provides the possibility to handover test data via parameter 
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+METHOD testMemoryAreaIsNotUnknown
+VAR_INPUT
+	(* for the test it's the parameter ``address`` *)
+	address		:PVOID;
+	(* for the test it's the parameter ``sizeInBytes`` *)
+	sizeInBytes	:UDINT;
+	(* just the name of the pointer *)
+	symbol		:Tc2_System.T_MaxString;
+END_VAR
+VAR
+	(* just the expectation if the assertion to test must be worng or true *)
+	assertionIsWrong		:BOOL;
+	(* contains the format string for the test message *)
+	message					:Tc2_System.T_MaxString;
+	(* TwinCAT printf with the test message *)
+	messageStringBuilder	:Tc2_Utilities.FB_FormatString;
+	(* return value of Tc2_System.F_CheckMemoryArea *)
+	memoryArea				:Tc2_System.E_TcMemoryArea;
+	(*  return value of Tc2_System.F_CheckMemoryArea as string *)
+	areaString				:Tc2_System.T_MaxString;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.assertorContainer.resetAssertor();
+
+memoryArea	:= Tc2_System.F_CheckMemoryArea(address, sizeInBytes);
+areaString	:= THIS^.memoryAreaToString(memoryArea);
+assertionIsWrong := (memoryArea = Tc2_System.E_TcMemoryArea.Unknown);
+
+message := SEL(
+	assertionIsWrong,
+	'address is 16#%X ($'%s$') sizeInBytes is %d return value of Tc2_System.F_CheckMemoryArea is $'%s$' assertion must be TRUE', 
+	'address is 16#%X ($'%s$') sizeInBytes is %d return value of Tc2_System.F_CheckMemoryArea is $'%s$' assertion must be FALSE'
+);
+messageStringBuilder(
+	sFormat := message,
+	arg1 := THIS^.AnyToArg(address),
+	arg2 := THIS^.AnyToArg(symbol),
+	arg3 := THIS^.AnyToArg(sizeInBytes),
+	arg4 := THIS^.AnyToArg(areaString)
+);
+
+THIS^.assertorContainer.assertor.assert.pointers.memoryAreaIsNotUnkown(
+	address := address,
+	sizeInBytes := sizeInBytes,
+	message := ''
+);
+
+THIS^.AssertEquals_BOOL(
+	Expected 	:= assertionIsWrong,
+	Actual 		:= THIS^.assertorContainer.wasAssertionWrong,
+	Message 	:= messageStringBuilder.sOut
+);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testMemoryAreaIsStatic" Id="{c22a8dde-5d04-42fd-9b34-a5a20788e2f6}" FolderPath="memoryAreaIsStatic\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.pointers.memoryAreaIsStatic``
+method of CNM_AssertionInterfaceLib library, 
+it provides the possibility to handover test data via parameter 
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+METHOD testMemoryAreaIsStatic
+VAR_INPUT
+	(* for the test it's the parameter ``address`` *)
+	address		:PVOID;
+	(* for the test it's the parameter ``sizeInBytes`` *)
+	sizeInBytes	:UDINT;
+	(* just the name of the pointer *)
+	symbol		:Tc2_System.T_MaxString;
+END_VAR
+VAR
+	(* just the expectation if the assertion to test must be worng or true *)
+	assertionIsWrong		:BOOL;
+	(* contains the format string for the test message *)
+	message					:Tc2_System.T_MaxString;
+	(* TwinCAT printf with the test message *)
+	messageStringBuilder	:Tc2_Utilities.FB_FormatString;
+	(* return value of Tc2_System.F_CheckMemoryArea *)
+	memoryArea				:Tc2_System.E_TcMemoryArea;
+	(*  return value of Tc2_System.F_CheckMemoryArea as string *)
+	areaString				:Tc2_System.T_MaxString;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.assertorContainer.resetAssertor();
+
+memoryArea	:= Tc2_System.F_CheckMemoryArea(address, sizeInBytes);
+areaString	:= THIS^.memoryAreaToString(memoryArea);
+assertionIsWrong := (memoryArea <> Tc2_System.E_TcMemoryArea.Static);
+
+message := SEL(
+	assertionIsWrong,
+	'address is 16#%X ($'%s$') sizeInBytes is %d return value of Tc2_System.F_CheckMemoryArea is $'%s$' assertion must be TRUE', 
+	'address is 16#%X ($'%s$') sizeInBytes is %d return value of Tc2_System.F_CheckMemoryArea is $'%s$' assertion must be FALSE'
+);
+messageStringBuilder(
+	sFormat := message,
+	arg1 := THIS^.AnyToArg(address),
+	arg2 := THIS^.AnyToArg(symbol),
+	arg3 := THIS^.AnyToArg(sizeInBytes),
+	arg4 := THIS^.AnyToArg(areaString)
+);
+
+THIS^.assertorContainer.assertor.assert.pointers.memoryAreaIsStatic(
+	address := address,
+	sizeInBytes := sizeInBytes,
+	message := ''
+);
+
+THIS^.AssertEquals_BOOL(
+	Expected 	:= assertionIsWrong,
+	Actual 		:= THIS^.assertorContainer.wasAssertionWrong,
+	Message 	:= messageStringBuilder.sOut
+);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testMemoryAreaIsUnknown" Id="{29a5b5bb-3d05-47b8-bda7-93aebb3ef288}" FolderPath="memoryAreaIsUnknwon\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.pointers.memoryAreaIsUnkown``
+method of CNM_AssertionInterfaceLib library, 
+it provides the possibility to handover test data via parameter 
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+METHOD testMemoryAreaIsUnknown
+VAR_INPUT
+	(* for the test it's the parameter ``address`` *)
+	address		:PVOID;
+	(* for the test it's the parameter ``sizeInBytes`` *)
+	sizeInBytes	:UDINT;
+	(* just the name of the pointer *)
+	symbol		:Tc2_System.T_MaxString;
+END_VAR
+VAR
+	(* just the expectation if the assertion to test must be worng or true *)
+	assertionIsWrong		:BOOL;
+	(* contains the format string for the test message *)
+	message					:Tc2_System.T_MaxString;
+	(* TwinCAT printf with the test message *)
+	messageStringBuilder	:Tc2_Utilities.FB_FormatString;
+	(* return value of Tc2_System.F_CheckMemoryArea *)
+	memoryArea				:Tc2_System.E_TcMemoryArea;
+	(*  return value of Tc2_System.F_CheckMemoryArea as string *)
+	areaString				:Tc2_System.T_MaxString;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.assertorContainer.resetAssertor();
+
+memoryArea	:= Tc2_System.F_CheckMemoryArea(address, sizeInBytes);
+areaString	:= THIS^.memoryAreaToString(memoryArea);
+assertionIsWrong := (memoryArea <> Tc2_System.E_TcMemoryArea.Unknown);
+
+message := SEL(
+	assertionIsWrong,
+	'address is 16#%X ($'%s$') sizeInBytes is %d return value of Tc2_System.F_CheckMemoryArea is $'%s$' assertion must be TRUE', 
+	'address is 16#%X ($'%s$') sizeInBytes is %d return value of Tc2_System.F_CheckMemoryArea is $'%s$' assertion must be FALSE'
+);
+messageStringBuilder(
+	sFormat := message,
+	arg1 := THIS^.AnyToArg(address),
+	arg2 := THIS^.AnyToArg(symbol),
+	arg3 := THIS^.AnyToArg(sizeInBytes),
+	arg4 := THIS^.AnyToArg(areaString)
+);
+
+THIS^.assertorContainer.assertor.assert.pointers.memoryAreaIsUnkown(
+	address := address,
+	sizeInBytes := sizeInBytes,
+	message := ''
+);
+
+THIS^.AssertEquals_BOOL(
+	Expected 	:= assertionIsWrong,
+	Actual 		:= THIS^.assertorContainer.wasAssertionWrong,
+	Message 	:= messageStringBuilder.sOut
+);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testNotIsEqualTo" Id="{7ed70e97-990e-4e80-97a1-ccaa2c77ee71}" FolderPath="isNotEqualTo\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.pointers.isNotEqualTo``
+method of CNM_AssertionInterfaceLib library, 
+it provides the possibility to handover test data via parameter 
+
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+METHOD testNotIsEqualTo
+VAR_INPUT
+	(* for the test it's the parameter ``address1`` *)
+	address1	:PVOID;
+	(* for the test it's the parameter ``address2`` *)
+	address2	:PVOID;
+END_VAR
+VAR
+	(* just the expectation if the assertion to test must be worng or true *)
+	assertionIsWrong		:BOOL;
+	(* contains the format string for the test message *)
+	message					:Tc2_System.T_MaxString;
+	(* TwinCAT printf with the test message *)
+	messageStringBuilder	:Tc2_Utilities.FB_FormatString;
+END_VAR
+
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.assertorContainer.resetAssertor();
+
+assertionIsWrong := (address1 = address2);
+message := SEL(
+	assertionIsWrong,
+	'address1 is 16#%X address2 is 16#%X assertion must be TRUE', 
+	'address1 is 16#%X address2 is 16#%X assertion must be FALSE'
+);
+messageStringBuilder(
+	sFormat := message,
+	arg1 := THIS^.AnyToArg(address1),
+	arg2 := THIS^.AnyToArg(address2)
+);
+
+THIS^.assertorContainer.assertor.assert.pointers.isNotEqualTo(
+	address1 := address1,
+	address2 := address2,
+	message := ''
+);
+
+THIS^.AssertEquals_BOOL(
+	Expected 	:= assertionIsWrong,
+	Actual 		:= THIS^.assertorContainer.wasAssertionWrong,
+	Message 	:= messageStringBuilder.sOut
+);
+]]></ST>
+      </Implementation>
+    </Method>
+    <LineIds Name="PointerAssertionsTests">
+      <LineId Id="170" Count="0" />
+      <LineId Id="203" Count="1" />
+      <LineId Id="109" Count="0" />
+      <LineId Id="172" Count="0" />
+      <LineId Id="188" Count="0" />
+      <LineId Id="187" Count="0" />
+      <LineId Id="185" Count="0" />
+      <LineId Id="191" Count="1" />
+      <LineId Id="199" Count="3" />
+      <LineId Id="171" Count="0" />
+    </LineIds>
+    <LineIds Name="PointerAssertionsTests.FB_exit">
+      <LineId Id="33" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PointerAssertionsTests.FB_reinit">
+      <LineId Id="11" Count="0" />
+      <LineId Id="13" Count="1" />
+    </LineIds>
+    <LineIds Name="PointerAssertionsTests.getTestNameFor">
+      <LineId Id="5" Count="0" />
+      <LineId Id="7" Count="0" />
+    </LineIds>
+    <LineIds Name="PointerAssertionsTests.init">
+      <LineId Id="6" Count="1" />
+      <LineId Id="9" Count="0" />
+      <LineId Id="8" Count="0" />
+      <LineId Id="5" Count="0" />
+      <LineId Id="12" Count="3" />
+    </LineIds>
+    <LineIds Name="PointerAssertionsTests.leave">
+      <LineId Id="32" Count="0" />
+      <LineId Id="6" Count="0" />
+      <LineId Id="33" Count="0" />
+      <LineId Id="35" Count="2" />
+      <LineId Id="8" Count="0" />
+    </LineIds>
+    <LineIds Name="PointerAssertionsTests.memoryAreaToString">
+      <LineId Id="5" Count="0" />
+      <LineId Id="7" Count="0" />
+      <LineId Id="9" Count="2" />
+      <LineId Id="8" Count="0" />
+      <LineId Id="12" Count="0" />
+    </LineIds>
+    <LineIds Name="PointerAssertionsTests.runIsEqualToTests">
+      <LineId Id="101" Count="1" />
+      <LineId Id="195" Count="7" />
+      <LineId Id="210" Count="3" />
+      <LineId Id="215" Count="19" />
+      <LineId Id="239" Count="3" />
+      <LineId Id="214" Count="0" />
+      <LineId Id="244" Count="39" />
+      <LineId Id="135" Count="1" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PointerAssertionsTests.runIsNotEqualToTests">
+      <LineId Id="101" Count="1" />
+      <LineId Id="195" Count="7" />
+      <LineId Id="210" Count="3" />
+      <LineId Id="215" Count="19" />
+      <LineId Id="239" Count="3" />
+      <LineId Id="214" Count="0" />
+      <LineId Id="244" Count="39" />
+      <LineId Id="135" Count="1" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PointerAssertionsTests.runIsNotNullTests">
+      <LineId Id="101" Count="0" />
+      <LineId Id="331" Count="0" />
+      <LineId Id="102" Count="0" />
+      <LineId Id="330" Count="0" />
+      <LineId Id="285" Count="1" />
+      <LineId Id="288" Count="3" />
+      <LineId Id="293" Count="3" />
+      <LineId Id="298" Count="3" />
+      <LineId Id="303" Count="3" />
+      <LineId Id="308" Count="3" />
+      <LineId Id="313" Count="3" />
+      <LineId Id="318" Count="3" />
+      <LineId Id="323" Count="3" />
+      <LineId Id="328" Count="1" />
+      <LineId Id="135" Count="1" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PointerAssertionsTests.runIsNullTests">
+      <LineId Id="101" Count="0" />
+      <LineId Id="331" Count="0" />
+      <LineId Id="102" Count="0" />
+      <LineId Id="330" Count="0" />
+      <LineId Id="285" Count="1" />
+      <LineId Id="288" Count="3" />
+      <LineId Id="293" Count="3" />
+      <LineId Id="298" Count="3" />
+      <LineId Id="303" Count="3" />
+      <LineId Id="308" Count="3" />
+      <LineId Id="313" Count="3" />
+      <LineId Id="318" Count="3" />
+      <LineId Id="323" Count="3" />
+      <LineId Id="328" Count="1" />
+      <LineId Id="135" Count="1" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PointerAssertionsTests.runIsValidTests">
+      <LineId Id="101" Count="0" />
+      <LineId Id="285" Count="46" />
+      <LineId Id="410" Count="4" />
+      <LineId Id="420" Count="4" />
+      <LineId Id="332" Count="50" />
+      <LineId Id="393" Count="4" />
+      <LineId Id="403" Count="4" />
+      <LineId Id="383" Count="1" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PointerAssertionsTests.runMemoryAreaIsCncTests">
+      <LineId Id="101" Count="0" />
+      <LineId Id="285" Count="46" />
+      <LineId Id="390" Count="4" />
+      <LineId Id="400" Count="4" />
+      <LineId Id="332" Count="50" />
+      <LineId Id="405" Count="4" />
+      <LineId Id="415" Count="4" />
+      <LineId Id="383" Count="1" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PointerAssertionsTests.runMemoryAreaIsDynamicTests">
+      <LineId Id="101" Count="0" />
+      <LineId Id="285" Count="46" />
+      <LineId Id="390" Count="4" />
+      <LineId Id="400" Count="4" />
+      <LineId Id="332" Count="50" />
+      <LineId Id="405" Count="4" />
+      <LineId Id="415" Count="4" />
+      <LineId Id="383" Count="1" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PointerAssertionsTests.runMemoryAreaIsNotCncTests">
+      <LineId Id="101" Count="0" />
+      <LineId Id="285" Count="46" />
+      <LineId Id="390" Count="4" />
+      <LineId Id="400" Count="4" />
+      <LineId Id="332" Count="50" />
+      <LineId Id="405" Count="4" />
+      <LineId Id="415" Count="4" />
+      <LineId Id="383" Count="1" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PointerAssertionsTests.runMemoryAreaIsNotDynamicTests">
+      <LineId Id="101" Count="0" />
+      <LineId Id="285" Count="46" />
+      <LineId Id="390" Count="4" />
+      <LineId Id="400" Count="4" />
+      <LineId Id="332" Count="50" />
+      <LineId Id="405" Count="4" />
+      <LineId Id="415" Count="4" />
+      <LineId Id="383" Count="1" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PointerAssertionsTests.runMemoryAreaIsNotStaticTests">
+      <LineId Id="101" Count="1" />
+      <LineId Id="284" Count="0" />
+      <LineId Id="195" Count="2" />
+      <LineId Id="285" Count="0" />
+      <LineId Id="198" Count="3" />
+      <LineId Id="287" Count="0" />
+      <LineId Id="202" Count="0" />
+      <LineId Id="210" Count="2" />
+      <LineId Id="289" Count="0" />
+      <LineId Id="213" Count="0" />
+      <LineId Id="215" Count="2" />
+      <LineId Id="290" Count="1" />
+      <LineId Id="219" Count="2" />
+      <LineId Id="292" Count="1" />
+      <LineId Id="223" Count="2" />
+      <LineId Id="294" Count="1" />
+      <LineId Id="227" Count="2" />
+      <LineId Id="296" Count="1" />
+      <LineId Id="231" Count="2" />
+      <LineId Id="298" Count="1" />
+      <LineId Id="239" Count="2" />
+      <LineId Id="300" Count="1" />
+      <LineId Id="327" Count="4" />
+      <LineId Id="337" Count="4" />
+      <LineId Id="214" Count="0" />
+      <LineId Id="244" Count="2" />
+      <LineId Id="302" Count="1" />
+      <LineId Id="248" Count="2" />
+      <LineId Id="304" Count="1" />
+      <LineId Id="252" Count="2" />
+      <LineId Id="320" Count="1" />
+      <LineId Id="256" Count="2" />
+      <LineId Id="306" Count="1" />
+      <LineId Id="260" Count="2" />
+      <LineId Id="308" Count="1" />
+      <LineId Id="264" Count="2" />
+      <LineId Id="310" Count="1" />
+      <LineId Id="268" Count="2" />
+      <LineId Id="312" Count="1" />
+      <LineId Id="272" Count="2" />
+      <LineId Id="314" Count="1" />
+      <LineId Id="276" Count="2" />
+      <LineId Id="316" Count="1" />
+      <LineId Id="280" Count="2" />
+      <LineId Id="318" Count="1" />
+      <LineId Id="342" Count="4" />
+      <LineId Id="352" Count="4" />
+      <LineId Id="135" Count="1" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PointerAssertionsTests.runMemoryAreaIsNotUnknownTests">
+      <LineId Id="101" Count="1" />
+      <LineId Id="284" Count="0" />
+      <LineId Id="195" Count="2" />
+      <LineId Id="285" Count="0" />
+      <LineId Id="198" Count="3" />
+      <LineId Id="287" Count="0" />
+      <LineId Id="202" Count="0" />
+      <LineId Id="210" Count="2" />
+      <LineId Id="289" Count="0" />
+      <LineId Id="213" Count="0" />
+      <LineId Id="215" Count="2" />
+      <LineId Id="290" Count="1" />
+      <LineId Id="219" Count="2" />
+      <LineId Id="292" Count="1" />
+      <LineId Id="223" Count="2" />
+      <LineId Id="294" Count="1" />
+      <LineId Id="227" Count="2" />
+      <LineId Id="296" Count="1" />
+      <LineId Id="231" Count="2" />
+      <LineId Id="298" Count="1" />
+      <LineId Id="239" Count="2" />
+      <LineId Id="300" Count="1" />
+      <LineId Id="327" Count="4" />
+      <LineId Id="337" Count="4" />
+      <LineId Id="214" Count="0" />
+      <LineId Id="244" Count="2" />
+      <LineId Id="302" Count="1" />
+      <LineId Id="248" Count="2" />
+      <LineId Id="304" Count="1" />
+      <LineId Id="252" Count="2" />
+      <LineId Id="320" Count="1" />
+      <LineId Id="256" Count="2" />
+      <LineId Id="306" Count="1" />
+      <LineId Id="260" Count="2" />
+      <LineId Id="308" Count="1" />
+      <LineId Id="264" Count="2" />
+      <LineId Id="310" Count="1" />
+      <LineId Id="268" Count="2" />
+      <LineId Id="312" Count="1" />
+      <LineId Id="272" Count="2" />
+      <LineId Id="314" Count="1" />
+      <LineId Id="276" Count="2" />
+      <LineId Id="316" Count="1" />
+      <LineId Id="280" Count="2" />
+      <LineId Id="318" Count="1" />
+      <LineId Id="342" Count="4" />
+      <LineId Id="352" Count="4" />
+      <LineId Id="135" Count="1" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PointerAssertionsTests.runMemoryAreaIsStaticTests">
+      <LineId Id="101" Count="1" />
+      <LineId Id="284" Count="0" />
+      <LineId Id="195" Count="2" />
+      <LineId Id="285" Count="0" />
+      <LineId Id="198" Count="3" />
+      <LineId Id="287" Count="0" />
+      <LineId Id="202" Count="0" />
+      <LineId Id="210" Count="2" />
+      <LineId Id="289" Count="0" />
+      <LineId Id="213" Count="0" />
+      <LineId Id="215" Count="2" />
+      <LineId Id="290" Count="1" />
+      <LineId Id="219" Count="2" />
+      <LineId Id="292" Count="1" />
+      <LineId Id="223" Count="2" />
+      <LineId Id="294" Count="1" />
+      <LineId Id="227" Count="2" />
+      <LineId Id="296" Count="1" />
+      <LineId Id="231" Count="2" />
+      <LineId Id="298" Count="1" />
+      <LineId Id="239" Count="2" />
+      <LineId Id="300" Count="1" />
+      <LineId Id="327" Count="4" />
+      <LineId Id="337" Count="4" />
+      <LineId Id="214" Count="0" />
+      <LineId Id="244" Count="2" />
+      <LineId Id="302" Count="1" />
+      <LineId Id="248" Count="2" />
+      <LineId Id="304" Count="1" />
+      <LineId Id="252" Count="2" />
+      <LineId Id="320" Count="1" />
+      <LineId Id="256" Count="2" />
+      <LineId Id="306" Count="1" />
+      <LineId Id="260" Count="2" />
+      <LineId Id="308" Count="1" />
+      <LineId Id="264" Count="2" />
+      <LineId Id="310" Count="1" />
+      <LineId Id="268" Count="2" />
+      <LineId Id="312" Count="1" />
+      <LineId Id="272" Count="2" />
+      <LineId Id="314" Count="1" />
+      <LineId Id="276" Count="2" />
+      <LineId Id="316" Count="1" />
+      <LineId Id="280" Count="2" />
+      <LineId Id="318" Count="1" />
+      <LineId Id="342" Count="4" />
+      <LineId Id="352" Count="4" />
+      <LineId Id="135" Count="1" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PointerAssertionsTests.runMemoryAreaIsUnknownTests">
+      <LineId Id="101" Count="1" />
+      <LineId Id="284" Count="0" />
+      <LineId Id="195" Count="2" />
+      <LineId Id="285" Count="0" />
+      <LineId Id="198" Count="3" />
+      <LineId Id="287" Count="0" />
+      <LineId Id="202" Count="0" />
+      <LineId Id="210" Count="2" />
+      <LineId Id="289" Count="0" />
+      <LineId Id="213" Count="0" />
+      <LineId Id="215" Count="2" />
+      <LineId Id="290" Count="1" />
+      <LineId Id="219" Count="2" />
+      <LineId Id="292" Count="1" />
+      <LineId Id="223" Count="2" />
+      <LineId Id="294" Count="1" />
+      <LineId Id="227" Count="2" />
+      <LineId Id="296" Count="1" />
+      <LineId Id="231" Count="2" />
+      <LineId Id="298" Count="1" />
+      <LineId Id="239" Count="2" />
+      <LineId Id="300" Count="1" />
+      <LineId Id="327" Count="4" />
+      <LineId Id="337" Count="4" />
+      <LineId Id="214" Count="0" />
+      <LineId Id="244" Count="2" />
+      <LineId Id="302" Count="1" />
+      <LineId Id="248" Count="2" />
+      <LineId Id="304" Count="1" />
+      <LineId Id="252" Count="2" />
+      <LineId Id="320" Count="1" />
+      <LineId Id="256" Count="2" />
+      <LineId Id="306" Count="1" />
+      <LineId Id="260" Count="2" />
+      <LineId Id="308" Count="1" />
+      <LineId Id="264" Count="2" />
+      <LineId Id="310" Count="1" />
+      <LineId Id="268" Count="2" />
+      <LineId Id="312" Count="1" />
+      <LineId Id="272" Count="2" />
+      <LineId Id="314" Count="1" />
+      <LineId Id="276" Count="2" />
+      <LineId Id="316" Count="1" />
+      <LineId Id="280" Count="2" />
+      <LineId Id="318" Count="1" />
+      <LineId Id="342" Count="4" />
+      <LineId Id="352" Count="4" />
+      <LineId Id="135" Count="1" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PointerAssertionsTests.testIsEqualTo">
+      <LineId Id="108" Count="0" />
+      <LineId Id="110" Count="10" />
+      <LineId Id="122" Count="2" />
+      <LineId Id="128" Count="0" />
+      <LineId Id="136" Count="1" />
+      <LineId Id="129" Count="6" />
+      <LineId Id="61" Count="0" />
+    </LineIds>
+    <LineIds Name="PointerAssertionsTests.testIsNotNull">
+      <LineId Id="108" Count="0" />
+      <LineId Id="110" Count="10" />
+      <LineId Id="122" Count="2" />
+      <LineId Id="128" Count="0" />
+      <LineId Id="137" Count="0" />
+      <LineId Id="129" Count="6" />
+      <LineId Id="61" Count="0" />
+    </LineIds>
+    <LineIds Name="PointerAssertionsTests.testIsNull">
+      <LineId Id="108" Count="0" />
+      <LineId Id="110" Count="10" />
+      <LineId Id="122" Count="2" />
+      <LineId Id="128" Count="0" />
+      <LineId Id="137" Count="0" />
+      <LineId Id="129" Count="6" />
+      <LineId Id="61" Count="0" />
+    </LineIds>
+    <LineIds Name="PointerAssertionsTests.testIsValid">
+      <LineId Id="108" Count="0" />
+      <LineId Id="181" Count="0" />
+      <LineId Id="110" Count="0" />
+      <LineId Id="187" Count="0" />
+      <LineId Id="217" Count="0" />
+      <LineId Id="213" Count="0" />
+      <LineId Id="227" Count="0" />
+      <LineId Id="230" Count="0" />
+      <LineId Id="242" Count="0" />
+      <LineId Id="244" Count="0" />
+      <LineId Id="243" Count="0" />
+      <LineId Id="218" Count="0" />
+      <LineId Id="236" Count="0" />
+      <LineId Id="238" Count="0" />
+      <LineId Id="240" Count="1" />
+      <LineId Id="239" Count="0" />
+      <LineId Id="228" Count="1" />
+      <LineId Id="220" Count="1" />
+      <LineId Id="111" Count="0" />
+      <LineId Id="214" Count="2" />
+      <LineId Id="222" Count="0" />
+      <LineId Id="196" Count="0" />
+      <LineId Id="199" Count="1" />
+      <LineId Id="211" Count="1" />
+      <LineId Id="203" Count="7" />
+      <LineId Id="123" Count="1" />
+      <LineId Id="128" Count="0" />
+      <LineId Id="136" Count="1" />
+      <LineId Id="129" Count="6" />
+      <LineId Id="61" Count="0" />
+    </LineIds>
+    <LineIds Name="PointerAssertionsTests.testMemoryAreaIsCnc">
+      <LineId Id="108" Count="0" />
+      <LineId Id="181" Count="0" />
+      <LineId Id="110" Count="0" />
+      <LineId Id="187" Count="0" />
+      <LineId Id="111" Count="0" />
+      <LineId Id="196" Count="0" />
+      <LineId Id="199" Count="1" />
+      <LineId Id="211" Count="1" />
+      <LineId Id="203" Count="7" />
+      <LineId Id="123" Count="1" />
+      <LineId Id="128" Count="0" />
+      <LineId Id="136" Count="1" />
+      <LineId Id="129" Count="6" />
+      <LineId Id="61" Count="0" />
+    </LineIds>
+    <LineIds Name="PointerAssertionsTests.testMemoryAreaIsDynamic">
+      <LineId Id="108" Count="0" />
+      <LineId Id="181" Count="0" />
+      <LineId Id="110" Count="0" />
+      <LineId Id="187" Count="0" />
+      <LineId Id="111" Count="0" />
+      <LineId Id="196" Count="0" />
+      <LineId Id="199" Count="1" />
+      <LineId Id="211" Count="1" />
+      <LineId Id="203" Count="7" />
+      <LineId Id="123" Count="1" />
+      <LineId Id="128" Count="0" />
+      <LineId Id="136" Count="1" />
+      <LineId Id="129" Count="6" />
+      <LineId Id="61" Count="0" />
+    </LineIds>
+    <LineIds Name="PointerAssertionsTests.testMemoryAreaIsNotCnc">
+      <LineId Id="108" Count="0" />
+      <LineId Id="181" Count="0" />
+      <LineId Id="110" Count="0" />
+      <LineId Id="187" Count="0" />
+      <LineId Id="111" Count="0" />
+      <LineId Id="196" Count="0" />
+      <LineId Id="199" Count="1" />
+      <LineId Id="211" Count="1" />
+      <LineId Id="203" Count="7" />
+      <LineId Id="123" Count="1" />
+      <LineId Id="128" Count="0" />
+      <LineId Id="136" Count="1" />
+      <LineId Id="129" Count="6" />
+      <LineId Id="61" Count="0" />
+    </LineIds>
+    <LineIds Name="PointerAssertionsTests.testMemoryAreaIsNotDynamic">
+      <LineId Id="108" Count="0" />
+      <LineId Id="181" Count="0" />
+      <LineId Id="110" Count="0" />
+      <LineId Id="187" Count="0" />
+      <LineId Id="111" Count="0" />
+      <LineId Id="196" Count="0" />
+      <LineId Id="199" Count="1" />
+      <LineId Id="211" Count="1" />
+      <LineId Id="203" Count="7" />
+      <LineId Id="123" Count="1" />
+      <LineId Id="128" Count="0" />
+      <LineId Id="136" Count="1" />
+      <LineId Id="129" Count="6" />
+      <LineId Id="61" Count="0" />
+    </LineIds>
+    <LineIds Name="PointerAssertionsTests.testMemoryAreaIsNotStatic">
+      <LineId Id="108" Count="0" />
+      <LineId Id="181" Count="0" />
+      <LineId Id="110" Count="0" />
+      <LineId Id="187" Count="0" />
+      <LineId Id="111" Count="0" />
+      <LineId Id="196" Count="0" />
+      <LineId Id="200" Count="1" />
+      <LineId Id="212" Count="1" />
+      <LineId Id="204" Count="7" />
+      <LineId Id="123" Count="1" />
+      <LineId Id="128" Count="0" />
+      <LineId Id="136" Count="1" />
+      <LineId Id="129" Count="6" />
+      <LineId Id="61" Count="0" />
+    </LineIds>
+    <LineIds Name="PointerAssertionsTests.testMemoryAreaIsNotUnknown">
+      <LineId Id="108" Count="0" />
+      <LineId Id="181" Count="0" />
+      <LineId Id="110" Count="0" />
+      <LineId Id="187" Count="0" />
+      <LineId Id="111" Count="0" />
+      <LineId Id="196" Count="0" />
+      <LineId Id="112" Count="1" />
+      <LineId Id="200" Count="1" />
+      <LineId Id="116" Count="3" />
+      <LineId Id="199" Count="0" />
+      <LineId Id="120" Count="0" />
+      <LineId Id="186" Count="0" />
+      <LineId Id="122" Count="2" />
+      <LineId Id="128" Count="0" />
+      <LineId Id="136" Count="1" />
+      <LineId Id="129" Count="6" />
+      <LineId Id="61" Count="0" />
+    </LineIds>
+    <LineIds Name="PointerAssertionsTests.testMemoryAreaIsStatic">
+      <LineId Id="108" Count="0" />
+      <LineId Id="181" Count="0" />
+      <LineId Id="110" Count="0" />
+      <LineId Id="187" Count="0" />
+      <LineId Id="111" Count="0" />
+      <LineId Id="196" Count="0" />
+      <LineId Id="200" Count="1" />
+      <LineId Id="212" Count="1" />
+      <LineId Id="204" Count="7" />
+      <LineId Id="123" Count="1" />
+      <LineId Id="128" Count="0" />
+      <LineId Id="136" Count="1" />
+      <LineId Id="129" Count="6" />
+      <LineId Id="61" Count="0" />
+    </LineIds>
+    <LineIds Name="PointerAssertionsTests.testMemoryAreaIsUnknown">
+      <LineId Id="108" Count="0" />
+      <LineId Id="181" Count="0" />
+      <LineId Id="110" Count="0" />
+      <LineId Id="187" Count="0" />
+      <LineId Id="111" Count="0" />
+      <LineId Id="196" Count="0" />
+      <LineId Id="112" Count="7" />
+      <LineId Id="199" Count="0" />
+      <LineId Id="120" Count="0" />
+      <LineId Id="186" Count="0" />
+      <LineId Id="122" Count="2" />
+      <LineId Id="128" Count="0" />
+      <LineId Id="136" Count="1" />
+      <LineId Id="129" Count="6" />
+      <LineId Id="61" Count="0" />
+    </LineIds>
+    <LineIds Name="PointerAssertionsTests.testNotIsEqualTo">
+      <LineId Id="108" Count="0" />
+      <LineId Id="110" Count="10" />
+      <LineId Id="122" Count="2" />
+      <LineId Id="128" Count="0" />
+      <LineId Id="136" Count="1" />
+      <LineId Id="129" Count="6" />
+      <LineId Id="61" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

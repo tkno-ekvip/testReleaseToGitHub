@@ -1,0 +1,5348 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="ObjectAssertionsTests" Id="{6a187157-d163-4c56-bda3-902c7621bf37}" SpecialFunc="None">
+    <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+methods and properties
+======================
+
+*)
+
+{warning 'header is generated please add your documentation'}
+{attribute 'enable_dynamic_creation'}
+FUNCTION_BLOCK ObjectAssertionsTests EXTENDS AbstractAssertorTest
+VAR CONSTANT
+	NUMBER_OF_SETS :INT := 9;
+END_VAR
+VAR
+	objectsSetNull :ARRAY[0..NUMBER_OF_SETS] OF CNM_AbstractObject.IObject;
+	objectsSetIntValue :ARRAY[0..NUMBER_OF_SETS] OF IntValue[(0), (1), (2), (3), (4), (5), (6), (7), (8), (9)];
+	objectsSetRealValue :ARRAY[0..NUMBER_OF_SETS] OF RealValue[(0), (1), (2), (3), (4), (5), (6), (7), (8), (9)];
+END_VAR
+
+(*
+* THIS^.<testName><objX><objY>(<objX>, <objY>, <expectedAssertValue>, <testName>);
+*
+* TEST		 			||  1	| 	 2  |   3  	|   4  	|   5  	|   6  	|   7  	|   8  	|   9  	||
+* ======================+=======+=======+=======+=======+=======+=======+=======+=======+=======+
+* Null 					||  xx 	|      	|      	|   x  	|   x  	|   y  	|   y  	|      	|      	||
+* Int					||      |   xx  |      	|      	|   y  	|      	|   x  	|   x  	|   y  	||
+* Real					||      |      	|   xx 	|   y  	|      	|   x  	|      	|   y  	|   x  	||
+* ======================++======+=======+=======+=======+=======+=======+=======+=======+======++
+* isAfterInOrderTo		|| TRUE | TRUE  | TRUE 	| TRUE 	| FALSE | FALSE | TRUE 	| TRUE 	| FALSE	||
+* ----------------------++------+-------+-------+-------+-------+-------+-------+-------+-------++
+* isEqualInOrderTo		|| FALSE| FALSE | FALSE | TRUE 	| TRUE 	| TRUE 	| TRUE 	| TRUE 	| TRUE 	||
+* ----------------------++------+-------+-------+-------+-------+-------+-------+-------+-------++
+* preceedesInOrderTo	|| TRUE | TRUE  | TRUE  | FALSE | TRUE  | TRUE 	| TRUE 	| FALSE	| TRUE 	||
+* ----------------------++------+-------+-------+-------+-------+-------+-------+-------+-------++
+* isEqualTo				|| FALSE| FALSE | FALSE |  TRUE |  TRUE |  TRUE |  TRUE | TRUE 	| TRUE 	||
+* ----------------------++------+-------+-------+-------+-------+-------+-------+-------+-------++
+* isNotEqualTo			|| TRUE | TRUE  | TRUE  | FALSE | FALSE | FALSE | FALSE | FALSE	| FALSE	||
+* ----------------------++------+-------+-------+-------+-------+-------+-------+-------+-------++
+* objectIsNull			|| FALSE| TRUE  | TRUE  |	-	|	-	|	-	|	-	|	-	|	-	||
+* ----------------------++------+-------+-------+-------+-------+-------+-------+-------+-------++
+* objectIsNotNull		|| TRUE | TRUE  | FALSE	|	-	|	-	|	-	|	-	|	-	|	-	||
+* ======================++======+=======+=======+=======+=======+=======+=======+=======+=======++
+*)]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[(* Tests *)
+
+// isAfterInOrderTo
+THIS^.testIsAfterInOrderToNullNull(objectsSetNull, objectsSetNull, TRUE, 'testIsAfterInOrderToNullNull');
+THIS^.testIsAfterInOrderToIntInt(objectsSetIntValue, objectsSetIntValue, TRUE, 'testIsAfterInOrderToIntInt');
+THIS^.testIsAfterInOrderToRealReal(objectsSetRealValue, objectsSetRealValue, TRUE, 'testIsAfterInOrderToRealReal');
+THIS^.testIsAfterInOrderToNullReal(objectsSetNull, objectsSetRealValue, TRUE, 'testIsAfterInOrderToNullReal');
+THIS^.testIsAfterInOrderToNullInt(objectsSetNull, objectsSetIntValue, FALSE, 'testIsAfterInOrderToNullInt');
+THIS^.testIsAfterInOrderToRealNull(objectsSetRealValue, objectsSetNull, FALSE, 'testIsAfterInOrderToRealNull');
+THIS^.testIsAfterInOrderToIntNull(objectsSetIntValue, objectsSetNull, TRUE, 'testIsAfterInOrderToIntNull');
+THIS^.testIsAfterInOrderToIntReal(objectsSetIntValue, objectsSetRealValue, TRUE, 'testIsAfterInOrderToIntReal');
+THIS^.testIsAfterInOrderToRealInt(objectsSetRealValue, objectsSetIntValue, FALSE, 'testIsAfterInOrderToRealInt');
+// isEqualInOrderTo
+THIS^.testIsEqualInOrderToNullNull(objectsSetNull, objectsSetNull, FALSE, 'testIsEqualInOrderToNullNull');
+THIS^.testIsEqualInOrderToIntInt(objectsSetIntValue, objectsSetIntValue, FALSE, 'testIsEqualInOrderToIntInt');
+THIS^.testIsEqualInOrderToRealReal(objectsSetRealValue, objectsSetRealValue, FALSE, 'testIsEqualInOrderToRealReal');
+THIS^.testIsEqualInOrderToNullReal(objectsSetNull, objectsSetRealValue, TRUE, 'testIsEqualInOrderToNullReal');
+THIS^.testIsEqualInOrderToNullInt(objectsSetNull, objectsSetIntValue, TRUE, 'testIsEqualInOrderToNullInt');
+THIS^.testIsEqualInOrderToRealNull(objectsSetRealValue, objectsSetNull, TRUE, 'testIsEqualInOrderToRealNull');
+THIS^.testIsEqualInOrderToIntNull(objectsSetIntValue, objectsSetNull, TRUE, 'testIsEqualInOrderToIntNull');
+THIS^.testIsEqualInOrderToIntReal(objectsSetIntValue, objectsSetRealValue, TRUE, 'testIsEqualInOrderToIntReal');
+THIS^.testIsEqualInOrderToRealInt(objectsSetRealValue, objectsSetIntValue, TRUE, 'testIsEqualInOrderToRealInt');
+// preceedesInOrderTo
+THIS^.testPreceedesInOrderToNullNull(objectsSetNull, objectsSetNull, TRUE, 'testPreceedesInOrderToNullNull');
+THIS^.testPreceedesInOrderToIntInt(objectsSetIntValue, objectsSetIntValue, TRUE, 'testPreceedesInOrderToIntInt');
+THIS^.testPreceedesInOrderToRealReal(objectsSetRealValue, objectsSetRealValue, TRUE, 'testPreceedesInOrderToRealReal');
+THIS^.testPreceedesInOrderToNullReal(objectsSetNull, objectsSetRealValue, FALSE, 'testPreceedesInOrderToNullReal');
+THIS^.testPreceedesInOrderToNullInt(objectsSetNull, objectsSetIntValue, TRUE, 'testPreceedesInOrderToNullInt');
+THIS^.testPreceedesInOrderToRealNull(objectsSetRealValue, objectsSetNull, TRUE, 'testPreceedesInOrderToRealNull');
+THIS^.testPreceedesInOrderToIntNull(objectsSetIntValue, objectsSetNull, FALSE, 'testPreceedesInOrderToIntNull');
+THIS^.testPreceedesInOrderToIntReal(objectsSetIntValue, objectsSetRealValue, FALSE, 'testPreceedesInOrderToIntReal');
+THIS^.testPreceedesInOrderToRealInt(objectsSetRealValue, objectsSetIntValue, TRUE, 'testPreceedesInOrderToRealInt');
+// isEqualTo
+THIS^.testIsEqualToNullNull(objectsSetNull, objectsSetNull, FALSE, 'testIsEqualToNullNull');
+THIS^.testIsEqualToIntInt(objectsSetIntValue, objectsSetIntValue, FALSE, 'testIsEqualToIntInt');
+THIS^.testIsEqualToRealReal(objectsSetRealValue, objectsSetRealValue, FALSE, 'testIsEqualToRealReal');
+THIS^.testIsEqualToNullReal(objectsSetNull, objectsSetRealValue, TRUE, 'testIsEqualToNullReal');
+THIS^.testIsEqualToNullInt(objectsSetNull, objectsSetIntValue, TRUE, 'testIsEqualToNullInt');
+THIS^.testIsEqualToRealNull(objectsSetRealValue, objectsSetNull, TRUE, 'testIsEqualToRealNull');
+THIS^.testIsEqualToIntNull(objectsSetIntValue, objectsSetNull, TRUE, 'testIsEqualToIntNull');
+THIS^.testIsEqualToIntReal(objectsSetIntValue, objectsSetRealValue, TRUE, 'testIsEqualToIntReal');
+THIS^.testIsEqualToRealInt(objectsSetRealValue, objectsSetIntValue, TRUE, 'testIsEqualToRealInt');
+// isNotEqualTo
+THIS^.testIsNotEqualToNullNull(objectsSetNull, objectsSetNull, TRUE, 'testIsNotEqualToNullNull');
+THIS^.testIsNotEqualToIntInt(objectsSetIntValue, objectsSetIntValue, TRUE, 'testIsNotEqualToIntInt');
+THIS^.testIsNotEqualToRealReal(objectsSetRealValue, objectsSetRealValue, TRUE, 'testIsNotEqualToRealReal');
+THIS^.testIsNotEqualToNullReal(objectsSetNull, objectsSetRealValue, FALSE, 'testIsNotEqualToNullReal');
+THIS^.testIsNotEqualToNullInt(objectsSetNull, objectsSetIntValue, FALSE, 'testIsNotEqualToNullInt');
+THIS^.testIsNotEqualToRealNull(objectsSetRealValue, objectsSetNull, FALSE, 'testIsNotEqualToRealNull');
+THIS^.testIsNotEqualToIntNull(objectsSetIntValue, objectsSetNull, FALSE, 'testIsNotEqualToIntNull');
+THIS^.testIsNotEqualToIntReal(objectsSetIntValue, objectsSetRealValue, FALSE, 'testIsNotEqualToIntReal');
+THIS^.testIsNotEqualToRealInt(objectsSetRealValue, objectsSetIntValue, FALSE, 'testIsNotEqualToRealInt');
+// objectIsNull
+THIS^.testObjectIsNullWithNull(objectsSetNull, FALSE, 'testObjectIsNullWithNull');
+THIS^.testObjectIsNullWithInt(objectsSetIntValue, TRUE, 'testObjectIsNullWithInt');
+THIS^.testObjectIsNullWithReal(objectsSetRealValue, TRUE, 'testObjectIsNullWithReal');
+// objectIsNotNull
+THIS^.testObjectIsNotNullWithNull(objectsSetNull, TRUE, 'testObjectIsNotNullWithNull');
+THIS^.testObjectIsNotNullWithInt(objectsSetIntValue, FALSE, 'testObjectIsNotNullWithInt');
+THIS^.testObjectIsNotNullWithReal(objectsSetRealValue, FALSE, 'testObjectIsNotNullWithReal');
+
+]]></ST>
+    </Implementation>
+    <Method Name="testIsAfterInOrderToIntInt" Id="{dbc51c94-520d-454d-8b63-aecbc59dcc33}">
+      <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+{warning 'header is generated please add your documentation'}
+METHOD testIsAfterInOrderToIntInt
+VAR_INPUT
+	objectsSetOne :REFERENCE TO ARRAY[0..NUMBER_OF_SETS] OF IntValue;
+	objectsSetTwo :REFERENCE TO ARRAY[0..NUMBER_OF_SETS] OF IntValue;
+		
+	expectedAssertValue :BOOL;
+	assignTestName :STRING;
+END_VAR
+VAR
+	testString: ARRAY[0..9] OF STRING := [
+		'TEST',
+		'--',
+		'ObjectsAssertion',
+		'--',
+		assignTestName,
+		'#END'
+	];
+	testName :STRING := ArrayOfMessageStringToString(testString);
+	message :Tc2_System.T_MaxString;
+	i :INT;
+	stringArray :ARRAY [0..9] OF STRING;		
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[TEST(testName);
+
+FOR i := 0 TO NUMBER_OF_SETS DO
+
+	THIS^.assertorContainer.resetAssertor();
+
+	THIS^.assertorContainer.assertor.assert.object.isAfterInOrderTo(objectsSetOne[i], objectsSetTwo[i], message);
+	
+	stringArray[5] := assignTestName;
+	stringArray[6] := '->';
+	stringArray[7] := 'aseertion shall be ';
+	stringArray[8] := BOOL_TO_STRING(expectedAssertValue);
+	stringArray[9] := '#END';
+		
+	message := ArrayOfMessageStringToString(stringArray);
+	
+	IF (expectedAssertValue) THEN
+		THIS^.AssertTrue(THIS^.assertorContainer.wasAssertionWrong, message);
+	ELSE
+		THIS^.AssertFalse(THIS^.assertorContainer.wasAssertionWrong, message);
+	END_IF	
+		
+END_FOR
+	
+TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testIsAfterInOrderToIntNull" Id="{06fe7ce1-696d-4db2-80c3-f238fc068e51}">
+      <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+{warning 'header is generated please add your documentation'}
+METHOD testIsAfterInOrderToIntNull
+VAR_INPUT
+	objectsSetOne :REFERENCE TO ARRAY[0..NUMBER_OF_SETS] OF IntValue;
+	objectsSetTwo :ARRAY[0..NUMBER_OF_SETS] OF CNM_AbstractObject.IObject;
+		
+	expectedAssertValue :BOOL;
+	assignTestName :STRING;
+END_VAR
+VAR
+	testString: ARRAY[0..9] OF STRING := [
+		'TEST',
+		'--',
+		'ObjectsAssertion',
+		'--',
+		assignTestName,
+		'#END'
+	];
+	testName :STRING := ArrayOfMessageStringToString(testString);
+	message :Tc2_System.T_MaxString;
+	i :INT;
+	stringArray :ARRAY [0..9] OF STRING;		
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[TEST(testName);
+
+FOR i := 0 TO NUMBER_OF_SETS DO
+
+	THIS^.assertorContainer.resetAssertor();
+
+	THIS^.assertorContainer.assertor.assert.object.isAfterInOrderTo(objectsSetOne[i], objectsSetTwo[i], message);
+	
+	stringArray[5] := assignTestName;
+	stringArray[6] := '->';
+	stringArray[7] := 'aseertion shall be ';
+	stringArray[8] := BOOL_TO_STRING(expectedAssertValue);
+	stringArray[9] := '#END';
+		
+	message := ArrayOfMessageStringToString(stringArray);
+	
+	IF (expectedAssertValue) THEN
+		THIS^.AssertTrue(THIS^.assertorContainer.wasAssertionWrong, message);
+	ELSE
+		THIS^.AssertFalse(THIS^.assertorContainer.wasAssertionWrong, message);
+	END_IF	
+		
+END_FOR
+	
+TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testIsAfterInOrderToIntReal" Id="{e0e7ff7d-adad-4963-9c0f-f254a0d8a999}">
+      <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+{warning 'header is generated please add your documentation'}
+METHOD testIsAfterInOrderToIntReal
+VAR_INPUT
+	objectsSetOne :REFERENCE TO ARRAY[0..NUMBER_OF_SETS] OF IntValue;	
+	objectsSetTwo :REFERENCE TO ARRAY[0..NUMBER_OF_SETS] OF RealValue;	
+	expectedAssertValue :BOOL;
+	assignTestName :STRING;
+END_VAR
+VAR
+	testString: ARRAY[0..9] OF STRING := [
+		'TEST',
+		'--',
+		'ObjectsAssertion',
+		'--',
+		assignTestName,
+		'#END'
+	];
+	testName :STRING := ArrayOfMessageStringToString(testString);
+	message :Tc2_System.T_MaxString;
+	i :INT;
+	stringArray :ARRAY [0..9] OF STRING;		
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[TEST(testName);
+
+FOR i := 0 TO NUMBER_OF_SETS DO
+
+	THIS^.assertorContainer.resetAssertor();
+
+	THIS^.assertorContainer.assertor.assert.object.isAfterInOrderTo(objectsSetOne[i], objectsSetTwo[i], message);
+	
+	stringArray[5] := assignTestName;
+	stringArray[6] := '->';
+	stringArray[7] := 'aseertion shall be ';
+	stringArray[8] := BOOL_TO_STRING(expectedAssertValue);
+	stringArray[9] := '#END';
+		
+	message := ArrayOfMessageStringToString(stringArray);
+	
+	IF (expectedAssertValue) THEN
+		THIS^.AssertTrue(THIS^.assertorContainer.wasAssertionWrong, message);
+	ELSE
+		THIS^.AssertFalse(THIS^.assertorContainer.wasAssertionWrong, message);
+	END_IF
+		
+		
+END_FOR
+	
+TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testIsAfterInOrderToNullInt" Id="{c0cb21b6-af00-453d-81bd-cb4d2e09ac94}">
+      <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+{warning 'header is generated please add your documentation'}
+METHOD testIsAfterInOrderToNullInt
+VAR_INPUT
+	objectsSetOne :ARRAY[0..NUMBER_OF_SETS] OF CNM_AbstractObject.IObject;
+	objectsSetTwo :REFERENCE TO ARRAY[0..NUMBER_OF_SETS] OF IntValue;	
+	expectedAssertValue :BOOL;
+	assignTestName :STRING;
+END_VAR
+VAR
+	testString: ARRAY[0..9] OF STRING := [
+		'TEST',
+		'--',
+		'ObjectsAssertion',
+		'--',
+		assignTestName,
+		'#END'
+	];
+	testName :STRING := ArrayOfMessageStringToString(testString);
+	message :Tc2_System.T_MaxString;
+	i :INT;
+	stringArray :ARRAY [0..9] OF STRING;		
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[TEST(testName);
+
+FOR i := 0 TO NUMBER_OF_SETS DO
+
+	THIS^.assertorContainer.resetAssertor();
+
+	THIS^.assertorContainer.assertor.assert.object.isAfterInOrderTo(objectsSetOne[i], objectsSetTwo[i], message);
+	
+	stringArray[5] := assignTestName;
+	stringArray[6] := '->';
+	stringArray[7] := 'aseertion shall be ';
+	stringArray[8] := BOOL_TO_STRING(expectedAssertValue);
+	stringArray[9] := '#END';
+		
+	message := ArrayOfMessageStringToString(stringArray);
+	
+	IF (expectedAssertValue) THEN
+		THIS^.AssertTrue(THIS^.assertorContainer.wasAssertionWrong, message);
+	ELSE
+		THIS^.AssertFalse(THIS^.assertorContainer.wasAssertionWrong, message);
+	END_IF	
+		
+END_FOR
+	
+TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testIsAfterInOrderToNullNull" Id="{fb08b314-c866-4a44-84ff-c59d6ce1540d}">
+      <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+{warning 'header is generated please add your documentation'}
+METHOD testIsAfterInOrderToNullNull
+VAR_INPUT
+	objectsSetOne :ARRAY[0..NUMBER_OF_SETS] OF CNM_AbstractObject.IObject;
+	objectsSetTwo :ARRAY[0..NUMBER_OF_SETS] OF CNM_AbstractObject.IObject;	
+	expectedAssertValue :BOOL;
+	assignTestName :STRING;
+END_VAR
+VAR
+	testString: ARRAY[0..9] OF STRING := [
+		'TEST',
+		'--',
+		'ObjectsAssertion',
+		'--',
+		assignTestName,
+		'#END'
+	];
+	testName :STRING := ArrayOfMessageStringToString(testString);
+	message :Tc2_System.T_MaxString;
+	i :INT;
+	stringArray :ARRAY [0..9] OF STRING;		
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[TEST(testName);
+
+FOR i := 0 TO NUMBER_OF_SETS DO
+
+	THIS^.assertorContainer.resetAssertor();
+
+	THIS^.assertorContainer.assertor.assert.object.isAfterInOrderTo(objectsSetOne[i], objectsSetTwo[i], message);
+	
+	stringArray[0] := 'NULL';
+	stringArray[1] := ', ';
+	stringArray[2] := 'NULL';
+	stringArray[3] := '->';
+	stringArray[4] := assignTestName;
+	stringArray[5] := '->';
+	stringArray[6] := 'aseertion shall be ';
+	stringArray[7] := BOOL_TO_STRING(expectedAssertValue);
+	stringArray[8] := '#END';
+		
+	message := ArrayOfMessageStringToString(stringArray);
+	
+	IF (expectedAssertValue) THEN
+		THIS^.AssertTrue(THIS^.assertorContainer.wasAssertionWrong, message);
+	ELSE
+		THIS^.AssertFalse(THIS^.assertorContainer.wasAssertionWrong, message);
+	END_IF
+		
+		
+END_FOR
+	
+TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testIsAfterInOrderToNullReal" Id="{8a176666-e466-4005-a41b-76fd73366b12}">
+      <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+{warning 'header is generated please add your documentation'}
+METHOD testIsAfterInOrderToNullReal
+VAR_INPUT
+	objectsSetOne :ARRAY[0..NUMBER_OF_SETS] OF CNM_AbstractObject.IObject;
+	objectsSetTwo :REFERENCE TO ARRAY[0..NUMBER_OF_SETS] OF RealValue;	
+	expectedAssertValue :BOOL;
+	assignTestName :STRING;
+END_VAR
+VAR
+	testString: ARRAY[0..9] OF STRING := [
+		'TEST',
+		'--',
+		'ObjectsAssertion',
+		'--',
+		assignTestName,
+		'#END'
+	];
+	testName :STRING := ArrayOfMessageStringToString(testString);
+	message :Tc2_System.T_MaxString;
+	i :INT;
+	stringArray :ARRAY [0..9] OF STRING;		
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[TEST(testName);
+
+FOR i := 0 TO NUMBER_OF_SETS DO
+
+	THIS^.assertorContainer.resetAssertor();
+
+	THIS^.assertorContainer.assertor.assert.object.isAfterInOrderTo(objectsSetOne[i], objectsSetTwo[i], message);
+	
+	stringArray[5] := assignTestName;
+	stringArray[6] := '->';
+	stringArray[7] := 'aseertion shall be ';
+	stringArray[8] := BOOL_TO_STRING(expectedAssertValue);
+	stringArray[9] := '#END';
+		
+	message := ArrayOfMessageStringToString(stringArray);
+	
+	IF (expectedAssertValue) THEN
+		THIS^.AssertTrue(THIS^.assertorContainer.wasAssertionWrong, message);
+	ELSE
+		THIS^.AssertFalse(THIS^.assertorContainer.wasAssertionWrong, message);
+	END_IF
+		
+		
+END_FOR
+	
+TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testIsAfterInOrderToRealInt" Id="{7d1eee9c-89b8-4548-b184-91dbecc793f7}">
+      <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+{warning 'header is generated please add your documentation'}
+METHOD testIsAfterInOrderToRealInt
+VAR_INPUT
+	objectsSetOne :REFERENCE TO ARRAY[0..NUMBER_OF_SETS] OF RealValue;	
+	objectsSetTwo :REFERENCE TO ARRAY[0..NUMBER_OF_SETS] OF IntValue;	
+	expectedAssertValue :BOOL;
+	assignTestName :STRING;
+END_VAR
+VAR
+	testString: ARRAY[0..9] OF STRING := [
+		'TEST',
+		'--',
+		'ObjectsAssertion',
+		'--',
+		assignTestName,
+		'#END'
+	];
+	testName :STRING := ArrayOfMessageStringToString(testString);
+	message :Tc2_System.T_MaxString;
+	i :INT;
+	stringArray :ARRAY [0..9] OF STRING;		
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[TEST(testName);
+
+FOR i := 0 TO NUMBER_OF_SETS DO
+
+	THIS^.assertorContainer.resetAssertor();
+
+	THIS^.assertorContainer.assertor.assert.object.isAfterInOrderTo(objectsSetOne[i], objectsSetTwo[i], message);
+	
+	stringArray[5] := assignTestName;
+	stringArray[6] := '->';
+	stringArray[7] := 'aseertion shall be ';
+	stringArray[8] := BOOL_TO_STRING(expectedAssertValue);
+	stringArray[9] := '#END';
+		
+	message := ArrayOfMessageStringToString(stringArray);
+	
+	IF (expectedAssertValue) THEN
+		THIS^.AssertTrue(THIS^.assertorContainer.wasAssertionWrong, message);
+	ELSE
+		THIS^.AssertFalse(THIS^.assertorContainer.wasAssertionWrong, message);
+	END_IF
+				
+END_FOR
+	
+TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testIsAfterInOrderToRealNull" Id="{12248d07-bffd-4c13-a121-9ee3a1b2db1e}">
+      <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+{warning 'header is generated please add your documentation'}
+METHOD testIsAfterInOrderToRealNull
+VAR_INPUT
+	objectsSetOne :REFERENCE TO ARRAY[0..NUMBER_OF_SETS] OF RealValue;	
+	objectsSetTwo :ARRAY[0..NUMBER_OF_SETS] OF CNM_AbstractObject.IObject;
+	
+	expectedAssertValue :BOOL;
+	assignTestName :STRING;
+END_VAR
+VAR
+	testString: ARRAY[0..9] OF STRING := [
+		'TEST',
+		'--',
+		'ObjectsAssertion',
+		'--',
+		assignTestName,
+		'#END'
+	];
+	testName :STRING := ArrayOfMessageStringToString(testString);
+	message :Tc2_System.T_MaxString;
+	i :INT;
+	stringArray :ARRAY [0..9] OF STRING;		
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[TEST(testName);
+
+FOR i := 0 TO NUMBER_OF_SETS DO
+
+	THIS^.assertorContainer.resetAssertor();
+
+	THIS^.assertorContainer.assertor.assert.object.isAfterInOrderTo(objectsSetOne[i], objectsSetTwo[i], message);
+	
+	stringArray[5] := assignTestName;
+	stringArray[6] := '->';
+	stringArray[7] := 'aseertion shall be ';
+	stringArray[8] := BOOL_TO_STRING(expectedAssertValue);
+	stringArray[9] := '#END';
+		
+	message := ArrayOfMessageStringToString(stringArray);
+	
+	IF (expectedAssertValue) THEN
+		THIS^.AssertTrue(THIS^.assertorContainer.wasAssertionWrong, message);
+	ELSE
+		THIS^.AssertFalse(THIS^.assertorContainer.wasAssertionWrong, message);
+	END_IF
+		
+		
+END_FOR
+	
+TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testIsAfterInOrderToRealReal" Id="{00151fdb-bead-4441-9a8e-bc2950c7b9f2}">
+      <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+{warning 'header is generated please add your documentation'}
+METHOD testIsAfterInOrderToRealReal
+VAR_INPUT
+	objectsSetOne :REFERENCE TO ARRAY[0..NUMBER_OF_SETS] OF RealValue;	
+	objectsSetTwo :REFERENCE TO ARRAY[0..NUMBER_OF_SETS] OF RealValue;	
+	expectedAssertValue :BOOL;
+	assignTestName :STRING;
+END_VAR
+VAR
+	testString: ARRAY[0..9] OF STRING := [
+		'TEST',
+		'--',
+		'ObjectsAssertion',
+		'--',
+		assignTestName,
+		'#END'
+	];
+	testName :STRING := ArrayOfMessageStringToString(testString);
+	message :Tc2_System.T_MaxString;
+	i :INT;
+	stringArray :ARRAY [0..9] OF STRING;		
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[TEST(testName);
+
+FOR i := 0 TO NUMBER_OF_SETS DO
+
+	THIS^.assertorContainer.resetAssertor();
+
+	THIS^.assertorContainer.assertor.assert.object.isAfterInOrderTo(objectsSetOne[i], objectsSetTwo[i], message);
+	
+	stringArray[5] := assignTestName;
+	stringArray[6] := '->';
+	stringArray[7] := 'aseertion shall be ';
+	stringArray[8] := BOOL_TO_STRING(expectedAssertValue);
+	stringArray[9] := '#END';
+		
+	message := ArrayOfMessageStringToString(stringArray);
+	
+	IF (expectedAssertValue) THEN
+		THIS^.AssertTrue(THIS^.assertorContainer.wasAssertionWrong, message);
+	ELSE
+		THIS^.AssertFalse(THIS^.assertorContainer.wasAssertionWrong, message);
+	END_IF
+		
+		
+END_FOR
+	
+TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testIsEqualInOrderToIntInt" Id="{370e06cd-437e-4c4a-aa7d-66a292704c2f}">
+      <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+{warning 'header is generated please add your documentation'}
+METHOD testIsEqualInOrderToIntInt
+VAR_INPUT
+	objectsSetOne :REFERENCE TO ARRAY[0..NUMBER_OF_SETS] OF IntValue;
+	objectsSetTwo :REFERENCE TO ARRAY[0..NUMBER_OF_SETS] OF IntValue;
+		
+	expectedAssertValue :BOOL;
+	assignTestName :STRING;
+END_VAR
+VAR
+	testString: ARRAY[0..9] OF STRING := [
+		'TEST',
+		'--',
+		'ObjectsAssertion',
+		'--',
+		assignTestName,
+		'#END'
+	];
+	testName :STRING := ArrayOfMessageStringToString(testString);
+	message :Tc2_System.T_MaxString;
+	i :INT;
+	stringArray :ARRAY [0..9] OF STRING;		
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[TEST(testName);
+
+FOR i := 0 TO NUMBER_OF_SETS DO
+
+	THIS^.assertorContainer.resetAssertor();
+
+	THIS^.assertorContainer.assertor.assert.object.isEqualInOrderTo(objectsSetOne[i], objectsSetTwo[i], message);
+	
+	stringArray[5] := assignTestName;
+	stringArray[6] := '->';
+	stringArray[7] := 'aseertion shall be ';
+	stringArray[8] := BOOL_TO_STRING(expectedAssertValue);
+	stringArray[9] := '#END';
+		
+	message := ArrayOfMessageStringToString(stringArray);
+	
+	IF (expectedAssertValue) THEN
+		THIS^.AssertTrue(THIS^.assertorContainer.wasAssertionWrong, message);
+	ELSE
+		THIS^.AssertFalse(THIS^.assertorContainer.wasAssertionWrong, message);
+	END_IF	
+		
+END_FOR
+	
+TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testIsEqualInOrderToIntNull" Id="{6d53f1b0-49b0-45ab-a65f-4ff0a28e9978}">
+      <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+{warning 'header is generated please add your documentation'}
+METHOD testIsEqualInOrderToIntNull
+VAR_INPUT
+	objectsSetOne :REFERENCE TO ARRAY[0..NUMBER_OF_SETS] OF IntValue;
+	objectsSetTwo :ARRAY[0..NUMBER_OF_SETS] OF CNM_AbstractObject.IObject;
+		
+	expectedAssertValue :BOOL;
+	assignTestName :STRING;
+END_VAR
+VAR
+	testString: ARRAY[0..9] OF STRING := [
+		'TEST',
+		'--',
+		'ObjectsAssertion',
+		'--',
+		assignTestName,
+		'#END'
+	];
+	testName :STRING := ArrayOfMessageStringToString(testString);
+	message :Tc2_System.T_MaxString;
+	i :INT;
+	stringArray :ARRAY [0..9] OF STRING;		
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[TEST(testName);
+
+FOR i := 0 TO NUMBER_OF_SETS DO
+
+	THIS^.assertorContainer.resetAssertor();
+
+	THIS^.assertorContainer.assertor.assert.object.isEqualInOrderTo(objectsSetOne[i], objectsSetTwo[i], message);
+	
+	stringArray[5] := assignTestName;
+	stringArray[6] := '->';
+	stringArray[7] := 'aseertion shall be ';
+	stringArray[8] := BOOL_TO_STRING(expectedAssertValue);
+	stringArray[9] := '#END';
+		
+	message := ArrayOfMessageStringToString(stringArray);
+	
+	IF (expectedAssertValue) THEN
+		THIS^.AssertTrue(THIS^.assertorContainer.wasAssertionWrong, message);
+	ELSE
+		THIS^.AssertFalse(THIS^.assertorContainer.wasAssertionWrong, message);
+	END_IF	
+		
+END_FOR
+	
+TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testIsEqualInOrderToIntReal" Id="{85a5d89a-262e-42d0-a779-750f753ec803}">
+      <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+{warning 'header is generated please add your documentation'}
+METHOD testIsEqualInOrderToIntReal
+VAR_INPUT
+	objectsSetOne :REFERENCE TO ARRAY[0..NUMBER_OF_SETS] OF IntValue;	
+	objectsSetTwo :REFERENCE TO ARRAY[0..NUMBER_OF_SETS] OF RealValue;	
+	expectedAssertValue :BOOL;
+	assignTestName :STRING;
+END_VAR
+VAR
+	testString: ARRAY[0..9] OF STRING := [
+		'TEST',
+		'--',
+		'ObjectsAssertion',
+		'--',
+		assignTestName,
+		'#END'
+	];
+	testName :STRING := ArrayOfMessageStringToString(testString);
+	message :Tc2_System.T_MaxString;
+	i :INT;
+	stringArray :ARRAY [0..9] OF STRING;		
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[TEST(testName);
+
+FOR i := 0 TO NUMBER_OF_SETS DO
+
+	THIS^.assertorContainer.resetAssertor();
+
+	THIS^.assertorContainer.assertor.assert.object.isEqualInOrderTo(objectsSetOne[i], objectsSetTwo[i], message);
+	
+	stringArray[5] := assignTestName;
+	stringArray[6] := '->';
+	stringArray[7] := 'aseertion shall be ';
+	stringArray[8] := BOOL_TO_STRING(expectedAssertValue);
+	stringArray[9] := '#END';
+		
+	message := ArrayOfMessageStringToString(stringArray);
+	
+	IF (expectedAssertValue) THEN
+		THIS^.AssertTrue(THIS^.assertorContainer.wasAssertionWrong, message);
+	ELSE
+		THIS^.AssertFalse(THIS^.assertorContainer.wasAssertionWrong, message);
+	END_IF
+		
+		
+END_FOR
+	
+TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testIsEqualInOrderToNullInt" Id="{1ed18f9a-ced6-4ad0-af05-73cbaa72c8a8}">
+      <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+{warning 'header is generated please add your documentation'}
+METHOD testIsEqualInOrderToNullInt
+VAR_INPUT
+	objectsSetOne :ARRAY[0..NUMBER_OF_SETS] OF CNM_AbstractObject.IObject;
+	objectsSetTwo :REFERENCE TO ARRAY[0..NUMBER_OF_SETS] OF IntValue;	
+	expectedAssertValue :BOOL;
+	assignTestName :STRING;
+END_VAR
+VAR
+	testString: ARRAY[0..9] OF STRING := [
+		'TEST',
+		'--',
+		'ObjectsAssertion',
+		'--',
+		assignTestName,
+		'#END'
+	];
+	testName :STRING := ArrayOfMessageStringToString(testString);
+	message :Tc2_System.T_MaxString;
+	i :INT;
+	stringArray :ARRAY [0..9] OF STRING;		
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[TEST(testName);
+
+FOR i := 0 TO NUMBER_OF_SETS DO
+
+	THIS^.assertorContainer.resetAssertor();
+
+	THIS^.assertorContainer.assertor.assert.object.isEqualInOrderTo(objectsSetOne[i], objectsSetTwo[i], message);
+	
+	stringArray[5] := assignTestName;
+	stringArray[6] := '->';
+	stringArray[7] := 'aseertion shall be ';
+	stringArray[8] := BOOL_TO_STRING(expectedAssertValue);
+	stringArray[9] := '#END';
+		
+	message := ArrayOfMessageStringToString(stringArray);
+	
+	IF (expectedAssertValue) THEN
+		THIS^.AssertTrue(THIS^.assertorContainer.wasAssertionWrong, message);
+	ELSE
+		THIS^.AssertFalse(THIS^.assertorContainer.wasAssertionWrong, message);
+	END_IF	
+		
+END_FOR
+	
+TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testIsEqualInOrderToNullNull" Id="{ac457b9a-d868-4cd7-9152-8cbdb2a9dafc}">
+      <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+{warning 'header is generated please add your documentation'}
+METHOD testIsEqualInOrderToNullNull
+VAR_INPUT
+	objectsSetOne :ARRAY[0..NUMBER_OF_SETS] OF CNM_AbstractObject.IObject;
+	objectsSetTwo :ARRAY[0..NUMBER_OF_SETS] OF CNM_AbstractObject.IObject;	
+	expectedAssertValue :BOOL;
+	assignTestName :STRING;
+END_VAR
+VAR
+	testString: ARRAY[0..9] OF STRING := [
+		'TEST',
+		'--',
+		'ObjectsAssertion',
+		'--',
+		assignTestName,
+		'#END'
+	];
+	testName :STRING := ArrayOfMessageStringToString(testString);
+	message :Tc2_System.T_MaxString;
+	i :INT;
+	stringArray :ARRAY [0..9] OF STRING;		
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[TEST(testName);
+
+FOR i := 0 TO NUMBER_OF_SETS DO
+
+	THIS^.assertorContainer.resetAssertor();
+
+	THIS^.assertorContainer.assertor.assert.object.isEqualInOrderTo(objectsSetOne[i], objectsSetTwo[i], message);
+	
+	stringArray[0] := 'NULL';
+	stringArray[1] := ', ';
+	stringArray[2] := 'NULL';
+	stringArray[3] := '->';
+	stringArray[4] := assignTestName;
+	stringArray[5] := '->';
+	stringArray[6] := 'aseertion shall be ';
+	stringArray[7] := BOOL_TO_STRING(expectedAssertValue);
+	stringArray[8] := '#END';
+		
+	message := ArrayOfMessageStringToString(stringArray);
+	
+	IF (expectedAssertValue) THEN
+		THIS^.AssertTrue(THIS^.assertorContainer.wasAssertionWrong, message);
+	ELSE
+		THIS^.AssertFalse(THIS^.assertorContainer.wasAssertionWrong, message);
+	END_IF
+		
+		
+END_FOR
+	
+TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testIsEqualInOrderToNullReal" Id="{91bd18eb-0919-42b0-83b3-a2731ec601bd}">
+      <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+{warning 'header is generated please add your documentation'}
+METHOD testIsEqualInOrderToNullReal
+VAR_INPUT
+	objectsSetOne :ARRAY[0..NUMBER_OF_SETS] OF CNM_AbstractObject.IObject;
+	objectsSetTwo :REFERENCE TO ARRAY[0..NUMBER_OF_SETS] OF RealValue;	
+	expectedAssertValue :BOOL;
+	assignTestName :STRING;
+END_VAR
+VAR
+	testString: ARRAY[0..9] OF STRING := [
+		'TEST',
+		'--',
+		'ObjectsAssertion',
+		'--',
+		assignTestName,
+		'#END'
+	];
+	testName :STRING := ArrayOfMessageStringToString(testString);
+	message :Tc2_System.T_MaxString;
+	i :INT;
+	stringArray :ARRAY [0..9] OF STRING;		
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[TEST(testName);
+
+FOR i := 0 TO NUMBER_OF_SETS DO
+
+	THIS^.assertorContainer.resetAssertor();
+
+	THIS^.assertorContainer.assertor.assert.object.isEqualInOrderTo(objectsSetOne[i], objectsSetTwo[i], message);
+	
+	stringArray[5] := assignTestName;
+	stringArray[6] := '->';
+	stringArray[7] := 'aseertion shall be ';
+	stringArray[8] := BOOL_TO_STRING(expectedAssertValue);
+	stringArray[9] := '#END';
+		
+	message := ArrayOfMessageStringToString(stringArray);
+	
+	IF (expectedAssertValue) THEN
+		THIS^.AssertTrue(THIS^.assertorContainer.wasAssertionWrong, message);
+	ELSE
+		THIS^.AssertFalse(THIS^.assertorContainer.wasAssertionWrong, message);
+	END_IF
+		
+		
+END_FOR
+	
+TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testIsEqualInOrderToRealInt" Id="{0bf164fe-2c29-472f-8e24-b6814a88789a}">
+      <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+{warning 'header is generated please add your documentation'}
+METHOD testIsEqualInOrderToRealInt
+VAR_INPUT
+	objectsSetOne :REFERENCE TO ARRAY[0..NUMBER_OF_SETS] OF RealValue;	
+	objectsSetTwo :REFERENCE TO ARRAY[0..NUMBER_OF_SETS] OF IntValue;	
+	expectedAssertValue :BOOL;
+	assignTestName :STRING;
+END_VAR
+VAR
+	testString: ARRAY[0..9] OF STRING := [
+		'TEST',
+		'--',
+		'ObjectsAssertion',
+		'--',
+		assignTestName,
+		'#END'
+	];
+	testName :STRING := ArrayOfMessageStringToString(testString);
+	message :Tc2_System.T_MaxString;
+	i :INT;
+	stringArray :ARRAY [0..9] OF STRING;		
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[TEST(testName);
+
+FOR i := 0 TO NUMBER_OF_SETS DO
+
+	THIS^.assertorContainer.resetAssertor();
+
+	THIS^.assertorContainer.assertor.assert.object.isEqualInOrderTo(objectsSetOne[i], objectsSetTwo[i], message);
+	
+	stringArray[5] := assignTestName;
+	stringArray[6] := '->';
+	stringArray[7] := 'aseertion shall be ';
+	stringArray[8] := BOOL_TO_STRING(expectedAssertValue);
+	stringArray[9] := '#END';
+		
+	message := ArrayOfMessageStringToString(stringArray);
+	
+	IF (expectedAssertValue) THEN
+		THIS^.AssertTrue(THIS^.assertorContainer.wasAssertionWrong, message);
+	ELSE
+		THIS^.AssertFalse(THIS^.assertorContainer.wasAssertionWrong, message);
+	END_IF
+				
+END_FOR
+	
+TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testIsEqualInOrderToRealNull" Id="{263c320e-c984-4180-ae81-4f83a3e92124}">
+      <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+{warning 'header is generated please add your documentation'}
+METHOD testIsEqualInOrderToRealNull
+VAR_INPUT
+	objectsSetOne :REFERENCE TO ARRAY[0..NUMBER_OF_SETS] OF RealValue;	
+	objectsSetTwo :ARRAY[0..NUMBER_OF_SETS] OF CNM_AbstractObject.IObject;
+	
+	expectedAssertValue :BOOL;
+	assignTestName :STRING;
+END_VAR
+VAR
+	testString: ARRAY[0..9] OF STRING := [
+		'TEST',
+		'--',
+		'ObjectsAssertion',
+		'--',
+		assignTestName,
+		'#END'
+	];
+	testName :STRING := ArrayOfMessageStringToString(testString);
+	message :Tc2_System.T_MaxString;
+	i :INT;
+	stringArray :ARRAY [0..9] OF STRING;		
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[TEST(testName);
+
+FOR i := 0 TO NUMBER_OF_SETS DO
+
+	THIS^.assertorContainer.resetAssertor();
+
+	THIS^.assertorContainer.assertor.assert.object.isEqualInOrderTo(objectsSetOne[i], objectsSetTwo[i], message);
+	
+	stringArray[5] := assignTestName;
+	stringArray[6] := '->';
+	stringArray[7] := 'aseertion shall be ';
+	stringArray[8] := BOOL_TO_STRING(expectedAssertValue);
+	stringArray[9] := '#END';
+		
+	message := ArrayOfMessageStringToString(stringArray);
+	
+	IF (expectedAssertValue) THEN
+		THIS^.AssertTrue(THIS^.assertorContainer.wasAssertionWrong, message);
+	ELSE
+		THIS^.AssertFalse(THIS^.assertorContainer.wasAssertionWrong, message);
+	END_IF
+		
+		
+END_FOR
+	
+TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testIsEqualInOrderToRealReal" Id="{fb1d8411-82be-4239-9467-f83e8751cc79}">
+      <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+{warning 'header is generated please add your documentation'}
+METHOD testIsEqualInOrderToRealReal
+VAR_INPUT
+	objectsSetOne :REFERENCE TO ARRAY[0..NUMBER_OF_SETS] OF RealValue;	
+	objectsSetTwo :REFERENCE TO ARRAY[0..NUMBER_OF_SETS] OF RealValue;	
+	expectedAssertValue :BOOL;
+	assignTestName :STRING;
+END_VAR
+VAR
+	testString: ARRAY[0..9] OF STRING := [
+		'TEST',
+		'--',
+		'ObjectsAssertion',
+		'--',
+		assignTestName,
+		'#END'
+	];
+	testName :STRING := ArrayOfMessageStringToString(testString);
+	message :Tc2_System.T_MaxString;
+	i :INT;
+	stringArray :ARRAY [0..9] OF STRING;		
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[TEST(testName);
+
+FOR i := 0 TO NUMBER_OF_SETS DO
+
+	THIS^.assertorContainer.resetAssertor();
+
+	THIS^.assertorContainer.assertor.assert.object.isEqualInOrderTo(objectsSetOne[i], objectsSetTwo[i], message);
+	
+	stringArray[5] := assignTestName;
+	stringArray[6] := '->';
+	stringArray[7] := 'aseertion shall be ';
+	stringArray[8] := BOOL_TO_STRING(expectedAssertValue);
+	stringArray[9] := '#END';
+		
+	message := ArrayOfMessageStringToString(stringArray);
+	
+	IF (expectedAssertValue) THEN
+		THIS^.AssertTrue(THIS^.assertorContainer.wasAssertionWrong, message);
+	ELSE
+		THIS^.AssertFalse(THIS^.assertorContainer.wasAssertionWrong, message);
+	END_IF
+		
+		
+END_FOR
+	
+TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testIsEqualToIntInt" Id="{633e11a8-43c0-4fba-9002-894180cfbf5b}">
+      <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+{warning 'header is generated please add your documentation'}
+METHOD testIsEqualToIntInt
+VAR_INPUT
+	objectsSetOne :REFERENCE TO ARRAY[0..NUMBER_OF_SETS] OF IntValue;
+	objectsSetTwo :REFERENCE TO ARRAY[0..NUMBER_OF_SETS] OF IntValue;
+		
+	expectedAssertValue :BOOL;
+	assignTestName :STRING;
+END_VAR
+VAR
+	testString: ARRAY[0..9] OF STRING := [
+		'TEST',
+		'--',
+		'ObjectsAssertion',
+		'--',
+		assignTestName,
+		'#END'
+	];
+	testName :STRING := ArrayOfMessageStringToString(testString);
+	message :Tc2_System.T_MaxString;
+	i :INT;
+	stringArray :ARRAY [0..9] OF STRING;		
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[TEST(testName);
+
+FOR i := 0 TO NUMBER_OF_SETS DO
+
+	THIS^.assertorContainer.resetAssertor();
+
+	THIS^.assertorContainer.assertor.assert.object.isEqualTo(objectsSetOne[i], objectsSetTwo[i], message);
+	
+	stringArray[5] := assignTestName;
+	stringArray[6] := '->';
+	stringArray[7] := 'aseertion shall be ';
+	stringArray[8] := BOOL_TO_STRING(expectedAssertValue);
+	stringArray[9] := '#END';
+		
+	message := ArrayOfMessageStringToString(stringArray);
+	
+	IF (expectedAssertValue) THEN
+		THIS^.AssertTrue(THIS^.assertorContainer.wasAssertionWrong, message);
+	ELSE
+		THIS^.AssertFalse(THIS^.assertorContainer.wasAssertionWrong, message);
+	END_IF	
+		
+END_FOR
+	
+TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testIsEqualToIntNull" Id="{5b048072-9cf8-44a7-9f39-ee0f64e3dc2d}">
+      <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+{warning 'header is generated please add your documentation'}
+METHOD testIsEqualToIntNull
+VAR_INPUT
+	objectsSetOne :REFERENCE TO ARRAY[0..NUMBER_OF_SETS] OF IntValue;
+	objectsSetTwo :ARRAY[0..NUMBER_OF_SETS] OF CNM_AbstractObject.IObject;
+		
+	expectedAssertValue :BOOL;
+	assignTestName :STRING;
+END_VAR
+VAR
+	testString: ARRAY[0..9] OF STRING := [
+		'TEST',
+		'--',
+		'ObjectsAssertion',
+		'--',
+		assignTestName,
+		'#END'
+	];
+	testName :STRING := ArrayOfMessageStringToString(testString);
+	message :Tc2_System.T_MaxString;
+	i :INT;
+	stringArray :ARRAY [0..9] OF STRING;		
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[TEST(testName);
+
+FOR i := 0 TO NUMBER_OF_SETS DO
+
+	THIS^.assertorContainer.resetAssertor();
+
+	THIS^.assertorContainer.assertor.assert.object.isEqualTo(objectsSetOne[i], objectsSetTwo[i], message);
+	
+	stringArray[5] := assignTestName;
+	stringArray[6] := '->';
+	stringArray[7] := 'aseertion shall be ';
+	stringArray[8] := BOOL_TO_STRING(expectedAssertValue);
+	stringArray[9] := '#END';
+		
+	message := ArrayOfMessageStringToString(stringArray);
+	
+	IF (expectedAssertValue) THEN
+		THIS^.AssertTrue(THIS^.assertorContainer.wasAssertionWrong, message);
+	ELSE
+		THIS^.AssertFalse(THIS^.assertorContainer.wasAssertionWrong, message);
+	END_IF	
+		
+END_FOR
+	
+TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testIsEqualToIntReal" Id="{c8820c3b-ff79-455f-b07c-420ae4f2a074}">
+      <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+{warning 'header is generated please add your documentation'}
+METHOD testIsEqualToIntReal
+VAR_INPUT
+	objectsSetOne :REFERENCE TO ARRAY[0..NUMBER_OF_SETS] OF IntValue;	
+	objectsSetTwo :REFERENCE TO ARRAY[0..NUMBER_OF_SETS] OF RealValue;	
+	expectedAssertValue :BOOL;
+	assignTestName :STRING;
+END_VAR
+VAR
+	testString: ARRAY[0..9] OF STRING := [
+		'TEST',
+		'--',
+		'ObjectsAssertion',
+		'--',
+		assignTestName,
+		'#END'
+	];
+	testName :STRING := ArrayOfMessageStringToString(testString);
+	message :Tc2_System.T_MaxString;
+	i :INT;
+	stringArray :ARRAY [0..9] OF STRING;		
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[TEST(testName);
+
+FOR i := 0 TO NUMBER_OF_SETS DO
+
+	THIS^.assertorContainer.resetAssertor();
+
+	THIS^.assertorContainer.assertor.assert.object.isEqualTo(objectsSetOne[i], objectsSetTwo[i], message);
+	
+	stringArray[5] := assignTestName;
+	stringArray[6] := '->';
+	stringArray[7] := 'aseertion shall be ';
+	stringArray[8] := BOOL_TO_STRING(expectedAssertValue);
+	stringArray[9] := '#END';
+		
+	message := ArrayOfMessageStringToString(stringArray);
+	
+	IF (expectedAssertValue) THEN
+		THIS^.AssertTrue(THIS^.assertorContainer.wasAssertionWrong, message);
+	ELSE
+		THIS^.AssertFalse(THIS^.assertorContainer.wasAssertionWrong, message);
+	END_IF
+		
+		
+END_FOR
+	
+TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testIsEqualToNullInt" Id="{b9933f8d-9627-4321-a7d0-31c2109bf8a1}">
+      <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+{warning 'header is generated please add your documentation'}
+METHOD testIsEqualToNullInt
+VAR_INPUT
+	objectsSetOne :ARRAY[0..NUMBER_OF_SETS] OF CNM_AbstractObject.IObject;
+	objectsSetTwo :REFERENCE TO ARRAY[0..NUMBER_OF_SETS] OF IntValue;	
+	expectedAssertValue :BOOL;
+	assignTestName :STRING;
+END_VAR
+VAR
+	testString: ARRAY[0..9] OF STRING := [
+		'TEST',
+		'--',
+		'ObjectsAssertion',
+		'--',
+		assignTestName,
+		'#END'
+	];
+	testName :STRING := ArrayOfMessageStringToString(testString);
+	message :Tc2_System.T_MaxString;
+	i :INT;
+	stringArray :ARRAY [0..9] OF STRING;		
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[TEST(testName);
+
+FOR i := 0 TO NUMBER_OF_SETS DO
+
+	THIS^.assertorContainer.resetAssertor();
+
+	THIS^.assertorContainer.assertor.assert.object.isEqualTo(objectsSetOne[i], objectsSetTwo[i], message);
+	
+	stringArray[5] := assignTestName;
+	stringArray[6] := '->';
+	stringArray[7] := 'aseertion shall be ';
+	stringArray[8] := BOOL_TO_STRING(expectedAssertValue);
+	stringArray[9] := '#END';
+		
+	message := ArrayOfMessageStringToString(stringArray);
+	
+	IF (expectedAssertValue) THEN
+		THIS^.AssertTrue(THIS^.assertorContainer.wasAssertionWrong, message);
+	ELSE
+		THIS^.AssertFalse(THIS^.assertorContainer.wasAssertionWrong, message);
+	END_IF	
+		
+END_FOR
+	
+TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testIsEqualToNullNull" Id="{94109c17-260a-493a-9fee-657343231b1f}">
+      <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+{warning 'header is generated please add your documentation'}
+METHOD testIsEqualToNullNull
+VAR_INPUT
+	objectsSetOne :ARRAY[0..NUMBER_OF_SETS] OF CNM_AbstractObject.IObject;
+	objectsSetTwo :ARRAY[0..NUMBER_OF_SETS] OF CNM_AbstractObject.IObject;	
+	expectedAssertValue :BOOL;
+	assignTestName :STRING;
+END_VAR
+VAR
+	testString: ARRAY[0..9] OF STRING := [
+		'TEST',
+		'--',
+		'ObjectsAssertion',
+		'--',
+		assignTestName,
+		'#END'
+	];
+	testName :STRING := ArrayOfMessageStringToString(testString);
+	message :Tc2_System.T_MaxString;
+	i :INT;
+	stringArray :ARRAY [0..9] OF STRING;		
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[TEST(testName);
+
+FOR i := 0 TO NUMBER_OF_SETS DO
+
+	THIS^.assertorContainer.resetAssertor();
+
+	THIS^.assertorContainer.assertor.assert.object.isEqualTo(objectsSetOne[i], objectsSetTwo[i], message);
+	
+	stringArray[0] := 'NULL';
+	stringArray[1] := ', ';
+	stringArray[2] := 'NULL';
+	stringArray[3] := '->';
+	stringArray[4] := assignTestName;
+	stringArray[5] := '->';
+	stringArray[6] := 'aseertion shall be ';
+	stringArray[7] := BOOL_TO_STRING(expectedAssertValue);
+	stringArray[8] := '#END';
+		
+	message := ArrayOfMessageStringToString(stringArray);
+	
+	IF (expectedAssertValue) THEN
+		THIS^.AssertTrue(THIS^.assertorContainer.wasAssertionWrong, message);
+	ELSE
+		THIS^.AssertFalse(THIS^.assertorContainer.wasAssertionWrong, message);
+	END_IF
+		
+		
+END_FOR
+	
+TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testIsEqualToNullReal" Id="{309a0510-0b4c-4244-8f25-6ee1f3497b90}">
+      <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+{warning 'header is generated please add your documentation'}
+METHOD testIsEqualToNullReal
+VAR_INPUT
+	objectsSetOne :ARRAY[0..NUMBER_OF_SETS] OF CNM_AbstractObject.IObject;
+	objectsSetTwo :REFERENCE TO ARRAY[0..NUMBER_OF_SETS] OF RealValue;	
+	expectedAssertValue :BOOL;
+	assignTestName :STRING;
+END_VAR
+VAR
+	testString: ARRAY[0..9] OF STRING := [
+		'TEST',
+		'--',
+		'ObjectsAssertion',
+		'--',
+		assignTestName,
+		'#END'
+	];
+	testName :STRING := ArrayOfMessageStringToString(testString);
+	message :Tc2_System.T_MaxString;
+	i :INT;
+	stringArray :ARRAY [0..9] OF STRING;		
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[TEST(testName);
+
+FOR i := 0 TO NUMBER_OF_SETS DO
+
+	THIS^.assertorContainer.resetAssertor();
+
+	THIS^.assertorContainer.assertor.assert.object.isEqualTo(objectsSetOne[i], objectsSetTwo[i], message);
+	
+	stringArray[5] := assignTestName;
+	stringArray[6] := '->';
+	stringArray[7] := 'aseertion shall be ';
+	stringArray[8] := BOOL_TO_STRING(expectedAssertValue);
+	stringArray[9] := '#END';
+		
+	message := ArrayOfMessageStringToString(stringArray);
+	
+	IF (expectedAssertValue) THEN
+		THIS^.AssertTrue(THIS^.assertorContainer.wasAssertionWrong, message);
+	ELSE
+		THIS^.AssertFalse(THIS^.assertorContainer.wasAssertionWrong, message);
+	END_IF
+		
+		
+END_FOR
+	
+TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testIsEqualToRealInt" Id="{8aa594a0-4d10-40b3-865b-604aa1604d2b}">
+      <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+{warning 'header is generated please add your documentation'}
+METHOD testIsEqualToRealInt
+VAR_INPUT
+	objectsSetOne :REFERENCE TO ARRAY[0..NUMBER_OF_SETS] OF RealValue;	
+	objectsSetTwo :REFERENCE TO ARRAY[0..NUMBER_OF_SETS] OF IntValue;	
+	expectedAssertValue :BOOL;
+	assignTestName :STRING;
+END_VAR
+VAR
+	testString: ARRAY[0..9] OF STRING := [
+		'TEST',
+		'--',
+		'ObjectsAssertion',
+		'--',
+		assignTestName,
+		'#END'
+	];
+	testName :STRING := ArrayOfMessageStringToString(testString);
+	message :Tc2_System.T_MaxString;
+	i :INT;
+	stringArray :ARRAY [0..9] OF STRING;		
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[TEST(testName);
+
+FOR i := 0 TO NUMBER_OF_SETS DO
+
+	THIS^.assertorContainer.resetAssertor();
+
+	THIS^.assertorContainer.assertor.assert.object.isEqualTo(objectsSetOne[i], objectsSetTwo[i], message);
+	
+	stringArray[5] := assignTestName;
+	stringArray[6] := '->';
+	stringArray[7] := 'aseertion shall be ';
+	stringArray[8] := BOOL_TO_STRING(expectedAssertValue);
+	stringArray[9] := '#END';
+		
+	message := ArrayOfMessageStringToString(stringArray);
+	
+	IF (expectedAssertValue) THEN
+		THIS^.AssertTrue(THIS^.assertorContainer.wasAssertionWrong, message);
+	ELSE
+		THIS^.AssertFalse(THIS^.assertorContainer.wasAssertionWrong, message);
+	END_IF
+				
+END_FOR
+	
+TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testIsEqualToRealNull" Id="{9233e631-07f0-4ca3-897d-29252e09cae7}">
+      <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+{warning 'header is generated please add your documentation'}
+METHOD testIsEqualToRealNull
+VAR_INPUT
+	objectsSetOne :REFERENCE TO ARRAY[0..NUMBER_OF_SETS] OF RealValue;	
+	objectsSetTwo :ARRAY[0..NUMBER_OF_SETS] OF CNM_AbstractObject.IObject;
+	
+	expectedAssertValue :BOOL;
+	assignTestName :STRING;
+END_VAR
+VAR
+	testString: ARRAY[0..9] OF STRING := [
+		'TEST',
+		'--',
+		'ObjectsAssertion',
+		'--',
+		assignTestName,
+		'#END'
+	];
+	testName :STRING := ArrayOfMessageStringToString(testString);
+	message :Tc2_System.T_MaxString;
+	i :INT;
+	stringArray :ARRAY [0..9] OF STRING;		
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[TEST(testName);
+
+FOR i := 0 TO NUMBER_OF_SETS DO
+
+	THIS^.assertorContainer.resetAssertor();
+
+	THIS^.assertorContainer.assertor.assert.object.isEqualTo(objectsSetOne[i], objectsSetTwo[i], message);
+	
+	stringArray[5] := assignTestName;
+	stringArray[6] := '->';
+	stringArray[7] := 'aseertion shall be ';
+	stringArray[8] := BOOL_TO_STRING(expectedAssertValue);
+	stringArray[9] := '#END';
+		
+	message := ArrayOfMessageStringToString(stringArray);
+	
+	IF (expectedAssertValue) THEN
+		THIS^.AssertTrue(THIS^.assertorContainer.wasAssertionWrong, message);
+	ELSE
+		THIS^.AssertFalse(THIS^.assertorContainer.wasAssertionWrong, message);
+	END_IF
+		
+		
+END_FOR
+	
+TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testIsEqualToRealReal" Id="{5bb2fe2a-b078-4138-bddb-ca3918c0f045}">
+      <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+{warning 'header is generated please add your documentation'}
+METHOD testIsEqualToRealReal
+VAR_INPUT
+	objectsSetOne :REFERENCE TO ARRAY[0..NUMBER_OF_SETS] OF RealValue;	
+	objectsSetTwo :REFERENCE TO ARRAY[0..NUMBER_OF_SETS] OF RealValue;	
+	expectedAssertValue :BOOL;
+	assignTestName :STRING;
+END_VAR
+VAR
+	testString: ARRAY[0..9] OF STRING := [
+		'TEST',
+		'--',
+		'ObjectsAssertion',
+		'--',
+		assignTestName,
+		'#END'
+	];
+	testName :STRING := ArrayOfMessageStringToString(testString);
+	message :Tc2_System.T_MaxString;
+	i :INT;
+	stringArray :ARRAY [0..9] OF STRING;		
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[TEST(testName);
+
+FOR i := 0 TO NUMBER_OF_SETS DO
+
+	THIS^.assertorContainer.resetAssertor();
+
+	THIS^.assertorContainer.assertor.assert.object.isEqualTo(objectsSetOne[i], objectsSetTwo[i], message);
+	
+	stringArray[5] := assignTestName;
+	stringArray[6] := '->';
+	stringArray[7] := 'aseertion shall be ';
+	stringArray[8] := BOOL_TO_STRING(expectedAssertValue);
+	stringArray[9] := '#END';
+		
+	message := ArrayOfMessageStringToString(stringArray);
+	
+	IF (expectedAssertValue) THEN
+		THIS^.AssertTrue(THIS^.assertorContainer.wasAssertionWrong, message);
+	ELSE
+		THIS^.AssertFalse(THIS^.assertorContainer.wasAssertionWrong, message);
+	END_IF
+		
+		
+END_FOR
+	
+TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testIsNotEqualToIntInt" Id="{807ad413-a3b0-481f-b588-035833f5480f}">
+      <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+{warning 'header is generated please add your documentation'}
+METHOD testIsNotEqualToIntInt
+VAR_INPUT
+	objectsSetOne :REFERENCE TO ARRAY[0..NUMBER_OF_SETS] OF IntValue;
+	objectsSetTwo :REFERENCE TO ARRAY[0..NUMBER_OF_SETS] OF IntValue;
+		
+	expectedAssertValue :BOOL;
+	assignTestName :STRING;
+END_VAR
+VAR
+	testString: ARRAY[0..9] OF STRING := [
+		'TEST',
+		'--',
+		'ObjectsAssertion',
+		'--',
+		assignTestName,
+		'#END'
+	];
+	testName :STRING := ArrayOfMessageStringToString(testString);
+	message :Tc2_System.T_MaxString;
+	i :INT;
+	stringArray :ARRAY [0..9] OF STRING;		
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[TEST(testName);
+
+FOR i := 0 TO NUMBER_OF_SETS DO
+
+	THIS^.assertorContainer.resetAssertor();
+
+	THIS^.assertorContainer.assertor.assert.object.isNotEqualTo(objectsSetOne[i], objectsSetTwo[i], message);
+	
+	stringArray[5] := assignTestName;
+	stringArray[6] := '->';
+	stringArray[7] := 'aseertion shall be ';
+	stringArray[8] := BOOL_TO_STRING(expectedAssertValue);
+	stringArray[9] := '#END';
+		
+	message := ArrayOfMessageStringToString(stringArray);
+	
+	IF (expectedAssertValue) THEN
+		THIS^.AssertTrue(THIS^.assertorContainer.wasAssertionWrong, message);
+	ELSE
+		THIS^.AssertFalse(THIS^.assertorContainer.wasAssertionWrong, message);
+	END_IF	
+		
+END_FOR
+	
+TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testIsNotEqualToIntNull" Id="{7aaf147f-4d54-4707-ae1a-56b3fba09ee8}">
+      <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+{warning 'header is generated please add your documentation'}
+METHOD testIsNotEqualToIntNull
+VAR_INPUT
+	objectsSetOne :REFERENCE TO ARRAY[0..NUMBER_OF_SETS] OF IntValue;
+	objectsSetTwo :ARRAY[0..NUMBER_OF_SETS] OF CNM_AbstractObject.IObject;
+		
+	expectedAssertValue :BOOL;
+	assignTestName :STRING;
+END_VAR
+VAR
+	testString: ARRAY[0..9] OF STRING := [
+		'TEST',
+		'--',
+		'ObjectsAssertion',
+		'--',
+		assignTestName,
+		'#END'
+	];
+	testName :STRING := ArrayOfMessageStringToString(testString);
+	message :Tc2_System.T_MaxString;
+	i :INT;
+	stringArray :ARRAY [0..9] OF STRING;		
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[TEST(testName);
+
+FOR i := 0 TO NUMBER_OF_SETS DO
+
+	THIS^.assertorContainer.resetAssertor();
+
+	THIS^.assertorContainer.assertor.assert.object.isNotEqualTo(objectsSetOne[i], objectsSetTwo[i], message);
+	
+	stringArray[5] := assignTestName;
+	stringArray[6] := '->';
+	stringArray[7] := 'aseertion shall be ';
+	stringArray[8] := BOOL_TO_STRING(expectedAssertValue);
+	stringArray[9] := '#END';
+		
+	message := ArrayOfMessageStringToString(stringArray);
+	
+	IF (expectedAssertValue) THEN
+		THIS^.AssertTrue(THIS^.assertorContainer.wasAssertionWrong, message);
+	ELSE
+		THIS^.AssertFalse(THIS^.assertorContainer.wasAssertionWrong, message);
+	END_IF	
+		
+END_FOR
+	
+TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testIsNotEqualToIntReal" Id="{3f00137b-7141-4f34-9565-88c74b4ec63a}">
+      <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+{warning 'header is generated please add your documentation'}
+METHOD testIsNotEqualToIntReal
+VAR_INPUT
+	objectsSetOne :REFERENCE TO ARRAY[0..NUMBER_OF_SETS] OF IntValue;	
+	objectsSetTwo :REFERENCE TO ARRAY[0..NUMBER_OF_SETS] OF RealValue;	
+	expectedAssertValue :BOOL;
+	assignTestName :STRING;
+END_VAR
+VAR
+	testString: ARRAY[0..9] OF STRING := [
+		'TEST',
+		'--',
+		'ObjectsAssertion',
+		'--',
+		assignTestName,
+		'#END'
+	];
+	testName :STRING := ArrayOfMessageStringToString(testString);
+	message :Tc2_System.T_MaxString;
+	i :INT;
+	stringArray :ARRAY [0..9] OF STRING;		
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[TEST(testName);
+
+FOR i := 0 TO NUMBER_OF_SETS DO
+
+	THIS^.assertorContainer.resetAssertor();
+
+	THIS^.assertorContainer.assertor.assert.object.isNotEqualTo(objectsSetOne[i], objectsSetTwo[i], message);
+	
+	stringArray[5] := assignTestName;
+	stringArray[6] := '->';
+	stringArray[7] := 'aseertion shall be ';
+	stringArray[8] := BOOL_TO_STRING(expectedAssertValue);
+	stringArray[9] := '#END';
+		
+	message := ArrayOfMessageStringToString(stringArray);
+	
+	IF (expectedAssertValue) THEN
+		THIS^.AssertTrue(THIS^.assertorContainer.wasAssertionWrong, message);
+	ELSE
+		THIS^.AssertFalse(THIS^.assertorContainer.wasAssertionWrong, message);
+	END_IF
+		
+		
+END_FOR
+	
+TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testIsNotEqualToNullInt" Id="{a7a8aac8-1446-44be-8407-ec83c3976437}">
+      <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+{warning 'header is generated please add your documentation'}
+METHOD testIsNotEqualToNullInt
+VAR_INPUT
+	objectsSetOne :ARRAY[0..NUMBER_OF_SETS] OF CNM_AbstractObject.IObject;
+	objectsSetTwo :REFERENCE TO ARRAY[0..NUMBER_OF_SETS] OF IntValue;	
+	expectedAssertValue :BOOL;
+	assignTestName :STRING;
+END_VAR
+VAR
+	testString: ARRAY[0..9] OF STRING := [
+		'TEST',
+		'--',
+		'ObjectsAssertion',
+		'--',
+		assignTestName,
+		'#END'
+	];
+	testName :STRING := ArrayOfMessageStringToString(testString);
+	message :Tc2_System.T_MaxString;
+	i :INT;
+	stringArray :ARRAY [0..9] OF STRING;		
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[TEST(testName);
+
+FOR i := 0 TO NUMBER_OF_SETS DO
+
+	THIS^.assertorContainer.resetAssertor();
+
+	THIS^.assertorContainer.assertor.assert.object.isNotEqualTo(objectsSetOne[i], objectsSetTwo[i], message);
+	
+	stringArray[5] := assignTestName;
+	stringArray[6] := '->';
+	stringArray[7] := 'aseertion shall be ';
+	stringArray[8] := BOOL_TO_STRING(expectedAssertValue);
+	stringArray[9] := '#END';
+		
+	message := ArrayOfMessageStringToString(stringArray);
+	
+	IF (expectedAssertValue) THEN
+		THIS^.AssertTrue(THIS^.assertorContainer.wasAssertionWrong, message);
+	ELSE
+		THIS^.AssertFalse(THIS^.assertorContainer.wasAssertionWrong, message);
+	END_IF	
+		
+END_FOR
+	
+TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testIsNotEqualToNullNull" Id="{b4e5683a-d316-4cb6-abb9-34dbaaeefd02}">
+      <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+{warning 'header is generated please add your documentation'}
+METHOD testIsNotEqualToNullNull
+VAR_INPUT
+	objectsSetOne :ARRAY[0..NUMBER_OF_SETS] OF CNM_AbstractObject.IObject;
+	objectsSetTwo :ARRAY[0..NUMBER_OF_SETS] OF CNM_AbstractObject.IObject;	
+	expectedAssertValue :BOOL;
+	assignTestName :STRING;
+END_VAR
+VAR
+	testString: ARRAY[0..9] OF STRING := [
+		'TEST',
+		'--',
+		'ObjectsAssertion',
+		'--',
+		assignTestName,
+		'#END'
+	];
+	testName :STRING := ArrayOfMessageStringToString(testString);
+	message :Tc2_System.T_MaxString;
+	i :INT;
+	stringArray :ARRAY [0..9] OF STRING;		
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[TEST(testName);
+
+FOR i := 0 TO NUMBER_OF_SETS DO
+
+	THIS^.assertorContainer.resetAssertor();
+
+	THIS^.assertorContainer.assertor.assert.object.isNotEqualTo(objectsSetOne[i], objectsSetTwo[i], message);
+	
+	stringArray[0] := 'NULL';
+	stringArray[1] := ', ';
+	stringArray[2] := 'NULL';
+	stringArray[3] := '->';
+	stringArray[4] := assignTestName;
+	stringArray[5] := '->';
+	stringArray[6] := 'aseertion shall be ';
+	stringArray[7] := BOOL_TO_STRING(expectedAssertValue);
+	stringArray[8] := '#END';
+		
+	message := ArrayOfMessageStringToString(stringArray);
+	
+	IF (expectedAssertValue) THEN
+		THIS^.AssertTrue(THIS^.assertorContainer.wasAssertionWrong, message);
+	ELSE
+		THIS^.AssertFalse(THIS^.assertorContainer.wasAssertionWrong, message);
+	END_IF
+		
+		
+END_FOR
+	
+TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testIsNotEqualToNullReal" Id="{6fd80eae-4aa2-46c8-88d4-aa63f12417a3}">
+      <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+{warning 'header is generated please add your documentation'}
+METHOD testIsNotEqualToNullReal
+VAR_INPUT
+	objectsSetOne :ARRAY[0..NUMBER_OF_SETS] OF CNM_AbstractObject.IObject;
+	objectsSetTwo :REFERENCE TO ARRAY[0..NUMBER_OF_SETS] OF RealValue;	
+	expectedAssertValue :BOOL;
+	assignTestName :STRING;
+END_VAR
+VAR
+	testString: ARRAY[0..9] OF STRING := [
+		'TEST',
+		'--',
+		'ObjectsAssertion',
+		'--',
+		assignTestName,
+		'#END'
+	];
+	testName :STRING := ArrayOfMessageStringToString(testString);
+	message :Tc2_System.T_MaxString;
+	i :INT;
+	stringArray :ARRAY [0..9] OF STRING;		
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[TEST(testName);
+
+FOR i := 0 TO NUMBER_OF_SETS DO
+
+	THIS^.assertorContainer.resetAssertor();
+
+	THIS^.assertorContainer.assertor.assert.object.isNotEqualTo(objectsSetOne[i], objectsSetTwo[i], message);
+	
+	stringArray[5] := assignTestName;
+	stringArray[6] := '->';
+	stringArray[7] := 'aseertion shall be ';
+	stringArray[8] := BOOL_TO_STRING(expectedAssertValue);
+	stringArray[9] := '#END';
+		
+	message := ArrayOfMessageStringToString(stringArray);
+	
+	IF (expectedAssertValue) THEN
+		THIS^.AssertTrue(THIS^.assertorContainer.wasAssertionWrong, message);
+	ELSE
+		THIS^.AssertFalse(THIS^.assertorContainer.wasAssertionWrong, message);
+	END_IF
+		
+		
+END_FOR
+	
+TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testIsNotEqualToRealInt" Id="{b1613201-f834-4902-8283-b3536847dd2f}">
+      <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+{warning 'header is generated please add your documentation'}
+METHOD testIsNotEqualToRealInt
+VAR_INPUT
+	objectsSetOne :REFERENCE TO ARRAY[0..NUMBER_OF_SETS] OF RealValue;	
+	objectsSetTwo :REFERENCE TO ARRAY[0..NUMBER_OF_SETS] OF IntValue;	
+	expectedAssertValue :BOOL;
+	assignTestName :STRING;
+END_VAR
+VAR
+	testString: ARRAY[0..9] OF STRING := [
+		'TEST',
+		'--',
+		'ObjectsAssertion',
+		'--',
+		assignTestName,
+		'#END'
+	];
+	testName :STRING := ArrayOfMessageStringToString(testString);
+	message :Tc2_System.T_MaxString;
+	i :INT;
+	stringArray :ARRAY [0..9] OF STRING;		
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[TEST(testName);
+
+FOR i := 0 TO NUMBER_OF_SETS DO
+
+	THIS^.assertorContainer.resetAssertor();
+
+	THIS^.assertorContainer.assertor.assert.object.isNotEqualTo(objectsSetOne[i], objectsSetTwo[i], message);
+	
+	stringArray[5] := assignTestName;
+	stringArray[6] := '->';
+	stringArray[7] := 'aseertion shall be ';
+	stringArray[8] := BOOL_TO_STRING(expectedAssertValue);
+	stringArray[9] := '#END';
+		
+	message := ArrayOfMessageStringToString(stringArray);
+	
+	IF (expectedAssertValue) THEN
+		THIS^.AssertTrue(THIS^.assertorContainer.wasAssertionWrong, message);
+	ELSE
+		THIS^.AssertFalse(THIS^.assertorContainer.wasAssertionWrong, message);
+	END_IF
+				
+END_FOR
+	
+TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testIsNotEqualToRealNull" Id="{b16940de-90a5-4821-83c9-eec7ebf0d2b3}">
+      <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+{warning 'header is generated please add your documentation'}
+METHOD testIsNotEqualToRealNull
+VAR_INPUT
+	objectsSetOne :REFERENCE TO ARRAY[0..NUMBER_OF_SETS] OF RealValue;	
+	objectsSetTwo :ARRAY[0..NUMBER_OF_SETS] OF CNM_AbstractObject.IObject;
+	
+	expectedAssertValue :BOOL;
+	assignTestName :STRING;
+END_VAR
+VAR
+	testString: ARRAY[0..9] OF STRING := [
+		'TEST',
+		'--',
+		'ObjectsAssertion',
+		'--',
+		assignTestName,
+		'#END'
+	];
+	testName :STRING := ArrayOfMessageStringToString(testString);
+	message :Tc2_System.T_MaxString;
+	i :INT;
+	stringArray :ARRAY [0..9] OF STRING;		
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[TEST(testName);
+
+FOR i := 0 TO NUMBER_OF_SETS DO
+
+	THIS^.assertorContainer.resetAssertor();
+
+	THIS^.assertorContainer.assertor.assert.object.isNotEqualTo(objectsSetOne[i], objectsSetTwo[i], message);
+	
+	stringArray[5] := assignTestName;
+	stringArray[6] := '->';
+	stringArray[7] := 'aseertion shall be ';
+	stringArray[8] := BOOL_TO_STRING(expectedAssertValue);
+	stringArray[9] := '#END';
+		
+	message := ArrayOfMessageStringToString(stringArray);
+	
+	IF (expectedAssertValue) THEN
+		THIS^.AssertTrue(THIS^.assertorContainer.wasAssertionWrong, message);
+	ELSE
+		THIS^.AssertFalse(THIS^.assertorContainer.wasAssertionWrong, message);
+	END_IF
+		
+		
+END_FOR
+	
+TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testIsNotEqualToRealReal" Id="{8b7f8e71-5972-441c-9919-6f44289dee33}">
+      <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+{warning 'header is generated please add your documentation'}
+METHOD testIsNotEqualToRealReal
+VAR_INPUT
+	objectsSetOne :REFERENCE TO ARRAY[0..NUMBER_OF_SETS] OF RealValue;	
+	objectsSetTwo :REFERENCE TO ARRAY[0..NUMBER_OF_SETS] OF RealValue;	
+	expectedAssertValue :BOOL;
+	assignTestName :STRING;
+END_VAR
+VAR
+	testString: ARRAY[0..9] OF STRING := [
+		'TEST',
+		'--',
+		'ObjectsAssertion',
+		'--',
+		assignTestName,
+		'#END'
+	];
+	testName :STRING := ArrayOfMessageStringToString(testString);
+	message :Tc2_System.T_MaxString;
+	i :INT;
+	stringArray :ARRAY [0..9] OF STRING;		
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[TEST(testName);
+
+FOR i := 0 TO NUMBER_OF_SETS DO
+
+	THIS^.assertorContainer.resetAssertor();
+
+	THIS^.assertorContainer.assertor.assert.object.isNotEqualTo(objectsSetOne[i], objectsSetTwo[i], message);
+	
+	stringArray[5] := assignTestName;
+	stringArray[6] := '->';
+	stringArray[7] := 'aseertion shall be ';
+	stringArray[8] := BOOL_TO_STRING(expectedAssertValue);
+	stringArray[9] := '#END';
+		
+	message := ArrayOfMessageStringToString(stringArray);
+	
+	IF (expectedAssertValue) THEN
+		THIS^.AssertTrue(THIS^.assertorContainer.wasAssertionWrong, message);
+	ELSE
+		THIS^.AssertFalse(THIS^.assertorContainer.wasAssertionWrong, message);
+	END_IF
+		
+		
+END_FOR
+	
+TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testObjectIsNotNullWithInt" Id="{f9fbdeec-c5fa-4ee1-bb33-d424ea03bc92}">
+      <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+{warning 'header is generated please add your documentation'}
+METHOD testObjectIsNotNullWithInt
+VAR_INPUT
+	objectsSetOne :REFERENCE TO ARRAY[0..NUMBER_OF_SETS] OF IntValue;
+		
+	expectedAssertValue :BOOL;
+	assignTestName :STRING;
+END_VAR
+VAR
+	testString: ARRAY[0..9] OF STRING := [
+		'TEST',
+		'--',
+		'ObjectsAssertion',
+		'--',
+		assignTestName,
+		'#END'
+	];
+	testName :STRING := ArrayOfMessageStringToString(testString);
+	message :Tc2_System.T_MaxString;
+	i :INT;
+	stringArray :ARRAY [0..9] OF STRING;		
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[TEST(testName);
+
+FOR i := 0 TO NUMBER_OF_SETS DO
+
+	THIS^.assertorContainer.resetAssertor();
+
+	THIS^.assertorContainer.assertor.assert.object.objectIsNotNull(objectsSetOne[i], message);
+	
+	stringArray[5] := assignTestName;
+	stringArray[6] := '->';
+	stringArray[7] := 'aseertion shall be ';
+	stringArray[8] := BOOL_TO_STRING(expectedAssertValue);
+	stringArray[9] := '#END';
+		
+	message := ArrayOfMessageStringToString(stringArray);
+	
+	IF (expectedAssertValue) THEN
+		THIS^.AssertTrue(THIS^.assertorContainer.wasAssertionWrong, message);
+	ELSE
+		THIS^.AssertFalse(THIS^.assertorContainer.wasAssertionWrong, message);
+	END_IF	
+		
+END_FOR
+	
+TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testObjectIsNotNullWithNull" Id="{ec76cf2d-8798-49a5-b50e-87a9f53bd15b}">
+      <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+{warning 'header is generated please add your documentation'}
+METHOD testObjectIsNotNullWithNull
+VAR_INPUT
+	objectsSetOne :REFERENCE TO ARRAY[0..NUMBER_OF_SETS] OF CNM_AbstractObject.IObject;
+		
+	expectedAssertValue :BOOL;
+	assignTestName :STRING;
+END_VAR
+VAR
+	testString: ARRAY[0..9] OF STRING := [
+		'TEST',
+		'--',
+		'ObjectsAssertion',
+		'--',
+		assignTestName,
+		'#END'
+	];
+	testName :STRING := ArrayOfMessageStringToString(testString);
+	message :Tc2_System.T_MaxString;
+	i :INT;
+	stringArray :ARRAY [0..9] OF STRING;		
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[TEST(testName);
+
+FOR i := 0 TO NUMBER_OF_SETS DO
+
+	THIS^.assertorContainer.resetAssertor();
+
+	THIS^.assertorContainer.assertor.assert.object.objectIsNotNull(objectsSetOne[i], message);
+	
+	stringArray[5] := assignTestName;
+	stringArray[6] := '->';
+	stringArray[7] := 'aseertion shall be ';
+	stringArray[8] := BOOL_TO_STRING(expectedAssertValue);
+	stringArray[9] := '#END';
+		
+	message := ArrayOfMessageStringToString(stringArray);
+	
+	IF (expectedAssertValue) THEN
+		THIS^.AssertTrue(THIS^.assertorContainer.wasAssertionWrong, message);
+	ELSE
+		THIS^.AssertFalse(THIS^.assertorContainer.wasAssertionWrong, message);
+	END_IF	
+		
+END_FOR
+	
+TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testObjectIsNotNullWithReal" Id="{c993036d-f0e2-4c73-b970-3c4cad2e2515}">
+      <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+{warning 'header is generated please add your documentation'}
+METHOD testObjectIsNotNullWithReal
+VAR_INPUT
+	objectsSetOne :REFERENCE TO ARRAY[0..NUMBER_OF_SETS] OF RealValue;
+		
+	expectedAssertValue :BOOL;
+	assignTestName :STRING;
+END_VAR
+VAR
+	testString: ARRAY[0..9] OF STRING := [
+		'TEST',
+		'--',
+		'ObjectsAssertion',
+		'--',
+		assignTestName,
+		'#END'
+	];
+	testName :STRING := ArrayOfMessageStringToString(testString);
+	message :Tc2_System.T_MaxString;
+	i :INT;
+	stringArray :ARRAY [0..9] OF STRING;		
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[TEST(testName);
+
+FOR i := 0 TO NUMBER_OF_SETS DO
+
+	THIS^.assertorContainer.resetAssertor();
+
+	THIS^.assertorContainer.assertor.assert.object.objectIsNotNull(objectsSetOne[i], message);
+	
+	stringArray[5] := assignTestName;
+	stringArray[6] := '->';
+	stringArray[7] := 'aseertion shall be ';
+	stringArray[8] := BOOL_TO_STRING(expectedAssertValue);
+	stringArray[9] := '#END';
+		
+	message := ArrayOfMessageStringToString(stringArray);
+	
+	IF (expectedAssertValue) THEN
+		THIS^.AssertTrue(THIS^.assertorContainer.wasAssertionWrong, message);
+	ELSE
+		THIS^.AssertFalse(THIS^.assertorContainer.wasAssertionWrong, message);
+	END_IF	
+		
+END_FOR
+	
+TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testObjectIsNullWithInt" Id="{4e56316d-c6fe-4988-97c4-9cc153caa979}">
+      <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+{warning 'header is generated please add your documentation'}
+METHOD testObjectIsNullWithInt
+VAR_INPUT
+	objectsSetOne :REFERENCE TO ARRAY[0..NUMBER_OF_SETS] OF IntValue;
+		
+	expectedAssertValue :BOOL;
+	assignTestName :STRING;
+END_VAR
+VAR
+	testString: ARRAY[0..9] OF STRING := [
+		'TEST',
+		'--',
+		'ObjectsAssertion',
+		'--',
+		assignTestName,
+		'#END'
+	];
+	testName :STRING := ArrayOfMessageStringToString(testString);
+	message :Tc2_System.T_MaxString;
+	i :INT;
+	stringArray :ARRAY [0..9] OF STRING;		
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[TEST(testName);
+
+FOR i := 0 TO NUMBER_OF_SETS DO
+
+	THIS^.assertorContainer.resetAssertor();
+
+	THIS^.assertorContainer.assertor.assert.object.objectIsNull(objectsSetOne[i], message);
+	
+	stringArray[5] := assignTestName;
+	stringArray[6] := '->';
+	stringArray[7] := 'aseertion shall be ';
+	stringArray[8] := BOOL_TO_STRING(expectedAssertValue);
+	stringArray[9] := '#END';
+		
+	message := ArrayOfMessageStringToString(stringArray);
+	
+	IF (expectedAssertValue) THEN
+		THIS^.AssertTrue(THIS^.assertorContainer.wasAssertionWrong, message);
+	ELSE
+		THIS^.AssertFalse(THIS^.assertorContainer.wasAssertionWrong, message);
+	END_IF	
+		
+END_FOR
+	
+TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testObjectIsNullWithNull" Id="{7c6dde56-e047-4522-8242-b089e680a671}">
+      <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+{warning 'header is generated please add your documentation'}
+METHOD testObjectIsNullWithNull
+VAR_INPUT
+	objectsSetOne :REFERENCE TO ARRAY[0..NUMBER_OF_SETS] OF CNM_AbstractObject.IObject;
+		
+	expectedAssertValue :BOOL;
+	assignTestName :STRING;
+END_VAR
+VAR
+	testString: ARRAY[0..9] OF STRING := [
+		'TEST',
+		'--',
+		'ObjectsAssertion',
+		'--',
+		assignTestName,
+		'#END'
+	];
+	testName :STRING := ArrayOfMessageStringToString(testString);
+	message :Tc2_System.T_MaxString;
+	i :INT;
+	stringArray :ARRAY [0..9] OF STRING;		
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[TEST(testName);
+
+FOR i := 0 TO NUMBER_OF_SETS DO
+
+	THIS^.assertorContainer.resetAssertor();
+
+	THIS^.assertorContainer.assertor.assert.object.objectIsNull(objectsSetOne[i], message);
+	
+	stringArray[5] := assignTestName;
+	stringArray[6] := '->';
+	stringArray[7] := 'aseertion shall be ';
+	stringArray[8] := BOOL_TO_STRING(expectedAssertValue);
+	stringArray[9] := '#END';
+		
+	message := ArrayOfMessageStringToString(stringArray);
+	
+	IF (expectedAssertValue) THEN
+		THIS^.AssertTrue(THIS^.assertorContainer.wasAssertionWrong, message);
+	ELSE
+		THIS^.AssertFalse(THIS^.assertorContainer.wasAssertionWrong, message);
+	END_IF	
+		
+END_FOR
+	
+TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testObjectIsNullWithReal" Id="{d9e10f93-6847-4966-9a00-f649b8286804}">
+      <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+{warning 'header is generated please add your documentation'}
+METHOD testObjectIsNullWithReal
+VAR_INPUT
+	objectsSetOne :REFERENCE TO ARRAY[0..NUMBER_OF_SETS] OF RealValue;
+		
+	expectedAssertValue :BOOL;
+	assignTestName :STRING;
+END_VAR
+VAR
+	testString: ARRAY[0..9] OF STRING := [
+		'TEST',
+		'--',
+		'ObjectsAssertion',
+		'--',
+		assignTestName,
+		'#END'
+	];
+	testName :STRING := ArrayOfMessageStringToString(testString);
+	message :Tc2_System.T_MaxString;
+	i :INT;
+	stringArray :ARRAY [0..9] OF STRING;		
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[TEST(testName);
+
+FOR i := 0 TO NUMBER_OF_SETS DO
+
+	THIS^.assertorContainer.resetAssertor();
+
+	THIS^.assertorContainer.assertor.assert.object.objectIsNull(objectsSetOne[i], message);
+	
+	stringArray[5] := assignTestName;
+	stringArray[6] := '->';
+	stringArray[7] := 'aseertion shall be ';
+	stringArray[8] := BOOL_TO_STRING(expectedAssertValue);
+	stringArray[9] := '#END';
+		
+	message := ArrayOfMessageStringToString(stringArray);
+	
+	IF (expectedAssertValue) THEN
+		THIS^.AssertTrue(THIS^.assertorContainer.wasAssertionWrong, message);
+	ELSE
+		THIS^.AssertFalse(THIS^.assertorContainer.wasAssertionWrong, message);
+	END_IF	
+		
+END_FOR
+	
+TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testPreceedesInOrderToIntInt" Id="{88dd16ae-6919-4b01-8081-7244399c15ab}">
+      <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+{warning 'header is generated please add your documentation'}
+METHOD testPreceedesInOrderToIntInt
+VAR_INPUT
+	objectsSetOne :REFERENCE TO ARRAY[0..NUMBER_OF_SETS] OF IntValue;
+	objectsSetTwo :REFERENCE TO ARRAY[0..NUMBER_OF_SETS] OF IntValue;
+		
+	expectedAssertValue :BOOL;
+	assignTestName :STRING;
+END_VAR
+VAR
+	testString: ARRAY[0..9] OF STRING := [
+		'TEST',
+		'--',
+		'ObjectsAssertion',
+		'--',
+		assignTestName,
+		'#END'
+	];
+	testName :STRING := ArrayOfMessageStringToString(testString);
+	message :Tc2_System.T_MaxString;
+	i :INT;
+	stringArray :ARRAY [0..9] OF STRING;		
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[TEST(testName);
+
+FOR i := 0 TO NUMBER_OF_SETS DO
+
+	THIS^.assertorContainer.resetAssertor();
+
+	THIS^.assertorContainer.assertor.assert.object.precedesInOrderTo(objectsSetOne[i], objectsSetTwo[i], message);
+	
+	stringArray[5] := assignTestName;
+	stringArray[6] := '->';
+	stringArray[7] := 'aseertion shall be ';
+	stringArray[8] := BOOL_TO_STRING(expectedAssertValue);
+	stringArray[9] := '#END';
+		
+	message := ArrayOfMessageStringToString(stringArray);
+	
+	IF (expectedAssertValue) THEN
+		THIS^.AssertTrue(THIS^.assertorContainer.wasAssertionWrong, message);
+	ELSE
+		THIS^.AssertFalse(THIS^.assertorContainer.wasAssertionWrong, message);
+	END_IF	
+		
+END_FOR
+	
+TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testPreceedesInOrderToIntNull" Id="{5f1414db-7ba8-4062-9d4e-1684b8e8cd26}">
+      <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+{warning 'header is generated please add your documentation'}
+METHOD testPreceedesInOrderToIntNull
+VAR_INPUT
+	objectsSetOne :REFERENCE TO ARRAY[0..NUMBER_OF_SETS] OF IntValue;
+	objectsSetTwo :ARRAY[0..NUMBER_OF_SETS] OF CNM_AbstractObject.IObject;
+		
+	expectedAssertValue :BOOL;
+	assignTestName :STRING;
+END_VAR
+VAR
+	testString: ARRAY[0..9] OF STRING := [
+		'TEST',
+		'--',
+		'ObjectsAssertion',
+		'--',
+		assignTestName,
+		'#END'
+	];
+	testName :STRING := ArrayOfMessageStringToString(testString);
+	message :Tc2_System.T_MaxString;
+	i :INT;
+	stringArray :ARRAY [0..9] OF STRING;		
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[TEST(testName);
+
+FOR i := 0 TO NUMBER_OF_SETS DO
+
+	THIS^.assertorContainer.resetAssertor();
+
+	THIS^.assertorContainer.assertor.assert.object.precedesInOrderTo(objectsSetOne[i], objectsSetTwo[i], message);
+	
+	stringArray[5] := assignTestName;
+	stringArray[6] := '->';
+	stringArray[7] := 'aseertion shall be ';
+	stringArray[8] := BOOL_TO_STRING(expectedAssertValue);
+	stringArray[9] := '#END';
+		
+	message := ArrayOfMessageStringToString(stringArray);
+	
+	IF (expectedAssertValue) THEN
+		THIS^.AssertTrue(THIS^.assertorContainer.wasAssertionWrong, message);
+	ELSE
+		THIS^.AssertFalse(THIS^.assertorContainer.wasAssertionWrong, message);
+	END_IF	
+		
+END_FOR
+	
+TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testPreceedesInOrderToIntReal" Id="{a01736ba-a74a-4ff4-8312-44652c8e84cb}">
+      <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+{warning 'header is generated please add your documentation'}
+METHOD testPreceedesInOrderToIntReal
+VAR_INPUT
+	objectsSetOne :REFERENCE TO ARRAY[0..NUMBER_OF_SETS] OF IntValue;	
+	objectsSetTwo :REFERENCE TO ARRAY[0..NUMBER_OF_SETS] OF RealValue;	
+	expectedAssertValue :BOOL;
+	assignTestName :STRING;
+END_VAR
+VAR
+	testString: ARRAY[0..9] OF STRING := [
+		'TEST',
+		'--',
+		'ObjectsAssertion',
+		'--',
+		assignTestName,
+		'#END'
+	];
+	testName :STRING := ArrayOfMessageStringToString(testString);
+	message :Tc2_System.T_MaxString;
+	i :INT;
+	stringArray :ARRAY [0..9] OF STRING;		
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[TEST(testName);
+
+FOR i := 0 TO NUMBER_OF_SETS DO
+
+	THIS^.assertorContainer.resetAssertor();
+
+	THIS^.assertorContainer.assertor.assert.object.precedesInOrderTo(objectsSetOne[i], objectsSetTwo[i], message);
+	
+	stringArray[5] := assignTestName;
+	stringArray[6] := '->';
+	stringArray[7] := 'aseertion shall be ';
+	stringArray[8] := BOOL_TO_STRING(expectedAssertValue);
+	stringArray[9] := '#END';
+		
+	message := ArrayOfMessageStringToString(stringArray);
+	
+	IF (expectedAssertValue) THEN
+		THIS^.AssertTrue(THIS^.assertorContainer.wasAssertionWrong, message);
+	ELSE
+		THIS^.AssertFalse(THIS^.assertorContainer.wasAssertionWrong, message);
+	END_IF
+		
+		
+END_FOR
+	
+TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testPreceedesInOrderToNullInt" Id="{0a201173-3c28-4a3a-91b7-261362927cc0}">
+      <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+{warning 'header is generated please add your documentation'}
+METHOD testPreceedesInOrderToNullInt
+VAR_INPUT
+	objectsSetOne :ARRAY[0..NUMBER_OF_SETS] OF CNM_AbstractObject.IObject;
+	objectsSetTwo :REFERENCE TO ARRAY[0..NUMBER_OF_SETS] OF IntValue;	
+	expectedAssertValue :BOOL;
+	assignTestName :STRING;
+END_VAR
+VAR
+	testString: ARRAY[0..9] OF STRING := [
+		'TEST',
+		'--',
+		'ObjectsAssertion',
+		'--',
+		assignTestName,
+		'#END'
+	];
+	testName :STRING := ArrayOfMessageStringToString(testString);
+	message :Tc2_System.T_MaxString;
+	i :INT;
+	stringArray :ARRAY [0..9] OF STRING;		
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[TEST(testName);
+
+FOR i := 0 TO NUMBER_OF_SETS DO
+
+	THIS^.assertorContainer.resetAssertor();
+
+	THIS^.assertorContainer.assertor.assert.object.precedesInOrderTo(objectsSetOne[i], objectsSetTwo[i], message);
+	
+	stringArray[5] := assignTestName;
+	stringArray[6] := '->';
+	stringArray[7] := 'aseertion shall be ';
+	stringArray[8] := BOOL_TO_STRING(expectedAssertValue);
+	stringArray[9] := '#END';
+		
+	message := ArrayOfMessageStringToString(stringArray);
+	
+	IF (expectedAssertValue) THEN
+		THIS^.AssertTrue(THIS^.assertorContainer.wasAssertionWrong, message);
+	ELSE
+		THIS^.AssertFalse(THIS^.assertorContainer.wasAssertionWrong, message);
+	END_IF	
+		
+END_FOR
+	
+TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testPreceedesInOrderToNullNull" Id="{6b189c20-6b60-4f0b-b037-2d93b6cfdcb2}">
+      <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+{warning 'header is generated please add your documentation'}
+METHOD testPreceedesInOrderToNullNull
+VAR_INPUT
+	objectsSetOne :ARRAY[0..NUMBER_OF_SETS] OF CNM_AbstractObject.IObject;
+	objectsSetTwo :ARRAY[0..NUMBER_OF_SETS] OF CNM_AbstractObject.IObject;	
+	expectedAssertValue :BOOL;
+	assignTestName :STRING;
+END_VAR
+VAR
+	testString: ARRAY[0..9] OF STRING := [
+		'TEST',
+		'--',
+		'ObjectsAssertion',
+		'--',
+		assignTestName,
+		'#END'
+	];
+	testName :STRING := ArrayOfMessageStringToString(testString);
+	message :Tc2_System.T_MaxString;
+	i :INT;
+	stringArray :ARRAY [0..9] OF STRING;		
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[TEST(testName);
+
+FOR i := 0 TO NUMBER_OF_SETS DO
+
+	THIS^.assertorContainer.resetAssertor();
+
+	THIS^.assertorContainer.assertor.assert.object.precedesInOrderTo(objectsSetOne[i], objectsSetTwo[i], message);
+	
+	stringArray[0] := 'NULL';
+	stringArray[1] := ', ';
+	stringArray[2] := 'NULL';
+	stringArray[3] := '->';
+	stringArray[4] := assignTestName;
+	stringArray[5] := '->';
+	stringArray[6] := 'aseertion shall be ';
+	stringArray[7] := BOOL_TO_STRING(expectedAssertValue);
+	stringArray[8] := '#END';
+		
+	message := ArrayOfMessageStringToString(stringArray);
+	
+	IF (expectedAssertValue) THEN
+		THIS^.AssertTrue(THIS^.assertorContainer.wasAssertionWrong, message);
+	ELSE
+		THIS^.AssertFalse(THIS^.assertorContainer.wasAssertionWrong, message);
+	END_IF
+		
+		
+END_FOR
+	
+TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testPreceedesInOrderToNullReal" Id="{63f9db3e-2f80-4703-924d-2e2b3416de69}">
+      <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+{warning 'header is generated please add your documentation'}
+METHOD testPreceedesInOrderToNullReal
+VAR_INPUT
+	objectsSetOne :ARRAY[0..NUMBER_OF_SETS] OF CNM_AbstractObject.IObject;
+	objectsSetTwo :REFERENCE TO ARRAY[0..NUMBER_OF_SETS] OF RealValue;	
+	expectedAssertValue :BOOL;
+	assignTestName :STRING;
+END_VAR
+VAR
+	testString: ARRAY[0..9] OF STRING := [
+		'TEST',
+		'--',
+		'ObjectsAssertion',
+		'--',
+		assignTestName,
+		'#END'
+	];
+	testName :STRING := ArrayOfMessageStringToString(testString);
+	message :Tc2_System.T_MaxString;
+	i :INT;
+	stringArray :ARRAY [0..9] OF STRING;		
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[TEST(testName);
+
+FOR i := 0 TO NUMBER_OF_SETS DO
+
+	THIS^.assertorContainer.resetAssertor();
+
+	THIS^.assertorContainer.assertor.assert.object.precedesInOrderTo(objectsSetOne[i], objectsSetTwo[i], message);
+	
+	stringArray[5] := assignTestName;
+	stringArray[6] := '->';
+	stringArray[7] := 'aseertion shall be ';
+	stringArray[8] := BOOL_TO_STRING(expectedAssertValue);
+	stringArray[9] := '#END';
+		
+	message := ArrayOfMessageStringToString(stringArray);
+	
+	IF (expectedAssertValue) THEN
+		THIS^.AssertTrue(THIS^.assertorContainer.wasAssertionWrong, message);
+	ELSE
+		THIS^.AssertFalse(THIS^.assertorContainer.wasAssertionWrong, message);
+	END_IF
+		
+		
+END_FOR
+	
+TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testPreceedesInOrderToRealInt" Id="{6116e03e-7e99-41e6-b098-bab3d8d3a70a}">
+      <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+{warning 'header is generated please add your documentation'}
+METHOD testPreceedesInOrderToRealInt
+VAR_INPUT
+	objectsSetOne :REFERENCE TO ARRAY[0..NUMBER_OF_SETS] OF RealValue;	
+	objectsSetTwo :REFERENCE TO ARRAY[0..NUMBER_OF_SETS] OF IntValue;	
+	expectedAssertValue :BOOL;
+	assignTestName :STRING;
+END_VAR
+VAR
+	testString: ARRAY[0..9] OF STRING := [
+		'TEST',
+		'--',
+		'ObjectsAssertion',
+		'--',
+		assignTestName,
+		'#END'
+	];
+	testName :STRING := ArrayOfMessageStringToString(testString);
+	message :Tc2_System.T_MaxString;
+	i :INT;
+	stringArray :ARRAY [0..9] OF STRING;		
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[TEST(testName);
+
+FOR i := 0 TO NUMBER_OF_SETS DO
+
+	THIS^.assertorContainer.resetAssertor();
+
+	THIS^.assertorContainer.assertor.assert.object.precedesInOrderTo(objectsSetOne[i], objectsSetTwo[i], message);
+	
+	stringArray[5] := assignTestName;
+	stringArray[6] := '->';
+	stringArray[7] := 'aseertion shall be ';
+	stringArray[8] := BOOL_TO_STRING(expectedAssertValue);
+	stringArray[9] := '#END';
+		
+	message := ArrayOfMessageStringToString(stringArray);
+	
+	IF (expectedAssertValue) THEN
+		THIS^.AssertTrue(THIS^.assertorContainer.wasAssertionWrong, message);
+	ELSE
+		THIS^.AssertFalse(THIS^.assertorContainer.wasAssertionWrong, message);
+	END_IF
+				
+END_FOR
+	
+TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testPreceedesInOrderToRealNull" Id="{6eb1847a-03cf-4b4e-b960-a39547cbbacc}">
+      <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+{warning 'header is generated please add your documentation'}
+METHOD testPreceedesInOrderToRealNull
+VAR_INPUT
+	objectsSetOne :REFERENCE TO ARRAY[0..NUMBER_OF_SETS] OF RealValue;	
+	objectsSetTwo :ARRAY[0..NUMBER_OF_SETS] OF CNM_AbstractObject.IObject;
+	
+	expectedAssertValue :BOOL;
+	assignTestName :STRING;
+END_VAR
+VAR
+	testString: ARRAY[0..9] OF STRING := [
+		'TEST',
+		'--',
+		'ObjectsAssertion',
+		'--',
+		assignTestName,
+		'#END'
+	];
+	testName :STRING := ArrayOfMessageStringToString(testString);
+	message :Tc2_System.T_MaxString;
+	i :INT;
+	stringArray :ARRAY [0..9] OF STRING;		
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[TEST(testName);
+
+FOR i := 0 TO NUMBER_OF_SETS DO
+
+	THIS^.assertorContainer.resetAssertor();
+
+	THIS^.assertorContainer.assertor.assert.object.precedesInOrderTo(objectsSetOne[i], objectsSetTwo[i], message);
+	
+	stringArray[5] := assignTestName;
+	stringArray[6] := '->';
+	stringArray[7] := 'aseertion shall be ';
+	stringArray[8] := BOOL_TO_STRING(expectedAssertValue);
+	stringArray[9] := '#END';
+		
+	message := ArrayOfMessageStringToString(stringArray);
+	
+	IF (expectedAssertValue) THEN
+		THIS^.AssertTrue(THIS^.assertorContainer.wasAssertionWrong, message);
+	ELSE
+		THIS^.AssertFalse(THIS^.assertorContainer.wasAssertionWrong, message);
+	END_IF
+		
+		
+END_FOR
+	
+TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testPreceedesInOrderToRealReal" Id="{d3a0f7da-750e-4897-b961-b55944a715b6}">
+      <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+{warning 'header is generated please add your documentation'}
+METHOD testPreceedesInOrderToRealReal
+VAR_INPUT
+	objectsSetOne :REFERENCE TO ARRAY[0..NUMBER_OF_SETS] OF RealValue;	
+	objectsSetTwo :REFERENCE TO ARRAY[0..NUMBER_OF_SETS] OF RealValue;	
+	expectedAssertValue :BOOL;
+	assignTestName :STRING;
+END_VAR
+VAR
+	testString: ARRAY[0..9] OF STRING := [
+		'TEST',
+		'--',
+		'ObjectsAssertion',
+		'--',
+		assignTestName,
+		'#END'
+	];
+	testName :STRING := ArrayOfMessageStringToString(testString);
+	message :Tc2_System.T_MaxString;
+	i :INT;
+	stringArray :ARRAY [0..9] OF STRING;		
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[TEST(testName);
+
+FOR i := 0 TO NUMBER_OF_SETS DO
+
+	THIS^.assertorContainer.resetAssertor();
+
+	THIS^.assertorContainer.assertor.assert.object.precedesInOrderTo(objectsSetOne[i], objectsSetTwo[i], message);
+	
+	stringArray[5] := assignTestName;
+	stringArray[6] := '->';
+	stringArray[7] := 'aseertion shall be ';
+	stringArray[8] := BOOL_TO_STRING(expectedAssertValue);
+	stringArray[9] := '#END';
+		
+	message := ArrayOfMessageStringToString(stringArray);
+	
+	IF (expectedAssertValue) THEN
+		THIS^.AssertTrue(THIS^.assertorContainer.wasAssertionWrong, message);
+	ELSE
+		THIS^.AssertFalse(THIS^.assertorContainer.wasAssertionWrong, message);
+	END_IF
+		
+		
+END_FOR
+	
+TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <LineIds Name="ObjectAssertionsTests">
+      <LineId Id="1166" Count="5" />
+      <LineId Id="1173" Count="1" />
+      <LineId Id="1176" Count="1" />
+      <LineId Id="1179" Count="1" />
+      <LineId Id="1182" Count="3" />
+      <LineId Id="1187" Count="1" />
+      <LineId Id="1190" Count="1" />
+      <LineId Id="1193" Count="1" />
+      <LineId Id="1196" Count="3" />
+      <LineId Id="1201" Count="1" />
+      <LineId Id="1204" Count="1" />
+      <LineId Id="1207" Count="1" />
+      <LineId Id="1210" Count="3" />
+      <LineId Id="1215" Count="1" />
+      <LineId Id="1218" Count="1" />
+      <LineId Id="1221" Count="1" />
+      <LineId Id="1224" Count="3" />
+      <LineId Id="1229" Count="1" />
+      <LineId Id="1232" Count="1" />
+      <LineId Id="1235" Count="1" />
+      <LineId Id="1238" Count="3" />
+      <LineId Id="1252" Count="3" />
+      <LineId Id="80" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="ObjectAssertionsTests.testIsAfterInOrderToIntInt">
+      <LineId Id="172" Count="0" />
+      <LineId Id="223" Count="0" />
+      <LineId Id="222" Count="0" />
+      <LineId Id="215" Count="0" />
+      <LineId Id="214" Count="0" />
+      <LineId Id="176" Count="0" />
+      <LineId Id="207" Count="0" />
+      <LineId Id="235" Count="0" />
+      <LineId Id="276" Count="0" />
+      <LineId Id="278" Count="0" />
+      <LineId Id="245" Count="2" />
+      <LineId Id="241" Count="0" />
+      <LineId Id="208" Count="0" />
+      <LineId Id="180" Count="0" />
+      <LineId Id="270" Count="0" />
+      <LineId Id="188" Count="0" />
+      <LineId Id="271" Count="0" />
+      <LineId Id="273" Count="1" />
+      <LineId Id="272" Count="0" />
+      <LineId Id="232" Count="0" />
+      <LineId Id="231" Count="0" />
+      <LineId Id="6" Count="0" />
+      <LineId Id="229" Count="0" />
+    </LineIds>
+    <LineIds Name="ObjectAssertionsTests.testIsAfterInOrderToIntNull">
+      <LineId Id="172" Count="0" />
+      <LineId Id="223" Count="0" />
+      <LineId Id="222" Count="0" />
+      <LineId Id="215" Count="0" />
+      <LineId Id="214" Count="0" />
+      <LineId Id="176" Count="0" />
+      <LineId Id="207" Count="0" />
+      <LineId Id="235" Count="0" />
+      <LineId Id="276" Count="0" />
+      <LineId Id="278" Count="0" />
+      <LineId Id="245" Count="2" />
+      <LineId Id="241" Count="0" />
+      <LineId Id="208" Count="0" />
+      <LineId Id="180" Count="0" />
+      <LineId Id="270" Count="0" />
+      <LineId Id="188" Count="0" />
+      <LineId Id="271" Count="0" />
+      <LineId Id="273" Count="1" />
+      <LineId Id="272" Count="0" />
+      <LineId Id="232" Count="0" />
+      <LineId Id="231" Count="0" />
+      <LineId Id="6" Count="0" />
+      <LineId Id="229" Count="0" />
+    </LineIds>
+    <LineIds Name="ObjectAssertionsTests.testIsAfterInOrderToIntReal">
+      <LineId Id="172" Count="0" />
+      <LineId Id="223" Count="0" />
+      <LineId Id="222" Count="0" />
+      <LineId Id="215" Count="0" />
+      <LineId Id="214" Count="0" />
+      <LineId Id="176" Count="0" />
+      <LineId Id="207" Count="0" />
+      <LineId Id="235" Count="0" />
+      <LineId Id="276" Count="0" />
+      <LineId Id="278" Count="0" />
+      <LineId Id="245" Count="2" />
+      <LineId Id="241" Count="0" />
+      <LineId Id="208" Count="0" />
+      <LineId Id="180" Count="0" />
+      <LineId Id="270" Count="0" />
+      <LineId Id="188" Count="0" />
+      <LineId Id="271" Count="0" />
+      <LineId Id="273" Count="1" />
+      <LineId Id="230" Count="0" />
+      <LineId Id="272" Count="0" />
+      <LineId Id="232" Count="0" />
+      <LineId Id="231" Count="0" />
+      <LineId Id="6" Count="0" />
+      <LineId Id="229" Count="0" />
+    </LineIds>
+    <LineIds Name="ObjectAssertionsTests.testIsAfterInOrderToNullInt">
+      <LineId Id="172" Count="0" />
+      <LineId Id="223" Count="0" />
+      <LineId Id="222" Count="0" />
+      <LineId Id="215" Count="0" />
+      <LineId Id="214" Count="0" />
+      <LineId Id="176" Count="0" />
+      <LineId Id="207" Count="0" />
+      <LineId Id="235" Count="0" />
+      <LineId Id="276" Count="0" />
+      <LineId Id="278" Count="0" />
+      <LineId Id="245" Count="2" />
+      <LineId Id="241" Count="0" />
+      <LineId Id="208" Count="0" />
+      <LineId Id="180" Count="0" />
+      <LineId Id="270" Count="0" />
+      <LineId Id="188" Count="0" />
+      <LineId Id="271" Count="0" />
+      <LineId Id="273" Count="1" />
+      <LineId Id="272" Count="0" />
+      <LineId Id="232" Count="0" />
+      <LineId Id="231" Count="0" />
+      <LineId Id="6" Count="0" />
+      <LineId Id="229" Count="0" />
+    </LineIds>
+    <LineIds Name="ObjectAssertionsTests.testIsAfterInOrderToNullNull">
+      <LineId Id="172" Count="0" />
+      <LineId Id="223" Count="0" />
+      <LineId Id="222" Count="0" />
+      <LineId Id="215" Count="0" />
+      <LineId Id="214" Count="0" />
+      <LineId Id="176" Count="0" />
+      <LineId Id="207" Count="0" />
+      <LineId Id="235" Count="0" />
+      <LineId Id="240" Count="0" />
+      <LineId Id="242" Count="2" />
+      <LineId Id="276" Count="0" />
+      <LineId Id="278" Count="0" />
+      <LineId Id="245" Count="2" />
+      <LineId Id="241" Count="0" />
+      <LineId Id="208" Count="0" />
+      <LineId Id="180" Count="0" />
+      <LineId Id="270" Count="0" />
+      <LineId Id="188" Count="0" />
+      <LineId Id="271" Count="0" />
+      <LineId Id="273" Count="1" />
+      <LineId Id="230" Count="0" />
+      <LineId Id="272" Count="0" />
+      <LineId Id="232" Count="0" />
+      <LineId Id="231" Count="0" />
+      <LineId Id="6" Count="0" />
+      <LineId Id="229" Count="0" />
+    </LineIds>
+    <LineIds Name="ObjectAssertionsTests.testIsAfterInOrderToNullReal">
+      <LineId Id="172" Count="0" />
+      <LineId Id="223" Count="0" />
+      <LineId Id="222" Count="0" />
+      <LineId Id="215" Count="0" />
+      <LineId Id="214" Count="0" />
+      <LineId Id="176" Count="0" />
+      <LineId Id="207" Count="0" />
+      <LineId Id="235" Count="0" />
+      <LineId Id="276" Count="0" />
+      <LineId Id="278" Count="0" />
+      <LineId Id="245" Count="2" />
+      <LineId Id="241" Count="0" />
+      <LineId Id="208" Count="0" />
+      <LineId Id="180" Count="0" />
+      <LineId Id="270" Count="0" />
+      <LineId Id="188" Count="0" />
+      <LineId Id="271" Count="0" />
+      <LineId Id="273" Count="1" />
+      <LineId Id="230" Count="0" />
+      <LineId Id="272" Count="0" />
+      <LineId Id="232" Count="0" />
+      <LineId Id="231" Count="0" />
+      <LineId Id="6" Count="0" />
+      <LineId Id="229" Count="0" />
+    </LineIds>
+    <LineIds Name="ObjectAssertionsTests.testIsAfterInOrderToRealInt">
+      <LineId Id="172" Count="0" />
+      <LineId Id="223" Count="0" />
+      <LineId Id="222" Count="0" />
+      <LineId Id="215" Count="0" />
+      <LineId Id="214" Count="0" />
+      <LineId Id="176" Count="0" />
+      <LineId Id="207" Count="0" />
+      <LineId Id="235" Count="0" />
+      <LineId Id="276" Count="0" />
+      <LineId Id="278" Count="0" />
+      <LineId Id="245" Count="2" />
+      <LineId Id="241" Count="0" />
+      <LineId Id="208" Count="0" />
+      <LineId Id="180" Count="0" />
+      <LineId Id="270" Count="0" />
+      <LineId Id="188" Count="0" />
+      <LineId Id="271" Count="0" />
+      <LineId Id="273" Count="1" />
+      <LineId Id="230" Count="0" />
+      <LineId Id="232" Count="0" />
+      <LineId Id="231" Count="0" />
+      <LineId Id="6" Count="0" />
+      <LineId Id="229" Count="0" />
+    </LineIds>
+    <LineIds Name="ObjectAssertionsTests.testIsAfterInOrderToRealNull">
+      <LineId Id="172" Count="0" />
+      <LineId Id="223" Count="0" />
+      <LineId Id="222" Count="0" />
+      <LineId Id="215" Count="0" />
+      <LineId Id="214" Count="0" />
+      <LineId Id="176" Count="0" />
+      <LineId Id="207" Count="0" />
+      <LineId Id="235" Count="0" />
+      <LineId Id="276" Count="0" />
+      <LineId Id="278" Count="0" />
+      <LineId Id="245" Count="2" />
+      <LineId Id="241" Count="0" />
+      <LineId Id="208" Count="0" />
+      <LineId Id="180" Count="0" />
+      <LineId Id="270" Count="0" />
+      <LineId Id="188" Count="0" />
+      <LineId Id="271" Count="0" />
+      <LineId Id="273" Count="1" />
+      <LineId Id="230" Count="0" />
+      <LineId Id="272" Count="0" />
+      <LineId Id="232" Count="0" />
+      <LineId Id="231" Count="0" />
+      <LineId Id="6" Count="0" />
+      <LineId Id="229" Count="0" />
+    </LineIds>
+    <LineIds Name="ObjectAssertionsTests.testIsAfterInOrderToRealReal">
+      <LineId Id="172" Count="0" />
+      <LineId Id="223" Count="0" />
+      <LineId Id="222" Count="0" />
+      <LineId Id="215" Count="0" />
+      <LineId Id="214" Count="0" />
+      <LineId Id="176" Count="0" />
+      <LineId Id="207" Count="0" />
+      <LineId Id="235" Count="0" />
+      <LineId Id="276" Count="0" />
+      <LineId Id="278" Count="0" />
+      <LineId Id="245" Count="2" />
+      <LineId Id="241" Count="0" />
+      <LineId Id="208" Count="0" />
+      <LineId Id="180" Count="0" />
+      <LineId Id="270" Count="0" />
+      <LineId Id="188" Count="0" />
+      <LineId Id="271" Count="0" />
+      <LineId Id="273" Count="1" />
+      <LineId Id="230" Count="0" />
+      <LineId Id="272" Count="0" />
+      <LineId Id="232" Count="0" />
+      <LineId Id="231" Count="0" />
+      <LineId Id="6" Count="0" />
+      <LineId Id="229" Count="0" />
+    </LineIds>
+    <LineIds Name="ObjectAssertionsTests.testIsEqualInOrderToIntInt">
+      <LineId Id="172" Count="0" />
+      <LineId Id="223" Count="0" />
+      <LineId Id="222" Count="0" />
+      <LineId Id="215" Count="0" />
+      <LineId Id="214" Count="0" />
+      <LineId Id="176" Count="0" />
+      <LineId Id="207" Count="0" />
+      <LineId Id="235" Count="0" />
+      <LineId Id="276" Count="0" />
+      <LineId Id="278" Count="0" />
+      <LineId Id="245" Count="2" />
+      <LineId Id="241" Count="0" />
+      <LineId Id="208" Count="0" />
+      <LineId Id="180" Count="0" />
+      <LineId Id="270" Count="0" />
+      <LineId Id="188" Count="0" />
+      <LineId Id="271" Count="0" />
+      <LineId Id="273" Count="1" />
+      <LineId Id="272" Count="0" />
+      <LineId Id="232" Count="0" />
+      <LineId Id="231" Count="0" />
+      <LineId Id="6" Count="0" />
+      <LineId Id="229" Count="0" />
+    </LineIds>
+    <LineIds Name="ObjectAssertionsTests.testIsEqualInOrderToIntNull">
+      <LineId Id="172" Count="0" />
+      <LineId Id="223" Count="0" />
+      <LineId Id="222" Count="0" />
+      <LineId Id="215" Count="0" />
+      <LineId Id="214" Count="0" />
+      <LineId Id="176" Count="0" />
+      <LineId Id="207" Count="0" />
+      <LineId Id="235" Count="0" />
+      <LineId Id="276" Count="0" />
+      <LineId Id="278" Count="0" />
+      <LineId Id="245" Count="2" />
+      <LineId Id="241" Count="0" />
+      <LineId Id="208" Count="0" />
+      <LineId Id="180" Count="0" />
+      <LineId Id="270" Count="0" />
+      <LineId Id="188" Count="0" />
+      <LineId Id="271" Count="0" />
+      <LineId Id="273" Count="1" />
+      <LineId Id="272" Count="0" />
+      <LineId Id="232" Count="0" />
+      <LineId Id="231" Count="0" />
+      <LineId Id="6" Count="0" />
+      <LineId Id="229" Count="0" />
+    </LineIds>
+    <LineIds Name="ObjectAssertionsTests.testIsEqualInOrderToIntReal">
+      <LineId Id="172" Count="0" />
+      <LineId Id="223" Count="0" />
+      <LineId Id="222" Count="0" />
+      <LineId Id="215" Count="0" />
+      <LineId Id="214" Count="0" />
+      <LineId Id="176" Count="0" />
+      <LineId Id="207" Count="0" />
+      <LineId Id="235" Count="0" />
+      <LineId Id="276" Count="0" />
+      <LineId Id="278" Count="0" />
+      <LineId Id="245" Count="2" />
+      <LineId Id="241" Count="0" />
+      <LineId Id="208" Count="0" />
+      <LineId Id="180" Count="0" />
+      <LineId Id="270" Count="0" />
+      <LineId Id="188" Count="0" />
+      <LineId Id="271" Count="0" />
+      <LineId Id="273" Count="1" />
+      <LineId Id="230" Count="0" />
+      <LineId Id="272" Count="0" />
+      <LineId Id="232" Count="0" />
+      <LineId Id="231" Count="0" />
+      <LineId Id="6" Count="0" />
+      <LineId Id="229" Count="0" />
+    </LineIds>
+    <LineIds Name="ObjectAssertionsTests.testIsEqualInOrderToNullInt">
+      <LineId Id="172" Count="0" />
+      <LineId Id="223" Count="0" />
+      <LineId Id="222" Count="0" />
+      <LineId Id="215" Count="0" />
+      <LineId Id="214" Count="0" />
+      <LineId Id="176" Count="0" />
+      <LineId Id="207" Count="0" />
+      <LineId Id="235" Count="0" />
+      <LineId Id="276" Count="0" />
+      <LineId Id="278" Count="0" />
+      <LineId Id="245" Count="2" />
+      <LineId Id="241" Count="0" />
+      <LineId Id="208" Count="0" />
+      <LineId Id="180" Count="0" />
+      <LineId Id="270" Count="0" />
+      <LineId Id="188" Count="0" />
+      <LineId Id="271" Count="0" />
+      <LineId Id="273" Count="1" />
+      <LineId Id="272" Count="0" />
+      <LineId Id="232" Count="0" />
+      <LineId Id="231" Count="0" />
+      <LineId Id="6" Count="0" />
+      <LineId Id="229" Count="0" />
+    </LineIds>
+    <LineIds Name="ObjectAssertionsTests.testIsEqualInOrderToNullNull">
+      <LineId Id="172" Count="0" />
+      <LineId Id="223" Count="0" />
+      <LineId Id="222" Count="0" />
+      <LineId Id="215" Count="0" />
+      <LineId Id="214" Count="0" />
+      <LineId Id="176" Count="0" />
+      <LineId Id="207" Count="0" />
+      <LineId Id="235" Count="0" />
+      <LineId Id="240" Count="0" />
+      <LineId Id="242" Count="2" />
+      <LineId Id="276" Count="0" />
+      <LineId Id="278" Count="0" />
+      <LineId Id="245" Count="2" />
+      <LineId Id="241" Count="0" />
+      <LineId Id="208" Count="0" />
+      <LineId Id="180" Count="0" />
+      <LineId Id="270" Count="0" />
+      <LineId Id="188" Count="0" />
+      <LineId Id="271" Count="0" />
+      <LineId Id="273" Count="1" />
+      <LineId Id="230" Count="0" />
+      <LineId Id="272" Count="0" />
+      <LineId Id="232" Count="0" />
+      <LineId Id="231" Count="0" />
+      <LineId Id="6" Count="0" />
+      <LineId Id="229" Count="0" />
+    </LineIds>
+    <LineIds Name="ObjectAssertionsTests.testIsEqualInOrderToNullReal">
+      <LineId Id="172" Count="0" />
+      <LineId Id="223" Count="0" />
+      <LineId Id="222" Count="0" />
+      <LineId Id="215" Count="0" />
+      <LineId Id="214" Count="0" />
+      <LineId Id="176" Count="0" />
+      <LineId Id="207" Count="0" />
+      <LineId Id="235" Count="0" />
+      <LineId Id="276" Count="0" />
+      <LineId Id="278" Count="0" />
+      <LineId Id="245" Count="2" />
+      <LineId Id="241" Count="0" />
+      <LineId Id="208" Count="0" />
+      <LineId Id="180" Count="0" />
+      <LineId Id="270" Count="0" />
+      <LineId Id="188" Count="0" />
+      <LineId Id="271" Count="0" />
+      <LineId Id="273" Count="1" />
+      <LineId Id="230" Count="0" />
+      <LineId Id="272" Count="0" />
+      <LineId Id="232" Count="0" />
+      <LineId Id="231" Count="0" />
+      <LineId Id="6" Count="0" />
+      <LineId Id="229" Count="0" />
+    </LineIds>
+    <LineIds Name="ObjectAssertionsTests.testIsEqualInOrderToRealInt">
+      <LineId Id="172" Count="0" />
+      <LineId Id="223" Count="0" />
+      <LineId Id="222" Count="0" />
+      <LineId Id="215" Count="0" />
+      <LineId Id="214" Count="0" />
+      <LineId Id="176" Count="0" />
+      <LineId Id="207" Count="0" />
+      <LineId Id="235" Count="0" />
+      <LineId Id="276" Count="0" />
+      <LineId Id="278" Count="0" />
+      <LineId Id="245" Count="2" />
+      <LineId Id="241" Count="0" />
+      <LineId Id="208" Count="0" />
+      <LineId Id="180" Count="0" />
+      <LineId Id="270" Count="0" />
+      <LineId Id="188" Count="0" />
+      <LineId Id="271" Count="0" />
+      <LineId Id="273" Count="1" />
+      <LineId Id="230" Count="0" />
+      <LineId Id="232" Count="0" />
+      <LineId Id="231" Count="0" />
+      <LineId Id="6" Count="0" />
+      <LineId Id="229" Count="0" />
+    </LineIds>
+    <LineIds Name="ObjectAssertionsTests.testIsEqualInOrderToRealNull">
+      <LineId Id="172" Count="0" />
+      <LineId Id="223" Count="0" />
+      <LineId Id="222" Count="0" />
+      <LineId Id="215" Count="0" />
+      <LineId Id="214" Count="0" />
+      <LineId Id="176" Count="0" />
+      <LineId Id="207" Count="0" />
+      <LineId Id="235" Count="0" />
+      <LineId Id="276" Count="0" />
+      <LineId Id="278" Count="0" />
+      <LineId Id="245" Count="2" />
+      <LineId Id="241" Count="0" />
+      <LineId Id="208" Count="0" />
+      <LineId Id="180" Count="0" />
+      <LineId Id="270" Count="0" />
+      <LineId Id="188" Count="0" />
+      <LineId Id="271" Count="0" />
+      <LineId Id="273" Count="1" />
+      <LineId Id="230" Count="0" />
+      <LineId Id="272" Count="0" />
+      <LineId Id="232" Count="0" />
+      <LineId Id="231" Count="0" />
+      <LineId Id="6" Count="0" />
+      <LineId Id="229" Count="0" />
+    </LineIds>
+    <LineIds Name="ObjectAssertionsTests.testIsEqualInOrderToRealReal">
+      <LineId Id="172" Count="0" />
+      <LineId Id="223" Count="0" />
+      <LineId Id="222" Count="0" />
+      <LineId Id="215" Count="0" />
+      <LineId Id="214" Count="0" />
+      <LineId Id="176" Count="0" />
+      <LineId Id="207" Count="0" />
+      <LineId Id="235" Count="0" />
+      <LineId Id="276" Count="0" />
+      <LineId Id="278" Count="0" />
+      <LineId Id="245" Count="2" />
+      <LineId Id="241" Count="0" />
+      <LineId Id="208" Count="0" />
+      <LineId Id="180" Count="0" />
+      <LineId Id="270" Count="0" />
+      <LineId Id="188" Count="0" />
+      <LineId Id="271" Count="0" />
+      <LineId Id="273" Count="1" />
+      <LineId Id="230" Count="0" />
+      <LineId Id="272" Count="0" />
+      <LineId Id="232" Count="0" />
+      <LineId Id="231" Count="0" />
+      <LineId Id="6" Count="0" />
+      <LineId Id="229" Count="0" />
+    </LineIds>
+    <LineIds Name="ObjectAssertionsTests.testIsEqualToIntInt">
+      <LineId Id="172" Count="0" />
+      <LineId Id="223" Count="0" />
+      <LineId Id="222" Count="0" />
+      <LineId Id="215" Count="0" />
+      <LineId Id="214" Count="0" />
+      <LineId Id="176" Count="0" />
+      <LineId Id="207" Count="0" />
+      <LineId Id="235" Count="0" />
+      <LineId Id="276" Count="0" />
+      <LineId Id="278" Count="0" />
+      <LineId Id="245" Count="2" />
+      <LineId Id="241" Count="0" />
+      <LineId Id="208" Count="0" />
+      <LineId Id="180" Count="0" />
+      <LineId Id="270" Count="0" />
+      <LineId Id="188" Count="0" />
+      <LineId Id="271" Count="0" />
+      <LineId Id="273" Count="1" />
+      <LineId Id="272" Count="0" />
+      <LineId Id="232" Count="0" />
+      <LineId Id="231" Count="0" />
+      <LineId Id="6" Count="0" />
+      <LineId Id="229" Count="0" />
+    </LineIds>
+    <LineIds Name="ObjectAssertionsTests.testIsEqualToIntNull">
+      <LineId Id="172" Count="0" />
+      <LineId Id="223" Count="0" />
+      <LineId Id="222" Count="0" />
+      <LineId Id="215" Count="0" />
+      <LineId Id="214" Count="0" />
+      <LineId Id="176" Count="0" />
+      <LineId Id="207" Count="0" />
+      <LineId Id="235" Count="0" />
+      <LineId Id="276" Count="0" />
+      <LineId Id="278" Count="0" />
+      <LineId Id="245" Count="2" />
+      <LineId Id="241" Count="0" />
+      <LineId Id="208" Count="0" />
+      <LineId Id="180" Count="0" />
+      <LineId Id="270" Count="0" />
+      <LineId Id="188" Count="0" />
+      <LineId Id="271" Count="0" />
+      <LineId Id="273" Count="1" />
+      <LineId Id="272" Count="0" />
+      <LineId Id="232" Count="0" />
+      <LineId Id="231" Count="0" />
+      <LineId Id="6" Count="0" />
+      <LineId Id="229" Count="0" />
+    </LineIds>
+    <LineIds Name="ObjectAssertionsTests.testIsEqualToIntReal">
+      <LineId Id="172" Count="0" />
+      <LineId Id="223" Count="0" />
+      <LineId Id="222" Count="0" />
+      <LineId Id="215" Count="0" />
+      <LineId Id="214" Count="0" />
+      <LineId Id="176" Count="0" />
+      <LineId Id="207" Count="0" />
+      <LineId Id="235" Count="0" />
+      <LineId Id="276" Count="0" />
+      <LineId Id="278" Count="0" />
+      <LineId Id="245" Count="2" />
+      <LineId Id="241" Count="0" />
+      <LineId Id="208" Count="0" />
+      <LineId Id="180" Count="0" />
+      <LineId Id="270" Count="0" />
+      <LineId Id="188" Count="0" />
+      <LineId Id="271" Count="0" />
+      <LineId Id="273" Count="1" />
+      <LineId Id="230" Count="0" />
+      <LineId Id="272" Count="0" />
+      <LineId Id="232" Count="0" />
+      <LineId Id="231" Count="0" />
+      <LineId Id="6" Count="0" />
+      <LineId Id="229" Count="0" />
+    </LineIds>
+    <LineIds Name="ObjectAssertionsTests.testIsEqualToNullInt">
+      <LineId Id="172" Count="0" />
+      <LineId Id="223" Count="0" />
+      <LineId Id="222" Count="0" />
+      <LineId Id="215" Count="0" />
+      <LineId Id="214" Count="0" />
+      <LineId Id="176" Count="0" />
+      <LineId Id="207" Count="0" />
+      <LineId Id="235" Count="0" />
+      <LineId Id="276" Count="0" />
+      <LineId Id="278" Count="0" />
+      <LineId Id="245" Count="2" />
+      <LineId Id="241" Count="0" />
+      <LineId Id="208" Count="0" />
+      <LineId Id="180" Count="0" />
+      <LineId Id="270" Count="0" />
+      <LineId Id="188" Count="0" />
+      <LineId Id="271" Count="0" />
+      <LineId Id="273" Count="1" />
+      <LineId Id="272" Count="0" />
+      <LineId Id="232" Count="0" />
+      <LineId Id="231" Count="0" />
+      <LineId Id="6" Count="0" />
+      <LineId Id="229" Count="0" />
+    </LineIds>
+    <LineIds Name="ObjectAssertionsTests.testIsEqualToNullNull">
+      <LineId Id="172" Count="0" />
+      <LineId Id="223" Count="0" />
+      <LineId Id="222" Count="0" />
+      <LineId Id="215" Count="0" />
+      <LineId Id="214" Count="0" />
+      <LineId Id="176" Count="0" />
+      <LineId Id="207" Count="0" />
+      <LineId Id="235" Count="0" />
+      <LineId Id="240" Count="0" />
+      <LineId Id="242" Count="2" />
+      <LineId Id="276" Count="0" />
+      <LineId Id="278" Count="0" />
+      <LineId Id="245" Count="2" />
+      <LineId Id="241" Count="0" />
+      <LineId Id="208" Count="0" />
+      <LineId Id="180" Count="0" />
+      <LineId Id="270" Count="0" />
+      <LineId Id="188" Count="0" />
+      <LineId Id="271" Count="0" />
+      <LineId Id="273" Count="1" />
+      <LineId Id="230" Count="0" />
+      <LineId Id="272" Count="0" />
+      <LineId Id="232" Count="0" />
+      <LineId Id="231" Count="0" />
+      <LineId Id="6" Count="0" />
+      <LineId Id="229" Count="0" />
+    </LineIds>
+    <LineIds Name="ObjectAssertionsTests.testIsEqualToNullReal">
+      <LineId Id="172" Count="0" />
+      <LineId Id="223" Count="0" />
+      <LineId Id="222" Count="0" />
+      <LineId Id="215" Count="0" />
+      <LineId Id="214" Count="0" />
+      <LineId Id="176" Count="0" />
+      <LineId Id="207" Count="0" />
+      <LineId Id="235" Count="0" />
+      <LineId Id="276" Count="0" />
+      <LineId Id="278" Count="0" />
+      <LineId Id="245" Count="2" />
+      <LineId Id="241" Count="0" />
+      <LineId Id="208" Count="0" />
+      <LineId Id="180" Count="0" />
+      <LineId Id="270" Count="0" />
+      <LineId Id="188" Count="0" />
+      <LineId Id="271" Count="0" />
+      <LineId Id="273" Count="1" />
+      <LineId Id="230" Count="0" />
+      <LineId Id="272" Count="0" />
+      <LineId Id="232" Count="0" />
+      <LineId Id="231" Count="0" />
+      <LineId Id="6" Count="0" />
+      <LineId Id="229" Count="0" />
+    </LineIds>
+    <LineIds Name="ObjectAssertionsTests.testIsEqualToRealInt">
+      <LineId Id="172" Count="0" />
+      <LineId Id="223" Count="0" />
+      <LineId Id="222" Count="0" />
+      <LineId Id="215" Count="0" />
+      <LineId Id="214" Count="0" />
+      <LineId Id="176" Count="0" />
+      <LineId Id="207" Count="0" />
+      <LineId Id="235" Count="0" />
+      <LineId Id="276" Count="0" />
+      <LineId Id="278" Count="0" />
+      <LineId Id="245" Count="2" />
+      <LineId Id="241" Count="0" />
+      <LineId Id="208" Count="0" />
+      <LineId Id="180" Count="0" />
+      <LineId Id="270" Count="0" />
+      <LineId Id="188" Count="0" />
+      <LineId Id="271" Count="0" />
+      <LineId Id="273" Count="1" />
+      <LineId Id="230" Count="0" />
+      <LineId Id="232" Count="0" />
+      <LineId Id="231" Count="0" />
+      <LineId Id="6" Count="0" />
+      <LineId Id="229" Count="0" />
+    </LineIds>
+    <LineIds Name="ObjectAssertionsTests.testIsEqualToRealNull">
+      <LineId Id="172" Count="0" />
+      <LineId Id="223" Count="0" />
+      <LineId Id="222" Count="0" />
+      <LineId Id="215" Count="0" />
+      <LineId Id="214" Count="0" />
+      <LineId Id="176" Count="0" />
+      <LineId Id="207" Count="0" />
+      <LineId Id="235" Count="0" />
+      <LineId Id="276" Count="0" />
+      <LineId Id="278" Count="0" />
+      <LineId Id="245" Count="2" />
+      <LineId Id="241" Count="0" />
+      <LineId Id="208" Count="0" />
+      <LineId Id="180" Count="0" />
+      <LineId Id="270" Count="0" />
+      <LineId Id="188" Count="0" />
+      <LineId Id="271" Count="0" />
+      <LineId Id="273" Count="1" />
+      <LineId Id="230" Count="0" />
+      <LineId Id="272" Count="0" />
+      <LineId Id="232" Count="0" />
+      <LineId Id="231" Count="0" />
+      <LineId Id="6" Count="0" />
+      <LineId Id="229" Count="0" />
+    </LineIds>
+    <LineIds Name="ObjectAssertionsTests.testIsEqualToRealReal">
+      <LineId Id="172" Count="0" />
+      <LineId Id="223" Count="0" />
+      <LineId Id="222" Count="0" />
+      <LineId Id="215" Count="0" />
+      <LineId Id="214" Count="0" />
+      <LineId Id="176" Count="0" />
+      <LineId Id="207" Count="0" />
+      <LineId Id="235" Count="0" />
+      <LineId Id="276" Count="0" />
+      <LineId Id="278" Count="0" />
+      <LineId Id="245" Count="2" />
+      <LineId Id="241" Count="0" />
+      <LineId Id="208" Count="0" />
+      <LineId Id="180" Count="0" />
+      <LineId Id="270" Count="0" />
+      <LineId Id="188" Count="0" />
+      <LineId Id="271" Count="0" />
+      <LineId Id="273" Count="1" />
+      <LineId Id="230" Count="0" />
+      <LineId Id="272" Count="0" />
+      <LineId Id="232" Count="0" />
+      <LineId Id="231" Count="0" />
+      <LineId Id="6" Count="0" />
+      <LineId Id="229" Count="0" />
+    </LineIds>
+    <LineIds Name="ObjectAssertionsTests.testIsNotEqualToIntInt">
+      <LineId Id="172" Count="0" />
+      <LineId Id="223" Count="0" />
+      <LineId Id="222" Count="0" />
+      <LineId Id="215" Count="0" />
+      <LineId Id="214" Count="0" />
+      <LineId Id="176" Count="0" />
+      <LineId Id="207" Count="0" />
+      <LineId Id="235" Count="0" />
+      <LineId Id="276" Count="0" />
+      <LineId Id="278" Count="0" />
+      <LineId Id="245" Count="2" />
+      <LineId Id="241" Count="0" />
+      <LineId Id="208" Count="0" />
+      <LineId Id="180" Count="0" />
+      <LineId Id="270" Count="0" />
+      <LineId Id="188" Count="0" />
+      <LineId Id="271" Count="0" />
+      <LineId Id="273" Count="1" />
+      <LineId Id="272" Count="0" />
+      <LineId Id="232" Count="0" />
+      <LineId Id="231" Count="0" />
+      <LineId Id="6" Count="0" />
+      <LineId Id="229" Count="0" />
+    </LineIds>
+    <LineIds Name="ObjectAssertionsTests.testIsNotEqualToIntNull">
+      <LineId Id="172" Count="0" />
+      <LineId Id="223" Count="0" />
+      <LineId Id="222" Count="0" />
+      <LineId Id="215" Count="0" />
+      <LineId Id="214" Count="0" />
+      <LineId Id="176" Count="0" />
+      <LineId Id="207" Count="0" />
+      <LineId Id="235" Count="0" />
+      <LineId Id="276" Count="0" />
+      <LineId Id="278" Count="0" />
+      <LineId Id="245" Count="2" />
+      <LineId Id="241" Count="0" />
+      <LineId Id="208" Count="0" />
+      <LineId Id="180" Count="0" />
+      <LineId Id="270" Count="0" />
+      <LineId Id="188" Count="0" />
+      <LineId Id="271" Count="0" />
+      <LineId Id="273" Count="1" />
+      <LineId Id="272" Count="0" />
+      <LineId Id="232" Count="0" />
+      <LineId Id="231" Count="0" />
+      <LineId Id="6" Count="0" />
+      <LineId Id="229" Count="0" />
+    </LineIds>
+    <LineIds Name="ObjectAssertionsTests.testIsNotEqualToIntReal">
+      <LineId Id="172" Count="0" />
+      <LineId Id="223" Count="0" />
+      <LineId Id="222" Count="0" />
+      <LineId Id="215" Count="0" />
+      <LineId Id="214" Count="0" />
+      <LineId Id="176" Count="0" />
+      <LineId Id="207" Count="0" />
+      <LineId Id="235" Count="0" />
+      <LineId Id="276" Count="0" />
+      <LineId Id="278" Count="0" />
+      <LineId Id="245" Count="2" />
+      <LineId Id="241" Count="0" />
+      <LineId Id="208" Count="0" />
+      <LineId Id="180" Count="0" />
+      <LineId Id="270" Count="0" />
+      <LineId Id="188" Count="0" />
+      <LineId Id="271" Count="0" />
+      <LineId Id="273" Count="1" />
+      <LineId Id="230" Count="0" />
+      <LineId Id="272" Count="0" />
+      <LineId Id="232" Count="0" />
+      <LineId Id="231" Count="0" />
+      <LineId Id="6" Count="0" />
+      <LineId Id="229" Count="0" />
+    </LineIds>
+    <LineIds Name="ObjectAssertionsTests.testIsNotEqualToNullInt">
+      <LineId Id="172" Count="0" />
+      <LineId Id="223" Count="0" />
+      <LineId Id="222" Count="0" />
+      <LineId Id="215" Count="0" />
+      <LineId Id="214" Count="0" />
+      <LineId Id="176" Count="0" />
+      <LineId Id="207" Count="0" />
+      <LineId Id="235" Count="0" />
+      <LineId Id="276" Count="0" />
+      <LineId Id="278" Count="0" />
+      <LineId Id="245" Count="2" />
+      <LineId Id="241" Count="0" />
+      <LineId Id="208" Count="0" />
+      <LineId Id="180" Count="0" />
+      <LineId Id="270" Count="0" />
+      <LineId Id="188" Count="0" />
+      <LineId Id="271" Count="0" />
+      <LineId Id="273" Count="1" />
+      <LineId Id="272" Count="0" />
+      <LineId Id="232" Count="0" />
+      <LineId Id="231" Count="0" />
+      <LineId Id="6" Count="0" />
+      <LineId Id="229" Count="0" />
+    </LineIds>
+    <LineIds Name="ObjectAssertionsTests.testIsNotEqualToNullNull">
+      <LineId Id="172" Count="0" />
+      <LineId Id="223" Count="0" />
+      <LineId Id="222" Count="0" />
+      <LineId Id="215" Count="0" />
+      <LineId Id="214" Count="0" />
+      <LineId Id="176" Count="0" />
+      <LineId Id="207" Count="0" />
+      <LineId Id="235" Count="0" />
+      <LineId Id="240" Count="0" />
+      <LineId Id="242" Count="2" />
+      <LineId Id="276" Count="0" />
+      <LineId Id="278" Count="0" />
+      <LineId Id="245" Count="2" />
+      <LineId Id="241" Count="0" />
+      <LineId Id="208" Count="0" />
+      <LineId Id="180" Count="0" />
+      <LineId Id="270" Count="0" />
+      <LineId Id="188" Count="0" />
+      <LineId Id="271" Count="0" />
+      <LineId Id="273" Count="1" />
+      <LineId Id="230" Count="0" />
+      <LineId Id="272" Count="0" />
+      <LineId Id="232" Count="0" />
+      <LineId Id="231" Count="0" />
+      <LineId Id="6" Count="0" />
+      <LineId Id="229" Count="0" />
+    </LineIds>
+    <LineIds Name="ObjectAssertionsTests.testIsNotEqualToNullReal">
+      <LineId Id="172" Count="0" />
+      <LineId Id="223" Count="0" />
+      <LineId Id="222" Count="0" />
+      <LineId Id="215" Count="0" />
+      <LineId Id="214" Count="0" />
+      <LineId Id="176" Count="0" />
+      <LineId Id="207" Count="0" />
+      <LineId Id="235" Count="0" />
+      <LineId Id="276" Count="0" />
+      <LineId Id="278" Count="0" />
+      <LineId Id="245" Count="2" />
+      <LineId Id="241" Count="0" />
+      <LineId Id="208" Count="0" />
+      <LineId Id="180" Count="0" />
+      <LineId Id="270" Count="0" />
+      <LineId Id="188" Count="0" />
+      <LineId Id="271" Count="0" />
+      <LineId Id="273" Count="1" />
+      <LineId Id="230" Count="0" />
+      <LineId Id="272" Count="0" />
+      <LineId Id="232" Count="0" />
+      <LineId Id="231" Count="0" />
+      <LineId Id="6" Count="0" />
+      <LineId Id="229" Count="0" />
+    </LineIds>
+    <LineIds Name="ObjectAssertionsTests.testIsNotEqualToRealInt">
+      <LineId Id="172" Count="0" />
+      <LineId Id="223" Count="0" />
+      <LineId Id="222" Count="0" />
+      <LineId Id="215" Count="0" />
+      <LineId Id="214" Count="0" />
+      <LineId Id="176" Count="0" />
+      <LineId Id="207" Count="0" />
+      <LineId Id="235" Count="0" />
+      <LineId Id="276" Count="0" />
+      <LineId Id="278" Count="0" />
+      <LineId Id="245" Count="2" />
+      <LineId Id="241" Count="0" />
+      <LineId Id="208" Count="0" />
+      <LineId Id="180" Count="0" />
+      <LineId Id="270" Count="0" />
+      <LineId Id="188" Count="0" />
+      <LineId Id="271" Count="0" />
+      <LineId Id="273" Count="1" />
+      <LineId Id="230" Count="0" />
+      <LineId Id="232" Count="0" />
+      <LineId Id="231" Count="0" />
+      <LineId Id="6" Count="0" />
+      <LineId Id="229" Count="0" />
+    </LineIds>
+    <LineIds Name="ObjectAssertionsTests.testIsNotEqualToRealNull">
+      <LineId Id="172" Count="0" />
+      <LineId Id="223" Count="0" />
+      <LineId Id="222" Count="0" />
+      <LineId Id="215" Count="0" />
+      <LineId Id="214" Count="0" />
+      <LineId Id="176" Count="0" />
+      <LineId Id="207" Count="0" />
+      <LineId Id="235" Count="0" />
+      <LineId Id="276" Count="0" />
+      <LineId Id="278" Count="0" />
+      <LineId Id="245" Count="2" />
+      <LineId Id="241" Count="0" />
+      <LineId Id="208" Count="0" />
+      <LineId Id="180" Count="0" />
+      <LineId Id="270" Count="0" />
+      <LineId Id="188" Count="0" />
+      <LineId Id="271" Count="0" />
+      <LineId Id="273" Count="1" />
+      <LineId Id="230" Count="0" />
+      <LineId Id="272" Count="0" />
+      <LineId Id="232" Count="0" />
+      <LineId Id="231" Count="0" />
+      <LineId Id="6" Count="0" />
+      <LineId Id="229" Count="0" />
+    </LineIds>
+    <LineIds Name="ObjectAssertionsTests.testIsNotEqualToRealReal">
+      <LineId Id="172" Count="0" />
+      <LineId Id="223" Count="0" />
+      <LineId Id="222" Count="0" />
+      <LineId Id="215" Count="0" />
+      <LineId Id="214" Count="0" />
+      <LineId Id="176" Count="0" />
+      <LineId Id="207" Count="0" />
+      <LineId Id="235" Count="0" />
+      <LineId Id="276" Count="0" />
+      <LineId Id="278" Count="0" />
+      <LineId Id="245" Count="2" />
+      <LineId Id="241" Count="0" />
+      <LineId Id="208" Count="0" />
+      <LineId Id="180" Count="0" />
+      <LineId Id="270" Count="0" />
+      <LineId Id="188" Count="0" />
+      <LineId Id="271" Count="0" />
+      <LineId Id="273" Count="1" />
+      <LineId Id="230" Count="0" />
+      <LineId Id="272" Count="0" />
+      <LineId Id="232" Count="0" />
+      <LineId Id="231" Count="0" />
+      <LineId Id="6" Count="0" />
+      <LineId Id="229" Count="0" />
+    </LineIds>
+    <LineIds Name="ObjectAssertionsTests.testObjectIsNotNullWithInt">
+      <LineId Id="172" Count="0" />
+      <LineId Id="223" Count="0" />
+      <LineId Id="222" Count="0" />
+      <LineId Id="215" Count="0" />
+      <LineId Id="214" Count="0" />
+      <LineId Id="176" Count="0" />
+      <LineId Id="207" Count="0" />
+      <LineId Id="235" Count="0" />
+      <LineId Id="276" Count="0" />
+      <LineId Id="278" Count="0" />
+      <LineId Id="245" Count="2" />
+      <LineId Id="241" Count="0" />
+      <LineId Id="208" Count="0" />
+      <LineId Id="180" Count="0" />
+      <LineId Id="270" Count="0" />
+      <LineId Id="188" Count="0" />
+      <LineId Id="271" Count="0" />
+      <LineId Id="273" Count="1" />
+      <LineId Id="272" Count="0" />
+      <LineId Id="232" Count="0" />
+      <LineId Id="231" Count="0" />
+      <LineId Id="6" Count="0" />
+      <LineId Id="229" Count="0" />
+    </LineIds>
+    <LineIds Name="ObjectAssertionsTests.testObjectIsNotNullWithNull">
+      <LineId Id="172" Count="0" />
+      <LineId Id="223" Count="0" />
+      <LineId Id="222" Count="0" />
+      <LineId Id="215" Count="0" />
+      <LineId Id="214" Count="0" />
+      <LineId Id="176" Count="0" />
+      <LineId Id="207" Count="0" />
+      <LineId Id="235" Count="0" />
+      <LineId Id="276" Count="0" />
+      <LineId Id="278" Count="0" />
+      <LineId Id="245" Count="2" />
+      <LineId Id="241" Count="0" />
+      <LineId Id="208" Count="0" />
+      <LineId Id="180" Count="0" />
+      <LineId Id="270" Count="0" />
+      <LineId Id="188" Count="0" />
+      <LineId Id="271" Count="0" />
+      <LineId Id="273" Count="1" />
+      <LineId Id="272" Count="0" />
+      <LineId Id="232" Count="0" />
+      <LineId Id="231" Count="0" />
+      <LineId Id="6" Count="0" />
+      <LineId Id="229" Count="0" />
+    </LineIds>
+    <LineIds Name="ObjectAssertionsTests.testObjectIsNotNullWithReal">
+      <LineId Id="172" Count="0" />
+      <LineId Id="223" Count="0" />
+      <LineId Id="222" Count="0" />
+      <LineId Id="215" Count="0" />
+      <LineId Id="214" Count="0" />
+      <LineId Id="176" Count="0" />
+      <LineId Id="207" Count="0" />
+      <LineId Id="235" Count="0" />
+      <LineId Id="276" Count="0" />
+      <LineId Id="278" Count="0" />
+      <LineId Id="245" Count="2" />
+      <LineId Id="241" Count="0" />
+      <LineId Id="208" Count="0" />
+      <LineId Id="180" Count="0" />
+      <LineId Id="270" Count="0" />
+      <LineId Id="188" Count="0" />
+      <LineId Id="271" Count="0" />
+      <LineId Id="273" Count="1" />
+      <LineId Id="272" Count="0" />
+      <LineId Id="232" Count="0" />
+      <LineId Id="231" Count="0" />
+      <LineId Id="6" Count="0" />
+      <LineId Id="229" Count="0" />
+    </LineIds>
+    <LineIds Name="ObjectAssertionsTests.testObjectIsNullWithInt">
+      <LineId Id="172" Count="0" />
+      <LineId Id="223" Count="0" />
+      <LineId Id="222" Count="0" />
+      <LineId Id="215" Count="0" />
+      <LineId Id="214" Count="0" />
+      <LineId Id="176" Count="0" />
+      <LineId Id="207" Count="0" />
+      <LineId Id="235" Count="0" />
+      <LineId Id="276" Count="0" />
+      <LineId Id="278" Count="0" />
+      <LineId Id="245" Count="2" />
+      <LineId Id="241" Count="0" />
+      <LineId Id="208" Count="0" />
+      <LineId Id="180" Count="0" />
+      <LineId Id="270" Count="0" />
+      <LineId Id="188" Count="0" />
+      <LineId Id="271" Count="0" />
+      <LineId Id="273" Count="1" />
+      <LineId Id="272" Count="0" />
+      <LineId Id="232" Count="0" />
+      <LineId Id="231" Count="0" />
+      <LineId Id="6" Count="0" />
+      <LineId Id="229" Count="0" />
+    </LineIds>
+    <LineIds Name="ObjectAssertionsTests.testObjectIsNullWithNull">
+      <LineId Id="172" Count="0" />
+      <LineId Id="223" Count="0" />
+      <LineId Id="222" Count="0" />
+      <LineId Id="215" Count="0" />
+      <LineId Id="214" Count="0" />
+      <LineId Id="176" Count="0" />
+      <LineId Id="207" Count="0" />
+      <LineId Id="235" Count="0" />
+      <LineId Id="276" Count="0" />
+      <LineId Id="278" Count="0" />
+      <LineId Id="245" Count="2" />
+      <LineId Id="241" Count="0" />
+      <LineId Id="208" Count="0" />
+      <LineId Id="180" Count="0" />
+      <LineId Id="270" Count="0" />
+      <LineId Id="188" Count="0" />
+      <LineId Id="271" Count="0" />
+      <LineId Id="273" Count="1" />
+      <LineId Id="272" Count="0" />
+      <LineId Id="232" Count="0" />
+      <LineId Id="231" Count="0" />
+      <LineId Id="6" Count="0" />
+      <LineId Id="229" Count="0" />
+    </LineIds>
+    <LineIds Name="ObjectAssertionsTests.testObjectIsNullWithReal">
+      <LineId Id="172" Count="0" />
+      <LineId Id="223" Count="0" />
+      <LineId Id="222" Count="0" />
+      <LineId Id="215" Count="0" />
+      <LineId Id="214" Count="0" />
+      <LineId Id="176" Count="0" />
+      <LineId Id="207" Count="0" />
+      <LineId Id="235" Count="0" />
+      <LineId Id="276" Count="0" />
+      <LineId Id="278" Count="0" />
+      <LineId Id="245" Count="2" />
+      <LineId Id="241" Count="0" />
+      <LineId Id="208" Count="0" />
+      <LineId Id="180" Count="0" />
+      <LineId Id="270" Count="0" />
+      <LineId Id="188" Count="0" />
+      <LineId Id="271" Count="0" />
+      <LineId Id="273" Count="1" />
+      <LineId Id="272" Count="0" />
+      <LineId Id="232" Count="0" />
+      <LineId Id="231" Count="0" />
+      <LineId Id="6" Count="0" />
+      <LineId Id="229" Count="0" />
+    </LineIds>
+    <LineIds Name="ObjectAssertionsTests.testPreceedesInOrderToIntInt">
+      <LineId Id="172" Count="0" />
+      <LineId Id="223" Count="0" />
+      <LineId Id="222" Count="0" />
+      <LineId Id="215" Count="0" />
+      <LineId Id="214" Count="0" />
+      <LineId Id="176" Count="0" />
+      <LineId Id="207" Count="0" />
+      <LineId Id="235" Count="0" />
+      <LineId Id="276" Count="0" />
+      <LineId Id="278" Count="0" />
+      <LineId Id="245" Count="2" />
+      <LineId Id="241" Count="0" />
+      <LineId Id="208" Count="0" />
+      <LineId Id="180" Count="0" />
+      <LineId Id="270" Count="0" />
+      <LineId Id="188" Count="0" />
+      <LineId Id="271" Count="0" />
+      <LineId Id="273" Count="1" />
+      <LineId Id="272" Count="0" />
+      <LineId Id="232" Count="0" />
+      <LineId Id="231" Count="0" />
+      <LineId Id="6" Count="0" />
+      <LineId Id="229" Count="0" />
+    </LineIds>
+    <LineIds Name="ObjectAssertionsTests.testPreceedesInOrderToIntNull">
+      <LineId Id="172" Count="0" />
+      <LineId Id="223" Count="0" />
+      <LineId Id="222" Count="0" />
+      <LineId Id="215" Count="0" />
+      <LineId Id="214" Count="0" />
+      <LineId Id="176" Count="0" />
+      <LineId Id="207" Count="0" />
+      <LineId Id="235" Count="0" />
+      <LineId Id="276" Count="0" />
+      <LineId Id="278" Count="0" />
+      <LineId Id="245" Count="2" />
+      <LineId Id="241" Count="0" />
+      <LineId Id="208" Count="0" />
+      <LineId Id="180" Count="0" />
+      <LineId Id="270" Count="0" />
+      <LineId Id="188" Count="0" />
+      <LineId Id="271" Count="0" />
+      <LineId Id="273" Count="1" />
+      <LineId Id="272" Count="0" />
+      <LineId Id="232" Count="0" />
+      <LineId Id="231" Count="0" />
+      <LineId Id="6" Count="0" />
+      <LineId Id="229" Count="0" />
+    </LineIds>
+    <LineIds Name="ObjectAssertionsTests.testPreceedesInOrderToIntReal">
+      <LineId Id="172" Count="0" />
+      <LineId Id="223" Count="0" />
+      <LineId Id="222" Count="0" />
+      <LineId Id="215" Count="0" />
+      <LineId Id="214" Count="0" />
+      <LineId Id="176" Count="0" />
+      <LineId Id="207" Count="0" />
+      <LineId Id="235" Count="0" />
+      <LineId Id="276" Count="0" />
+      <LineId Id="278" Count="0" />
+      <LineId Id="245" Count="2" />
+      <LineId Id="241" Count="0" />
+      <LineId Id="208" Count="0" />
+      <LineId Id="180" Count="0" />
+      <LineId Id="270" Count="0" />
+      <LineId Id="188" Count="0" />
+      <LineId Id="271" Count="0" />
+      <LineId Id="273" Count="1" />
+      <LineId Id="230" Count="0" />
+      <LineId Id="272" Count="0" />
+      <LineId Id="232" Count="0" />
+      <LineId Id="231" Count="0" />
+      <LineId Id="6" Count="0" />
+      <LineId Id="229" Count="0" />
+    </LineIds>
+    <LineIds Name="ObjectAssertionsTests.testPreceedesInOrderToNullInt">
+      <LineId Id="172" Count="0" />
+      <LineId Id="223" Count="0" />
+      <LineId Id="222" Count="0" />
+      <LineId Id="215" Count="0" />
+      <LineId Id="214" Count="0" />
+      <LineId Id="176" Count="0" />
+      <LineId Id="207" Count="0" />
+      <LineId Id="235" Count="0" />
+      <LineId Id="276" Count="0" />
+      <LineId Id="278" Count="0" />
+      <LineId Id="245" Count="2" />
+      <LineId Id="241" Count="0" />
+      <LineId Id="208" Count="0" />
+      <LineId Id="180" Count="0" />
+      <LineId Id="270" Count="0" />
+      <LineId Id="188" Count="0" />
+      <LineId Id="271" Count="0" />
+      <LineId Id="273" Count="1" />
+      <LineId Id="272" Count="0" />
+      <LineId Id="232" Count="0" />
+      <LineId Id="231" Count="0" />
+      <LineId Id="6" Count="0" />
+      <LineId Id="229" Count="0" />
+    </LineIds>
+    <LineIds Name="ObjectAssertionsTests.testPreceedesInOrderToNullNull">
+      <LineId Id="172" Count="0" />
+      <LineId Id="223" Count="0" />
+      <LineId Id="222" Count="0" />
+      <LineId Id="215" Count="0" />
+      <LineId Id="214" Count="0" />
+      <LineId Id="176" Count="0" />
+      <LineId Id="207" Count="0" />
+      <LineId Id="235" Count="0" />
+      <LineId Id="240" Count="0" />
+      <LineId Id="242" Count="2" />
+      <LineId Id="276" Count="0" />
+      <LineId Id="278" Count="0" />
+      <LineId Id="245" Count="2" />
+      <LineId Id="241" Count="0" />
+      <LineId Id="208" Count="0" />
+      <LineId Id="180" Count="0" />
+      <LineId Id="270" Count="0" />
+      <LineId Id="188" Count="0" />
+      <LineId Id="271" Count="0" />
+      <LineId Id="273" Count="1" />
+      <LineId Id="230" Count="0" />
+      <LineId Id="272" Count="0" />
+      <LineId Id="232" Count="0" />
+      <LineId Id="231" Count="0" />
+      <LineId Id="6" Count="0" />
+      <LineId Id="229" Count="0" />
+    </LineIds>
+    <LineIds Name="ObjectAssertionsTests.testPreceedesInOrderToNullReal">
+      <LineId Id="172" Count="0" />
+      <LineId Id="223" Count="0" />
+      <LineId Id="222" Count="0" />
+      <LineId Id="215" Count="0" />
+      <LineId Id="214" Count="0" />
+      <LineId Id="176" Count="0" />
+      <LineId Id="207" Count="0" />
+      <LineId Id="235" Count="0" />
+      <LineId Id="276" Count="0" />
+      <LineId Id="278" Count="0" />
+      <LineId Id="245" Count="2" />
+      <LineId Id="241" Count="0" />
+      <LineId Id="208" Count="0" />
+      <LineId Id="180" Count="0" />
+      <LineId Id="270" Count="0" />
+      <LineId Id="188" Count="0" />
+      <LineId Id="271" Count="0" />
+      <LineId Id="273" Count="1" />
+      <LineId Id="230" Count="0" />
+      <LineId Id="272" Count="0" />
+      <LineId Id="232" Count="0" />
+      <LineId Id="231" Count="0" />
+      <LineId Id="6" Count="0" />
+      <LineId Id="229" Count="0" />
+    </LineIds>
+    <LineIds Name="ObjectAssertionsTests.testPreceedesInOrderToRealInt">
+      <LineId Id="172" Count="0" />
+      <LineId Id="223" Count="0" />
+      <LineId Id="222" Count="0" />
+      <LineId Id="215" Count="0" />
+      <LineId Id="214" Count="0" />
+      <LineId Id="176" Count="0" />
+      <LineId Id="207" Count="0" />
+      <LineId Id="235" Count="0" />
+      <LineId Id="276" Count="0" />
+      <LineId Id="278" Count="0" />
+      <LineId Id="245" Count="2" />
+      <LineId Id="241" Count="0" />
+      <LineId Id="208" Count="0" />
+      <LineId Id="180" Count="0" />
+      <LineId Id="270" Count="0" />
+      <LineId Id="188" Count="0" />
+      <LineId Id="271" Count="0" />
+      <LineId Id="273" Count="1" />
+      <LineId Id="230" Count="0" />
+      <LineId Id="232" Count="0" />
+      <LineId Id="231" Count="0" />
+      <LineId Id="6" Count="0" />
+      <LineId Id="229" Count="0" />
+    </LineIds>
+    <LineIds Name="ObjectAssertionsTests.testPreceedesInOrderToRealNull">
+      <LineId Id="172" Count="0" />
+      <LineId Id="223" Count="0" />
+      <LineId Id="222" Count="0" />
+      <LineId Id="215" Count="0" />
+      <LineId Id="214" Count="0" />
+      <LineId Id="176" Count="0" />
+      <LineId Id="207" Count="0" />
+      <LineId Id="235" Count="0" />
+      <LineId Id="276" Count="0" />
+      <LineId Id="278" Count="0" />
+      <LineId Id="245" Count="2" />
+      <LineId Id="241" Count="0" />
+      <LineId Id="208" Count="0" />
+      <LineId Id="180" Count="0" />
+      <LineId Id="270" Count="0" />
+      <LineId Id="188" Count="0" />
+      <LineId Id="271" Count="0" />
+      <LineId Id="273" Count="1" />
+      <LineId Id="230" Count="0" />
+      <LineId Id="272" Count="0" />
+      <LineId Id="232" Count="0" />
+      <LineId Id="231" Count="0" />
+      <LineId Id="6" Count="0" />
+      <LineId Id="229" Count="0" />
+    </LineIds>
+    <LineIds Name="ObjectAssertionsTests.testPreceedesInOrderToRealReal">
+      <LineId Id="172" Count="0" />
+      <LineId Id="223" Count="0" />
+      <LineId Id="222" Count="0" />
+      <LineId Id="215" Count="0" />
+      <LineId Id="214" Count="0" />
+      <LineId Id="176" Count="0" />
+      <LineId Id="207" Count="0" />
+      <LineId Id="235" Count="0" />
+      <LineId Id="276" Count="0" />
+      <LineId Id="278" Count="0" />
+      <LineId Id="245" Count="2" />
+      <LineId Id="241" Count="0" />
+      <LineId Id="208" Count="0" />
+      <LineId Id="180" Count="0" />
+      <LineId Id="270" Count="0" />
+      <LineId Id="188" Count="0" />
+      <LineId Id="271" Count="0" />
+      <LineId Id="273" Count="1" />
+      <LineId Id="230" Count="0" />
+      <LineId Id="272" Count="0" />
+      <LineId Id="232" Count="0" />
+      <LineId Id="231" Count="0" />
+      <LineId Id="6" Count="0" />
+      <LineId Id="229" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

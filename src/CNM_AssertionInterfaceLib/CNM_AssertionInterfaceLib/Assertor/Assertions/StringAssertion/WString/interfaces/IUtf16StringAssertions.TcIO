@@ -1,0 +1,476 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.11">
+  <Itf Name="IUtf16StringAssertions" Id="{55fef625-42f6-4435-b10a-f40d96f71bb9}">
+    <Declaration><![CDATA[(*
+
+short summary
+=================
+This interface provides assert statements for UTF-16 strings until 255 ``WORD`` length
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+methods
+==================
+
+*)
+
+INTERFACE IUtf16StringAssertions EXTENDS __SYSTEM.IQueryInterface
+]]></Declaration>
+    <Method Name="contains" Id="{f7562888-14e7-4c0f-ac9f-c60a0296c8e3}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method for UTF-16 strings checks if the current string ``stringToCheck`` contains the search string ``searchString``
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD contains
+VAR_INPUT
+	(* current string to check *)
+	stringToCheck	:WSTRING(Tc2_System.MAX_STRING_LENGTH);
+	(* string must be found in ``stringToCheck`` *)
+	searchString	:WSTRING(Tc2_System.MAX_STRING_LENGTH);
+	(* ``TRUE`` means ignore cases; ``FALSE`` means cases must be equal too *)
+	ignoreCases		:BOOL;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="containsNo" Id="{3df0b6d9-c495-4835-be36-1f56c459d084}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method for UTF-16 strings checks if the current string ``stringToCheck`` contains not the search string ``searchString``
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD containsNo
+VAR_INPUT
+	(* current string to check *)
+	stringToCheck	:WSTRING(Tc2_System.MAX_STRING_LENGTH);
+	(* string that must not be found in ``stringToCheck`` *)
+	searchString	:WSTRING(Tc2_System.MAX_STRING_LENGTH);
+	(* ``TRUE`` means ignore cases; ``FALSE`` means cases must be equal too *)
+	ignoreCases		:BOOL;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="endsWith" Id="{fe18ee1d-e0cd-4d4c-8c13-d7acf22bbd91}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method for UTF-16 strings checks if the current string ``stringToCheck`` ends with the string ``end``
+
+.. attention:: 
+	end of the string is **ALWAYS** the right side of the string 
+	even for writings which written from right to left like Hebrew or Arabic
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD endsWith
+VAR_INPUT
+	(* current string to check *)
+	stringToCheck	:WSTRING(Tc2_System.MAX_STRING_LENGTH);
+	(* expected end of ``stringToCheck`` *)
+	end				:WSTRING(Tc2_System.MAX_STRING_LENGTH);
+	(* ``TRUE`` means ignore cases; ``FALSE`` means cases must be equal too *)
+	ignoreCases		:BOOL;
+	(* ``TRUE`` means truncation of spaces on the right side of ``stringToCheck``*)
+	trim			:BOOL;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="isEmpty" Id="{f427bef8-1c56-4598-9c4e-ae089ee600c6}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current string ``stringToCheck`` is empty
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD isEmpty
+VAR_INPUT
+	(* current string to check *)
+	stringToCheck	:WSTRING(Tc2_System.MAX_STRING_LENGTH);
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="isEqualTo" Id="{217122e9-a8e1-47b2-9e2d-2e004a928eb7}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current string ``stringToCheck`` is equal to ``expected``
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD isEqualTo
+VAR_INPUT
+	(* current string to check *)
+	stringToCheck	:WSTRING(Tc2_System.MAX_STRING_LENGTH);
+	(* ``stringToCheck`` must be equal to expected *)
+	expected		:WSTRING(Tc2_System.MAX_STRING_LENGTH);
+	(* ``TRUE`` means ignore cases; ``FALSE`` means cases must be equal too *)
+	ignoreCases		:BOOL;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="isNotEmpty" Id="{522aafd9-05ed-4453-bdc4-3f6d761eee48}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current string ``stringToCheck`` is not empty
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD isNotEmpty
+VAR_INPUT
+	(* current string to check *)
+	stringToCheck	:WSTRING(Tc2_System.MAX_STRING_LENGTH);
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="isNotEqualTo" Id="{eabba482-87b2-40b5-b8f3-2e703a21fa6e}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current string ``stringToCheck`` is not equal to ``unexpected``
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD isNotEqualTo
+VAR_INPUT
+	(* current string to check *)
+	stringToCheck	:WSTRING(Tc2_System.MAX_STRING_LENGTH);
+	(* ``stringToCheck`` must be not equal to expected *)
+	unexpected		:WSTRING(Tc2_System.MAX_STRING_LENGTH);
+	(* ``TRUE`` means ignore cases; ``FALSE`` means cases must be equal too *)
+	ignoreCases		:BOOL;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="lenghtIsBetween" Id="{4c074dee-7d24-4ffe-91d8-4f2f09e30164}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current string ``stringToCheck`` length
+is between ``minLenght`` and ``maxLenght``
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD lenghtIsBetween
+VAR_INPUT
+	(* current string to check *)
+	stringToCheck	:WSTRING(Tc2_System.MAX_STRING_LENGTH);
+	(* lower limit of the string length *)
+	minLenght	:USINT;
+	(* upper limit of the string length *)
+	maxLenght	:USINT;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="lenghtIsExact" Id="{1fe76dc1-0e1f-4527-9bfb-a35b8f9d9713}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current string ``stringToCheck`` length
+is equal to ``expectedLength``
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD lenghtIsExact
+VAR_INPUT
+	(* current string to check *)
+	stringToCheck	:WSTRING(Tc2_System.MAX_STRING_LENGTH);
+	(* expected length of ``stringToCheck`` *)
+	expectedLength	:USINT;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="lenghtIsMax" Id="{29c7389d-6e7f-4fd0-81ab-10ce75fabae0}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current string ``stringToCheck`` length
+is equal or less than to ``maxLength``
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD lenghtIsMax
+VAR_INPUT
+	(* current string to check *)
+	stringToCheck	:WSTRING(Tc2_System.MAX_STRING_LENGTH);
+	(* upper limit of the length of ``stringToCheck`` *)
+	maxLength		:USINT;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="lenghtIsMin" Id="{760a2106-677d-4805-8f76-635d7254bffd}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current string ``stringToCheck`` length
+is equal or grater than to ``minLength``
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD lenghtIsMin
+VAR_INPUT
+	(* current string to check *)
+	stringToCheck	:WSTRING(Tc2_System.MAX_STRING_LENGTH);
+	(* lower limit of the length of ``stringToCheck`` *)
+	minLength	:USINT;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="startsWith" Id="{e88f0487-1d1b-4bc1-be94-e3912650a5b4}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current string ``stringToCheck`` starts with ``start``
+
+.. attention:: 
+	start of the string is **ALWAYS** the left side of the string 
+	even for writings which written from right to left like Hebrew or Arabic
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD startsWith
+VAR_INPUT
+	(* current string to check *)
+	stringToCheck	:WSTRING(Tc2_System.MAX_STRING_LENGTH);
+	(* expected start of ``stringToCheck`` *)
+	start			:WSTRING(Tc2_System.MAX_STRING_LENGTH);
+	(* ``TRUE`` means ignore cases; ``FALSE`` means cases must be equal too *)
+	ignoreCases		:BOOL;
+	(* ``TRUE`` means truncation of spaces on the left side of ``stringToCheck``*)
+	trim			:BOOL;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+    </Method>
+  </Itf>
+</TcPlcObject>

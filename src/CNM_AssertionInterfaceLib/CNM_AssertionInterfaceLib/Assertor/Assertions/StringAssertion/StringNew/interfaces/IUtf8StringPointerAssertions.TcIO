@@ -1,0 +1,439 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <Itf Name="IUtf8StringPointerAssertions" Id="{5fff66ea-7534-4de0-9ef5-d6a9cf2d57d6}">
+    <Declaration><![CDATA[(*
+
+short summary
+=================
+This interface provides assert statements for UTF-8 string pointers
+
+.. attention:: 
+	All strings are handled as null-terminated byte streams
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2024 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+methods
+==================
+
+*)
+
+INTERFACE INTERNAL IUtf8StringPointerAssertions EXTENDS IAssertCallBackSetter
+]]></Declaration>
+    <Method Name="contains" Id="{0385636f-ea55-4064-bbf8-e2d8e14d857e}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current string ``stringToCheck`` contains the search string ``searchString``
+
+.. attention:: 
+	All strings are handled as null-terminated byte streams
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2024 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD contains : IUtf8StringPointerAssertions
+VAR_INPUT
+	(* current string to check *)
+	stringToCheck	:POINTER TO BYTE;
+	(* string must be found in ``stringToCheck`` *)
+	searchString	:POINTER TO BYTE;
+	(* ``TRUE`` means ignore cases; ``FALSE`` means that cases must be equal too *)
+	ignoreCases		:BOOL;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="containsNo" Id="{171b45a1-38e2-438b-bd36-48841846c124}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current string ``stringToCheck`` doesn't contain the search string ``searchString``
+
+.. attention:: 
+	All strings are handled as null-terminated byte streams
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD containsNo : IUtf8StringPointerAssertions
+VAR_INPUT
+	(* current string to check *)
+	stringToCheck	:POINTER TO BYTE;
+	(* string must be found in ``stringToCheck`` *)
+	searchString	:POINTER TO BYTE;
+	(* ``TRUE`` means ignore cases; ``FALSE`` means that cases must be equal too *)
+	ignoreCases		:BOOL;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="endsWith" Id="{ea2808e5-d5c2-4ac7-a95e-1f581210b808}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current string ``stringToCheck`` ends with the string ``end``
+
+.. attention:: 
+	All strings are handled as null-terminated byte streams
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD endsWith : IUtf8StringPointerAssertions
+VAR_INPUT
+	(* current string to check *)
+	stringToCheck	:POINTER TO BYTE;
+	(* string must be the end of ``stringToCheck`` *)
+	end				:POINTER TO BYTE;
+	(* ``TRUE`` means ignore cases; ``FALSE`` means that cases must be equal too *)
+	ignoreCases		:BOOL;
+	(* ``TRUE`` means truncation of spaces on the right side of ``stringToCheck``*)
+	trimRight		:BOOL;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="isEqualTo" Id="{83be13be-0a5b-403a-891d-ee6004f4cefd}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current string ``stringToCheck`` is equal to ``expected``
+
+.. attention:: 
+	All strings are handled as null-terminated byte streams
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD isEqualTo : IUtf8StringPointerAssertions
+VAR_INPUT
+	(* current string to check *)
+	stringToCheck	:POINTER TO BYTE;
+	(* ``stringToCheck`` must be equal to expected *)
+	expected		:POINTER TO BYTE;
+	(* ``TRUE`` means ignore cases; ``FALSE`` means that cases must be equal too *)
+	ignoreCases		:BOOL;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="isNotEqualTo" Id="{10eb7b36-c2e9-4a4d-b1ce-57161f7bb691}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current string ``stringToCheck`` is not equal to ``unexpected``
+
+.. attention:: 
+	All strings are handled as null-terminated byte streams
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD isNotEqualTo : IUtf8StringPointerAssertions
+VAR_INPUT
+	(* current string to check *)
+	stringToCheck	:POINTER TO BYTE;
+	(* ``stringToCheck`` must be not equal to expected *)
+	unexpected		:POINTER TO BYTE;
+	(* ``TRUE`` means ignore cases; ``FALSE`` means that cases must be equal too *)
+	ignoreCases		:BOOL;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="lenghtIsExact" Id="{38c90211-8834-4e5f-b135-0ea753c4378d}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current string ``stringToCheck`` length is equal to ``expectedLength``
+
+.. attention:: 
+	All strings are handled as null-terminated byte streams
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD lenghtIsExact : IUtf8StringPointerAssertions
+VAR_INPUT
+	(* current string to check *)
+	stringToCheck	:POINTER TO BYTE;
+	(* expected length of ``stringToCheck`` *)
+	expectedLength	:UDINT;
+	(* string length units of measurement *)
+	stringLengthUnit	:UnicodeStringLengthUnit;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="lenghtIsMax" Id="{a8b1179a-b589-411b-95da-406c5c4d7904}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current string ``stringToCheck`` length is equal or less than to ``maxLength``
+
+.. attention:: 
+	All strings are handled as null-terminated byte streams
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD lenghtIsMax : IUtf8StringPointerAssertions
+VAR_INPUT
+	(* current string to check *)
+	stringToCheck	:POINTER TO BYTE;
+	(* upper limit of the length of ``stringToCheck`` *)
+	maxLength		:UDINT;
+	(* string length units of measurement *)
+	stringLengthUnit	:UnicodeStringLengthUnit;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="lenghtIsMin" Id="{e1aec7b0-55fc-48ae-8f2e-fd7d4f6b41ec}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current string ``stringToCheck`` length is equal or grater than to ``minLength``
+
+.. attention:: 
+	All strings are handled as null-terminated byte streams
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD lenghtIsMin : IUtf8StringPointerAssertions
+VAR_INPUT
+	(* current string to check *)
+	stringToCheck	:POINTER TO BYTE;
+	(* lower limit of the length of ``stringToCheck`` *)
+	minLength		:UDINT;
+	(* string length units of measurement *)
+	stringLengthUnit	:UnicodeStringLengthUnit;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="lengthIsBetween" Id="{c4303a07-fcef-4b66-9d9c-27d399813946}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current string ``stringToCheck`` length is between ``minLenght`` and ``maxLenght``
+
+.. attention:: 
+	All strings are handled as null-terminated byte streams
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD lengthIsBetween : IUtf8StringPointerAssertions
+VAR_INPUT
+	(* current string to check *)
+	stringToCheck	:POINTER TO BYTE;
+	(* lower limit of the string length *)
+	minLenght		:UDINT;
+	(* upper limit of the string length *)
+	maxLenght		:UDINT;
+	(* string length units of measurement *)
+	stringLengthUnit	:UnicodeStringLengthUnit;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="startsWith" Id="{44ab425f-1846-4e19-b20a-41bd22a53a78}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current string ``stringToCheck`` starts with string ``start``
+
+.. attention:: 
+	All strings are handled as null-terminated byte streams
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD startsWith : IUtf8StringPointerAssertions
+VAR_INPUT
+	(* current string to check *)
+	stringToCheck	:POINTER TO BYTE;
+	(* expected start of ``stringToCheck`` *)
+	start			:POINTER TO BYTE;
+	(* ``TRUE`` means ignore cases; ``FALSE`` means that cases must be equal too *)
+	ignoreCases		:BOOL;
+	(* ``TRUE`` means truncation of spaces on the left side of ``stringToCheck``*)
+	trimLeft		:BOOL;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+    </Method>
+  </Itf>
+</TcPlcObject>

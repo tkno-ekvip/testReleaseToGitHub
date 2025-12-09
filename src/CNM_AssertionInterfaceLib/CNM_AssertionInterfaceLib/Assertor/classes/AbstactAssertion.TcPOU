@@ -1,0 +1,217 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.11">
+  <POU Name="AbstactAssertion" Id="{92c9da89-8fe7-4ec3-a9d0-6356252b6626}" SpecialFunc="None">
+    <Declaration><![CDATA[(*
+
+short summary
+=================
+This abstract class is for all the assertion classes to ease and unify
+the callbacks
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+methods and properties
+=======================
+
+*)
+
+{attribute 'reflection'}
+FUNCTION_BLOCK INTERNAL ABSTRACT AbstactAssertion EXTENDS CNM_AbstractObject.Object IMPLEMENTS IAssertCallBackSetter
+VAR
+	(* the class that must be informed if an assertion is false *)
+	callBack	:IAssertCallback;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Method Name="assertionWasWrong" Id="{45cec007-d4d6-4820-a3b8-81cfba496d74}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This method is called if an assertion was ``FALSE``
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD PROTECTED assertionWasWrong
+VAR_INPUT
+	(* alarm message *)
+	message			:AssertMessage;
+	(* debugging information *) 
+	additionalText	:Tc2_System.T_MaxString;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (THIS^.isObjectValid(THIS^.callBack)) THEN
+	THIS^.callBack.assertionWasWrong(
+		caller			:= THIS^,
+		message			:= message,
+		additionalText	:= additionalText
+	);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="className" Id="{1991f882-fa3e-48c8-bdf2-23bc238db2c8}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This abstract property returns the class name of the concrete object, 
+It's for debugging purpose
+
+.. attention:: 
+	For derivations: **It is necessary that this property is overridden by the concrete class**
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+PROPERTY ABSTRACT className : CNM_AbstractObject.ClassName]]></Declaration>
+      <Get Name="Get" Id="{58f4d279-6e75-492a-9b3f-d3be6f457773}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="getDebugInfo" Id="{874eac20-1638-44ba-9dbe-603a4e647717}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This method returns a debug info string
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+:return: debug info string, it contains the caller method name and the class name. 
+Format is ``'ClassName.methodName: Assertion was false'``
+
+*)
+
+METHOD PROTECTED getDebugInfo :Tc2_System.T_MaxString
+VAR_INPUT
+	(* name of the caller method *) 
+	caller	:Tc2_System.T_MaxString;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[getDebugInfo := Tc2_Standard.CONCAT(
+	THIS^.className,
+	Tc2_Standard.CONCAT(
+		'.',
+		Tc2_Standard.CONCAT(
+			caller,
+			': Assertion was false'
+		)
+	)
+);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="setCallBack" Id="{3cf575e9-8a4d-4bd5-9c9c-18e21a217ce6}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This methods is the setter for the callback class if an assertion was false
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD setCallBack
+VAR_INPUT
+	(* the class that must be informed if an assertion is false *)
+	callBack	:IAssertCallback;  
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.callBack := callBack;
+]]></ST>
+      </Implementation>
+    </Method>
+    <LineIds Name="AbstactAssertion">
+      <LineId Id="9" Count="0" />
+    </LineIds>
+    <LineIds Name="AbstactAssertion.assertionWasWrong">
+      <LineId Id="76" Count="6" />
+      <LineId Id="15" Count="0" />
+    </LineIds>
+    <LineIds Name="AbstactAssertion.className.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="AbstactAssertion.getDebugInfo">
+      <LineId Id="5" Count="0" />
+      <LineId Id="7" Count="2" />
+      <LineId Id="14" Count="5" />
+      <LineId Id="22" Count="0" />
+    </LineIds>
+    <LineIds Name="AbstactAssertion.setCallBack">
+      <LineId Id="30" Count="1" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

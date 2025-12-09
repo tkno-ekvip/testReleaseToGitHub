@@ -1,0 +1,242 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.11">
+  <POU Name="SimpleDateAndTimeAssertions" Id="{f3dc97fb-181e-402c-8292-4576bcf882dc}" SpecialFunc="None">
+    <Declaration><![CDATA[(*
+
+short summary
+=================
+| This class provides assert statements for date and time types with 32 bit length
+| It implements the interface :ref:`ISimpleDateAndTimeAssertions`
+| For date and time (``DT``) use :ref:`SimpleDateAndTimeAssertions.dateAndTime`
+| For date (``DATE``) use  :ref:`SimpleDateAndTimeAssertions.dateOnly`
+| For time of day (``TOD``) use  :ref:`SimpleDateAndTimeAssertions.timeOfDay`
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+methods and properties
+=======================
+
+*)
+
+{attribute 'reflection'}
+FUNCTION_BLOCK INTERNAL SimpleDateAndTimeAssertions 
+EXTENDS CNM_AbstractObject.Object
+IMPLEMENTS ISimpleDateAndTimeAssertions, IAssertCallBacksetter
+VAR
+	(* class to handle date assertions *)
+	dateAssertions		:DateAssertions32Bit();
+	(* class to handle date and time assertions *)
+	dateTimeAssertions	:DateTimeAssertions32Bit();
+	(* class to handle time of day assertions *)
+	timeOfDayAssertions	:TimeOfDayAssertions32Bit();
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Property Name="className" Id="{b832bafb-84d2-4b1e-adf6-f14116155244}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This abstract property returns the class name of the concrete object, 
+It's for debugging purpose
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+PROPERTY className :CNM_AbstractObject.ClassName]]></Declaration>
+      <Get Name="Get" Id="{5015335e-ab46-4bf3-8221-71f22a741318}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[className := 'CNM_AssertionInterfaceLib.SimplyDateAndTimeAssertions';
+]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="dateAndTime" Id="{bb67ca2a-d53b-4d0e-9f82-b9aa54727ecf}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+Returns the interface :ref:`I32BitDtAssertions`
+with assert statements for 32 bit date and time ``DT``
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+PROPERTY dateAndTime :I32BitDtAssertions
+]]></Declaration>
+      <Get Name="Get" Id="{437387f1-43e6-46c7-b9a6-f783d40a7537}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[dateAndTime := THIS^.dateTimeAssertions;
+]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="dateOnly" Id="{abb540b7-37c0-4d0f-bdf8-fb8b025068f2}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+Returns the interface :ref:`I32BitDateAssertions`
+with assert statements for 32 bit date ``DATE``
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+PROPERTY dateOnly : I32BitDateAssertions
+]]></Declaration>
+      <Get Name="Get" Id="{b7a4fcbd-cc90-4002-ae5e-175383967ecd}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[dateOnly := THIS^.dateAssertions;
+]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="setCallBack" Id="{55c7dbf2-73b8-4a27-9087-f94699962405}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This methods is the setter for the callback class if an assertion was false
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD setCallBack
+VAR_INPUT
+	(* the class that must be informed if an assertion is false *)
+	callBack	:IAssertCallback;  
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.dateAssertions.setCallBack(callBack);
+THIS^.dateTimeAssertions.setCallBack(callBack);
+THIS^.timeOfDayAssertions.setCallBack(callBack);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="timeOfDay" Id="{1ba11a9a-0e79-4afb-aac9-e7d98b447f29}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+Returns the interface :ref:`I32BitDateAssertions`
+with assert statements for 32 bit time of day ``TOD``
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+PROPERTY timeOfDay :I32BitTodAssertions
+]]></Declaration>
+      <Get Name="Get" Id="{c913bd6b-1f4d-4c9a-8c5a-5788475d17a6}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[timeOfDay := THIS^.timeOfDayAssertions;
+]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <LineIds Name="SimpleDateAndTimeAssertions">
+      <LineId Id="9" Count="0" />
+    </LineIds>
+    <LineIds Name="SimpleDateAndTimeAssertions.className.Get">
+      <LineId Id="5" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="SimpleDateAndTimeAssertions.dateAndTime.Get">
+      <LineId Id="2" Count="0" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="SimpleDateAndTimeAssertions.dateOnly.Get">
+      <LineId Id="2" Count="0" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="SimpleDateAndTimeAssertions.setCallBack">
+      <LineId Id="30" Count="3" />
+    </LineIds>
+    <LineIds Name="SimpleDateAndTimeAssertions.timeOfDay.Get">
+      <LineId Id="2" Count="0" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

@@ -1,0 +1,182 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <Itf Name="IStringAssertions" Id="{e18995ab-9503-4af3-9fad-9e2f0d75cae0}">
+    <Declaration><![CDATA[(*
+
+short summary
+=================
+| This interface provides assert statements for strings
+| For UTF-16 strings up to 255 ``WORD`` (``WSTRING(Tc2_System.MAX_STRING_LENGTH)``) use the property :ref:`IStringAssertions.utf16`.
+| For windows-1252 strings up to 255 ``BYTE`` (``Tc2_System.T_MaxString``) use the property :ref:`IStringAssertions.windows1252`.
+| For windows-1252 or UTF-16 strings that are longer, use the property :ref:`IStringAssertions.anyString`  
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+properties
+==================
+
+*)
+
+INTERFACE IStringAssertions EXTENDS __SYSTEM.IQueryInterface
+]]></Declaration>
+    <Property Name="anyString" Id="{16b8f2bc-45bd-4a13-b855-b60cf9e6b09a}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+Returns an interface :ref:`IAnyStringAssertions` with assert statements,
+for 8-bit windows-1252 and UTF-16 strings with an undifined length.
+
+.. attention:: 
+	All strings are handled as null terminated byte/word streams.
+	For windows-1252 is end of the string 16#00
+	For UTF-16 is end of the string 16#00_00
+
+.. attention:: 
+	The interface :ref:`IAnyStringAssertions` uses ``ANY_STRING``, 
+	for this it's not possible to use literals/constants,
+	because for ``ANY`` types generates the compiler ``__SYSTEM.AnyType``
+	and ``__SYSTEM.AnyType`` contains a pointer  
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+PROPERTY anyString :IAnyStringAssertions]]></Declaration>
+      <Get Name="Get" Id="{b5e413b1-e81b-4a9e-b670-cf638135dc22}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Property Name="utf16" Id="{8df4010b-3eae-4a2e-8150-ce528203d304}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+Returns an interface :ref:`IUtf16StringAssertions` with assert statements
+for UTF-16 strings until 255 ``WORD`` length (``WSTRING(Tc2_System.MAX_STRING_LENGTH)``)
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+PROPERTY utf16 :IUtf16StringAssertions]]></Declaration>
+      <Get Name="Get" Id="{56969a66-6e5c-4612-8909-a36d80986004}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Property Name="utf8" Id="{2345ac52-5459-4b86-a402-9aada8a6f95d}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+Returns an interface :ref:`IUtf8StringAssertions` with assert statements
+for UTF-8 strings up to 255 bytes length (``STRING(Tc2_System.MAX_STRING_LENGTH)``)
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+PROPERTY utf8 :IUtf8StringAssertions
+]]></Declaration>
+      <Get Name="Get" Id="{02366ac8-9231-4e2e-9f14-9970d0a7d8f7}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Property Name="windows1252" Id="{7fd2f1ed-e975-4475-93ff-52ca5c2f3e82}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+Returns an interface :ref:`IWindows1252StringAssertions` with assert statements
+for 8-bit windows-1252 strings until 255 characters length (``Tc2_System.T_MaxString``)
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+PROPERTY windows1252 :IWindows1252StringAssertions]]></Declaration>
+      <Get Name="Get" Id="{79df93e4-5906-4dd9-a1af-a98c170e30bc}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Property Name="windows125x" Id="{4575868b-605a-448b-bf27-f4ae1935dcfb}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+Returns an interface :ref:`IWindows125xStringAssertions` with assert statements for 8-bit 
+windows-1252 and windows-1251 strings up to 255 characters length (``Tc2_System.T_MaxString``).
+Use Tc2_Utilities.GLOBAL_SBCS_TABLE variable to select required encoding
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+PROPERTY windows125x :IWindows125xStringAssertions
+]]></Declaration>
+      <Get Name="Get" Id="{083c4bed-972f-42b1-9291-b49d3e49c543}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+  </Itf>
+</TcPlcObject>

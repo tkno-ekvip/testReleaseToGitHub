@@ -1,0 +1,165 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.11">
+  <Itf Name="ISignedIntegerAssertions" Id="{637cd7b1-41f2-4b19-8a1e-cab47c68c582}">
+    <Declaration><![CDATA[(*
+
+short summary
+=================
+| This interface provides assert statements for signed integers from 8~64 bit length 
+| For 8 bit intgers use :ref:`ISignedIntegerAssertions.short`
+| For 16 bit intgers use :ref:`ISignedIntegerAssertions.simple`
+| For 32 bit intgers use :ref:`ISignedIntegerAssertions.double`
+| For 64 bit intgers use :ref:`ISignedIntegerAssertions.long`
+| For integers in register length use :ref:`ISignedIntegerAssertions.x`
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+properties
+==================
+
+*)
+
+INTERFACE ISignedIntegerAssertions EXTENDS __SYSTEM.IQueryInterface
+]]></Declaration>
+    <Property Name="double" Id="{eaa89ec6-67c0-4acf-93ed-bf061ae0dcda}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+Returns the interface :ref:`IDintAssertions` with assert statements for signed 32 bit integers 
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+PROPERTY double :IDintAssertions]]></Declaration>
+      <Get Name="Get" Id="{f90905b3-e1d1-4c26-af57-2323cc2f254d}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Property Name="long" Id="{32faab82-2192-4a5c-9379-e7a7e1550021}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+Returns the interface :ref:`ILintAssertions` with assert statements for signed 64 bit integers 
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+PROPERTY long :ILintAssertions]]></Declaration>
+      <Get Name="Get" Id="{8765439c-2184-417d-837b-50873ffa56f1}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Property Name="short" Id="{e292d4f4-824f-4b0c-8ad9-2c519f616974}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+Returns the interface :ref:`ISintAssertions` with assert statements for signed 8 bit integers 
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+PROPERTY short :ISintAssertions]]></Declaration>
+      <Get Name="Get" Id="{2baa5923-a252-4a03-badc-c12e6b539013}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Property Name="simple" Id="{aa0ed2ee-99b7-4e2a-ab3b-d51308b5c3da}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+Returns the interface :ref:`IIntAssertions` with assert statements for signed 16 bit integers 
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+PROPERTY simple :IIntAssertions]]></Declaration>
+      <Get Name="Get" Id="{70a64b33-1a36-4a65-a8c1-4d56e64402c3}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Property Name="x" Id="{7a1fb43c-5930-4a28-b9e1-ddcc56932764}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+Returns the interface :ref:`IXintAssertions` with assert statements for signed integers register length 
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+PROPERTY x :IXintAssertions]]></Declaration>
+      <Get Name="Get" Id="{0f089141-cc88-4563-be61-addb9a5c72db}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+  </Itf>
+</TcPlcObject>

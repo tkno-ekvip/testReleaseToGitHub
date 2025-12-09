@@ -1,0 +1,2141 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="TimeAssertionsTests" Id="{fb9f8a9d-9625-42c6-af78-7a4951be879b}" SpecialFunc="None">
+    <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+methods and properties
+======================
+
+*)
+
+{warning 'header is generated please add your documentation'}
+FUNCTION_BLOCK TimeAssertionsTests EXTENDS AbstractAssertorTest
+VAR CONSTANT
+	NUMBER_OF_SETS :INT := 9;
+END_VAR
+VAR
+	simpleTimeValuesToCurrent 	:ARRAY [0..NUMBER_OF_SETS] OF TIME;
+	simpleTimeValuesToExpected 	:ARRAY [0..NUMBER_OF_SETS] OF TIME;
+	longTimeValuesToCurrent 	:ARRAY [0..NUMBER_OF_SETS] OF LTIME;
+	longTimeValuesToExpected 	:ARRAY [0..NUMBER_OF_SETS] OF LTIME;								
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[
+assignTimes();
+
+(* Simple time tests *)
+
+THIS^.testSimpleValueIsEqualTo(simpleTimeValuesToCurrent, simpleTimeValuesToExpected);
+
+THIS^.testSimpleValueIsNotEqualTo(simpleTimeValuesToCurrent, mirrorSimpleTimeArray(simpleTimeValuesToExpected));
+
+THIS^.testSimpleValueIsGreaterThan(simpleTimeValuesToCurrent, simpleTimeValuesToExpected);
+
+THIS^.testSimpleValueIsLessThan(simpleTimeValuesToCurrent, simpleTimeValuesToExpected);
+
+THIS^.testSimpleValueIsInRangeOf(simpleTimeValuesToCurrent, simpleTimeValuesToExpected, mirrorSimpleTimeArray(simpleTimeValuesToExpected));
+
+THIS^.testSimpleValueIsMax(simpleTimeValuesToCurrent, mirrorSimpleTimeArray(simpleTimeValuesToExpected));
+
+THIS^.testSimpleValueIsMin(simpleTimeValuesToCurrent, mirrorSimpleTimeArray(simpleTimeValuesToExpected));
+
+THIS^.testSimpleTimeHasExpired(simpleTimeValuesToCurrent, mirrorSimpleTimeArray(simpleTimeValuesToExpected));
+
+THIS^.testSimpleTimeHasNotExpired(simpleTimeValuesToCurrent, mirrorSimpleTimeArray(simpleTimeValuesToExpected));
+
+(* Long time tests *)
+
+THIS^.testLongValueIsEqualTo(longTimeValuesToCurrent, longTimeValuesToExpected);
+
+THIS^.testLongValueIsNotEqualTo(longTimeValuesToCurrent, mirrorLongTimeArray(longTimeValuesToExpected));
+
+THIS^.testLongValueIsGreaterThan(longTimeValuesToCurrent, longTimeValuesToExpected);
+
+THIS^.testLongValueIsLessThan(longTimeValuesToCurrent, longTimeValuesToExpected);
+
+THIS^.testLongValueIsInRangeOf(longTimeValuesToCurrent, longTimeValuesToExpected, mirrorLongTimeArray(longTimeValuesToExpected));
+
+THIS^.testLongValueIsMax(longTimeValuesToCurrent, mirrorLongTimeArray(longTimeValuesToExpected));
+
+THIS^.testLongValueIsMin(longTimeValuesToCurrent, mirrorLongTimeArray(longTimeValuesToExpected));
+
+THIS^.testLongTimeHasExpired(longTimeValuesToCurrent, mirrorlongTimeArray(longTimeValuesToExpected));
+
+THIS^.testLongTimeHasNotExpired(longTimeValuesToCurrent, mirrorlongTimeArray(longTimeValuesToExpected));
+
+]]></ST>
+    </Implementation>
+    <Method Name="assignTimes" Id="{c19fc971-1ab3-44f3-a31d-e1bd7261ae71}">
+      <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+{warning 'header is generated please add your documentation'}
+METHOD assignTimes
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[		
+// simple time
+simpleTimeValuesToCurrent[0] := TIME#0M;					simpleTimeValuesToExpected[0] := TIME#0S;
+simpleTimeValuesToCurrent[1] := TIME#0.01667M;				simpleTimeValuesToExpected[1] := TIME#1S;
+simpleTimeValuesToCurrent[2] := TIME#1M;					simpleTimeValuesToExpected[2] := TIME#60S;
+simpleTimeValuesToCurrent[3] := TIME#60M;					simpleTimeValuesToExpected[3] := TIME#3_600S;
+simpleTimeValuesToCurrent[4] := TIME#1440M;					simpleTimeValuesToExpected[4] := TIME#86_400S;
+simpleTimeValuesToCurrent[5] := TIME#10_080M;				simpleTimeValuesToExpected[5] := TIME#604_800S;
+simpleTimeValuesToCurrent[6] := TIME#20_160M;				simpleTimeValuesToExpected[6] := TIME#1_209_600S;
+simpleTimeValuesToCurrent[7] := TIME#40_320M;				simpleTimeValuesToExpected[7] := TIME#2_419_200S;
+simpleTimeValuesToCurrent[8] := TIME#60_480M;				simpleTimeValuesToExpected[8] := TIME#3_628_800S;
+simpleTimeValuesToCurrent[9] := TIME#4294967295MS;			simpleTimeValuesToExpected[9] := TIME#4294967295MS;
+
+// long time
+longTimeValuesToCurrent[0] := LTIME#0MS;					longTimeValuesToExpected[0] := LTIME#0NS;
+longTimeValuesToCurrent[1] := LTIME#1_000MS;				longTimeValuesToExpected[1] := LTIME#1000_000_000NS;
+longTimeValuesToCurrent[2] := LTIME#60_000MS;				longTimeValuesToExpected[2] := LTIME#60_000_000_000NS;
+longTimeValuesToCurrent[3] := LTIME#3_600_000MS;			longTimeValuesToExpected[3] := LTIME#3_600_000_000_000NS;
+longTimeValuesToCurrent[4] := LTIME#86_400_000MS;			longTimeValuesToExpected[4] := LTIME#86_400_000_000_000NS;
+longTimeValuesToCurrent[5] := LTIME#604_800_000MS;			longTimeValuesToExpected[5] := LTIME#604_800_000_000_000NS;
+longTimeValuesToCurrent[6] := LTIME#1_209_600_000MS;		longTimeValuesToExpected[6] := LTIME#1_209_600_000_000_000NS;
+longTimeValuesToCurrent[7] := LTIME#2_419_200_000MS;		longTimeValuesToExpected[7] := LTIME#2_419_200_000_000_000NS;
+longTimeValuesToCurrent[8] := LTIME#31_557_600_000MS;		longTimeValuesToExpected[8] := LTIME#31_557_600_000_000_000NS;
+longTimeValuesToCurrent[9] := LTIME#31_557_600_000MS;		longTimeValuesToExpected[9] := LTIME#213503D23H34M33S709MS551US615NS;
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="mirrorLongTimeArray" Id="{14b7b865-b42b-4059-a9ea-ccf0738c7aca}">
+      <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+{warning 'header is generated please add your documentation'}
+
+METHOD mirrorLongTimeArray :ARRAY [0..NUMBER_OF_SETS] OF LTIME
+VAR_INPUT
+	inputArray :ARRAY [0..NUMBER_OF_SETS] OF LTIME;
+END_VAR
+VAR
+	tempArray :ARRAY [0..NUMBER_OF_SETS] OF LTIME;
+	temp :LTIME;
+	i :INT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[tempArray := inputArray;
+
+FOR i := 0 TO (NUMBER_OF_SETS/2 - 1) DO
+	temp := inputArray[i];
+	tempArray[i] := inputArray[NUMBER_OF_SETS - i];
+	tempArray[NUMBER_OF_SETS - i] := temp;
+END_FOR
+
+mirrorLongTimeArray := tempArray;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="mirrorSimpleTimeArray" Id="{f9e2266f-3ff3-457a-b412-b0263da879de}">
+      <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+{warning 'header is generated please add your documentation'}
+
+METHOD mirrorSimpleTimeArray :ARRAY [0..NUMBER_OF_SETS] OF TIME
+VAR_INPUT
+	inputArray :ARRAY [0..NUMBER_OF_SETS] OF TIME;
+END_VAR
+VAR
+	tempArray :ARRAY [0..NUMBER_OF_SETS] OF TIME;
+	temp :TIME;
+	i :INT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[tempArray := inputArray;
+
+FOR i := 0 TO (NUMBER_OF_SETS/2 - 1) DO
+	temp := inputArray[i];
+	tempArray[i] := inputArray[NUMBER_OF_SETS - i];
+	tempArray[NUMBER_OF_SETS - i] := temp;
+END_FOR
+
+mirrorSimpleTimeArray := tempArray;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testLongTimeHasExpired" Id="{0532991b-d03b-4d34-b210-c38c65c74180}">
+      <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+{warning 'header is generated please add your documentation'}
+
+METHOD testLongTimeHasExpired
+VAR_INPUT
+	currentValue :ARRAY [0..NUMBER_OF_SETS] OF LTIME;
+	expectedValue :ARRAY [0..NUMBER_OF_SETS] OF LTIME;
+END_VAR
+VAR
+	i :INT;
+	message :Tc2_System.T_MaxString;
+	timeStamp :LTIME;
+	currentTime :LTIME;
+	timeout :LTIME;
+	timeExpired :BOOL;
+END_VAR
+VAR CONSTANT
+	MAX_TIME :LTIME := TO_LTIME(16#FF_FF_FF_FF_FF_FF_FF_FF);
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[
+TEST('TEST--TimeAssertion--testLongTimeHasExpired');
+
+FOR i := 0 TO 9 BY 1 DO
+	
+	THIS^.assertorContainer.resetAssertor();
+	currentTime := LTIME();	
+	timeStamp := SEL(currentTime > currentValue[i], currentTime - currentValue[i], currentTime);
+
+	timeExpired := (TO_LINT(timeStamp)) >= (TO_LINT(currentTime));
+	THIS^.assertorContainer.assertor.assert.times.long.timeHasExpired(
+		timestamp := timeStamp,
+		expiringTime := expectedValue[i],
+		message := ''
+	);
+	
+	
+	
+	message := 'TimeAssertionTests';
+	message := Tc2_Standard.CONCAT(message, ' -> ');
+	message := Tc2_Standard.CONCAT(message, 'longTimeHasExpired');
+	message := Tc2_Standard.CONCAT(message, ' -> ');
+	message := Tc2_Standard.CONCAT(message, ' Test ');
+	message := Tc2_Standard.CONCAT(message, TO_STRING(i));
+	message := Tc2_Standard.CONCAT(message, ' -> ');
+	message := Tc2_Standard.CONCAT(message, ' currentValue = ');
+	message := Tc2_Standard.CONCAT(message, TO_STRING(TO_LINT(currentValue[i])));	
+	message := Tc2_Standard.CONCAT(message, ' -> ');
+	message := Tc2_Standard.CONCAT(message, ' expectedValue = ');
+	message := Tc2_Standard.CONCAT(message, TO_STRING(TO_LINT(expectedValue[i])));
+	message := Tc2_Standard.CONCAT(message, ' -> ');
+	message := Tc2_Standard.CONCAT(message, ' timestamp = ');
+	message := Tc2_Standard.CONCAT(message, TO_STRING(TO_LINT(timeStamp)));
+	message := Tc2_Standard.CONCAT(message, ' -> ');
+	message := Tc2_Standard.CONCAT(message, ' currentTime = ');
+	message := Tc2_Standard.CONCAT(message, TO_STRING(TO_LINT(currentTime)));
+	message := Tc2_Standard.CONCAT(message, ' -> ');
+	message := Tc2_Standard.CONCAT(message, ' timeExpired = ');
+	message := Tc2_Standard.CONCAT(message, TO_STRING(TO_LINT(timeExpired)));
+	message := Tc2_Standard.CONCAT(message, ' => ');
+	message := Tc2_Standard.CONCAT(message, ' assertionWasWrong = ');
+	message := Tc2_Standard.CONCAT(message, TO_STRING(THIS^.assertorContainer.wasAssertionWrong));
+
+
+
+	IF (timeExpired) THEN
+		THIS^.AssertFALSE(
+			Condition := THIS^.assertorContainer.wasAssertionWrong,
+			Message := message
+		);
+	ELSE
+		THIS^.AssertTrue(
+			Condition := THIS^.assertorContainer.wasAssertionWrong,
+			Message := message
+		);		
+	END_IF
+	
+END_FOR;
+
+
+TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testLongTimeHasNotExpired" Id="{9035cf6e-81dd-4acf-b712-7b74cc5499b2}">
+      <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+{warning 'header is generated please add your documentation'}
+
+METHOD testLongTimeHasNotExpired
+VAR_INPUT
+	currentValue :ARRAY [0..NUMBER_OF_SETS] OF LTIME;
+	expectedValue :ARRAY [0..NUMBER_OF_SETS] OF LTIME;
+END_VAR
+VAR
+	i :INT;
+	message :Tc2_System.T_MaxString;
+	 timeStamp :LTIME;
+	 currentTime :LTIME;
+	 timeout :LTIME;
+	 timeExpired :BOOL;
+END_VAR
+VAR CONSTANT
+	MAX_TIME :LTIME := TO_LTIME(16#FF_FF_FF_FF_FF_FF_FF_FF);
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[
+TEST('TEST--TimeAssertion--testLongTimeHasNotExpired');
+
+FOR i := 0 TO 9 BY 1 DO
+	
+	THIS^.assertorContainer.resetAssertor();
+	currentTime := LTIME();	
+//	timeStamp := SEL(currentTime < currentValue[i], currentTime - currentValue[i], MAX_TIME - currentValue[i] + currentTime);
+	timeStamp := SEL(currentTime > currentValue[i], currentTime - currentValue[i], currentTime);
+
+	timeExpired := (TO_LINT(timeStamp)) >= (TO_LINT(currentTime));
+	THIS^.assertorContainer.assertor.assert.times.long.timeHasNotExpired(
+		timestamp := timeStamp,
+		expiringTime := expectedValue[i],
+		message := ''
+	);
+	
+	
+	
+	message := 'TimeAssertionTests';
+	message := Tc2_Standard.CONCAT(message, ' -> ');
+	message := Tc2_Standard.CONCAT(message, 'longTimeHasNotExpired');
+	message := Tc2_Standard.CONCAT(message, ' -> ');
+	message := Tc2_Standard.CONCAT(message, ' Test ');
+	message := Tc2_Standard.CONCAT(message, TO_STRING(i));
+	message := Tc2_Standard.CONCAT(message, ' -> ');
+	message := Tc2_Standard.CONCAT(message, ' currentValue = ');
+	message := Tc2_Standard.CONCAT(message, TO_STRING(TO_LINT(currentValue[i])));	
+	message := Tc2_Standard.CONCAT(message, ' -> ');
+	message := Tc2_Standard.CONCAT(message, ' expectedValue = ');
+	message := Tc2_Standard.CONCAT(message, TO_STRING(TO_LINT(expectedValue[i])));
+	message := Tc2_Standard.CONCAT(message, ' -> ');
+	message := Tc2_Standard.CONCAT(message, ' timestamp = ');
+	message := Tc2_Standard.CONCAT(message, TO_STRING(TO_LINT(timeStamp)));
+	message := Tc2_Standard.CONCAT(message, ' -> ');
+	message := Tc2_Standard.CONCAT(message, ' currentTime = ');
+	message := Tc2_Standard.CONCAT(message, TO_STRING(TO_LINT(currentTime)));
+	message := Tc2_Standard.CONCAT(message, ' -> ');
+	message := Tc2_Standard.CONCAT(message, ' timeExpired = ');
+	message := Tc2_Standard.CONCAT(message, TO_STRING(TO_LINT(timeExpired)));
+	message := Tc2_Standard.CONCAT(message, ' => ');
+	message := Tc2_Standard.CONCAT(message, ' assertionWasWrong = ');
+	message := Tc2_Standard.CONCAT(message, TO_STRING(THIS^.assertorContainer.wasAssertionWrong));
+
+
+	IF (NOT timeExpired) THEN
+		THIS^.AssertFALSE(
+			Condition := THIS^.assertorContainer.wasAssertionWrong,
+			Message := message
+		);
+	ELSE
+		THIS^.AssertTrue(
+			Condition := THIS^.assertorContainer.wasAssertionWrong,
+			Message := message
+		);		
+	END_IF
+	
+END_FOR;
+
+
+TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testLongValueIsEqualTo" Id="{806be7b7-5c9d-45b6-b9e9-520dd56d2ada}">
+      <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+{warning 'header is generated please add your documentation'}
+
+METHOD testLongValueIsEqualTo
+VAR_INPUT
+	currentValue :ARRAY [0..NUMBER_OF_SETS] OF LTIME;
+	expectedValue :ARRAY [0..NUMBER_OF_SETS] OF LTIME;
+END_VAR
+VAR
+	i :INT;
+	message :Tc2_System.T_MaxString;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[TEST('TEST--TimeAssertion--testLongValueIsEqualTo');
+
+FOR i := 0 TO 9 BY 1 DO
+	
+	THIS^.assertorContainer.resetAssertor();
+	THIS^.assertorContainer.assertor.assert.times.long.valueIsEqualTo(
+		currentValue := currentValue[i],
+		expectedValue := expectedValue[i],
+		message := ''
+	);
+	
+	
+	message := 'TimeAssertionTests';
+	message := Tc2_Standard.CONCAT(message, ' => ');
+	message := Tc2_Standard.CONCAT(message, 'longTimeValuesIsEqualTo');
+	message := Tc2_Standard.CONCAT(message, ' => ');
+	message := Tc2_Standard.CONCAT(message, ' Test ');
+	message := Tc2_Standard.CONCAT(message, TO_STRING(i));
+	message := Tc2_Standard.CONCAT(message, ' => ');
+	message := Tc2_Standard.CONCAT(message, ' assertion shall be wrong ');
+	message := Tc2_Standard.CONCAT(message, ' => ');
+	message := Tc2_Standard.CONCAT(message, ' currentValue = ');
+	message := Tc2_Standard.CONCAT(message, TO_STRING(currentValue[i]));
+	message := Tc2_Standard.CONCAT(message, ' expectedValue = ');
+	message := Tc2_Standard.CONCAT(message, TO_STRING(expectedValue[i]));
+	message := Tc2_Standard.CONCAT(message, ' => ');
+	message := Tc2_Standard.CONCAT(message, ' assertionWasWrong = ');
+	message := Tc2_Standard.CONCAT(message, TO_STRING(THIS^.assertorContainer.wasAssertionWrong));
+
+	IF (currentValue[i] = expectedValue[i]) THEN
+		THIS^.AssertFalse(
+			Condition := THIS^.assertorContainer.wasAssertionWrong,
+			Message := message
+		);
+	ELSE
+		THIS^.AssertTrue(
+			Condition := THIS^.assertorContainer.wasAssertionWrong,
+			Message := message
+		);		
+	END_IF
+	
+END_FOR;
+
+
+TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testLongValueIsGreaterThan" Id="{1367bb35-6ed3-4b40-ae7c-00121e25559f}">
+      <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+{warning 'header is generated please add your documentation'}
+
+METHOD testLongValueIsGreaterThan
+VAR_INPUT
+	currentValue :ARRAY [0..NUMBER_OF_SETS] OF LTIME;
+	expectedValue :ARRAY [0..NUMBER_OF_SETS] OF LTIME;
+END_VAR
+VAR
+	i :INT;
+	message :Tc2_System.T_MaxString;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[
+TEST('TEST--TimeAssertion--testLongValueIsGreaterThan');
+
+FOR i := 0 TO 9 BY 1 DO
+	
+	THIS^.assertorContainer.resetAssertor();
+	THIS^.assertorContainer.assertor.assert.times.long.valueIsGreaterThan(
+		currentValue := currentValue[i],
+		lessValue := expectedValue[i],
+		message := ''
+	);
+	
+	
+	message := 'TimeAssertionTests';
+	message := Tc2_Standard.CONCAT(message, ' => ');
+	message := Tc2_Standard.CONCAT(message, 'longTimeValueIsGreaterThan');
+	message := Tc2_Standard.CONCAT(message, ' => ');
+	message := Tc2_Standard.CONCAT(message, ' Test ');
+	message := Tc2_Standard.CONCAT(message, TO_STRING(i));
+	message := Tc2_Standard.CONCAT(message, ' => ');
+	message := Tc2_Standard.CONCAT(message, ' assertion shall be wrong ');
+	message := Tc2_Standard.CONCAT(message, ' => ');
+	message := Tc2_Standard.CONCAT(message, ' currentValue = ');
+	message := Tc2_Standard.CONCAT(message, TO_STRING(currentValue[i]));
+	message := Tc2_Standard.CONCAT(message, ' expectedValue = ');
+	message := Tc2_Standard.CONCAT(message, TO_STRING(expectedValue[i]));
+	message := Tc2_Standard.CONCAT(message, ' => ');
+	message := Tc2_Standard.CONCAT(message, ' assertionWasWrong = ');
+	message := Tc2_Standard.CONCAT(message, TO_STRING(THIS^.assertorContainer.wasAssertionWrong));
+
+	IF (currentValue[i] <= expectedValue[i]) THEN
+		THIS^.AssertTrue(
+			Condition := THIS^.assertorContainer.wasAssertionWrong,
+			Message := message
+		);
+	ELSE
+		THIS^.AssertFalse(
+			Condition := THIS^.assertorContainer.wasAssertionWrong,
+			Message := message
+		);		
+	END_IF
+	
+END_FOR;
+
+
+TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testLongValueIsInRangeOf" Id="{d18432e7-7b7e-447a-b4d2-fbca710e56f9}">
+      <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+{warning 'header is generated please add your documentation'}
+
+METHOD testLongValueIsInRangeOf
+VAR_INPUT
+	currentValue :ARRAY [0..NUMBER_OF_SETS] OF LTIME;
+	lowerLimit :ARRAY [0..NUMBER_OF_SETS] OF LTIME;
+	upperLimit :ARRAY [0..NUMBER_OF_SETS] OF LTIME;
+END_VAR
+VAR
+	i :INT;
+	message :Tc2_System.T_MaxString;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[
+TEST('TEST--TimeAssertion--testLongValueIsInRangeOf');
+
+FOR i := 0 TO 9 BY 1 DO
+	
+	THIS^.assertorContainer.resetAssertor();
+	THIS^.assertorContainer.assertor.assert.times.long.valueIsInRangeOf(
+		currentValue := currentValue[i],
+		lowerLimit := lowerLimit[i],
+		upperLimit := upperLimit[i],
+		message := ''
+	);
+	
+	
+	message := 'TimeAssertionTests';
+	message := Tc2_Standard.CONCAT(message, ' => ');
+	message := Tc2_Standard.CONCAT(message, 'testLongValueIsInRangeOf');
+	message := Tc2_Standard.CONCAT(message, ' => ');
+	message := Tc2_Standard.CONCAT(message, ' Test ');
+	message := Tc2_Standard.CONCAT(message, TO_STRING(i));
+	message := Tc2_Standard.CONCAT(message, ' => ');
+	message := Tc2_Standard.CONCAT(message, ' assertion shall be wrong ');
+	message := Tc2_Standard.CONCAT(message, ' => ');
+	message := Tc2_Standard.CONCAT(message, ' currentValue = ');
+	message := Tc2_Standard.CONCAT(message, TO_STRING(currentValue[i]));
+	message := Tc2_Standard.CONCAT(message, ' => ');
+	message := Tc2_Standard.CONCAT(message, ' lowerLimit = ');
+	message := Tc2_Standard.CONCAT(message, TO_STRING(lowerLimit[i]));
+	message := Tc2_Standard.CONCAT(message, ' => ');
+	message := Tc2_Standard.CONCAT(message, ' upperLimit = ');
+	message := Tc2_Standard.CONCAT(message, TO_STRING(upperLimit[i]));
+	message := Tc2_Standard.CONCAT(message, ' => ');
+	message := Tc2_Standard.CONCAT(message, ' assertionWasWrong = ');
+	message := Tc2_Standard.CONCAT(message, TO_STRING(THIS^.assertorContainer.wasAssertionWrong));
+
+
+	IF ((currentValue[i] >= lowerLimit[i]) AND (currentValue[i] <= upperLimit[i])) THEN
+		THIS^.AssertFalse(
+			Condition := THIS^.assertorContainer.wasAssertionWrong,
+			Message := message
+		);
+	ELSE
+		THIS^.AssertTrue(
+			Condition := THIS^.assertorContainer.wasAssertionWrong,
+			Message := message
+		);		
+	END_IF
+	
+END_FOR;
+
+
+TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testLongValueIsLessThan" Id="{668159d7-7dbf-472b-8ae0-91453a3f9933}">
+      <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+{warning 'header is generated please add your documentation'}
+
+METHOD testLongValueIsLessThan
+VAR_INPUT
+	currentValue :ARRAY [0..NUMBER_OF_SETS] OF LTIME;
+	expectedValue :ARRAY [0..NUMBER_OF_SETS] OF LTIME;
+END_VAR
+VAR
+	i :INT;
+	message :Tc2_System.T_MaxString;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[
+TEST('TEST--TimeAssertion--testLongValueIsLessThan');
+
+FOR i := 0 TO 9 BY 1 DO
+	
+	THIS^.assertorContainer.resetAssertor();
+	THIS^.assertorContainer.assertor.assert.times.long.valueIsLessThan(
+		currentValue := currentValue[i],
+		greaterValue := expectedValue[i],
+		message := ''
+	);
+	
+	
+	message := 'TimeAssertionTests';
+	message := Tc2_Standard.CONCAT(message, ' => ');
+	message := Tc2_Standard.CONCAT(message, ' longTimeValueIslessThan');
+	message := Tc2_Standard.CONCAT(message, ' => ');
+	message := Tc2_Standard.CONCAT(message, ' Test ');
+	message := Tc2_Standard.CONCAT(message, TO_STRING(i));
+	message := Tc2_Standard.CONCAT(message, ' => ');
+	message := Tc2_Standard.CONCAT(message, ' assertion shall be wrong ');
+	message := Tc2_Standard.CONCAT(message, ' => ');
+	message := Tc2_Standard.CONCAT(message, ' currentValue = ');
+	message := Tc2_Standard.CONCAT(message, TO_STRING(currentValue[i]));
+	message := Tc2_Standard.CONCAT(message, ' expectedValue = ');
+	message := Tc2_Standard.CONCAT(message, TO_STRING(expectedValue[i]));
+	message := Tc2_Standard.CONCAT(message, ' => ');
+	message := Tc2_Standard.CONCAT(message, ' assertionWasWrong = ');
+	message := Tc2_Standard.CONCAT(message, TO_STRING(THIS^.assertorContainer.wasAssertionWrong));
+
+
+	IF (currentValue[i] >= expectedValue[i]) THEN
+		THIS^.AssertTrue(
+			Condition := THIS^.assertorContainer.wasAssertionWrong,
+			Message := message
+		);
+	ELSE
+		THIS^.AssertFalse(
+			Condition := THIS^.assertorContainer.wasAssertionWrong,
+			Message := message
+		);		
+	END_IF
+	
+END_FOR;
+
+
+TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testLongValueIsMax" Id="{f96ae528-be70-4ca0-9cf0-0de4c05bc9b4}">
+      <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+{warning 'header is generated please add your documentation'}
+
+METHOD testLongValueIsMax
+VAR_INPUT
+	currentValue :ARRAY [0..NUMBER_OF_SETS] OF LTIME;
+	expectedValue :ARRAY [0..NUMBER_OF_SETS] OF LTIME;
+END_VAR
+VAR
+	i :INT;
+	message :Tc2_System.T_MaxString;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[
+TEST('TEST--TimeAssertion--testLongValueIsMax');
+
+FOR i := 0 TO 9 BY 1 DO
+	
+	THIS^.assertorContainer.resetAssertor();
+	THIS^.assertorContainer.assertor.assert.times.long.valueIsMax(
+		currentValue := currentValue[i],
+		maximumValue := expectedValue[i],
+		message := ''
+	);
+	
+	
+	message := 'TimeAssertionTests';
+	message := Tc2_Standard.CONCAT(message, ' => ');
+	message := Tc2_Standard.CONCAT(message, 'longTimeValueIsMax');
+	message := Tc2_Standard.CONCAT(message, ' => ');
+	message := Tc2_Standard.CONCAT(message, ' Test ');
+	message := Tc2_Standard.CONCAT(message, TO_STRING(i));
+	message := Tc2_Standard.CONCAT(message, ' => ');
+	message := Tc2_Standard.CONCAT(message, ' assertion shall be wrong ');
+	message := Tc2_Standard.CONCAT(message, ' => ');
+	message := Tc2_Standard.CONCAT(message, ' currentValue = ');
+	message := Tc2_Standard.CONCAT(message, TO_STRING(currentValue[i]));
+	message := Tc2_Standard.CONCAT(message, ' expectedValue = ');
+	message := Tc2_Standard.CONCAT(message, TO_STRING(expectedValue[i]));
+
+	IF (currentValue[i] <= expectedValue[i]) THEN
+		THIS^.AssertFalse(
+			Condition := THIS^.assertorContainer.wasAssertionWrong,
+			Message := message
+		);
+	ELSE
+		THIS^.AssertTrue(
+			Condition := THIS^.assertorContainer.wasAssertionWrong,
+			Message := message
+		);		
+	END_IF
+	
+END_FOR;
+
+
+TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testLongValueIsMin" Id="{f07994f5-060c-413b-b7a4-19efe198f91e}">
+      <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+{warning 'header is generated please add your documentation'}
+
+METHOD testLongValueIsMin
+VAR_INPUT
+	currentValue :ARRAY [0..NUMBER_OF_SETS] OF LTIME;
+	expectedValue :ARRAY [0..NUMBER_OF_SETS] OF LTIME;
+END_VAR
+VAR
+	i :INT;
+	message :Tc2_System.T_MaxString;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[
+TEST('TEST--TimeAssertion--testLongValueIsMin');
+
+FOR i := 0 TO 9 BY 1 DO
+	
+	THIS^.assertorContainer.resetAssertor();
+	THIS^.assertorContainer.assertor.assert.times.long.valueIsMin(
+		currentValue := currentValue[i],
+		minimumValue := expectedValue[i],
+		message := ''
+	);
+	
+	
+	message := 'TimeAssertionTests';
+	message := Tc2_Standard.CONCAT(message, ' => ');
+	message := Tc2_Standard.CONCAT(message, 'longTimeValueIsMin');
+	message := Tc2_Standard.CONCAT(message, ' => ');
+	message := Tc2_Standard.CONCAT(message, ' Test ');
+	message := Tc2_Standard.CONCAT(message, TO_STRING(i));
+	message := Tc2_Standard.CONCAT(message, ' => ');
+	message := Tc2_Standard.CONCAT(message, ' assertion shall be wrong ');
+	message := Tc2_Standard.CONCAT(message, ' => ');
+	message := Tc2_Standard.CONCAT(message, ' currentValue = ');
+	message := Tc2_Standard.CONCAT(message, TO_STRING(currentValue[i]));
+	message := Tc2_Standard.CONCAT(message, ' expectedValue = ');
+	message := Tc2_Standard.CONCAT(message, TO_STRING(expectedValue[i]));
+
+	IF (currentValue[i] >= expectedValue[i]) THEN
+		THIS^.AssertFalse(
+			Condition := THIS^.assertorContainer.wasAssertionWrong,
+			Message := message
+		);
+	ELSE
+		THIS^.AssertTrue(
+			Condition := THIS^.assertorContainer.wasAssertionWrong,
+			Message := message
+		);		
+	END_IF
+	
+END_FOR;
+
+
+TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testLongValueIsNotEqualTo" Id="{c298acf2-9ef0-447c-b63e-2a6355e66567}">
+      <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+{warning 'header is generated please add your documentation'}
+
+METHOD testLongValueIsNotEqualTo
+VAR_INPUT
+	currentValue :ARRAY [0..NUMBER_OF_SETS] OF LTIME;
+	expectedValue :ARRAY [0..NUMBER_OF_SETS] OF LTIME;
+END_VAR
+VAR
+	i :INT;
+	message :Tc2_System.T_MaxString;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[
+TEST('TEST--TimeAssertion--testLongValueIsNotEqualTo');
+
+FOR i := 0 TO 9 BY 1 DO
+	
+	THIS^.assertorContainer.resetAssertor();
+	THIS^.assertorContainer.assertor.assert.times.long.valueIsNotEqualTo(
+		currentValue := currentValue[i],
+		unexpectedValue := expectedValue[i],
+		message := ''
+	);
+	
+	message := 'TimeAssertionTests';
+	message := Tc2_Standard.CONCAT(message, ' => ');
+	message := Tc2_Standard.CONCAT(message, ' longTimeValuesIsNotEqualTo');
+	message := Tc2_Standard.CONCAT(message, ' Test ');
+	message := Tc2_Standard.CONCAT(message, TO_STRING(i));
+	message := Tc2_Standard.CONCAT(message, ' => ');
+	message := Tc2_Standard.CONCAT(message, ' assertion shall be wrong ');
+	message := Tc2_Standard.CONCAT(message, ' => ');
+	message := Tc2_Standard.CONCAT(message, ' currentValue = ');
+	message := Tc2_Standard.CONCAT(message, TO_STRING(currentValue[i]));
+	message := Tc2_Standard.CONCAT(message, ' expectedValue = ');
+	message := Tc2_Standard.CONCAT(message, TO_STRING(expectedValue[i]));
+
+	IF (currentValue[i] <> expectedValue[i]) THEN
+		THIS^.AssertFalse(
+			Condition := THIS^.assertorContainer.wasAssertionWrong,
+			Message := message
+		);
+	ELSE
+		THIS^.AssertTrue(
+			Condition := THIS^.assertorContainer.wasAssertionWrong,
+			Message := message
+		);		
+	END_IF
+	
+END_FOR;
+
+
+TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testSimpleTimeHasExpired" Id="{3f8fdd71-896f-4981-9f64-0c55a24e8fd9}">
+      <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+{warning 'header is generated please add your documentation'}
+
+METHOD testSimpleTimeHasExpired
+VAR_INPUT
+	currentValue :ARRAY [0..NUMBER_OF_SETS] OF TIME;
+	expectedValue :ARRAY [0..NUMBER_OF_SETS] OF TIME;
+END_VAR
+VAR
+	i :INT;
+	message :Tc2_System.T_MaxString;
+	 timeStamp :TIME;
+	 currentTime :TIME;
+	 timeout :TIME;
+	 timeExpired :BOOL;
+END_VAR
+VAR CONSTANT
+	MAX_TIME :TIME := TO_TIME(16#FF_FF_FF_FF);
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[
+TEST('TEST--TimeAssertion--time has expired');
+
+FOR i := 0 TO 9 BY 1 DO
+	
+	THIS^.assertorContainer.resetAssertor();
+	currentTime := TIME();	
+//	timeStamp := SEL(currentTime < currentValue[i], currentTime - currentValue[i], MAX_TIME - currentValue[i] + currentTime);
+	timeStamp := SEL(currentTime > currentValue[i], currentTime - currentValue[i], currentTime);
+
+	timeExpired := (TO_LINT(timeStamp)) >= (TO_LINT(currentTime));
+	THIS^.assertorContainer.assertor.assert.times.simple.timeHasExpired(
+		timestamp := timeStamp,
+		expiringTime := expectedValue[i],
+		message := ''
+	);
+	
+	
+	
+	message := 'TimeAssertionTests';
+	message := Tc2_Standard.CONCAT(message, ' -> ');
+	message := Tc2_Standard.CONCAT(message, 'simpleTimeHasExpired');
+	message := Tc2_Standard.CONCAT(message, ' -> ');
+	message := Tc2_Standard.CONCAT(message, ' Test ');
+	message := Tc2_Standard.CONCAT(message, TO_STRING(i));
+	message := Tc2_Standard.CONCAT(message, ' -> ');
+	message := Tc2_Standard.CONCAT(message, ' currentValue = ');
+	message := Tc2_Standard.CONCAT(message, TO_STRING(TO_LINT(currentValue[i])));	
+	message := Tc2_Standard.CONCAT(message, ' -> ');
+	message := Tc2_Standard.CONCAT(message, ' expectedValue = ');
+	message := Tc2_Standard.CONCAT(message, TO_STRING(TO_LINT(expectedValue[i])));
+	message := Tc2_Standard.CONCAT(message, ' -> ');
+	message := Tc2_Standard.CONCAT(message, ' timestamp = ');
+	message := Tc2_Standard.CONCAT(message, TO_STRING(TO_LINT(timeStamp)));
+	message := Tc2_Standard.CONCAT(message, ' -> ');
+	message := Tc2_Standard.CONCAT(message, ' currentTime = ');
+	message := Tc2_Standard.CONCAT(message, TO_STRING(TO_LINT(currentTime)));
+	message := Tc2_Standard.CONCAT(message, ' -> ');
+	message := Tc2_Standard.CONCAT(message, ' timeExpired = ');
+	message := Tc2_Standard.CONCAT(message, TO_STRING(TO_LINT(timeExpired)));
+
+
+	IF (timeExpired) THEN
+		THIS^.AssertFALSE(
+			Condition := THIS^.assertorContainer.wasAssertionWrong,
+			Message := message
+		);
+	ELSE
+		THIS^.AssertTrue(
+			Condition := THIS^.assertorContainer.wasAssertionWrong,
+			Message := message
+		);		
+	END_IF
+	
+END_FOR;
+
+
+TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testSimpleTimeHasNotExpired" Id="{8a83c346-9680-46a0-b4bc-6db23ccbfa07}">
+      <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+{warning 'header is generated please add your documentation'}
+
+METHOD testSimpleTimeHasNotExpired
+VAR_INPUT
+	currentValue :ARRAY [0..NUMBER_OF_SETS] OF TIME;
+	expectedValue :ARRAY [0..NUMBER_OF_SETS] OF TIME;
+END_VAR
+VAR
+	i :INT;
+	message :Tc2_System.T_MaxString;
+	 timeStamp :TIME;
+	 currentTime :TIME;
+	 timeout :TIME;
+	 timeExpired :BOOL;
+END_VAR
+VAR CONSTANT
+	MAX_TIME :TIME := TO_TIME(16#FF_FF_FF_FF);
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[
+TEST('TEST--TimeAssertion--testSimpleTimeHasNotExpired');
+
+FOR i := 0 TO 9 BY 1 DO
+	
+	THIS^.assertorContainer.resetAssertor();
+	currentTime := TIME();	
+//	timeStamp := SEL(currentTime < currentValue[i], currentTime - currentValue[i], MAX_TIME - currentValue[i] + currentTime);
+	timeStamp := SEL(currentTime > currentValue[i], currentTime - currentValue[i], currentTime);
+
+	timeExpired := (TO_LINT(timeStamp)) >= (TO_LINT(currentTime));
+	THIS^.assertorContainer.assertor.assert.times.simple.timeHasNotExpired(
+		timestamp := timeStamp,
+		expiringTime := expectedValue[i],
+		message := ''
+	);
+	
+	
+	
+	message := 'TimeAssertionTests';
+	message := Tc2_Standard.CONCAT(message, ' -> ');
+	message := Tc2_Standard.CONCAT(message, 'simpleTimeHasNotExpired');
+	message := Tc2_Standard.CONCAT(message, ' -> ');
+	message := Tc2_Standard.CONCAT(message, ' Test ');
+	message := Tc2_Standard.CONCAT(message, TO_STRING(i));
+	message := Tc2_Standard.CONCAT(message, ' -> ');
+	message := Tc2_Standard.CONCAT(message, ' currentValue = ');
+	message := Tc2_Standard.CONCAT(message, TO_STRING(TO_LINT(currentValue[i])));	
+	message := Tc2_Standard.CONCAT(message, ' -> ');
+	message := Tc2_Standard.CONCAT(message, ' expectedValue = ');
+	message := Tc2_Standard.CONCAT(message, TO_STRING(TO_LINT(expectedValue[i])));
+	message := Tc2_Standard.CONCAT(message, ' -> ');
+	message := Tc2_Standard.CONCAT(message, ' timestamp = ');
+	message := Tc2_Standard.CONCAT(message, TO_STRING(TO_LINT(timeStamp)));
+	message := Tc2_Standard.CONCAT(message, ' -> ');
+	message := Tc2_Standard.CONCAT(message, ' currentTime = ');
+	message := Tc2_Standard.CONCAT(message, TO_STRING(TO_LINT(currentTime)));
+	message := Tc2_Standard.CONCAT(message, ' -> ');
+	message := Tc2_Standard.CONCAT(message, ' timeExpired = ');
+	message := Tc2_Standard.CONCAT(message, TO_STRING(TO_LINT(timeExpired)));
+
+
+	IF (NOT timeExpired) THEN
+		THIS^.AssertFALSE(
+			Condition := THIS^.assertorContainer.wasAssertionWrong,
+			Message := message
+		);
+	ELSE
+		THIS^.AssertTrue(
+			Condition := THIS^.assertorContainer.wasAssertionWrong,
+			Message := message
+		);		
+	END_IF
+	
+END_FOR;
+
+
+TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testSimpleValueIsEqualTo" Id="{c9203029-d5d6-417d-8f75-41e09455415d}">
+      <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+{warning 'header is generated please add your documentation'}
+
+METHOD testSimpleValueIsEqualTo
+VAR_INPUT
+	currentValue :ARRAY [0..NUMBER_OF_SETS] OF TIME;
+	expectedValue :ARRAY [0..NUMBER_OF_SETS] OF TIME;
+END_VAR
+VAR
+	i :INT;
+	message :Tc2_System.T_MaxString;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[TEST('TEST--TimeAssertion--testSimpleValueIsEqualTo');
+
+FOR i := 0 TO 9 BY 1 DO
+	
+	THIS^.assertorContainer.resetAssertor();
+	THIS^.assertorContainer.assertor.assert.times.simple.valueIsEqualTo(
+		currentValue := currentValue[i],
+		expectedValue := expectedValue[i],
+		message := ''
+	);
+	
+	
+	message := 'TimeAssertionTests';
+	message := Tc2_Standard.CONCAT(message, ' => ');
+	message := Tc2_Standard.CONCAT(message, 'simpleTimeValuesIsEqualTo');
+	message := Tc2_Standard.CONCAT(message, ' => ');
+	message := Tc2_Standard.CONCAT(message, ' Test ');
+	message := Tc2_Standard.CONCAT(message, TO_STRING(i));
+	message := Tc2_Standard.CONCAT(message, ' => ');
+	message := Tc2_Standard.CONCAT(message, ' assertion shall be wrong ');
+	message := Tc2_Standard.CONCAT(message, ' => ');
+	message := Tc2_Standard.CONCAT(message, ' currentValue = ');
+	message := Tc2_Standard.CONCAT(message, TO_STRING(currentValue[i]));
+	message := Tc2_Standard.CONCAT(message, ' expectedValue = ');
+	message := Tc2_Standard.CONCAT(message, TO_STRING(expectedValue[i]));
+
+	IF (currentValue[i] = expectedValue[i]) THEN
+		THIS^.AssertFalse(
+			Condition := THIS^.assertorContainer.wasAssertionWrong,
+			Message := message
+		);
+	ELSE
+		THIS^.AssertTrue(
+			Condition := THIS^.assertorContainer.wasAssertionWrong,
+			Message := message
+		);		
+	END_IF
+	
+END_FOR;
+
+
+TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testSimpleValueIsGreaterThan" Id="{7c70fdc9-b6d5-428e-90ac-de786dc96a60}">
+      <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+{warning 'header is generated please add your documentation'}
+
+METHOD testSimpleValueIsGreaterThan
+VAR_INPUT
+	currentValue :ARRAY [0..NUMBER_OF_SETS] OF TIME;
+	expectedValue :ARRAY [0..NUMBER_OF_SETS] OF TIME;
+END_VAR
+VAR
+	i :INT;
+	message :Tc2_System.T_MaxString;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[TEST('TEST--TimeAssertion--testSimpleValueIsGreaterThan');
+
+FOR i := 0 TO 9 BY 1 DO
+	
+	THIS^.assertorContainer.resetAssertor();
+	THIS^.assertorContainer.assertor.assert.times.simple.valueIsGreaterThan(
+		currentValue := currentValue[i],
+		lessValue := expectedValue[i],
+		message := ''
+	);
+	
+	
+	message := 'TimeAssertionTests';
+	message := Tc2_Standard.CONCAT(message, ' => ');
+	message := Tc2_Standard.CONCAT(message, 'simpleTimeValueIsGreaterThan');
+	message := Tc2_Standard.CONCAT(message, ' => ');
+	message := Tc2_Standard.CONCAT(message, ' Test ');
+	message := Tc2_Standard.CONCAT(message, TO_STRING(i));
+	message := Tc2_Standard.CONCAT(message, ' => ');
+	message := Tc2_Standard.CONCAT(message, ' assertion shall be wrong ');
+	message := Tc2_Standard.CONCAT(message, ' => ');
+	message := Tc2_Standard.CONCAT(message, ' currentValue = ');
+	message := Tc2_Standard.CONCAT(message, TO_STRING(currentValue[i]));
+	message := Tc2_Standard.CONCAT(message, ' expectedValue = ');
+	message := Tc2_Standard.CONCAT(message, TO_STRING(expectedValue[i]));
+
+	IF (currentValue[i] <= expectedValue[i]) THEN
+		THIS^.AssertTrue(
+			Condition := THIS^.assertorContainer.wasAssertionWrong,
+			Message := message
+		);
+	ELSE
+		THIS^.AssertFalse(
+			Condition := THIS^.assertorContainer.wasAssertionWrong,
+			Message := message
+		);		
+	END_IF
+	
+END_FOR;
+
+
+TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testSimpleValueIsInRangeOf" Id="{9623cabb-9dbb-48fc-8c12-3390e4d386d9}">
+      <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+{warning 'header is generated please add your documentation'}
+
+METHOD testSimpleValueIsInRangeOf
+VAR_INPUT
+	currentValue :ARRAY [0..NUMBER_OF_SETS] OF TIME;
+	lowerLimit :ARRAY [0..NUMBER_OF_SETS] OF TIME;
+	upperLimit :ARRAY [0..NUMBER_OF_SETS] OF TIME;
+END_VAR
+VAR
+	i :INT;
+	message :Tc2_System.T_MaxString;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[TEST('TEST--TimeAssertion--testSimpleValueIsInRangeOf');
+
+FOR i := 0 TO 9 BY 1 DO
+	
+	THIS^.assertorContainer.resetAssertor();
+	THIS^.assertorContainer.assertor.assert.times.simple.valueIsInRangeOf(
+		currentValue := currentValue[i],
+		lowerLimit := lowerLimit[i],
+		upperLimit := upperLimit[i],
+		message := ''
+	);
+	
+	
+	message := 'TimeAssertionTests';
+	message := Tc2_Standard.CONCAT(message, ' => ');
+	message := Tc2_Standard.CONCAT(message, 'testSimpleValueIsInRangeOf');
+	message := Tc2_Standard.CONCAT(message, ' => ');
+	message := Tc2_Standard.CONCAT(message, ' Test ');
+	message := Tc2_Standard.CONCAT(message, TO_STRING(i));
+	message := Tc2_Standard.CONCAT(message, ' => ');
+	message := Tc2_Standard.CONCAT(message, ' assertion shall be wrong ');
+	message := Tc2_Standard.CONCAT(message, ' => ');
+	message := Tc2_Standard.CONCAT(message, ' currentValue = ');
+	message := Tc2_Standard.CONCAT(message, TO_STRING(currentValue[i]));
+	message := Tc2_Standard.CONCAT(message, ' => ');
+	message := Tc2_Standard.CONCAT(message, ' lowerLimit = ');
+	message := Tc2_Standard.CONCAT(message, TO_STRING(lowerLimit[i]));
+	message := Tc2_Standard.CONCAT(message, ' => ');
+	message := Tc2_Standard.CONCAT(message, ' upperLimit = ');
+	message := Tc2_Standard.CONCAT(message, TO_STRING(upperLimit[i]));
+	message := Tc2_Standard.CONCAT(message, ' => ');
+	message := Tc2_Standard.CONCAT(message, ' assertionWasWrong = ');
+	message := Tc2_Standard.CONCAT(message, TO_STRING(THIS^.assertorContainer.wasAssertionWrong));
+
+
+	IF ((currentValue[i] >= lowerLimit[i]) AND (currentValue[i] <= upperLimit[i])) THEN
+		THIS^.AssertFalse(
+			Condition := THIS^.assertorContainer.wasAssertionWrong,
+			Message := message
+		);
+	ELSE
+		THIS^.AssertTrue(
+			Condition := THIS^.assertorContainer.wasAssertionWrong,
+			Message := message
+		);		
+	END_IF
+	
+END_FOR;
+
+
+TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testSimpleValueIsLessThan" Id="{ffc386d2-e3c5-4df5-a807-e0a90ddbdf5d}">
+      <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+{warning 'header is generated please add your documentation'}
+
+METHOD testSimpleValueIsLessThan
+VAR_INPUT
+	currentValue :ARRAY [0..NUMBER_OF_SETS] OF TIME;
+	expectedValue :ARRAY [0..NUMBER_OF_SETS] OF TIME;
+END_VAR
+VAR
+	i :INT;
+	message :Tc2_System.T_MaxString;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[TEST('TEST--TimeAssertion--testSimpleValueIsLessThan');
+
+FOR i := 0 TO 9 BY 1 DO
+	
+	THIS^.assertorContainer.resetAssertor();
+	THIS^.assertorContainer.assertor.assert.times.simple.valueIsLessThan(
+		currentValue := currentValue[i],
+		greaterValue := expectedValue[i],
+		message := ''
+	);
+	
+	
+	message := 'TimeAssertionTests';
+	message := Tc2_Standard.CONCAT(message, ' => ');
+	message := Tc2_Standard.CONCAT(message, 'simpleTimeValueIslessThan');
+	message := Tc2_Standard.CONCAT(message, ' => ');
+	message := Tc2_Standard.CONCAT(message, ' Test ');
+	message := Tc2_Standard.CONCAT(message, TO_STRING(i));
+	message := Tc2_Standard.CONCAT(message, ' => ');
+	message := Tc2_Standard.CONCAT(message, ' assertion shall be wrong ');
+	message := Tc2_Standard.CONCAT(message, ' => ');
+	message := Tc2_Standard.CONCAT(message, ' currentValue = ');
+	message := Tc2_Standard.CONCAT(message, TO_STRING(currentValue[i]));
+	message := Tc2_Standard.CONCAT(message, ' expectedValue = ');
+	message := Tc2_Standard.CONCAT(message, TO_STRING(expectedValue[i]));
+
+	IF (currentValue[i] >= expectedValue[i]) THEN
+		THIS^.AssertTrue(
+			Condition := THIS^.assertorContainer.wasAssertionWrong,
+			Message := message
+		);
+	ELSE
+		THIS^.AssertFalse(
+			Condition := THIS^.assertorContainer.wasAssertionWrong,
+			Message := message
+		);		
+	END_IF
+	
+END_FOR;
+
+
+TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testSimpleValueIsMax" Id="{bed13a31-57a3-411f-aad9-b32b25a56f62}">
+      <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+{warning 'header is generated please add your documentation'}
+
+METHOD testSimpleValueIsMax
+VAR_INPUT
+	currentValue :ARRAY [0..NUMBER_OF_SETS] OF TIME;
+	expectedValue :ARRAY [0..NUMBER_OF_SETS] OF TIME;
+END_VAR
+VAR
+	i :INT;
+	message :Tc2_System.T_MaxString;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[TEST('TEST--TimeAssertion--testSimpleValueIsMax');
+
+FOR i := 0 TO 9 BY 1 DO
+	
+	THIS^.assertorContainer.resetAssertor();
+	THIS^.assertorContainer.assertor.assert.times.simple.valueIsMax(
+		currentValue := currentValue[i],
+		maximumValue := expectedValue[i],
+		message := ''
+	);
+	
+	
+	message := 'TimeAssertionTests';
+	message := Tc2_Standard.CONCAT(message, ' => ');
+	message := Tc2_Standard.CONCAT(message, 'simpleTimeValueIsMax');
+	message := Tc2_Standard.CONCAT(message, ' => ');
+	message := Tc2_Standard.CONCAT(message, ' Test ');
+	message := Tc2_Standard.CONCAT(message, TO_STRING(i));
+	message := Tc2_Standard.CONCAT(message, ' => ');
+	message := Tc2_Standard.CONCAT(message, ' assertion shall be wrong ');
+	message := Tc2_Standard.CONCAT(message, ' => ');
+	message := Tc2_Standard.CONCAT(message, ' currentValue = ');
+	message := Tc2_Standard.CONCAT(message, TO_STRING(currentValue[i]));
+	message := Tc2_Standard.CONCAT(message, ' expectedValue = ');
+	message := Tc2_Standard.CONCAT(message, TO_STRING(expectedValue[i]));
+
+	IF (currentValue[i] <= expectedValue[i]) THEN
+		THIS^.AssertFalse(
+			Condition := THIS^.assertorContainer.wasAssertionWrong,
+			Message := message
+		);
+	ELSE
+		THIS^.AssertTrue(
+			Condition := THIS^.assertorContainer.wasAssertionWrong,
+			Message := message
+		);		
+	END_IF
+	
+END_FOR;
+
+
+TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testSimpleValueIsMin" Id="{21424e40-1c94-4eb2-b22e-d5e3359b93c9}">
+      <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+{warning 'header is generated please add your documentation'}
+
+METHOD testSimpleValueIsMin
+VAR_INPUT
+	currentValue :ARRAY [0..NUMBER_OF_SETS] OF TIME;
+	expectedValue :ARRAY [0..NUMBER_OF_SETS] OF TIME;
+END_VAR
+VAR
+	i :INT;
+	message :Tc2_System.T_MaxString;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[TEST('TEST--TimeAssertion--testSimpleValueIsMin');
+
+FOR i := 0 TO 9 BY 1 DO
+	
+	THIS^.assertorContainer.resetAssertor();
+	THIS^.assertorContainer.assertor.assert.times.simple.valueIsMin(
+		currentValue := currentValue[i],
+		minimumValue := expectedValue[i],
+		message := ''
+	);
+	
+	
+	message := 'TimeAssertionTests';
+	message := Tc2_Standard.CONCAT(message, ' => ');
+	message := Tc2_Standard.CONCAT(message, 'simpleTimeValueIsMin');
+	message := Tc2_Standard.CONCAT(message, ' => ');
+	message := Tc2_Standard.CONCAT(message, ' Test ');
+	message := Tc2_Standard.CONCAT(message, TO_STRING(i));
+	message := Tc2_Standard.CONCAT(message, ' => ');
+	message := Tc2_Standard.CONCAT(message, ' assertion shall be wrong ');
+	message := Tc2_Standard.CONCAT(message, ' => ');
+	message := Tc2_Standard.CONCAT(message, ' currentValue = ');
+	message := Tc2_Standard.CONCAT(message, TO_STRING(currentValue[i]));
+	message := Tc2_Standard.CONCAT(message, ' expectedValue = ');
+	message := Tc2_Standard.CONCAT(message, TO_STRING(expectedValue[i]));
+
+	IF (currentValue[i] >= expectedValue[i]) THEN
+		THIS^.AssertFalse(
+			Condition := THIS^.assertorContainer.wasAssertionWrong,
+			Message := message
+		);
+	ELSE
+		THIS^.AssertTrue(
+			Condition := THIS^.assertorContainer.wasAssertionWrong,
+			Message := message
+		);		
+	END_IF
+	
+END_FOR;
+
+
+TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testSimpleValueIsNotEqualTo" Id="{fb021348-871d-4813-993c-d409a565be00}">
+      <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+{warning 'header is generated please add your documentation'}
+
+METHOD testSimpleValueIsNotEqualTo
+VAR_INPUT
+	currentValue :ARRAY [0..NUMBER_OF_SETS] OF TIME;
+	expectedValue :ARRAY [0..NUMBER_OF_SETS] OF TIME;
+END_VAR
+VAR
+	i :INT;
+	message :Tc2_System.T_MaxString;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[TEST('TEST--TimeAssertion--testSimpleValueIsNotEqualTo');
+
+FOR i := 0 TO 9 BY 1 DO
+	
+	THIS^.assertorContainer.resetAssertor();
+	THIS^.assertorContainer.assertor.assert.times.simple.valueIsNotEqualTo(
+		currentValue := currentValue[i],
+		unexpectedValue := expectedValue[i],
+		message := ''
+	);
+	
+	message := 'TimeAssertionTests';
+	message := Tc2_Standard.CONCAT(message, ' => ');
+	message := Tc2_Standard.CONCAT(message, 'simpleTimeValuesIsNotEqualTo');
+	message := Tc2_Standard.CONCAT(message, ' Test ');
+	message := Tc2_Standard.CONCAT(message, TO_STRING(i));
+	message := Tc2_Standard.CONCAT(message, ' => ');
+	message := Tc2_Standard.CONCAT(message, ' assertion shall be wrong ');
+	message := Tc2_Standard.CONCAT(message, ' => ');
+	message := Tc2_Standard.CONCAT(message, ' currentValue = ');
+	message := Tc2_Standard.CONCAT(message, TO_STRING(currentValue[i]));
+	message := Tc2_Standard.CONCAT(message, ' expectedValue = ');
+	message := Tc2_Standard.CONCAT(message, TO_STRING(expectedValue[i]));
+
+	IF (currentValue[i] = expectedValue[i]) THEN
+		THIS^.AssertTrue(
+			Condition := THIS^.assertorContainer.wasAssertionWrong,
+			Message := message
+		);
+	ELSE
+		THIS^.AssertFalse(
+			Condition := THIS^.assertorContainer.wasAssertionWrong,
+			Message := message
+		);		
+	END_IF
+	
+END_FOR;
+
+
+TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <LineIds Name="TimeAssertionsTests">
+      <LineId Id="255" Count="24" />
+      <LineId Id="320" Count="1" />
+      <LineId Id="280" Count="16" />
+    </LineIds>
+    <LineIds Name="TimeAssertionsTests.assignTimes">
+      <LineId Id="14" Count="0" />
+      <LineId Id="5" Count="0" />
+      <LineId Id="15" Count="1" />
+      <LineId Id="31" Count="0" />
+      <LineId Id="17" Count="5" />
+      <LineId Id="37" Count="10" />
+      <LineId Id="26" Count="0" />
+      <LineId Id="48" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="TimeAssertionsTests.mirrorLongTimeArray">
+      <LineId Id="29" Count="7" />
+      <LineId Id="16" Count="0" />
+    </LineIds>
+    <LineIds Name="TimeAssertionsTests.mirrorSimpleTimeArray">
+      <LineId Id="18" Count="1" />
+      <LineId Id="5" Count="0" />
+      <LineId Id="10" Count="0" />
+      <LineId Id="14" Count="1" />
+      <LineId Id="11" Count="0" />
+      <LineId Id="17" Count="0" />
+      <LineId Id="16" Count="0" />
+    </LineIds>
+    <LineIds Name="TimeAssertionsTests.testLongTimeHasExpired">
+      <LineId Id="257" Count="5" />
+      <LineId Id="264" Count="49" />
+      <LineId Id="20" Count="0" />
+      <LineId Id="60" Count="3" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="TimeAssertionsTests.testLongTimeHasNotExpired">
+      <LineId Id="257" Count="56" />
+      <LineId Id="20" Count="0" />
+      <LineId Id="61" Count="2" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="TimeAssertionsTests.testLongValueIsEqualTo">
+      <LineId Id="128" Count="2" />
+      <LineId Id="157" Count="0" />
+      <LineId Id="131" Count="5" />
+      <LineId Id="180" Count="1" />
+      <LineId Id="137" Count="0" />
+      <LineId Id="179" Count="0" />
+      <LineId Id="138" Count="1" />
+      <LineId Id="169" Count="0" />
+      <LineId Id="168" Count="0" />
+      <LineId Id="170" Count="0" />
+      <LineId Id="140" Count="5" />
+      <LineId Id="178" Count="0" />
+      <LineId Id="147" Count="4" />
+      <LineId Id="171" Count="0" />
+      <LineId Id="174" Count="3" />
+      <LineId Id="173" Count="0" />
+      <LineId Id="158" Count="0" />
+      <LineId Id="152" Count="3" />
+      <LineId Id="20" Count="0" />
+      <LineId Id="46" Count="1" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="TimeAssertionsTests.testLongValueIsGreaterThan">
+      <LineId Id="128" Count="2" />
+      <LineId Id="157" Count="0" />
+      <LineId Id="131" Count="5" />
+      <LineId Id="180" Count="1" />
+      <LineId Id="137" Count="0" />
+      <LineId Id="179" Count="0" />
+      <LineId Id="138" Count="1" />
+      <LineId Id="169" Count="0" />
+      <LineId Id="168" Count="0" />
+      <LineId Id="170" Count="0" />
+      <LineId Id="140" Count="5" />
+      <LineId Id="178" Count="0" />
+      <LineId Id="147" Count="4" />
+      <LineId Id="171" Count="0" />
+      <LineId Id="174" Count="3" />
+      <LineId Id="173" Count="0" />
+      <LineId Id="158" Count="0" />
+      <LineId Id="152" Count="3" />
+      <LineId Id="20" Count="0" />
+      <LineId Id="46" Count="2" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="TimeAssertionsTests.testLongValueIsInRangeOf">
+      <LineId Id="299" Count="29" />
+      <LineId Id="348" Count="1" />
+      <LineId Id="347" Count="0" />
+      <LineId Id="329" Count="17" />
+      <LineId Id="20" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="TimeAssertionsTests.testLongValueIsLessThan">
+      <LineId Id="128" Count="2" />
+      <LineId Id="157" Count="0" />
+      <LineId Id="131" Count="5" />
+      <LineId Id="180" Count="1" />
+      <LineId Id="137" Count="0" />
+      <LineId Id="179" Count="0" />
+      <LineId Id="138" Count="1" />
+      <LineId Id="169" Count="0" />
+      <LineId Id="168" Count="0" />
+      <LineId Id="170" Count="0" />
+      <LineId Id="140" Count="5" />
+      <LineId Id="178" Count="0" />
+      <LineId Id="147" Count="4" />
+      <LineId Id="171" Count="0" />
+      <LineId Id="174" Count="3" />
+      <LineId Id="173" Count="0" />
+      <LineId Id="158" Count="0" />
+      <LineId Id="152" Count="3" />
+      <LineId Id="20" Count="0" />
+      <LineId Id="46" Count="3" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="TimeAssertionsTests.testLongValueIsMax">
+      <LineId Id="128" Count="2" />
+      <LineId Id="157" Count="0" />
+      <LineId Id="131" Count="5" />
+      <LineId Id="180" Count="1" />
+      <LineId Id="137" Count="0" />
+      <LineId Id="179" Count="0" />
+      <LineId Id="138" Count="1" />
+      <LineId Id="169" Count="0" />
+      <LineId Id="168" Count="0" />
+      <LineId Id="170" Count="0" />
+      <LineId Id="140" Count="5" />
+      <LineId Id="178" Count="0" />
+      <LineId Id="147" Count="4" />
+      <LineId Id="171" Count="0" />
+      <LineId Id="174" Count="3" />
+      <LineId Id="173" Count="0" />
+      <LineId Id="158" Count="0" />
+      <LineId Id="152" Count="3" />
+      <LineId Id="20" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="TimeAssertionsTests.testLongValueIsMin">
+      <LineId Id="128" Count="2" />
+      <LineId Id="157" Count="0" />
+      <LineId Id="131" Count="5" />
+      <LineId Id="180" Count="1" />
+      <LineId Id="137" Count="0" />
+      <LineId Id="179" Count="0" />
+      <LineId Id="138" Count="1" />
+      <LineId Id="169" Count="0" />
+      <LineId Id="168" Count="0" />
+      <LineId Id="170" Count="0" />
+      <LineId Id="140" Count="5" />
+      <LineId Id="178" Count="0" />
+      <LineId Id="147" Count="4" />
+      <LineId Id="171" Count="0" />
+      <LineId Id="174" Count="3" />
+      <LineId Id="173" Count="0" />
+      <LineId Id="158" Count="0" />
+      <LineId Id="152" Count="3" />
+      <LineId Id="20" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="TimeAssertionsTests.testLongValueIsNotEqualTo">
+      <LineId Id="128" Count="2" />
+      <LineId Id="157" Count="0" />
+      <LineId Id="131" Count="6" />
+      <LineId Id="197" Count="1" />
+      <LineId Id="138" Count="0" />
+      <LineId Id="169" Count="0" />
+      <LineId Id="168" Count="0" />
+      <LineId Id="170" Count="0" />
+      <LineId Id="140" Count="5" />
+      <LineId Id="178" Count="0" />
+      <LineId Id="147" Count="4" />
+      <LineId Id="171" Count="0" />
+      <LineId Id="174" Count="3" />
+      <LineId Id="173" Count="0" />
+      <LineId Id="158" Count="0" />
+      <LineId Id="152" Count="3" />
+      <LineId Id="20" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="TimeAssertionsTests.testSimpleTimeHasExpired">
+      <LineId Id="257" Count="56" />
+      <LineId Id="20" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="TimeAssertionsTests.testSimpleTimeHasNotExpired">
+      <LineId Id="257" Count="56" />
+      <LineId Id="20" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="TimeAssertionsTests.testSimpleValueIsEqualTo">
+      <LineId Id="128" Count="2" />
+      <LineId Id="157" Count="0" />
+      <LineId Id="131" Count="5" />
+      <LineId Id="180" Count="1" />
+      <LineId Id="137" Count="0" />
+      <LineId Id="179" Count="0" />
+      <LineId Id="138" Count="1" />
+      <LineId Id="169" Count="0" />
+      <LineId Id="168" Count="0" />
+      <LineId Id="170" Count="0" />
+      <LineId Id="140" Count="5" />
+      <LineId Id="178" Count="0" />
+      <LineId Id="147" Count="4" />
+      <LineId Id="171" Count="0" />
+      <LineId Id="174" Count="3" />
+      <LineId Id="173" Count="0" />
+      <LineId Id="158" Count="0" />
+      <LineId Id="152" Count="3" />
+      <LineId Id="20" Count="0" />
+    </LineIds>
+    <LineIds Name="TimeAssertionsTests.testSimpleValueIsGreaterThan">
+      <LineId Id="128" Count="2" />
+      <LineId Id="157" Count="0" />
+      <LineId Id="131" Count="5" />
+      <LineId Id="180" Count="1" />
+      <LineId Id="137" Count="0" />
+      <LineId Id="179" Count="0" />
+      <LineId Id="138" Count="1" />
+      <LineId Id="169" Count="0" />
+      <LineId Id="168" Count="0" />
+      <LineId Id="170" Count="0" />
+      <LineId Id="140" Count="5" />
+      <LineId Id="178" Count="0" />
+      <LineId Id="147" Count="4" />
+      <LineId Id="171" Count="0" />
+      <LineId Id="174" Count="3" />
+      <LineId Id="173" Count="0" />
+      <LineId Id="158" Count="0" />
+      <LineId Id="152" Count="3" />
+      <LineId Id="20" Count="0" />
+    </LineIds>
+    <LineIds Name="TimeAssertionsTests.testSimpleValueIsInRangeOf">
+      <LineId Id="311" Count="29" />
+      <LineId Id="374" Count="2" />
+      <LineId Id="341" Count="1" />
+      <LineId Id="364" Count="9" />
+      <LineId Id="358" Count="5" />
+      <LineId Id="20" Count="0" />
+    </LineIds>
+    <LineIds Name="TimeAssertionsTests.testSimpleValueIsLessThan">
+      <LineId Id="128" Count="2" />
+      <LineId Id="157" Count="0" />
+      <LineId Id="131" Count="5" />
+      <LineId Id="180" Count="1" />
+      <LineId Id="137" Count="0" />
+      <LineId Id="179" Count="0" />
+      <LineId Id="138" Count="1" />
+      <LineId Id="169" Count="0" />
+      <LineId Id="168" Count="0" />
+      <LineId Id="170" Count="0" />
+      <LineId Id="140" Count="5" />
+      <LineId Id="178" Count="0" />
+      <LineId Id="147" Count="4" />
+      <LineId Id="171" Count="0" />
+      <LineId Id="174" Count="3" />
+      <LineId Id="173" Count="0" />
+      <LineId Id="158" Count="0" />
+      <LineId Id="152" Count="3" />
+      <LineId Id="20" Count="0" />
+    </LineIds>
+    <LineIds Name="TimeAssertionsTests.testSimpleValueIsMax">
+      <LineId Id="128" Count="2" />
+      <LineId Id="157" Count="0" />
+      <LineId Id="131" Count="5" />
+      <LineId Id="180" Count="1" />
+      <LineId Id="137" Count="0" />
+      <LineId Id="179" Count="0" />
+      <LineId Id="138" Count="1" />
+      <LineId Id="169" Count="0" />
+      <LineId Id="168" Count="0" />
+      <LineId Id="170" Count="0" />
+      <LineId Id="140" Count="5" />
+      <LineId Id="178" Count="0" />
+      <LineId Id="147" Count="4" />
+      <LineId Id="171" Count="0" />
+      <LineId Id="174" Count="3" />
+      <LineId Id="173" Count="0" />
+      <LineId Id="158" Count="0" />
+      <LineId Id="152" Count="3" />
+      <LineId Id="20" Count="0" />
+    </LineIds>
+    <LineIds Name="TimeAssertionsTests.testSimpleValueIsMin">
+      <LineId Id="128" Count="2" />
+      <LineId Id="157" Count="0" />
+      <LineId Id="131" Count="5" />
+      <LineId Id="180" Count="1" />
+      <LineId Id="137" Count="0" />
+      <LineId Id="179" Count="0" />
+      <LineId Id="138" Count="1" />
+      <LineId Id="169" Count="0" />
+      <LineId Id="168" Count="0" />
+      <LineId Id="170" Count="0" />
+      <LineId Id="140" Count="5" />
+      <LineId Id="178" Count="0" />
+      <LineId Id="147" Count="4" />
+      <LineId Id="171" Count="0" />
+      <LineId Id="174" Count="3" />
+      <LineId Id="173" Count="0" />
+      <LineId Id="158" Count="0" />
+      <LineId Id="152" Count="3" />
+      <LineId Id="20" Count="0" />
+    </LineIds>
+    <LineIds Name="TimeAssertionsTests.testSimpleValueIsNotEqualTo">
+      <LineId Id="128" Count="2" />
+      <LineId Id="157" Count="0" />
+      <LineId Id="131" Count="6" />
+      <LineId Id="197" Count="1" />
+      <LineId Id="138" Count="0" />
+      <LineId Id="169" Count="0" />
+      <LineId Id="168" Count="0" />
+      <LineId Id="170" Count="0" />
+      <LineId Id="140" Count="5" />
+      <LineId Id="178" Count="0" />
+      <LineId Id="147" Count="4" />
+      <LineId Id="171" Count="0" />
+      <LineId Id="174" Count="3" />
+      <LineId Id="173" Count="0" />
+      <LineId Id="158" Count="0" />
+      <LineId Id="152" Count="3" />
+      <LineId Id="20" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

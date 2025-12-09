@@ -1,0 +1,308 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="RealValue" Id="{03107d26-cb37-4c84-8cea-ebf070da605a}" SpecialFunc="None">
+    <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+methods and properties
+======================
+
+*)
+
+{warning 'header is generated please add your documentation'}
+FUNCTION_BLOCK RealValue EXTENDS CNM_AbstractObject.Object IMPLEMENTS IReal
+VAR
+	myValue	:REAL;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Property Name="className" Id="{7232edc2-7757-4955-8489-e57284bec5a3}">
+      <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+{warning 'header is generated please add your documentation'}
+PROPERTY className : CNM_AbstractObject.ClassName]]></Declaration>
+      <Get Name="Get" Id="{7f71dda1-7ac1-4741-84a0-f4282e13fb6d}">
+        <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+{warning 'header is generated please add your documentation'}
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[className := 'RealValue';
+]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="compareTo" Id="{14974a12-d014-47d5-ac30-0b2f64488bc5}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This method compares a foreign object with the own one, this is needed for sort orders.
+The abstract class evaluates every object that is NULL as greater, and all other objects as equal. 
+
+.. attention:: 
+	For derivations: **If a derived class needs sorting this method must be overwritten.** 
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+:return:``SMALLER``: ``THIS`` precedes in order,
+``EQUAL``: ``THIS`` and ``object`` at the same position in order,
+``GREATER``: ``THIS`` is after in order.
+Checkout the library CNM_ReturnTypes.
+
+*)
+
+METHOD compareTo :CNM_ReturnTypes.ComparationResult
+VAR_INPUT
+	(* foreign object to compare*)
+	object	:IObject;
+END_VAR
+VAR
+	realObject	:IReal;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (__QUERYINTERFACE(object, realObject)) THEN
+	IF (THIS^.value < realObject.value) THEN
+		compareTo := CNM_ReturnTypes.ComparationResult.SMALLER;
+	ELSIF (THIS^.value = realObject.value) THEN
+		compareTo := CNM_ReturnTypes.ComparationResult.EQUAL;
+	ELSE
+		compareTo := CNM_ReturnTypes.ComparationResult.GREATER;
+	END_IF
+ELSE
+	compareTo := CNM_ReturnTypes.ComparationResult.GREATER;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="FB_init" Id="{47d5b636-ef67-4497-b4f0-311f2f1af576}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+The constructor ``FB_init`` is needed to create an unique hash code.
+The hash code is a pseudo random number create with a xorshift_ algorithm.
+It can be overwritten on derivations, because it will be called implicit, ``SUPER^.FB_init()`` is not required.
+For more information check: `Behavoir with derived function blocks`_
+
+.. _Behavoir with derived function blocks: https://infosys.beckhoff.com/content/1033/tc3_plc_intro/5482088715.html?id=6983869892358031022
+.. _xorshift: https://en.wikipedia.org/wiki/Xorshift
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD FB_init
+VAR_INPUT
+	(* if TRUE, the retain variables are initialized (warm start / cold start)*)
+	bInitRetains	:BOOL;
+	(* if TRUE, the instance afterwards gets moved into the copy code (online change) *)
+	bInCopyCode		:BOOL;
+	(* inital value of class *)
+	initValue		:REAL;
+END_VAR
+VAR
+	{attribute 'hide'}
+	newHashstate3		:Hashcode;
+END_VAR
+VAR CONSTANT
+	{attribute 'hide'}
+	NUMBER_OF_LEFT_SHIFTS		:UINT	:= 17;
+	{attribute 'hide'}
+	NUMBER_OF_LEFT_ROTATIONS	:UINT   := 45;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.myValue := initValue;
+]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="value" Id="{9381d95e-7eb3-4f33-bbb9-d3227c103d0e}">
+      <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+{warning 'header is generated please add your documentation'}
+PROPERTY value :REAL]]></Declaration>
+      <Get Name="Get" Id="{ac72d8d0-06cf-4c5d-942b-ffbf8166eb90}">
+        <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+{warning 'header is generated please add your documentation'}
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[value := THIS^.myValue;
+]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{b922a1d8-e8cb-467d-865c-d89b9cce735b}">
+        <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+{warning 'header is generated please add your documentation'}
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[THIS^.myValue := value;
+]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <LineIds Name="RealValue">
+      <LineId Id="9" Count="0" />
+    </LineIds>
+    <LineIds Name="RealValue.className.Get">
+      <LineId Id="2" Count="0" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="RealValue.compareTo">
+      <LineId Id="38" Count="0" />
+      <LineId Id="43" Count="1" />
+      <LineId Id="46" Count="0" />
+      <LineId Id="48" Count="0" />
+      <LineId Id="47" Count="0" />
+      <LineId Id="50" Count="0" />
+      <LineId Id="45" Count="0" />
+      <LineId Id="39" Count="0" />
+      <LineId Id="53" Count="0" />
+      <LineId Id="52" Count="0" />
+    </LineIds>
+    <LineIds Name="RealValue.FB_init">
+      <LineId Id="47" Count="0" />
+      <LineId Id="49" Count="0" />
+    </LineIds>
+    <LineIds Name="RealValue.value.Get">
+      <LineId Id="2" Count="0" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="RealValue.value.Set">
+      <LineId Id="2" Count="0" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

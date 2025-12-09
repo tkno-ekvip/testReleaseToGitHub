@@ -1,0 +1,1079 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <Itf Name="ILrealAssertions" Id="{0d00b979-96c8-4cef-8d34-115e1e45f480}">
+    <Declaration><![CDATA[(*
+
+short summary
+=================
+This interface provides assert statements for 64 bit floatings (``LREAL``) 
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+methods
+==================
+
+*)
+
+INTERFACE ILrealAssertions EXTENDS __SYSTEM.IQueryInterface
+]]></Declaration>
+    <Method Name="valueIsANumber" Id="{edeba095-5fae-4884-869b-aa95035a09d8}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current value is a number (NOT NaN)
+for details check `IEEE 754`_
+
+.. _IEEE 754: https://en.wikipedia.org/wiki/IEEE_754
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD valueIsANumber
+VAR_INPUT
+	(* current value to check *)
+	currentValue	:LREAL;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="valueIsEqualTo" Id="{f4963753-5bc9-46bc-8129-ff2899fdca8e}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current value is equal to the expected value
+
+.. attention:: 
+	Nothing is equal to NaN, that means if ``currentValue`` OR ``expectedValue`` OR ``tolerance``
+	is NaN then is the assertion false. For details check `IEEE 754`_
+
+.. attention:: 
+	infinity is equal to infinity and -infinity is equal to -infinity, that means if
+	``currentValue`` AND ``expectedValue`` have the value infinity 
+	OR ``currentValue`` AND ``expectedValue`` have the value -infinity
+	the assertion is TRUE. For details check `IEEE 754`_
+
+.. attention:: 
+	If ``tolerance`` has the value infinity or -infinity and 
+	``currentValue`` is not NaN and ``expectedValue`` is not NaN
+	then is the assertion true. For details check `IEEE 754`_
+
+.. _IEEE 754: https://en.wikipedia.org/wiki/IEEE_754
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD valueIsEqualTo
+VAR_INPUT
+	(* current value to check *)
+	currentValue	:LREAL;
+	(* expected value to compare *)
+	expectedValue	:LREAL;
+	(* tolerance to compensate twiddling floats, it has no sign *)
+	tolerance		:LREAL;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="valueIsFinite" Id="{14ef2bb8-0fcc-4fa9-9c00-ca7dd7a98416}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current value is finite
+(NOT (infinty OR -inifinity)), for details check `IEEE 754`_
+
+.. _IEEE 754: https://en.wikipedia.org/wiki/IEEE_754
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD valueIsFinite
+VAR_INPUT
+	(* current value to check *)
+	currentValue	:LREAL;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="valueIsGreaterThan" Id="{a439b0ca-f82d-42ab-b601-640a18b67309}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current value is greater than the less value
+
+.. attention:: 
+	Any comparsion to NaN is ``FALSE`` that means if ``currentValue`` OR ``lessValue``
+	is NaN then is the assertion false.
+	For details check `IEEE 754`_ and the truth table below.
+
+.. attention:: 
+	Every number is smaller than infinity except -infinity, it's equal.
+	Every number is greater than -infinity except -infinity, it's equal.
+	For details check `IEEE 754`_ and the truth table below.
+
+.. _IEEE 754: https://en.wikipedia.org/wiki/IEEE_754
+
+truth table for special values
+===============================
++----------------------+-------------------+---------------+
+| **``currentValue``** | **``lessValue``** | **assertion** |
++======================+===================+===============+
+| NaN                  | Any value         | FASLE         |
++----------------------+-------------------+---------------+
+| Any value            | NaN               | FALSE         |
++----------------------+-------------------+---------------+
+| infinity             | NOT NaN           | TRUE          |
+|                      | NOT infinity      |               |
++----------------------+-------------------+---------------+
+| -infinty             | Any value         | FALSE         |
++----------------------+-------------------+---------------+
+| Any value            | infinity          | FALSE         |
++----------------------+-------------------+---------------+
+| NOT NaN              | -inifinity        | TRUE          |
+| NOT -infinity        |                   |               |
++----------------------+-------------------+---------------+
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD valueIsGreaterThan
+VAR_INPUT
+	(* current value to check *)
+	currentValue	:LREAL;
+	(* less than lower limit *)
+	lessValue		:LREAL;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="valueIsInfinite" Id="{c7a876a6-0473-47ce-9299-617720fdf266}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current value is infinite
+(infinty OR -inifinity), for details check `IEEE 754`_
+
+.. _IEEE 754: https://en.wikipedia.org/wiki/IEEE_754
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD valueIsInfinite
+VAR_INPUT
+	(* current value to check *)
+	currentValue	:LREAL;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="valueIsInRangeOf" Id="{9cd7d567-a57f-454f-a9d8-74ab57e8c9be}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current value is inside a limit
+
+.. attention:: 
+	limits are included: ``valueIsInRangeOf(3.0, 3.0, 3.0)`` is a true assertion
+
+.. attention:: 
+	Any comparsion to NaN is ``FALSE`` that means 
+	if ``lowerLimit`` OR ``currentValue`` OR ``upperLimit``
+	is NaN then is the assertion false.
+	For details check `IEEE 754`_ and the truth table below.
+
+.. attention:: 
+	Every number is smaller than infinity except -infinity, it's equal.
+	Every number is greater than -infinity except -infinity, it's equal.
+	For details check `IEEE 754`_ and the truth table below.
+
+.. _IEEE 754: https://en.wikipedia.org/wiki/IEEE_754
+
+truth table for special values
+===============================
++--------------------+----------------------+--------------------+---------------+
+| **``lowerLimit``** | **``currentValue``** | **``upperLimit``** | **assertion** |
++====================+======================+====================+===============+
+| NaN                | Any value            | Any value          | FASLE         |
++--------------------+----------------------+--------------------+---------------+
+| Any value          | NaN                  | Any value          | FALSE         |
++--------------------+----------------------+--------------------+---------------+
+| Any value          | Any value            | NaN                | FALSE         |
++--------------------+----------------------+--------------------+---------------+
+| -infinity          | NOT NaN              | infinity           | TRUE          |
++--------------------+----------------------+--------------------+---------------+
+| infinity           | Any value            | -infinity          | FALSE         |
++--------------------+----------------------+--------------------+---------------+
+| NOT -infinity      | -infinity            | Any value          | FALSE         |
++--------------------+----------------------+--------------------+---------------+
+| Any value          | infinity             | NOT infinity       | FALSE         |
++--------------------+----------------------+--------------------+---------------+
+| -infinity          | -infinity            | -infinity          | TRUE          |
++--------------------+----------------------+--------------------+---------------+
+| infinity           | infinity             | infinity           | TRUE          |
++--------------------+----------------------+--------------------+---------------+
+| -infinity          | NOT -infinity        | -infinity          | FALSE         |
++--------------------+----------------------+--------------------+---------------+
+| infinity           | NOT infinity         | infinity           | FALSE         |
++--------------------+----------------------+--------------------+---------------+
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD valueIsInRangeOf
+VAR_INPUT
+	(* lower limit for the current value *)
+	lowerLimit		:LREAL;
+	(* current value to check *)
+	currentValue	:LREAL;
+	(* upper limit for the current value *)
+	upperLimit		:LREAL;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="valueIsLessThan" Id="{a288ed3a-95dc-4fc1-a318-cd7f7fea9347}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current value is greater than the less value
+
+.. attention::
+	Any comparsion to NaN is ``FALSE`` that means if ``currentValue`` OR ``greaterValue``
+	is NaN then is the assertion false.
+	For details check `IEEE 754`_ and the truth table below.
+
+.. attention::
+	Every number is smaller than infinity except -infinity, it's equal.
+	Every number is greater than -infinity except -infinity, it's equal.
+	For details check `IEEE 754`_ and the truth table below.
+
+.. _IEEE 754: https://en.wikipedia.org/wiki/IEEE_754
+
+truth table for special values
+===============================
++----------------------+----------------------+---------------+
+| **``currentValue``** | **``greaterValue``** | **assertion** |
++======================+======================+===============+
+| NaN                  | Any value            | FASLE         |
++----------------------+----------------------+---------------+
+| Any value            | NaN                  | FALSE         |
++----------------------+----------------------+---------------+
+| infinity             | Any value            | FALSE         |
++----------------------+----------------------+---------------+
+| -infinty             | NOT NaN              | TRUE          |
+|                      | NOT -infinity        |               |
++----------------------+----------------------+---------------+
+| NOT NaN              | infinity             | TRUE          |
+| NOT infinity         |                      |               |
++----------------------+----------------------+---------------+
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD valueIsLessThan
+VAR_INPUT
+	(* current value to check *)
+	currentValue	:LREAL;
+	(* greater than upper limit *)
+	greaterValue	:LREAL;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="valueIsMax" Id="{41a5ac91-04ef-429f-96ac-5bda6635fb34}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current value is less than or equal to the maximum value
+
+.. attention::
+	Any comparsion to NaN is ``FALSE`` that means if ``currentValue`` OR ``maximumValue``
+	is NaN then is the assertion false.
+	For details check `IEEE 754`_ and the truth table below.
+
+.. attention::
+	Every number is smaller than infinity except -infinity, it's equal.
+	Every number is greater than -infinity except -infinity, it's equal.
+	For details check `IEEE 754`_ and the truth table below.
+
+.. _IEEE 754: https://en.wikipedia.org/wiki/IEEE_754
+
+truth table for special values
+===============================
++----------------------+----------------------+---------------+
+| **``currentValue``** | **``maximumValue``** | **assertion** |
++======================+======================+===============+
+| NaN                  | Any value            | FASLE         |
++----------------------+----------------------+---------------+
+| Any value            | NaN                  | FALSE         |
++----------------------+----------------------+---------------+
+| NOT NaN              | infinity             | TRUE          |
++----------------------+----------------------+---------------+
+| -infinity            | NOT NaN              | TRUE          |
++----------------------+----------------------+---------------+
+| infinity             | NOT infinity         | FALSE         |
++----------------------+----------------------+---------------+
+| NOT -infinity        | -infinity            | FALSE         |
++----------------------+----------------------+---------------+
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD valueIsMax
+VAR_INPUT
+	(* current value to check *)
+	currentValue	:LREAL;
+	(* upper limit for the current value *)
+	maximumValue	:LREAL;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="valueIsMin" Id="{41d08d11-53f7-40bb-b654-bf3acf8fc39a}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current value is greater than or equal to the minimum value
+
+.. attention::
+	Any comparsion to NaN is ``FALSE`` that means if ``currentValue`` OR ``minimumValue``
+	is NaN then is the assertion false.
+	For details check `IEEE 754`_ and the truth table below.
+
+.. attention::
+	Every number is smaller than infinity except -infinity, it's equal.
+	Every number is greater than -infinity except -infinity, it's equal.
+	For details check `IEEE 754`_ and the truth table below.
+
+.. _IEEE 754: https://en.wikipedia.org/wiki/IEEE_754
+
+truth table for special values
+===============================
++----------------------+----------------------+---------------+
+| **``currentValue``** | **``minimumValue``** | **assertion** |
++======================+======================+===============+
+| NaN                  | Any value            | FASLE         |
++----------------------+----------------------+---------------+
+| Any value            | NaN                  | FALSE         |
++----------------------+----------------------+---------------+
+| infinity             | NOT NaN              | TRUE          |
++----------------------+----------------------+---------------+
+| NOT NaN              | -infinity            | TRUE          |
++----------------------+----------------------+---------------+
+| -infinity            | NOT -infinity        | FALSE         |
++----------------------+----------------------+---------------+
+| NOT infinity         | infinity             | FALSE         |
++----------------------+----------------------+---------------+
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD valueIsMin
+VAR_INPUT
+	(* current value to check *)
+	currentValue	:LREAL;
+	(* lower limit for the current value *)
+	minimumValue	:LREAL;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="valueIsNaN" Id="{7f99cc7a-5572-4cda-876f-3f7edd8a15c4}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current value is a not a number (NaN)
+for details check `IEEE 754`_
+
+.. _IEEE 754: https://en.wikipedia.org/wiki/IEEE_754
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD valueIsNaN
+VAR_INPUT
+	(* current value to check *)
+	currentValue	:LREAL;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="valueIsNegative" Id="{d724f0a8-b870-4561-899b-aaa2237e4c46}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current value is negative
+
+.. attention::
+	Any comparsion to NaN is ``FALSE`` that means if ``currentValue``
+	is NaN then is the assertion false.
+	For details check `IEEE 754`_.
+
+.. attention::
+	``currentValue`` has the value infinity means the assertion is false.
+	``currentValue`` has the value -infinity means the assertion is true.
+	``currentValue`` has the +0.0 means the assertion is false.
+	``currentValue`` has the value -0.0 means the assertion is true.	
+	For details check `IEEE 754`_.
+
+.. _IEEE 754: https://en.wikipedia.org/wiki/IEEE_754
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD valueIsNegative
+VAR_INPUT
+	(* current value to check *)
+	currentValue	:LREAL;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="valueIsNegativeInfinite" Id="{eb942da5-53c7-426c-aacb-71c6cc3a8808}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current value is negative infinite
+(-infinty), for details check `IEEE 754`_
+
+.. _IEEE 754: https://en.wikipedia.org/wiki/IEEE_754
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD valueIsNegativeInfinite
+VAR_INPUT
+	(* current value to check *)
+	currentValue	:LREAL;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="valueIsNegativeZero" Id="{8224377a-0abf-4a14-91ef-1f8cb3f8856e}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current value is +0.0
+for details check `IEEE 754`_
+
+.. _IEEE 754: https://en.wikipedia.org/wiki/IEEE_754
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD valueIsNegativeZero
+VAR_INPUT
+	(* current value to check *)
+	currentValue	:LREAL;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="valueIsNormal" Id="{f43bc276-548a-44c5-8f91-35dd07db63cb}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current value is a normal number (not subnormal)
+for details check `IEEE 754`_
+
+.. _IEEE 754: https://en.wikipedia.org/wiki/IEEE_754
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD valueIsNormal
+VAR_INPUT
+	(* current value to check *)
+	currentValue	:LREAL;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="valueIsNotEqualTo" Id="{a146e9f7-11b6-4307-9120-11356264c119}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current value is not equal to the unexpected value
+
+.. attention:: 
+	Nothing is equal to NaN, that means if ``currentValue`` OR ``unexpectedValue`` OR ``tolerance``
+	is NaN then is the assertion true. For details check `IEEE 754`_
+
+.. attention:: 
+	infinity is equal to infinity and -infinity is equal to -infinity, that means if
+	``currentValue`` AND ``unexpectedValue`` have the value infinity 
+	OR ``currentValue`` AND ``unexpectedValue`` have the value -infinity
+	the assertion is false. For details check `IEEE 754`_
+
+.. attention:: 
+	If ``tolerance`` has the value infinity or -infinity and 
+	``currentValue`` is not NaN and ``unexpectedValue`` is not NaN
+	then is the assertion false. For details check `IEEE 754`_
+
+.. _IEEE 754: https://en.wikipedia.org/wiki/IEEE_754
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD valueIsNotEqualTo
+VAR_INPUT
+	(* current value to check *)
+	currentValue	:LREAL;
+	(* unexpected value to compare *)
+	unexpectedValue	:LREAL;
+	(* tolerance to compensate twiddling floats, it has no sign *)
+	tolerance		:LREAL;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="valueIsNotNegativeInfinite" Id="{34927b1b-36de-4b81-bc1e-7fd5e890064a}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current value is not negative infinite
+NOT (-infinty), for details check `IEEE 754`_
+
+.. _IEEE 754: https://en.wikipedia.org/wiki/IEEE_754
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD valueIsNotNegativeInfinite
+VAR_INPUT
+	(* current value to check *)
+	currentValue	:LREAL;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="valueIsNotPositiveInfinite" Id="{517d3f6f-526b-4fe5-aca1-88e36b6ff600}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current value is not positive infinite
+NOT (infinty), for details check `IEEE 754`_
+
+.. _IEEE 754: https://en.wikipedia.org/wiki/IEEE_754
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD valueIsNotPositiveInfinite
+VAR_INPUT
+	(* current value to check *)
+	currentValue	:LREAL;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="valueIsNotSpecial" Id="{5ec1ca46-a128-47d1-9ffc-247710015e46}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current value is a non special number
+(NOT (NaN OR infinty OR -inifinity)), for details check `IEEE 754`_
+
+.. _IEEE 754: https://en.wikipedia.org/wiki/IEEE_754
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD valueIsNotSpecial : BOOL
+VAR_INPUT
+	(* current value to check *)
+	currentValue	:LREAL;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="valueIsPositive" Id="{251f4dda-944d-4cf3-9c04-ac93131aecd3}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current value is positve
+
+.. attention::
+	Any comparsion to NaN is ``FALSE`` that means if ``currentValue``
+	is NaN then is the assertion false.
+	For details check `IEEE 754`_.
+
+.. attention::
+	``currentValue`` has the value infinity means the assertion is true.
+	``currentValue`` has the value -infinity means the assertion is false.
+	``currentValue`` has the +0.0 means the assertion is true.
+	``currentValue`` has the value -0.0 means the assertion is false.	
+	For details check `IEEE 754`_.
+
+.. _IEEE 754: https://en.wikipedia.org/wiki/IEEE_754
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD valueIsPositive
+VAR_INPUT
+	(* current value to check *)
+	currentValue	:LREAL;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="valueIsPositiveInfinite" Id="{d9a71ceb-2699-4bc6-8161-a5d52b37503a}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current value is positive infinite
+(infinty), for details check `IEEE 754`_
+
+.. _IEEE 754: https://en.wikipedia.org/wiki/IEEE_754
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD valueIsPositiveInfinite
+VAR_INPUT
+	(* current value to check *)
+	currentValue	:LREAL;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="valueIsPositiveZero" Id="{7b963007-1ec1-446c-a196-b3e3e51af7ca}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current value is -0.0
+for details check `IEEE 754`_
+
+.. _IEEE 754: https://en.wikipedia.org/wiki/IEEE_754
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD valueIsPositiveZero
+VAR_INPUT
+	(* current value to check *)
+	currentValue	:LREAL;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="valueIsSpecial" Id="{696f247b-b1a0-45b6-9070-0e4938eb37cc}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current value is a special
+(NaN OR infinty OR -inifinity), for details check `IEEE 754`_
+
+.. _IEEE 754: https://en.wikipedia.org/wiki/IEEE_754
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD valueIsSpecial
+VAR_INPUT
+	(* current value to check *)
+	currentValue	:LREAL;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="valueIsSubnormal" Id="{547b2785-347b-4eb8-84c8-254ad51ffbe1}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current value is a subnormal number
+for details check `IEEE 754`_
+
+.. _IEEE 754: https://en.wikipedia.org/wiki/IEEE_754
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD valueIsSubnormal
+VAR_INPUT
+	(* current value to check *)
+	currentValue	:LREAL;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+    </Method>
+  </Itf>
+</TcPlcObject>

@@ -1,0 +1,4090 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="StringAssertionTests" Id="{ef77a513-4fcf-4f2c-86b9-4cd7add41495}" SpecialFunc="None">
+    <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+methods and properties
+======================
+
+*)
+
+{warning 'header is generated please add your documentation'}
+FUNCTION_BLOCK StringAssertionTests EXTENDS AbstractAssertorTest
+
+VAR
+	testDataStringLengthIsExact 	: ARRAY[0 ..IsLengthTestDataSet.SIZE_OF_IS_DATASET] OF IsLengthBasicData;
+	testDataStringContains 			: ARRAY[0..containsTestDataSet.SIZE_OF_CONTAINS_DATASET] OF containsDataStr;
+	testDataStringContainsNo 		: ARRAY[0..containsNOTestDataSet.SIZE_OF_CONTAINSNO_DATASET] OF containsDataStr;
+	testDataStringStartsWith		: ARRAY[0..startsWithDataSet.SIZE_OF_STARTWITH_DATASET] OF containsDataStr;
+	testDataStringEndsWith 			: ARRAY[0..endsWithDataSet.SIZE_OF_ENDSWITH_DATASET] OF containsDataStr;
+	testDataStringIsEqual			: ARRAY[0..isEqualToTestDataSet.SIZE_OF_ISEQUALTO_DATASET] OF isEqualToDataStr;
+	testDataStringIsNotEqual		: ARRAY[0..isNotEqualToTestDataSet.SIZE_OF_ISNOTEQUALTO_DATASET] OF isEqualToDataStr;
+	testDataStringIsEmpty			: ARRAY[0..isEmptyTestDataSet.SIZE_OF_ISEMPTY_DATASET] OF isEmptyDataStr;
+	testDataStringIsNotEmpty		: ARRAY[0..isNotEmtyTestDataSet.SIZE_OF_ISNOTEMPTY_DATASET] OF isEmptyDataStr;
+	testDataStringIsLenghtBetween	: ARRAY[0..IsLengthBetweenDataSet.SIZE_OF_LENGTHBETWEEN_DATASET] OF IsLengthBetweenBasicData;
+	
+END_VAR
+
+
+
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[testAnyString_isEmpty();
+testAnyString_isNotEmpty();
+testAnyString_isEqualTo();
+testAnyString_isNotEqualTo();
+testAnyString_lengthIsExact();
+
+
+THIS^.runTestIsLength();
+THIS^.runTestContains();
+THIS^.runTestContainsNo();
+THIS^.runTestEndsWith();
+THIS^.runTestStartsWith();
+THIS^.runTestIsEmpty();
+THIS^.runTestIsNotEmpty();
+THIS^.runTestIsEqualTo();
+THIS^.runTestIsNotEqualTo();
+THIS^.runTestLengthIsBetween();]]></ST>
+    </Implementation>
+    <Folder Name="anyString" Id="{326b4f68-416f-4510-aae7-68b0da96aefb}" />
+    <Folder Name="contains" Id="{9474e84a-b84d-4c31-b0a2-e15604db1a06}" />
+    <Folder Name="containsNo" Id="{420e7f08-5049-44a4-9734-edfcca81f37c}" />
+    <Folder Name="endsWith" Id="{b00bee8f-398a-4b88-a437-ace63a5fe11c}" />
+    <Folder Name="isEmpty" Id="{bc905500-581b-4370-be28-5abca9180009}" />
+    <Folder Name="isEqualTo" Id="{5a70313a-d317-4b5a-99c9-87a59f45056c}" />
+    <Folder Name="isLenghtExact" Id="{72195a71-537a-4e07-96e1-9e07c5705a02}" />
+    <Folder Name="isLengthBetween" Id="{1e7cabdc-b378-4466-a2a0-23775041abd6}" />
+    <Folder Name="isNotEmpty" Id="{0edcf8c0-85c3-4b23-8872-a498606f3996}" />
+    <Folder Name="isNotEqualTo" Id="{6f396fc0-265b-4f83-bdf0-687beb929d7a}" />
+    <Folder Name="startsWith" Id="{0aba82d7-f1d6-4728-9aa8-223e7d9a1c89}" />
+    <Method Name="FB_init" Id="{37f790e4-9b93-41b6-874e-7819cf1e1351}">
+      <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+{warning 'header is generated please add your documentation'}
+METHOD FB_init : BOOL
+VAR_INPUT
+    bInitRetains : BOOL; // if TRUE, the retain variables are initialized (warm start / cold start)
+    bInCopyCode : BOOL;  // if TRUE, the instance afterwards gets moved into the copy code (online change)
+	classToBeTested :IAssertorContainer;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.testDataStringLengthIsExact 	:= IsLengthTestDataSet.IsLenghtDataSetCommon;
+THIS^.testDataStringContains 		:= containsTestDataSet.containsDataSetCommon;	
+THIS^.testDataStringContainsNo		:= containsNoTestDataSet.containsNoDataSetCommon;
+THIS^.testDataStringEndsWith		:= endsWithDataSet.endsWithDataSetCommon;
+THIS^.testDataStringStartsWith		:= startsWithDataSet.StartsWithDataSetCommon;
+THIS^.testDataStringIsEqual			:= isEqualToTestDataSet.isEqualToDataSetCommon;		
+THIS^.testDataStringIsNotEqual		:= isNotEqualToTestDataSet.isNotEqualDataSetCommon;
+THIS^.testDataStringIsEmpty			:= isEmptyTestDataSet.isEmptyDataSetCommon;
+THIS^.testDataStringIsNotEmpty		:= isNotEmtyTestDataSet.isNotEmptyDataSetCommon;
+THIS^.testDataStringIsLenghtBetween	:= IsLengthBetweenDataSet.isLenghtBetweenToDataSetCommon;
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="reset" Id="{c76d3913-e022-4ce3-a266-16e157e59c0b}">
+      <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+{warning 'header is generated please add your documentation'}
+METHOD reset
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.assertorContainer.resetAssertor();]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="runTestContains" Id="{8f886456-c87a-4b48-801a-7b98beae770c}" FolderPath="contains\">
+      <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+{warning 'header is generated please add your documentation'}
+METHOD runTestContains
+VAR
+	testDataIterator	:USINT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[TEST('ContainsTests');
+FOR testDataIterator := 0 TO containsTestDataSet.SIZE_OF_contains_DATASET DO
+	IF (THIS^.testDataStringContains[testDataIterator].typeToTest = TypeToTest.TEST_STRING) THEN
+		
+		THIS^.testAnyStringContains(THIS^.testDataStringContains[testDataIterator], testDataIterator);
+		THIS^.testAsciiStringContains (THIS^.testDataStringContains[testDataIterator], testDataIterator);
+		
+	ELSIF (THIS^.testDataStringContains[testDataIterator].typeToTest = TypeToTest.TEST_WSTRING) THEN
+		
+		THIS^.testAnyStringContains(THIS^.testDataStringContains[testDataIterator], testDataIterator);
+		THIS^.testUtf16StringContains(THIS^.testDataStringContains[testDataIterator], testDataIterator);
+		
+	END_IF;
+END_FOR
+
+TEST_FINISHED();]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="runTestContainsNo" Id="{032e8792-a8e8-48df-9e1b-7b1a8e065719}" FolderPath="containsNo\">
+      <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+{warning 'header is generated please add your documentation'}
+METHOD runTestContainsNo
+VAR
+	testDataIterator	:USINT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[TEST('ContainsNoTests');
+FOR testDataIterator:= 0 TO containsNoTestDataSet.SIZE_OF_containsNo_DATASET DO
+	IF (THIS^.testDataStringContainsNo[testDataIterator].typeToTest = TypeToTest.TEST_STRING) THEN
+		
+		THIS^.testAnyStringContainsNo(THIS^.testDataStringContainsno[testDataIterator], testDataIterator);
+		THIS^.testAsciiStringContainsNo (THIS^.testDataStringContainsno[testDataIterator], testDataIterator);
+		
+	ELSIF (THIS^.testDataStringContainsNo[testDataIterator].typeToTest = TypeToTest.TEST_WSTRING) THEN
+		
+		THIS^.testAnyStringContainsNo(THIS^.testDataStringContainsno[testDataIterator], testDataIterator);
+		THIS^.testUtf16StringContainsNo(THIS^.testDataStringContainsno[testDataIterator], testDataIterator);
+		
+	END_IF;
+END_FOR
+
+TEST_FINISHED();]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="runTestEndsWith" Id="{8473644e-5a41-43a2-b1d3-4da733f8832b}" FolderPath="endsWith\">
+      <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+{warning 'header is generated please add your documentation'}
+METHOD runTestEndsWith
+VAR
+	testDataIterator	: USINT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[TEST('endsWithTests');
+
+FOR testDataIterator := 0 TO endsWithDataSet.SIZE_OF_ENDSWITH_DATASET DO
+	IF (THIS^.testDataStringEndsWith[testDataIterator].typeToTest = TypeToTest.TEST_STRING) THEN
+		
+		THIS^.testAnyStringEndsWith(THIS^.testDataStringEndsWith[testDataIterator], testDataIterator);
+		THIS^.testAsciiEndsWith(THIS^.testDataStringEndsWith[testDataIterator], testDataIterator);
+		
+	ELSIF (THIS^.testDataStringEndsWith[testDataIterator].typeToTest = TypeToTest.TEST_WSTRING) THEN
+		
+		THIS^.testAnyStringEndsWith(THIS^.testDataStringEndsWith[testDataIterator], testDataIterator);
+		THIS^.testUtf16EndsWith(THIS^.testDataStringEndsWith[testDataIterator], testDataIterator);
+		
+	END_IF;
+END_FOR
+
+TEST_FINISHED();]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="runTestIsEmpty" Id="{0199bc09-5ad2-4022-b544-b00ae894a785}" FolderPath="isEmpty\">
+      <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+{warning 'header is generated please add your documentation'}
+METHOD runTestIsEmpty
+VAR
+	testDataIterator	: USINT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[TEST('isEmptyTests');
+
+FOR testDataIterator := 0 TO isEmptyTestDataSet.SIZE_OF_ISEMPTY_DATASET DO
+	IF (THIS^.testDataStringIsEmpty[testDataIterator].typeToTest = TypeToTest.TEST_STRING) THEN
+		
+		THIS^.testAnyStringIsEmpty(THIS^.testDataStringIsEmpty[testDataIterator], testDataIterator);
+		THIS^.testAsciiIsEmpty(THIS^.testDataStringIsEmpty[testDataIterator], testDataIterator);
+		
+	ELSIF (THIS^.testDataStringIsEmpty[testDataIterator].typeToTest = TypeToTest.TEST_WSTRING) THEN
+		
+		THIS^.testAnyStringIsEmpty(THIS^.testDataStringIsEmpty[testDataIterator], testDataIterator);
+		THIS^.testUtf16IsEmpty(THIS^.testDataStringIsEmpty[testDataIterator], testDataIterator);
+		
+	END_IF;
+END_FOR
+
+TEST_FINISHED();]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="runTestIsEqualTo" Id="{1a17c691-080f-4193-8c9f-3b6be8f3e80d}" FolderPath="isEqualTo\">
+      <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+{warning 'header is generated please add your documentation'}
+METHOD runTestIsEqualTo
+VAR
+	testDataIterator	: USINT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[TEST('isEqualToTests');
+
+FOR testDataIterator := 0 TO isEqualToTestDataSet.SIZE_OF_ISEQUALTO_DATASET DO
+	IF (THIS^.testDataStringIsEqual[testDataIterator].typeToTest = TypeToTest.TEST_STRING) THEN
+		
+		THIS^.testAnyStringIsEqualTo(THIS^.testDataStringIsEqual[testDataIterator], testDataIterator);
+		THIS^.testAsciiIsEqualTo(THIS^.testDataStringIsEqual[testDataIterator], testDataIterator);
+		
+	ELSIF (THIS^.testDataStringIsEqual[testDataIterator].typeToTest = TypeToTest.TEST_WSTRING) THEN
+		
+		THIS^.testAnyStringIsEqualTo(THIS^.testDataStringIsEqual[testDataIterator], testDataIterator);
+		THIS^.testUtf16IsEqualTo(THIS^.testDataStringIsEqual[testDataIterator], testDataIterator);
+		
+	END_IF;
+END_FOR
+
+TEST_FINISHED();]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="runTestIsLength" Id="{f13bc3b9-26f3-43d4-a4cd-b43a2c2ff682}" FolderPath="isLenghtExact\">
+      <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+{warning 'header is generated please add your documentation'}
+METHOD runTestIsLength
+VAR
+	testDataIterator	:USINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[TEST('IsLenghtIsTests');
+FOR testDataIterator:= 0 TO IsLengthTestDataSet.SIZE_OF_IS_DATASET DO
+	IF (THIS^.testDataStringLengthIsExact[testDataIterator].typeToTest = TypeToTest.TEST_STRING) THEN
+		
+		THIS^.testAnyStringLengthIs(THIS^.testDataStringLengthIsExact[testDataIterator], testDataIterator);
+		THIS^.testAsciiStringlengthIs (THIS^.testDataStringLengthIsExact[testDataIterator], testDataIterator);
+		
+	ELSIF (THIS^.testDataStringLengthIsExact[testDataIterator].typeToTest = TypeToTest.TEST_WSTRING) THEN
+		
+		THIS^.testAnyStringLengthIs(THIS^.testDataStringLengthIsExact[testDataIterator], testDataIterator);
+		THIS^.testUtf16StringlengthIs(THIS^.testDataStringLengthIsExact[testDataIterator], testDataIterator);
+		
+	END_IF;
+END_FOR
+
+TEST_FINISHED();]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="runTestIsNotEmpty" Id="{03d1da4c-b365-44a6-875c-c1cea05ba4ee}" FolderPath="isNotEmpty\">
+      <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+{warning 'header is generated please add your documentation'}
+METHOD runTestIsNotEmpty
+VAR
+	testDataIterator	: USINT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[TEST('isNotEmptyTests');
+
+FOR testDataIterator := 0 TO isNotEmtyTestDataSet.SIZE_OF_ISNOTEMPTY_DATASET DO
+	IF (THIS^.testDataStringIsNotEmpty[testDataIterator].typeToTest = TypeToTest.TEST_STRING) THEN
+		
+		THIS^.testAnyStringIsNotEmpty(THIS^.testDataStringIsNotEmpty[testDataIterator], testDataIterator);
+		THIS^.testAsciiIsNotEmpty(THIS^.testDataStringIsNotEmpty[testDataIterator], testDataIterator);
+		
+	ELSIF (THIS^.testDataStringIsNotEmpty[testDataIterator].typeToTest = TypeToTest.TEST_WSTRING) THEN
+		
+		THIS^.testAnyStringIsNotEmpty(THIS^.testDataStringIsNotEmpty[testDataIterator], testDataIterator);
+		THIS^.testUtf16IsNotEmpty(THIS^.testDataStringIsNotEmpty[testDataIterator], testDataIterator);
+		
+	END_IF;
+END_FOR
+
+TEST_FINISHED();]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="runTestIsNotEqualTo" Id="{f589512f-d22c-41b2-915f-a8f19ec9a9fe}" FolderPath="isNotEqualTo\">
+      <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+{warning 'header is generated please add your documentation'}
+METHOD runTestIsNotEqualTo
+VAR
+	testDataIterator	: USINT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[TEST('isNotEqualToTests');
+
+FOR testDataIterator := 0 TO isNotEqualToTestDataSet.SIZE_OF_ISNOTEQUALTO_DATASET DO
+	IF (THIS^.testDataStringIsNotEqual[testDataIterator].typeToTest = TypeToTest.TEST_STRING) THEN
+		
+		THIS^.testAnyStringIsNotEqualTo(THIS^.testDataStringIsNotEqual[testDataIterator], testDataIterator);
+		THIS^.testAsciiIsNotEqualTo(THIS^.testDataStringIsNotEqual[testDataIterator], testDataIterator);
+		
+	ELSIF (THIS^.testDataStringIsNotEqual[testDataIterator].typeToTest = TypeToTest.TEST_WSTRING) THEN
+		
+		THIS^.testAnyStringIsNotEqualTo(THIS^.testDataStringIsNotEqual[testDataIterator], testDataIterator);
+		THIS^.testUtf16IsNotEqualTo(THIS^.testDataStringIsNotEqual[testDataIterator], testDataIterator);
+		
+	END_IF;
+END_FOR
+
+TEST_FINISHED();]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="runTestLengthIsBetween" Id="{1e1519eb-6e8e-47e7-8611-90a898f0a977}" FolderPath="isLengthBetween\">
+      <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+{warning 'header is generated please add your documentation'}
+METHOD runTestLengthIsBetween : BOOL
+VAR
+	testDataIterator	:USINT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[TEST('IsLenghtBetweenTests');
+FOR testDataIterator:= 0 TO IsLengthBetweenDataSet.SIZE_OF_LENGTHBETWEEN_DATASET DO
+	IF (THIS^.testDataStringIsLenghtBetween[testDataIterator].typeToTest = TypeToTest.TEST_STRING) THEN
+		
+		THIS^.testAnyStringLengthBetween(THIS^.testDataStringIsLenghtBetween[testDataIterator], testDataIterator);
+		THIS^.testAsciiStringLengthBetween (THIS^.testDataStringIsLenghtBetween[testDataIterator], testDataIterator);
+		
+	ELSIF (THIS^.testDataStringIsLenghtBetween[testDataIterator].typeToTest = TypeToTest.TEST_WSTRING) THEN
+		
+		THIS^.testAnyStringLengthBetween(THIS^.testDataStringIsLenghtBetween[testDataIterator], testDataIterator);
+		THIS^.testUtf16StringLengthBetween(THIS^.testDataStringIsLenghtBetween[testDataIterator], testDataIterator);
+		
+	END_IF;
+END_FOR
+
+TEST_FINISHED();]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="runTestStartsWith" Id="{7bc18a33-2123-4d4d-b680-2b949689b55f}" FolderPath="startsWith\">
+      <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+{warning 'header is generated please add your documentation'}
+METHOD runTestStartsWith
+VAR
+	testDataIterator	: USINT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[TEST('StartsWithTests');
+FOR testDataIterator := 0 TO startsWithDataSet.SIZE_OF_STARTWITH_DATASET DO
+	IF (THIS^.testDataStringStartsWith[testDataIterator].typeToTest = TypeToTest.TEST_STRING) THEN
+		
+		THIS^.testAnyStringStartsWith(THIS^.testDataStringStartsWith[testDataIterator], testDataIterator);
+		THIS^.testAsciiStartsWith(THIS^.testDataStringStartsWith[testDataIterator], testDataIterator);
+		
+	ELSIF (THIS^.testDataStringStartsWith[testDataIterator].typeToTest = TypeToTest.TEST_WSTRING) THEN
+		
+		THIS^.testAnyStringStartsWith(THIS^.testDataStringStartsWith[testDataIterator], testDataIterator);
+		THIS^.testUtf16StartsWith(THIS^.testDataStringStartsWith[testDataIterator], testDataIterator);
+		
+	END_IF;
+END_FOR
+
+TEST_FINISHED();]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testAnyString_isEmpty" Id="{9a09f0a9-8be8-4f02-a68a-5b0d4467e103}" FolderPath="anyString\">
+      <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+{warning 'header is generated please add your documentation'}
+METHOD testAnyString_isEmpty
+
+VAR 
+  testString1: STRING(50);
+  testString2: STRING;
+  number: INT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[
+// anyStringAssertionTests.isEmpty Tests
+
+//-------------------------------------------------------------------------------------------------------
+TEST('anyStringAssertionTest.isEmpty with stringToCheck:= emptyString');
+
+testString1:= '';
+THIS^.assertorContainer.resetAssertor();
+THIS^.assertorContainer.assertor.assert.strings.anyString.isEmpty(
+  stringToCheck := testString1,
+  message := ''
+);
+THIS^.AssertFalse(
+	Condition := THIS^.assertorContainer.wasAssertionWrong,
+	Message := 'anyStringAssertionTests.isEmpty assertion shall be wrong, stringToCheck:= emptyString '
+);
+TEST_FINISHED();
+
+//-------------------------------------------------------------------------------------------------------
+
+TEST('anyStringAssertionTest.isEmpty with stringToCheck:= space');
+
+testString1:= ' ';
+THIS^.assertorContainer.resetAssertor();
+THIS^.assertorContainer.assertor.assert.strings.anyString.isEmpty(
+  stringToCheck := testString1,
+  message := ''
+);
+THIS^.AssertTrue(
+	Condition := THIS^.assertorContainer.wasAssertionWrong,
+	Message := 'anyStringAssertionTests.isEmpty assertion shall be wrong, stringToCheck:= just space'
+);
+TEST_FINISHED();
+
+//-------------------------------------------------------------------------------------------------------
+
+TEST('anyStringAssertionTest.isEmpty with stringToCheck:= point');
+
+testString1:= '.';
+THIS^.assertorContainer.resetAssertor();
+THIS^.assertorContainer.assertor.assert.strings.anyString.isEmpty(
+  stringToCheck := testString1,
+  message := ''
+);
+THIS^.AssertTrue(
+	Condition := THIS^.assertorContainer.wasAssertionWrong,
+	Message := 'anyStringAssertionTests.isEmpty assertion shall be wrong, stringToCheck:= point'
+);
+TEST_FINISHED();
+
+//-------------------------------------------------------------------------------------------------------
+
+TEST('anyStringAssertionTest.isEmpty with stringToCheck:= emptyStringVar');
+
+testString1:= testString2;
+THIS^.assertorContainer.resetAssertor();
+THIS^.assertorContainer.assertor.assert.strings.anyString.isEmpty(
+  stringToCheck := testString1,
+  message := ''
+);
+THIS^.AssertFalse(
+	Condition := THIS^.assertorContainer.wasAssertionWrong,
+	Message := 'anyStringAssertionTests.isEmpty assertion shall be wrong, stringToCheck:= emptyStringVar'
+);
+TEST_FINISHED();
+
+//-------------------------------------------------------------------------------------------------------
+
+TEST('anyStringAssertionTest.isEmpty with stringToCheck:= wierdString');
+
+testString1:= 'sadhasdhasduhuiashdui';
+THIS^.assertorContainer.resetAssertor();
+THIS^.assertorContainer.assertor.assert.strings.anyString.isEmpty(
+  stringToCheck := testString1,
+  message := ''
+);
+THIS^.AssertTrue(
+	Condition := THIS^.assertorContainer.wasAssertionWrong,
+	Message := 'anyStringAssertionTests.isEmpty assertion shall be wrong, stringToCheck:= emptyStringVar'
+);
+TEST_FINISHED();
+
+//-------------------------------------------------------------------------------------------------------
+
+TEST('anyStringAssertionTest.isEmpty with stringToCheck:=   +gdjsnd.8959889mfknfji');
+
+testString1:= '   +gdjsnd.8959889mfknfji';
+THIS^.assertorContainer.resetAssertor();
+THIS^.assertorContainer.assertor.assert.strings.anyString.isEmpty(
+  stringToCheck := testString1,
+  message := ''
+);
+THIS^.AssertTrue(
+	Condition := THIS^.assertorContainer.wasAssertionWrong,
+	Message := 'anyStringAssertionTests.isEmpty assertion shall be wrong, stringToCheck:= emptyStringVar'
+);
+TEST_FINISHED();
+
+//-------------------------------------------------------------------------------------------------------
+
+TEST('anyStringAssertionTest.isEmpty with stringToCheck:=   converted int');
+
+testString1:= INT_TO_STRING(number);
+THIS^.assertorContainer.resetAssertor();
+THIS^.assertorContainer.assertor.assert.strings.anyString.isEmpty(
+  stringToCheck := testString1,
+  message := ''
+);
+THIS^.AssertTrue(
+	Condition := THIS^.assertorContainer.wasAssertionWrong,
+	Message := 'anyStringAssertionTests.isEmpty assertion shall be wrong, stringToCheck:=  converted int'
+);
+TEST_FINISHED();
+
+
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testAnyString_isEqualTo" Id="{5a48ae37-fa18-47cf-928d-3d7690b9d09e}" FolderPath="anyString\">
+      <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+{warning 'header is generated please add your documentation'}
+METHOD testAnyString_isEqualTo
+
+VAR 
+  testString1: STRING(50);
+  testString2: STRING(30);
+  testString3: WSTRING(50);
+  testString4: STRING(50);
+  testString5: WSTRING(400);
+  testString6: WSTRING(400);
+  number: INT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[
+// anyStringAssertionTests.isEqualTo Tests
+
+//-------------------------------------------------------------------------------------------------------
+TEST('anyStringAssertionTest.isEqualTo with stringToCheck:= emptyString , expected:= emptyString , ignoreCases:= TRUE ,');
+
+THIS^.assertorContainer.resetAssertor();
+THIS^.assertorContainer.assertor.assert.strings.anyString.isEqualTo(
+  stringToCheck:= testString1 , 
+  expected:= testString2 ,
+  ignoreCases:= TRUE ,
+  message:='' );
+  
+THIS^.AssertFalse(
+	Condition := THIS^.assertorContainer.wasAssertionWrong,
+	Message := 'anyStringAssertionTests.isEqualTo , stringToCheck:= emptyString , expected:= emptyString , ignoreCases:= TRUE '
+);
+TEST_FINISHED();
+
+//-------------------------------------------------------------------------------------------------------
+TEST('anyStringAssertionTest.isEqualTo with stringToCheck:= emptyString assign , expected:= emptyString assign , ignoreCases:= TRUE ,');
+
+testString1:= '';
+testString2:= '';
+
+THIS^.assertorContainer.resetAssertor();
+THIS^.assertorContainer.assertor.assert.strings.anyString.isEqualTo(
+  stringToCheck:= testString1 , 
+  expected:= testString2 ,
+  ignoreCases:= TRUE ,
+  message:='' );
+  
+THIS^.AssertFalse(
+	Condition := THIS^.assertorContainer.wasAssertionWrong,
+	Message := 'anyStringAssertionTests.isEqualTo , stringToCheck:= emptyString assign, expected:= emptyString assign , ignoreCases:= TRUE '
+);
+TEST_FINISHED();
+
+//-------------------------------------------------------------------------------------------------------
+TEST('anyStringAssertionTest.isEqualTo with stringToCheck:= abcd56ä² , expected:= abcd56ä2 , ignoreCases:= TRUE ,');
+
+testString1:= 'abcd56ä²';
+testString2:= 'abcd56ä2';
+
+THIS^.assertorContainer.resetAssertor();
+THIS^.assertorContainer.assertor.assert.strings.anyString.isEqualTo(
+  stringToCheck:= testString1 , 
+  expected:= testString2 ,
+  ignoreCases:= TRUE ,
+  message:='' );
+  
+THIS^.AssertTrue(
+	Condition := THIS^.assertorContainer.wasAssertionWrong,
+	Message := 'anyStringAssertionTests.isEqualTo assertion shall be wrong, stringToCheck:= abcd56ä²  , expected:= abcd56ä2 , ignoreCases:= TRUE'
+);
+TEST_FINISHED();
+
+
+//-------------------------------------------------------------------------------------------------------
+TEST('anyStringAssertionTest.isEqualTo with stringToCheck:= abcd56ä²  , expected:= abcd56ä2 , ignoreCases:= False ,');
+
+testString1:= 'abcd56ä²';
+testString2:= 'abcd56ä2';
+
+THIS^.assertorContainer.resetAssertor();
+THIS^.assertorContainer.assertor.assert.strings.anyString.isEqualTo(
+  stringToCheck:= testString1 , 
+  expected:= testString2 ,
+  ignoreCases:= FALSE ,
+  message:='' );
+  
+THIS^.AssertTrue(
+	Condition := THIS^.assertorContainer.wasAssertionWrong,
+	Message := 'anyStringAssertionTests.isEqualTo assertion shall be wrong, stringToCheck:= abcd56ä²  , expected:= abcd56ä2 , ignoreCases:= false'
+);
+TEST_FINISHED();
+
+//-------------------------------------------------------------------------------------------------------
+TEST('anyStringAssertionTest.isEqualTo with stringToCheck:= abc d56ä2  , expected:= abc  d56ä2 , ignoreCases:= TRUE ,');
+
+testString1:= 'abc d56ä2';
+testString2:= 'abc  d56ä2';
+
+THIS^.assertorContainer.resetAssertor();
+THIS^.assertorContainer.assertor.assert.strings.anyString.isEqualTo(
+  stringToCheck:= testString1 , 
+  expected:= testString2 ,
+  ignoreCases:= TRUE ,
+  message:='' );
+  
+THIS^.AssertTrue(
+	Condition := THIS^.assertorContainer.wasAssertionWrong,
+	Message := 'anyStringAssertionTests.isEqualTo , stringToCheck:= abc d56ä2  , expected:= abc  d56ä2 , ignoreCases:= TRUE ,'
+);
+TEST_FINISHED();
+
+//-------------------------------------------------------------------------------------------------------
+TEST('anyStringAssertionTest.isEqualTo with stringToCheck:= abcd56ä2&§ (string) , expected:= abcd56ä2&§ (wstring), ignoreCases:= TRUE ,');
+
+testString1:= 'abcd56ä2&§';
+testString3:= "abcd56ä2&§";
+
+THIS^.assertorContainer.resetAssertor();
+THIS^.assertorContainer.assertor.assert.strings.anyString.isEqualTo(
+  stringToCheck:= testString1 , 
+  expected:= testString3 ,
+  ignoreCases:= TRUE ,
+  message:='' );
+  
+THIS^.AssertTrue(
+	Condition := THIS^.assertorContainer.wasAssertionWrong,
+	Message := 'anyStringAssertionTests.isEqualTo stringToCheck:= abcd56ä2&§ (string) , expected:= abcd56ä2&§ (wstring) , ignoreCases:= TRUE'
+);
+TEST_FINISHED();
+
+//-------------------------------------------------------------------------------------------------------
+TEST('anyStringAssertionTest.isEqualTo with stringToCheck:= abcd56ä2&§ (string) , expected:= abcd56ä2&§ (converted string)   , ignoreCases:= TRUE ,');
+
+testString1:= 'abcd56ä2&§';
+testString3:= "abcd56ä2&§";
+testString4:= WSTRING_TO_STRING(testString3);
+
+THIS^.assertorContainer.resetAssertor();
+THIS^.assertorContainer.assertor.assert.strings.anyString.isEqualTo(
+  stringToCheck:= testString1 , 
+  expected:= testString4 ,
+  ignoreCases:= TRUE ,
+  message:='' );
+  
+THIS^.AssertFalse(
+	Condition := THIS^.assertorContainer.wasAssertionWrong,
+	Message := 'anyStringAssertionTests.isEqualTo stringToCheck:= abcd56ä2&§ (string) , expected:= expected:= abcd56ä2&§ (converted string) , ignoreCases:= TRUE'
+);
+TEST_FINISHED();
+
+
+//-------------------------------------------------------------------------------------------------------
+TEST('anyStringAssertionTest.isEqualTo with stringToCheck:= abcd56ä2&§ (string) , expected:= AbBd56ä2&§ , ignoreCases:= False ,');
+
+testString1:= 'abcd56ä2&§';
+testString2:='AbCd56ä2&§';
+
+THIS^.assertorContainer.resetAssertor();
+THIS^.assertorContainer.assertor.assert.strings.anyString.isEqualTo(
+  stringToCheck:= testString1 , 
+  expected:= testString2 ,
+  ignoreCases:= TRUE ,
+  message:='' );
+  
+THIS^.AssertFalse(
+	Condition := THIS^.assertorContainer.wasAssertionWrong,
+	Message := 'anyStringAssertionTests.isEqualTo with stringToCheck:= abcd56ä2&§  , expected:= AbBd56ä2&§ , ignoreCases:= False'
+);
+TEST_FINISHED();
+
+
+//-------------------------------------------------------------------------------------------------------
+TEST('anyStringAssertionTest.isEqualTo with stringToCheck:= äbcd56ä2&§ , expected:= äbcd56ä2&§ , ignoreCases:= False ,');
+
+testString1:= 'abcd56ä2&§';
+testString4:='äbcd56ä2&§';
+
+THIS^.assertorContainer.resetAssertor();
+THIS^.assertorContainer.assertor.assert.strings.anyString.isEqualTo(
+  stringToCheck:= testString1 , 
+  expected:= testString4 ,
+  ignoreCases:= FALSE ,
+  message:='' );
+  
+THIS^.AssertTrue(
+	Condition := THIS^.assertorContainer.wasAssertionWrong,
+	Message := 'anyStringAssertionTests.isEqualTo with stringToCheck:= abcd56ä2&§  , expected:= äbcd56ä2&§ , ignoreCases:= False'
+);
+TEST_FINISHED();
+
+//-------------------------------------------------------------------------------------------------------
+TEST('anyStringAssertionTest.isEqualTo with stringToCheck:= strange stuff arabic russian , expected:= strange stuff arabic russian , ignoreCases:= False ,');
+
+testString5:= "иди сюда кусок дерьма ဒီကိုလာပါ ၊ تعال إلى هنا يا قطعة من الهراء";
+testString6:="иди сюда кусок дерьма ဒီကိုလာပါ ၊ تعال إلى هنا يا قطعة من الهراء";
+
+THIS^.assertorContainer.resetAssertor();
+THIS^.assertorContainer.assertor.assert.strings.anyString.isEqualTo(
+  stringToCheck:= testString5 , 
+  expected:= testString6 ,
+  ignoreCases:= FALSE ,
+  message:='' );
+  
+THIS^.AssertFalse(
+	Condition := THIS^.assertorContainer.wasAssertionWrong,
+	Message := 'anyStringAssertionTests.isEqualTo with stringToCheck:= strange stuff arabic russian  , expected:= strange stuff arabic russian , ignoreCases:= False'
+);
+TEST_FINISHED();
+
+//-------------------------------------------------------------------------------------------------------
+TEST('anyStringAssertionTest.isEqualTo with stringToCheck:= strange stuff arabic russian 1 , expected:= strange stuff arabic russian 2, ignoreCases:= False ,');
+
+testString5:= "иди сюд кусок дерьма ဒီကိုလာပါ ၊ تعال إلى هنا يا قطعة من الهراء";
+testString6:="иди сюда кусок дерьма ဒီကိုလာပါ ၊ تعال إلى هنا يا قطعة من الهراء";
+
+THIS^.assertorContainer.resetAssertor();
+THIS^.assertorContainer.assertor.assert.strings.anyString.isEqualTo(
+  stringToCheck:= testString5 , 
+  expected:= testString6 ,
+  ignoreCases:= FALSE ,
+  message:='' );
+  
+THIS^.AssertTrue(
+	Condition := THIS^.assertorContainer.wasAssertionWrong,
+	Message := 'anyStringAssertionTests.isEqualTo with stringToCheck:= strange stuff arabic russian  , expected:= strange stuff arabic russian , ignoreCases:= False'
+);
+TEST_FINISHED();
+
+//-------------------------------------------------------------------------------------------------------
+
+TEST('anyStringAssertionTest.isEqualTo with stringToCheck:= strange stuff arabic russian capital , expected:= strange stuff arabic russian , ignoreCases:= true ,');
+
+testString5:= "иди сюда Кусок дерьма ဒီကိုလာပါ ၊ تعال إلى هنا يا قطعة من الهراء";
+testString6:="иди сюда кусок дерьма ဒီကိုလာပါ ၊ تعال إلى هنا يا قطعة من الهراء";
+
+THIS^.assertorContainer.resetAssertor();
+THIS^.assertorContainer.assertor.assert.strings.anyString.isEqualTo(
+  stringToCheck:= testString5 , 
+  expected:= testString6 ,
+  ignoreCases:= TRUE ,
+  message:='' );
+  
+THIS^.AssertFalse(
+	Condition := THIS^.assertorContainer.wasAssertionWrong,
+	Message := 'anyStringAssertionTests.isEqualTo with stringToCheck:= strange stuff arabic russian  , expected:= strange stuff arabic russian , ignoreCases:= true'
+);
+TEST_FINISHED();]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testAnyString_isNotEmpty" Id="{c5a98256-6ef3-48ea-97c0-ec0b37b2e81c}" FolderPath="anyString\">
+      <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+{warning 'header is generated please add your documentation'}
+METHOD testAnyString_isNotEmpty
+
+VAR
+  testString1: STRING(50);
+  testString2: STRING; 
+END_VAR
+
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[
+// anyStringAssertionTests.isNotEmpty Tests
+
+//-------------------------------------------------------------------------------------------------------
+TEST('anyStringAssertionTest.isNotEmpty with stringToCheck:= emptyString');
+
+
+testString1:= '';
+THIS^.assertorContainer.resetAssertor();
+THIS^.assertorContainer.assertor.assert.strings.anyString.isNOtEmpty(
+  stringToCheck := testString1,
+  message := ''
+);
+THIS^.AssertTrue(
+	Condition := THIS^.assertorContainer.wasAssertionWrong,
+	Message := 'anyStringAssertionTests.isNotEmpty assertion shall be wrong, stringToCheck:= emptyString '
+);
+TEST_FINISHED();
+
+//-------------------------------------------------------------------------------------------------------
+
+TEST('anyStringAssertionTest.isNotEmpty with stringToCheck:= space');
+
+testString1:= ' ';
+THIS^.assertorContainer.resetAssertor();
+THIS^.assertorContainer.assertor.assert.strings.anyString.isNotEmpty(
+  stringToCheck := testString1,
+  message := ''
+);
+THIS^.AssertFalse(
+	Condition := THIS^.assertorContainer.wasAssertionWrong,
+	Message := 'anyStringAssertionTests.isNotEmpty assertion shall be wrong, stringToCheck:= just space'
+);
+TEST_FINISHED();
+
+//-------------------------------------------------------------------------------------------------------
+
+TEST('anyStringAssertionTest.isNotEmpty with stringToCheck:= point');
+
+testString1:= '.';
+THIS^.assertorContainer.resetAssertor();
+THIS^.assertorContainer.assertor.assert.strings.anyString.isNotEmpty(
+  stringToCheck := testString1,
+  message := ''
+);
+THIS^.AssertFalse(
+	Condition := THIS^.assertorContainer.wasAssertionWrong,
+	Message := 'anyStringAssertionTests.isNotEmpty assertion shall be wrong, stringToCheck:= point'
+);
+TEST_FINISHED();
+
+//-------------------------------------------------------------------------------------------------------
+
+TEST('anyStringAssertionTest.isNotEmpty with stringToCheck:= emptyStringVar');
+
+testString1:= testString2;
+THIS^.assertorContainer.resetAssertor();
+THIS^.assertorContainer.assertor.assert.strings.anyString.isNotEmpty(
+  stringToCheck := testString1,
+  message := ''
+);
+THIS^.AssertTrue(
+	Condition := THIS^.assertorContainer.wasAssertionWrong,
+	Message := 'anyStringAssertionTests.isNotEmpty assertion shall be wrong, stringToCheck:= emptyStringVar'
+);
+TEST_FINISHED();
+
+//-------------------------------------------------------------------------------------------------------
+
+TEST('anyStringAssertionTest.isNotEmpty with stringToCheck:= wierdString');
+
+testString1:= 'sadhasdhasduhuiashdui';
+THIS^.assertorContainer.resetAssertor();
+THIS^.assertorContainer.assertor.assert.strings.anyString.isNotEmpty(
+  stringToCheck := testString1,
+  message := ''
+);
+THIS^.AssertFalse(
+	Condition := THIS^.assertorContainer.wasAssertionWrong,
+	Message := 'anyStringAssertionTests.isNotEmpty assertion shall be wrong, stringToCheck:= emptyStringVar'
+);
+TEST_FINISHED();
+
+//-------------------------------------------------------------------------------------------------------
+
+TEST('anyStringAssertionTest.isNotEmpty with stringToCheck:=   +gdjsnd.8959889mfknfji');
+
+testString1:= '   +gdjsnd.8959889mfknfji';
+THIS^.assertorContainer.resetAssertor();
+THIS^.assertorContainer.assertor.assert.strings.anyString.isNotEmpty(
+  stringToCheck := testString1,
+  message := ''
+);
+THIS^.AssertFalse(
+	Condition := THIS^.assertorContainer.wasAssertionWrong,
+	Message := 'anyStringAssertionTests.isNotEmpty assertion shall be wrong, stringToCheck:= emptyStringVar'
+);
+TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testAnyString_isNotEqualTo" Id="{6601a9bd-02d3-4d43-973e-4c7500ab7c9d}" FolderPath="anyString\">
+      <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+{warning 'header is generated please add your documentation'}
+METHOD testAnyString_isNotEqualTo 
+
+VAR 
+  testString1: STRING(50);
+  testString2: STRING(30);
+  testString3: WSTRING(50);
+  testString4: STRING(50);
+  testString5: WSTRING(400);
+  testString6: WSTRING(400);
+  number: INT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[
+// anyStringAssertionTests.isNotEqualTo Tests
+
+//-------------------------------------------------------------------------------------------------------
+TEST('anyStringAssertionTest.isNotEqualTo with stringToCheck:= emptyString , unexpected:= emptyString , ignoreCases:= TRUE ,');
+
+THIS^.assertorContainer.resetAssertor();
+THIS^.assertorContainer.assertor.assert.strings.anyString.isNotEqualTo(
+  stringToCheck:= testString1 , 
+  unexpected:= testString2 ,
+  ignoreCases:= TRUE ,
+  message:='' );
+  
+THIS^.AssertTrue(
+	Condition := THIS^.assertorContainer.wasAssertionWrong,
+	Message := 'anyStringAssertionTests.isNotEqualTo , stringToCheck:= emptyString , unexpected:= emptyString , ignoreCases:= TRUE'
+);
+TEST_FINISHED();
+
+
+//-------------------------------------------------------------------------------------------------------
+TEST('anyStringAssertionTest.isNotEqualTo with stringToCheck:= emptyString assign , unexpected:= emptyString assign , ignoreCases:= TRUE');
+
+testString1:= '';
+testString2:= '';
+
+THIS^.assertorContainer.resetAssertor();
+THIS^.assertorContainer.assertor.assert.strings.anyString.isNotEqualTo(
+  stringToCheck:= testString1 , 
+  unexpected:= testString2 ,
+  ignoreCases:= TRUE ,
+  message:='' );  
+  
+  
+THIS^.AssertTrue(
+	Condition := THIS^.assertorContainer.wasAssertionWrong,
+	Message := 'anyStringAssertionTests.isNotEqualTo , stringToCheck:= emptyString assign, unexpected:= emptyString assign , ignoreCases:= TRUE');
+TEST_FINISHED();
+
+//-------------------------------------------------------------------------------------------------------
+
+TEST('anyStringAssertionTest.isNotEqualTo with stringToCheck:= abcd56ä² , unexpected:= abcd56ä2 , ignoreCases:= TRUE ,');
+
+testString1:= 'abcd56ä²';
+testString2:= 'abcd56ä2';
+
+THIS^.assertorContainer.resetAssertor();
+THIS^.assertorContainer.assertor.assert.strings.anyString.isNotEqualTo(
+  stringToCheck:= testString1 , 
+  unexpected:= testString2 ,
+  ignoreCases:= TRUE ,
+  message:='' );
+  
+THIS^.AssertFalse(
+	Condition := THIS^.assertorContainer.wasAssertionWrong,
+	Message := 'anyStringAssertionTests.isNotEqualTo assertion shall be wrong, stringToCheck:= abcd56ä²  , unexpected:= abcd56ä2 , ignoreCases:= TRUE'
+);
+TEST_FINISHED();
+
+
+//-------------------------------------------------------------------------------------------------------
+TEST('anyStringAssertionTest.isEmpty with stringToCheck:= abcd56ä2  , unexpected:= abcd56ä2 , ignoreCases:= False ,');
+
+testString1:= 'abcd56ä2';
+testString2:= 'abcd56ä2';
+
+THIS^.assertorContainer.resetAssertor();
+THIS^.assertorContainer.assertor.assert.strings.anyString.isNotEqualTo(
+  stringToCheck:= testString1 , 
+  unexpected:= testString2 ,
+  ignoreCases:= FALSE ,
+  message:='' );
+  
+THIS^.AssertTrue(
+	Condition := THIS^.assertorContainer.wasAssertionWrong,
+	Message := 'anyStringAssertionTests.isNotEqualTo assertion shall be wrong, stringToCheck:= abcd56ä2  , unexpected:= abcd56ä2 , ignoreCases:= false'
+);
+TEST_FINISHED();
+
+
+//-------------------------------------------------------------------------------------------------------
+TEST('anyStringAssertionTest.isNotEqualTo with stringToCheck:= abc d56ä2  , unexpected:= abc  d56ä2 , ignoreCases:= TRUE ,');
+
+testString1:= 'abc d56ä2';
+testString2:= 'abc  d56ä2';
+
+THIS^.assertorContainer.resetAssertor();
+THIS^.assertorContainer.assertor.assert.strings.anyString.isnotEqualTo(
+  stringToCheck:= testString1 , 
+  unexpected:= testString2 ,
+  ignoreCases:= TRUE ,
+  message:='' );
+  
+THIS^.AssertFalse(
+	Condition := THIS^.assertorContainer.wasAssertionWrong,
+	Message := 'anyStringAssertionTests.isNotEqualTo , stringToCheck:= abc d56ä2  , unexpected:= abc  d56ä2 , ignoreCases:= TRUE ,'
+);
+TEST_FINISHED();
+
+//-------------------------------------------------------------------------------------------------------
+TEST('anyStringAssertionTest.isNotEqualTo with stringToCheck:= abcd56ä2&§ (string) , unexpected:= abcd56ä2&§ (wstring), ignoreCases:= TRUE ,');
+
+testString1:= 'abcd56ä2&§';
+testString3:= "abcd56ä2&§";
+
+THIS^.assertorContainer.resetAssertor();
+THIS^.assertorContainer.assertor.assert.strings.anyString.isNotEqualTo(
+  stringToCheck:= testString1 , 
+  unexpected:= testString3 ,
+  ignoreCases:= TRUE ,
+  message:='' );
+  
+THIS^.AssertFalse(
+	Condition := THIS^.assertorContainer.wasAssertionWrong,
+	Message := 'anyStringAssertionTests.isNotEqualTo stringToCheck:= abcd56ä2&§ (string) , unexpected:= abcd56ä2&§ (wstring) , ignoreCases:= TRUE'
+);
+TEST_FINISHED();
+
+//-------------------------------------------------------------------------------------------------------
+TEST('anyStringAssertionTest.isNotEqualTo with stringToCheck:= abcd56ä2&§ (string) , unexpected:= abcd56ä2&§ (converted string)   , ignoreCases:= TRUE ,');
+
+testString1:= 'abcd56ä2&§';
+testString3:= "abcd56ä2&§";
+testString4:= WSTRING_TO_STRING(testString3);
+
+THIS^.assertorContainer.resetAssertor();
+THIS^.assertorContainer.assertor.assert.strings.anyString.isNotEqualTo(
+  stringToCheck:= testString1 , 
+  unexpected:= testString4 ,
+  ignoreCases:= TRUE ,
+  message:='' );
+  
+THIS^.AssertTrue(
+	Condition := THIS^.assertorContainer.wasAssertionWrong,
+	Message := 'anyStringAssertionTests.isNotEqualTo stringToCheck:= abcd56ä2&§ (string) , unexpected:= abcd56ä2&§ (converted string) , ignoreCases:= TRUE'
+);
+TEST_FINISHED();
+
+
+
+//-------------------------------------------------------------------------------------------------------
+TEST('anyStringAssertionTest.isNotEqualTo with stringToCheck:= abcd56ä2&§ (string) , unexpected:= AbBd56ä2&§ , ignoreCases:= False ,');
+
+testString1:= 'abcd56ä2&§';
+testString2:='AbCd56ä2&§';
+
+THIS^.assertorContainer.resetAssertor();
+THIS^.assertorContainer.assertor.assert.strings.anyString.isNotEqualTo(
+  stringToCheck:= testString1 , 
+  unexpected:= testString2 ,
+  ignoreCases:= TRUE ,
+  message:='' );
+  
+THIS^.AssertTrue(
+	Condition := THIS^.assertorContainer.wasAssertionWrong,
+	Message := 'anyStringAssertionTests.isNotEqualTo with stringToCheck:= abcd56ä2&§  , unexpected:= AbBd56ä2&§ , ignoreCases:= False'
+);
+TEST_FINISHED();
+
+
+//-------------------------------------------------------------------------------------------------------
+TEST('anyStringAssertionTest.isNotEqualTo with stringToCheck:= äbcd56ä2&§ , unexpected:= äbcd56ä2&§ , ignoreCases:= False ,');
+
+testString1:= 'abcd56ä2&§';
+testString4:='äbcd56ä2&§';
+
+THIS^.assertorContainer.resetAssertor();
+THIS^.assertorContainer.assertor.assert.strings.anyString.isNotEqualTo(
+  stringToCheck:= testString1 , 
+  unexpected:= testString4 ,
+  ignoreCases:= FALSE ,
+  message:='' );
+  
+THIS^.AssertFalse(
+	Condition := THIS^.assertorContainer.wasAssertionWrong,
+	Message := 'anyStringAssertionTests.isNotEqualTo with stringToCheck:= abcd56ä2&§  , unexpected:= äbcd56ä2&§ , ignoreCases:= False'
+);
+TEST_FINISHED();
+
+
+//-------------------------------------------------------------------------------------------------------
+TEST('anyStringAssertionTest.isNotEqualTo with stringToCheck:= strangestuff arabic russian , unexpected:= strangestuff arabic russian , ignoreCases:= False ,');
+
+testString5:= "иди сюда кусок дерьма ဒီကိုလာပါ ၊ تعال إلى هنا يا قطعة من الهراء";
+testString6:="иди сюда кусок дерьма ဒီကိုလာပါ ၊ تعال إلى هنا يا قطعة من الهراء";
+
+THIS^.assertorContainer.resetAssertor();
+THIS^.assertorContainer.assertor.assert.strings.anyString.isNotEqualTo(
+  stringToCheck:= testString5 , 
+  unexpected:= testString6 ,
+  ignoreCases:= FALSE ,
+  message:='' );
+  
+THIS^.AssertTrue(
+	Condition := THIS^.assertorContainer.wasAssertionWrong,
+	Message := 'anyStringAssertionTests.isNotEqualTo with stringToCheck:= abcd56ä2&§  , unexpected:= äbcd56ä2&§ , ignoreCases:= False'
+);
+TEST_FINISHED();
+
+//-------------------------------------------------------------------------------------------------------
+TEST('anyStringAssertionTest.isNotEqualTo with stringToCheck:= strangestuff arabic russian , unexpected:= strangestuff arabic russian cap, ignoreCases:= False ,');
+
+testString5:= "иди сюда кусок дерьма ဒီကိုလာပါ ၊ تعال إلى هنا يا قطعة من الهراء";
+testString6:="иди сюда Кусок дерьма ဒီကိုလာပါ ၊ تعال إلى هنا يا قطعة من الهراء";
+
+THIS^.assertorContainer.resetAssertor();
+THIS^.assertorContainer.assertor.assert.strings.anyString.isNotEqualTo(
+  stringToCheck:= testString5 , 
+  unexpected:= testString6 ,
+  ignoreCases:= FALSE ,
+  message:='' );
+  
+THIS^.AssertFalse(
+	Condition := THIS^.assertorContainer.wasAssertionWrong,
+	Message := 'anyStringAssertionTests.isNotEqualTo with stringToCheck:= abcd56ä2&§  , unexpected:= äbcd56ä2&§ , ignoreCases:= False'
+);
+TEST_FINISHED();
+
+
+
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testAnyString_lengthIsExact" Id="{4bb7aa35-39f2-483b-b247-5c9edfe867af}" FolderPath="anyString\">
+      <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+{warning 'header is generated please add your documentation'}
+METHOD testAnyString_lengthIsExact
+
+VAR
+  testString1:STRING(50);
+  length: UDINT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[// anyStringAssertionTests.lengthIsExact Tests
+
+//----------------------------------------------------------------------------------------------------------------------------------------
+TEST('anyStringAssertionTest.lenghtIsExact with stringToCheck:= EmptyString(50) , expectedLength:= 0');
+
+length := 0;
+
+THIS^.assertorContainer.resetAssertor();
+THIS^.assertorContainer.assertor.assert.strings.anyString.lenghtIsExact( 
+	stringToCheck	:=	testString1, 
+	expectedLength	:=	length,
+	message			:=	''             
+);
+
+THIS^.AssertFalse(
+	Condition	:=	THIS^.assertorContainer.wasAssertionWrong,
+	Message		:=	'anyStringAssertionTests.lenghtIsExact with stringToCheck:= EmptyString(50) , expectedLength:= 0'
+);
+
+TEST_FINISHED();
+
+//----------------------------------------------------------------------------------------------------------------------------------------
+
+TEST('anyStringAssertionTest.lenghtIsExact with stringToCheck:= Hello World , expectedLength:= 11');
+
+length:= 11;
+testString1:= 'Hello World';
+
+THIS^.assertorContainer.resetAssertor();
+THIS^.assertorContainer.assertor.assert.strings.anyString.lenghtIsExact( stringToCheck    :=    testString1    , 
+                                                       expectedLength   :=    length         ,
+                                                       message          :=    ''             ) ;
+THIS^.AssertFalse(
+	Condition := THIS^.assertorContainer.wasAssertionWrong,
+	Message   := 'anyStringAssertionTests.lenghtIsExact with stringToCheck:= Hello World , expectedLength:= 11');
+
+TEST_FINISHED();
+
+//----------------------------------------------------------------------------------------------------------------------------------------
+
+TEST('anyStringAssertionTest.lenghtIsExact with stringToCheck:= Привет, мир , expectedLength:= 11');
+
+length:= 11;
+testString1:= 'Привет, мир';
+
+THIS^.assertorContainer.resetAssertor();
+THIS^.assertorContainer.assertor.assert.strings.anyString.lenghtIsExact( stringToCheck    :=    testString1    , 
+                                                       expectedLength   :=    11             ,
+                                                       message          :=    ''             ) ;
+THIS^.AssertFalse(
+	Condition := THIS^.assertorContainer.wasAssertionWrong,
+	Message   := 'anyStringAssertionTests.lenghtIsExact with stringToCheck:= Привет, мир , expectedLength:= 11');
+
+TEST_FINISHED();
+
+//----------------------------------------------------------------------------------------------------------------------------------------
+
+TEST('anyStringAssertionTest.lenghtIsExact with stringToCheck:= 6 spaces , expectedLength:= 6');
+
+length:=6;
+testString1:= '      ';
+
+THIS^.assertorContainer.resetAssertor();
+THIS^.assertorContainer.assertor.assert.strings.anyString.lenghtIsExact( stringToCheck    :=    testString1    , 
+                                                       expectedLength   :=    length         ,
+                                                       message          :=    ''             ) ;
+THIS^.AssertFalse(
+	Condition := THIS^.assertorContainer.wasAssertionWrong,
+	Message   := 'anyStringAssertionTests.lenghtIsExact with stringToCheck:= 6 spaces , expectedLength:= 6');
+
+TEST_FINISHED();
+
+//----------------------------------------------------------------------------------------------------------------------------------------
+
+TEST('anyStringAssertionTest.lenghtIsExact with stringToCheck:= Привет, мир Hello , expectedLength:= 17');
+
+length:=17;
+testString1:= 'Привет, мир Hello';
+
+THIS^.assertorContainer.resetAssertor();
+THIS^.assertorContainer.assertor.assert.strings.anyString.lenghtIsExact( stringToCheck    :=    testString1    , 
+                                                       expectedLength   :=    length         ,
+                                                       message          :=    ''             ) ;
+THIS^.AssertFalse(
+	Condition := THIS^.assertorContainer.wasAssertionWrong,
+	Message   := 'anyStringAssertionTests.lenghtIsExact with stringToCheck:= Привет, мир Hello , expectedLength:= 17');
+
+TEST_FINISHED();
+
+//----------------------------------------------------------------------------------------------------------------------------------------
+
+TEST('anyStringAssertionTest.lenghtIsExact with stringToCheck:= Привет, мир Hello , expectedLength:= 15');
+
+length:=15;
+testString1:= 'Привет, мир Hello';
+
+THIS^.assertorContainer.resetAssertor();
+THIS^.assertorContainer.assertor.assert.strings.anyString.lenghtIsExact( stringToCheck    :=    testString1    , 
+                                                       expectedLength   :=    length         ,
+                                                       message          :=    ''             ) ;
+THIS^.AssertTrue(
+	Condition := THIS^.assertorContainer.wasAssertionWrong,
+	Message   := 'anyStringAssertionTests.lenghtIsExact with stringToCheck:= Привет, мир Hello , expectedLength:= 17');
+
+TEST_FINISHED();
+
+
+
+
+
+
+
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testAnyStringContains" Id="{74e905da-faff-4755-b6cc-57fbc37b8493}" FolderPath="contains\">
+      <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+{warning 'header is generated please add your documentation'}
+METHOD testAnyStringContains : BOOL
+VAR_INPUT
+	inputStruct	: containsDataStr;
+	testNumber :USINT;
+
+END_VAR
+
+VAR
+	message : STRING;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.reset();
+	
+
+IF (inputStruct.typeToTest = TypeToTest.TEST_WSTRING) THEN
+	THIS^.assertorContainer.assertor.assert.strings.anyString.contains(
+		stringToCheck 	:= inputStruct.WStringToTest,
+		searchString	:= inputStruct.WStringToContain, 
+		ignoreCases		:= inputStruct.IgnoreCases,
+		message			:= ''
+	);			
+ELSIF  (inputStruct.typeToTest = TypeToTest.TEST_STRING ) THEN
+	THIS^.assertorContainer.assertor.assert.strings.anyString.contains(
+		stringToCheck 	:= inputStruct.StringToTest,
+		searchString	:= inputStruct.StringToContain, 
+		ignoreCases		:= inputStruct.IgnoreCases,
+		message			:= ''
+	);
+
+END_IF
+
+message	:= CONCAT( 'Test Number ', TO_STRING(testNumber));
+message	:= CONCAT( message, ' during function AnyString.contains ');
+message	:= CONCAT( Message , ' has failed ');
+
+THIS^.AssertEquals_BOOL(
+	Expected 	:= inputStruct.expectedResult,
+	Actual 		:= THIS^.assertorContainer.wasAssertionWrong,
+	Message 	:= message
+);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testAnyStringContainsNo" Id="{a578bd77-1b34-437f-9ddb-49b804b292dc}" FolderPath="containsNo\">
+      <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+{warning 'header is generated please add your documentation'}
+METHOD testAnyStringContainsNo : BOOL
+VAR_INPUT
+	inputStruct	: containsDataStr;
+	testNumber 	: USINT;
+END_VAR
+
+VAR
+	message : STRING;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.reset();
+
+IF (inputStruct.typeToTest = TypeToTest.TEST_WSTRING) THEN
+	THIS^.assertorContainer.assertor.assert.strings.anyString.containsNo(
+		stringToCheck 	:= inputStruct.WStringToTest,
+		searchString	:= inputStruct.WStringToContain, 
+		ignoreCases		:= inputStruct.IgnoreCases,
+		message			:= ''
+	);
+					
+ELSIF  (inputStruct.typeToTest = TypeToTest.TEST_STRING ) THEN
+	THIS^.assertorContainer.assertor.assert.strings.anyString.containsNo(
+		stringToCheck 	:= inputStruct.StringToTest,
+		searchString	:= inputStruct.StringToContain, 
+		ignoreCases		:= inputStruct.IgnoreCases,
+		message			:= ''
+	);
+
+END_IF
+
+message	:= CONCAT( 'Test Number ', TO_STRING(testNumber));
+message	:= CONCAT( message, ' during function AnyString.containsNo ');
+message	:= CONCAT( Message , ' has failed ');
+
+THIS^.AssertEquals_BOOL(
+	Expected 	:= inputStruct.expectedResult,
+	Actual 		:= THIS^.assertorContainer.wasAssertionWrong,
+	Message 	:= message
+);
+
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testAnyStringEndsWith" Id="{db544b7a-b433-4aa9-a93c-3044c971dd76}" FolderPath="endsWith\">
+      <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+{warning 'header is generated please add your documentation'}
+METHOD testAnyStringEndsWith : BOOL
+VAR_INPUT
+	inputStruct	: containsDataStr;
+	testNumber 	: USINT;
+END_VAR
+
+VAR
+	message : STRING;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.reset();
+
+IF (inputStruct.typeToTest = TypeToTest.TEST_WSTRING) THEN
+	THIS^.assertorContainer.assertor.assert.strings.anyString.endsWith(
+		stringToCheck	:= inputStruct.WStringToTest,
+		end				:= inputStruct.WStringToContain,
+		ignoreCases		:= inputStruct.IgnoreCases,
+		trim			:= inputStruct.Trim,
+		message			:= ''
+	);
+					
+ELSIF  (inputStruct.typeToTest = TypeToTest.TEST_STRING ) THEN
+	THIS^.assertorContainer.assertor.assert.strings.anyString.endsWith(
+		stringToCheck	:= inputStruct.StringToTest,
+		end				:= inputStruct.StringToContain,
+		ignoreCases		:= inputStruct.IgnoreCases,
+		trim			:= inputStruct.Trim,
+		message			:= ''
+	);
+	
+END_IF
+
+message	:= CONCAT( 'Test Number ', TO_STRING(testNumber));
+message	:= CONCAT( message, ' during function AnyString.endsWith ');
+message	:= CONCAT( Message , ' has failed ');
+
+THIS^.AssertEquals_BOOL(
+	Expected 	:= inputStruct.expectedResult,
+	Actual 		:= THIS^.assertorContainer.wasAssertionWrong,
+	Message 	:= message
+);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testAnyStringIsEmpty" Id="{ceab1f12-94cd-49ba-a4cf-66ddce7eabaa}" FolderPath="isEmpty\">
+      <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+{warning 'header is generated please add your documentation'}
+METHOD testAnyStringIsEmpty : BOOL
+VAR_INPUT
+	inputStruct	: isEmptyDataStr;
+	testNumber 	: USINT;
+END_VAR
+
+VAR
+	message : STRING;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.reset();
+
+IF (inputStruct.typeToTest = TypeToTest.TEST_WSTRING) THEN
+	THIS^.assertorContainer.assertor.assert.strings.anyString.isEmpty(
+		stringToCheck 	:= inputStruct.WStringToTest,
+		message			:= ''
+	);
+					
+ELSIF  (inputStruct.typeToTest = TypeToTest.TEST_STRING ) THEN
+	THIS^.assertorContainer.assertor.assert.strings.anyString.isEmpty(
+		stringToCheck 	:= inputStruct.StringToTest,
+		message			:= ''
+	);
+	
+END_IF
+
+message	:= CONCAT( 'Test Number ', TO_STRING(testNumber));
+message	:= CONCAT( message, ' during function AnyString.isEmpty ');
+message	:= CONCAT( Message , ' has failed ');
+
+THIS^.AssertEquals_BOOL(
+	Expected 	:= inputStruct.expectedResult,
+	Actual 		:= THIS^.assertorContainer.wasAssertionWrong,
+	Message 	:= message
+);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testAnyStringIsEqualTo" Id="{fe41d322-4945-4d44-8259-ffa5ce44d1ac}" FolderPath="isEqualTo\">
+      <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+{warning 'header is generated please add your documentation'}
+METHOD testAnyStringIsEqualTo : BOOL
+VAR_INPUT
+	inputStruct	: isEqualToDataStr;
+	testNumber 	: USINT;
+END_VAR
+
+VAR
+	message : STRING;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.reset();
+
+IF (inputStruct.typeToTest = TypeToTest.TEST_WSTRING) THEN
+	THIS^.assertorContainer.assertor.assert.strings.anyString.isEqualTo(
+		stringToCheck 	:= inputStruct.WStringToTest,
+		expected		:= inputStruct.EqualToWString,
+		ignoreCases     := inputStruct.IgnoreCases,
+		message			:= ''	 	
+	);
+					
+ELSIF  (inputStruct.typeToTest = TypeToTest.TEST_STRING ) THEN
+	THIS^.assertorContainer.assertor.assert.strings.anyString.isEqualTo(
+		stringToCheck 	:= inputStruct.StringToTest,
+		expected		:= inputStruct.EqualToString,
+		ignoreCases     := inputStruct.IgnoreCases,
+		message			:= ''
+	);
+	
+END_IF
+
+message	:= CONCAT( 'Test Number ', TO_STRING(testNumber));
+message	:= CONCAT( message, ' during function AnyString.isEqualTo ');
+message	:= CONCAT( Message , ' has failed ');
+
+THIS^.AssertEquals_BOOL(
+	Expected 	:= inputStruct.expectedResult,
+	Actual 		:= THIS^.assertorContainer.wasAssertionWrong,
+	Message 	:= message
+);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testAnyStringIsNotEmpty" Id="{bdc4e7b2-8b10-48bb-96f7-b24468ce9b1f}" FolderPath="isNotEmpty\">
+      <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+{warning 'header is generated please add your documentation'}
+METHOD testAnyStringIsNotEmpty : BOOL
+VAR_INPUT
+	inputStruct	: isEmptyDataStr;
+	testNumber 	: USINT;
+END_VAR
+
+VAR
+	message : STRING;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.reset();
+
+IF (inputStruct.typeToTest = TypeToTest.TEST_WSTRING) THEN
+	THIS^.assertorContainer.assertor.assert.strings.anyString.isNotEmpty(
+		stringToCheck 	:= inputStruct.WStringToTest,
+		message			:= ''
+	);
+					
+ELSIF  (inputStruct.typeToTest = TypeToTest.TEST_STRING ) THEN
+	THIS^.assertorContainer.assertor.assert.strings.anyString.isNotEmpty(
+		stringToCheck 	:= inputStruct.StringToTest,
+		message			:= ''
+	);
+	
+END_IF
+
+message	:= CONCAT( 'Test Number ', TO_STRING(testNumber));
+message	:= CONCAT( message, ' during function AnyString.isNotEmpty ');
+message	:= CONCAT( Message , ' has failed ');
+
+THIS^.AssertEquals_BOOL(
+	Expected 	:= inputStruct.expectedResult,
+	Actual 		:= THIS^.assertorContainer.wasAssertionWrong,
+	Message 	:= message
+);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testAnyStringIsNotEqualTo" Id="{1e544c79-a5de-484b-8e67-bc76c5272806}" FolderPath="isNotEqualTo\">
+      <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+{warning 'header is generated please add your documentation'}
+METHOD testAnyStringIsNotEqualTo : BOOL
+VAR_INPUT
+	inputStruct	: isEqualToDataStr;
+	testNumber 	: USINT;
+END_VAR
+
+VAR
+	message : STRING;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.reset();
+
+IF (inputStruct.typeToTest = TypeToTest.TEST_WSTRING) THEN
+	THIS^.assertorContainer.assertor.assert.strings.anyString.isNotEqualTo(
+		stringToCheck 	:= inputStruct.WStringToTest,
+		unexpected		:= inputStruct.EqualToWString,
+		ignoreCases     := inputStruct.IgnoreCases,
+		message			:= ''	 	
+	);
+					
+ELSIF  (inputStruct.typeToTest = TypeToTest.TEST_STRING ) THEN
+	THIS^.assertorContainer.assertor.assert.strings.anyString.isNotEqualTo(
+		stringToCheck 	:= inputStruct.StringToTest,
+		unexpected		:= inputStruct.EqualToString,
+		ignoreCases     := inputStruct.IgnoreCases,
+		message			:= ''
+	);
+	
+END_IF
+
+message	:= CONCAT( 'Test Number ', TO_STRING(testNumber));
+message	:= CONCAT( message, ' during function AnyString.isNotEqualTo ');
+message	:= CONCAT( Message , ' has failed ');
+
+THIS^.AssertEquals_BOOL(
+	Expected 	:= inputStruct.expectedResult,
+	Actual 		:= THIS^.assertorContainer.wasAssertionWrong,
+	Message 	:= message
+);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testAnyStringLengthBetween" Id="{420a62d6-64f2-48ea-9dc6-3bec23023bdf}" FolderPath="isLengthBetween\">
+      <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+{warning 'header is generated please add your documentation'}
+METHOD testAnyStringLengthBetween
+VAR_INPUT
+	inputStruct	: IsLengthBetweenBasicData;
+	testNumber	: USINT;
+END_VAR
+
+VAR
+	message	: STRING;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[
+THIS^.reset();
+
+IF (inputStruct.typeToTest = TypeToTest.TEST_WSTRING) THEN	
+	THIS^.assertorContainer.assertor.assert.strings.anyString.lenghtIsBetween( 
+		stringToCheck	:=	inputStruct.wstringToTest, 
+		maxLenght		:=	inputStruct.maxLength,
+		minLenght   	:=  inputStruct.minLength,
+		message			:=	''          
+	);
+				
+ELSIF  (inputStruct.typeToTest = TypeToTest.TEST_STRING ) THEN
+    THIS^.assertorContainer.assertor.assert.strings.anyString.lenghtIsBetween( 
+		stringToCheck	:=	inputStruct.stringToTest, 
+		maxLenght		:=	inputStruct.maxLength,
+		minLenght   	:=  inputStruct.minLength,
+		message			:=	''          
+	);
+END_IF
+
+message	:= CONCAT( 'Test Number ', TO_STRING(testNumber));
+message	:= CONCAT( message, ' during function AnyString.isLengthBetween ');
+message	:= CONCAT( Message , ' has failed ');
+	
+THIS^.AssertEquals_BOOL(
+	Expected 	:= inputStruct.expectedResult,
+	Actual 		:= THIS^.assertorContainer.wasAssertionWrong,
+	Message 	:= message
+);
+	
+//TEST_FINISHED();]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testAnyStringLengthIs" Id="{eb8f4deb-44b3-487b-937f-1e3b2e61a4c4}" FolderPath="isLenghtExact\">
+      <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+{warning 'header is generated please add your documentation'}
+METHOD testAnyStringLengthIs
+VAR_INPUT
+	inputStruct	:IsLengthBasicData;
+	testNumber :USINT;
+END_VAR
+
+VAR
+	message: STRING;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[
+
+THIS^.reset();
+
+IF (inputStruct.typeToTest = TypeToTest.TEST_WSTRING) THEN
+	IF (inputStruct.funcType = FunctionType.EXACT) THEN 
+		THIS^.assertorContainer.assertor.assert.strings.anyString.lenghtIsExact( 
+			stringToCheck	:=	inputStruct.wstringToTest, 
+			expectedLength	:=	inputStruct.expectedLength,
+			message			:=	''          
+		);
+	ELSIF (inputStruct.funcType = FunctionType.MAXIMUM) THEN
+		THIS^.assertorContainer.assertor.assert.strings.anyString.lenghtIsMax( 
+			stringToCheck	:=	inputStruct.wstringToTest, 
+			maxLength		:=	inputStruct.expectedLength,
+			message			:=	''
+		);
+	ELSIF (inputStruct.funcType = FunctionType.MINIMUM) THEN
+		THIS^.assertorContainer.assertor.assert.strings.anyString.lenghtIsMin( 
+			stringToCheck	:=	inputStruct.wstringToTest, 
+			minLength		:=	inputStruct.expectedLength,
+			message			:=	''
+		);
+	END_IF;
+				
+ELSIF  (inputStruct.typeToTest = TypeToTest.TEST_STRING ) THEN
+    IF (inputStruct.funcType = FunctionType.EXACT) THEN 
+		THIS^.assertorContainer.assertor.assert.strings.anyString.lenghtIsExact( 
+			stringToCheck	:=	inputStruct.stringToTest, 
+			expectedLength	:=	inputStruct.expectedLength,
+			message			:=	''         
+		);
+	ELSIF (inputStruct.funcType = FunctionType.MAXIMUM) THEN
+		THIS^.assertorContainer.assertor.assert.strings.anyString.lenghtIsMax( 
+			stringToCheck	:=	inputStruct.stringToTest, 
+			maxLength		:=	inputStruct.expectedLength,
+			message			:=	''        
+		);
+	ELSIF (inputStruct.funcType = FunctionType.MINIMUM) THEN
+		THIS^.assertorContainer.assertor.assert.strings.anyString.lenghtIsMin( 
+			stringToCheck	:=	inputStruct.stringToTest, 
+			minLength		:=	inputStruct.expectedLength,
+			message			:=	''          
+		);
+	END_IF;
+
+END_IF
+
+message	:= CONCAT( 'Test Number ', TO_STRING(testNumber));
+message	:= CONCAT( message, ' during function AnyString.isLength ');
+message	:= CONCAT( message , TO_STRING(inputStruct.funcType));
+message	:= CONCAT( Message , ' has failed ');
+	
+THIS^.AssertEquals_BOOL(
+	Expected 	:= inputStruct.expectedResult,
+	Actual 		:= THIS^.assertorContainer.wasAssertionWrong,
+	Message 	:= message
+);
+	
+//TEST_FINISHED();]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testAnyStringStartsWith" Id="{2165e8b2-f15d-41ac-aa27-87c2f35b62f4}" FolderPath="startsWith\">
+      <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+{warning 'header is generated please add your documentation'}
+METHOD testAnyStringStartsWith : BOOL
+VAR_INPUT
+	inputStruct	: containsDataStr;
+	testNumber 	: USINT;
+END_VAR
+
+VAR
+	message : STRING;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.reset();
+
+IF (inputStruct.typeToTest = TypeToTest.TEST_WSTRING) THEN
+	THIS^.assertorContainer.assertor.assert.strings.anyString.startsWith(
+		stringToCheck	:= inputStruct.WStringToTest,
+		start			:= inputStruct.WStringToContain,
+		ignoreCases		:= inputStruct.IgnoreCases,
+		trim			:= inputStruct.Trim,
+		message			:= ''
+	);
+					
+ELSIF  (inputStruct.typeToTest = TypeToTest.TEST_STRING ) THEN
+	THIS^.assertorContainer.assertor.assert.strings.anyString.startsWith(
+		stringToCheck	:= inputStruct.StringToTest,
+		start			:= inputStruct.StringToContain,
+		ignoreCases		:= inputStruct.IgnoreCases,
+		trim			:= inputStruct.Trim,
+		message			:= ''
+	);
+
+END_IF
+
+message	:= CONCAT( 'Test Number ', TO_STRING(testNumber));
+message	:= CONCAT( message, ' during function AnyString.startsWith ');
+message	:= CONCAT( Message , ' has failed ');
+
+THIS^.AssertEquals_BOOL(
+	Expected 	:= inputStruct.expectedResult,
+	Actual 		:= THIS^.assertorContainer.wasAssertionWrong,
+	Message 	:= message
+);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testAsciiEndsWith" Id="{6309f128-8053-43ef-a8cb-fbcd7d1539d5}" FolderPath="endsWith\">
+      <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+{warning 'header is generated please add your documentation'}
+METHOD testAsciiEndsWith : BOOL
+VAR_INPUT
+	inputStruct	: containsDataStr;
+	testNumber 	: USINT;
+END_VAR
+
+VAR
+	message : STRING;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.reset();
+
+THIS^.assertorContainer.assertor.assert.strings.ascii.endsWith(
+	stringToCheck	:= inputStruct.StringToTest,
+	end				:= inputStruct.StringToContain,
+	ignoreCases		:= inputStruct.IgnoreCases,
+	trim			:= inputStruct.Trim,
+	message			:= ''
+);
+
+
+message	:= CONCAT( 'Test Number ', TO_STRING(testNumber));
+message	:= CONCAT( message, ' during function Ascii.endsWith ');
+message	:= CONCAT( Message , ' has failed ');
+
+THIS^.AssertEquals_BOOL(
+	Expected 	:= inputStruct.expectedResult,
+	Actual 		:= THIS^.assertorContainer.wasAssertionWrong,
+	Message 	:= message
+);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testAsciiIsEmpty" Id="{1e895922-1fbc-481a-abe2-f69bb2c677f0}" FolderPath="isEmpty\">
+      <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+{warning 'header is generated please add your documentation'}
+METHOD testAsciiIsEmpty : BOOL
+VAR_INPUT
+	inputStruct	: isEmptyDataStr;
+	testNumber 	: USINT;
+END_VAR
+
+VAR
+	message : STRING;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.reset();
+
+THIS^.assertorContainer.assertor.assert.strings.anyString.isEmpty(
+	stringToCheck 	:= inputStruct.StringToTest,
+	message			:= ''
+);
+
+message	:= CONCAT( 'Test Number ', TO_STRING(testNumber));
+message	:= CONCAT( message, ' during function Ascii.isEmpty ');
+message	:= CONCAT( Message , ' has failed ');
+
+THIS^.AssertEquals_BOOL(
+	Expected 	:= inputStruct.expectedResult,
+	Actual 		:= THIS^.assertorContainer.wasAssertionWrong,
+	Message 	:= message
+);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testAsciiIsEqualTo" Id="{1c7f9bb9-4da8-47f4-be1b-5dfddf7d7d74}" FolderPath="isEqualTo\">
+      <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+{warning 'header is generated please add your documentation'}
+METHOD testAsciiIsEqualTo : BOOL
+VAR_INPUT
+	inputStruct	: isEqualToDataStr;
+	testNumber 	: USINT;
+END_VAR
+
+VAR
+	message : STRING;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.reset();
+
+THIS^.assertorContainer.assertor.assert.strings.ascii.isEqualTo(
+	stringToCheck 	:= inputStruct.StringToTest,
+	expected		:= inputStruct.EqualToString,
+	ignoreCases     := inputStruct.IgnoreCases,
+	message			:= ''	 	
+);
+
+message	:= CONCAT( 'Test Number ', TO_STRING(testNumber));
+message	:= CONCAT( message, ' during function Ascii.isEqualTo ');
+message	:= CONCAT( Message , ' has failed ');
+
+THIS^.AssertEquals_BOOL(
+	Expected 	:= inputStruct.expectedResult,
+	Actual 		:= THIS^.assertorContainer.wasAssertionWrong,
+	Message 	:= message
+);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testAsciiIsNotEmpty" Id="{f57de34a-f4df-446a-803c-77b9579706cf}" FolderPath="isNotEmpty\">
+      <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+{warning 'header is generated please add your documentation'}
+METHOD testAsciiIsNotEmpty : BOOL
+VAR_INPUT
+	inputStruct	: isEmptyDataStr;
+	testNumber 	: USINT;
+END_VAR
+
+VAR
+	message : STRING;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.reset();
+
+THIS^.assertorContainer.assertor.assert.strings.anyString.isNotEmpty(
+	stringToCheck 	:= inputStruct.StringToTest,
+	message			:= ''
+);
+
+message	:= CONCAT( 'Test Number ', TO_STRING(testNumber));
+message	:= CONCAT( message, ' during function Ascii.isNotEmpty ');
+message	:= CONCAT( Message , ' has failed ');
+
+THIS^.AssertEquals_BOOL(
+	Expected 	:= inputStruct.expectedResult,
+	Actual 		:= THIS^.assertorContainer.wasAssertionWrong,
+	Message 	:= message
+);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testAsciiIsNotEqualTo" Id="{a0c73e4c-3bde-468c-a486-3deaa98cd4d5}" FolderPath="isNotEqualTo\">
+      <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+{warning 'header is generated please add your documentation'}
+METHOD testAsciiIsNotEqualTo : BOOL
+VAR_INPUT
+	inputStruct	: isEqualToDataStr;
+	testNumber 	: USINT;
+END_VAR
+
+VAR
+	message : STRING;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.reset();
+
+THIS^.assertorContainer.assertor.assert.strings.anyString.isNotEqualTo(
+	stringToCheck 	:= inputStruct.StringToTest,
+	unexpected		:= inputStruct.EqualToString,
+	ignoreCases     := inputStruct.IgnoreCases,
+	message			:= ''	 	
+);
+
+message	:= CONCAT( 'Test Number ', TO_STRING(testNumber));
+message	:= CONCAT( message, ' during function Ascii.isNotEqualTo ');
+message	:= CONCAT( Message , ' has failed ');
+
+THIS^.AssertEquals_BOOL(
+	Expected 	:= inputStruct.expectedResult,
+	Actual 		:= THIS^.assertorContainer.wasAssertionWrong,
+	Message 	:= message
+);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testAsciiStartsWith" Id="{c51554cf-d9cc-4f5a-b0ea-acfc8629f5d1}" FolderPath="startsWith\">
+      <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+{warning 'header is generated please add your documentation'}
+METHOD testAsciiStartsWith : BOOL
+VAR_INPUT
+	inputStruct	: containsDataStr;
+	testNumber 	: USINT;
+END_VAR
+
+VAR
+	message : STRING;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.reset();
+
+THIS^.assertorContainer.assertor.assert.strings.ascii.startsWith(
+	stringToCheck	:= inputStruct.StringToTest,
+	start			:= inputStruct.StringToContain,
+	ignoreCases		:= inputStruct.IgnoreCases,
+	trim			:= inputStruct.Trim,
+	message			:= ''
+);
+
+
+message	:= CONCAT( 'Test Number ', TO_STRING(testNumber));
+message	:= CONCAT( message, ' during function Ascii.startsWith ');
+message	:= CONCAT( Message , ' has failed ');
+
+THIS^.AssertEquals_BOOL(
+	Expected 	:= inputStruct.expectedResult,
+	Actual 		:= THIS^.assertorContainer.wasAssertionWrong,
+	Message 	:= message
+);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testAsciiStringContains" Id="{5403121a-a2f1-424f-ae7f-32e7f0066deb}" FolderPath="contains\">
+      <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+{warning 'header is generated please add your documentation'}
+METHOD testAsciiStringContains : BOOL
+VAR_INPUT
+	inputStruct	: containsDataStr;
+	testNumber :USINT;
+END_VAR
+
+VAR
+	message : STRING;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.reset();
+
+THIS^.assertorContainer.assertor.assert.strings.ascii.contains(
+	stringToCheck 	:= inputStruct.StringToTest,
+	searchString	:= inputStruct.StringToContain, 
+	ignoreCases		:= inputStruct.IgnoreCases,
+	message         := ''
+);
+
+message	:= CONCAT( 'Test Number ', TO_STRING(testNumber));
+message	:= CONCAT( message, ' during function Ascii.contains ');
+message	:= CONCAT( Message , ' has failed ');
+
+THIS^.AssertEquals_BOOL(
+	Expected 	:= inputStruct.expectedResult,
+	Actual 		:= THIS^.assertorContainer.wasAssertionWrong,
+	Message 	:= message
+);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testAsciiStringContainsNo" Id="{b8bade71-f498-47ed-9d19-a1ac5ad28643}" FolderPath="containsNo\">
+      <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+{warning 'header is generated please add your documentation'}
+METHOD testAsciiStringContainsNo : BOOL
+VAR_INPUT
+	inputStruct	: containsDataStr;
+	testNumber 	: USINT;
+END_VAR
+
+VAR
+	message : STRING;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.reset();
+
+THIS^.assertorContainer.assertor.assert.strings.utf16.containsNo(
+	stringToCheck 	:= inputStruct.WStringToTest,
+	searchString	:= inputStruct.WStringToContain, 
+	ignoreCases		:= inputStruct.IgnoreCases,
+	message         := ''
+);
+
+message	:= CONCAT( 'Test Number ', TO_STRING(testNumber));
+message	:= CONCAT( message, ' during function Ascii.containsNo ');
+message	:= CONCAT( Message , ' has failed ');
+
+THIS^.AssertEquals_BOOL(
+	Expected 	:= inputStruct.expectedResult,
+	Actual 		:= THIS^.assertorContainer.wasAssertionWrong,
+	Message 	:= message
+);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testAsciiStringLengthBetween" Id="{ddbebe76-9b96-4b67-bd40-db8b5f2518a1}" FolderPath="isLengthBetween\">
+      <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+{warning 'header is generated please add your documentation'}
+METHOD testAsciiStringLengthBetween
+VAR_INPUT
+	inputStruct	: IsLengthBetweenBasicData;
+	testNumber 	: USINT;
+END_VAR
+
+VAR
+	message : STRING;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.reset();
+
+THIS^.assertorContainer.assertor.assert.strings.ascii.lenghtIsBetween( 
+	stringToCheck	:=	inputStruct.stringToTest, 
+	maxLenght		:=	inputStruct.maxLength,
+	minLenght   	:=  inputStruct.minLength,
+	message			:=	''          
+);
+
+
+message	:= CONCAT( 'Test Number ', TO_STRING(testNumber));
+message	:= CONCAT( message, ' during function Ascii.isLengthBetween ');
+message	:= CONCAT( Message , ' has failed ');
+	
+THIS^.AssertEquals_BOOL(
+	Expected 	:= inputStruct.expectedResult,
+	Actual 		:= THIS^.assertorContainer.wasAssertionWrong,
+	Message 	:= message
+);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testAsciiStringlengthIs" Id="{33c8ffbf-97d8-4e59-a10a-936b759ed63c}" FolderPath="isLenghtExact\">
+      <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+{warning 'header is generated please add your documentation'}
+METHOD testAsciiStringlengthIs
+VAR_INPUT
+	inputStruct	:IsLengthBasicData;
+	testNumber :USINT;
+END_VAR
+
+VAR
+	message: STRING;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[
+THIS^.reset();
+
+IF (inputStruct.funcType = FunctionType.EXACT) THEN 
+	THIS^.assertorContainer.assertor.assert.strings.ascii.lenghtIsExact( 
+		stringToCheck	:=	inputStruct.stringToTest, 
+		expectedLength	:=	TO_USINT(inputStruct.expectedLength),
+		message			:=	''          
+	);
+ELSIF (inputStruct.funcType = FunctionType.MAXIMUM) THEN
+	THIS^.assertorContainer.assertor.assert.strings.ascii.lenghtIsMax( 
+		stringToCheck	:=	inputStruct.stringToTest, 
+		maxLength		:=	TO_USINT(inputStruct.expectedLength),
+		message			:=	''         
+	);
+ELSIF (inputStruct.funcType = FunctionType.MINIMUM) THEN
+	THIS^.assertorContainer.assertor.assert.strings.ascii.lenghtIsMin( 
+		stringToCheck	:=	inputStruct.stringToTest, 
+		minLength		:=	TO_USINT(inputStruct.expectedLength),
+		message			:=	''          
+	);
+END_IF;
+
+message	:= CONCAT( 'Test Number ', TO_STRING(testNumber));
+message	:= CONCAT( message, ' during function AsciiString.isLength ');
+message	:= CONCAT( message , TO_STRING(inputStruct.funcType));
+message	:= CONCAT( Message , ' has failed ');
+
+THIS^.AssertEquals_BOOL(
+	Expected 	:= inputStruct.expectedResult,
+	Actual 		:= THIS^.assertorContainer.wasAssertionWrong,
+	Message		:= message
+);
+	
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testUtf16EndsWith" Id="{e890ec3d-cd18-4716-8a10-a10c86b1920f}" FolderPath="endsWith\">
+      <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+{warning 'header is generated please add your documentation'}
+METHOD testUtf16EndsWith : BOOL
+VAR_INPUT
+	inputStruct	: containsDataStr;
+	testNumber 	: USINT;
+END_VAR
+
+VAR
+	message : STRING;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.reset();
+
+THIS^.assertorContainer.assertor.assert.strings.utf16.endsWith(
+	stringToCheck	:= inputStruct.WStringToTest,
+	end				:= inputStruct.WStringToContain,
+	ignoreCases		:= inputStruct.IgnoreCases,
+	trim			:= inputStruct.Trim,
+	message			:= ''
+);
+
+message	:= CONCAT( 'Test Number ', TO_STRING(testNumber));
+message	:= CONCAT( message, ' during function UTF16.endsWith ');
+message	:= CONCAT( Message , ' has failed ');
+
+THIS^.AssertEquals_BOOL(
+	Expected 	:= inputStruct.expectedResult,
+	Actual 		:= THIS^.assertorContainer.wasAssertionWrong,
+	Message 	:= message
+);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testUtf16IsEmpty" Id="{b61ab6be-2063-4be7-823a-d82d64c09b38}" FolderPath="isEmpty\">
+      <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+{warning 'header is generated please add your documentation'}
+METHOD testUtf16IsEmpty : BOOL
+VAR_INPUT
+	inputStruct	: isEmptyDataStr;
+	testNumber 	: USINT;
+END_VAR
+
+VAR
+	message : STRING;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.reset();
+
+THIS^.assertorContainer.assertor.assert.strings.anyString.isEmpty(
+	stringToCheck 	:= inputStruct.WStringToTest,
+	message			:= ''
+);
+
+message	:= CONCAT( 'Test Number ', TO_STRING(testNumber));
+message	:= CONCAT( message, ' during function UTF16.isEmpty ');
+message	:= CONCAT( Message , ' has failed ');
+
+THIS^.AssertEquals_BOOL(
+	Expected 	:= inputStruct.expectedResult,
+	Actual 		:= THIS^.assertorContainer.wasAssertionWrong,
+	Message 	:= message
+);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testUtf16IsEqualTo" Id="{0ccc7132-2a60-4465-875e-5484a68209cf}" FolderPath="isEqualTo\">
+      <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+{warning 'header is generated please add your documentation'}
+METHOD testUtf16IsEqualTo : BOOL
+VAR_INPUT
+	inputStruct	: isEqualToDataStr;
+	testNumber 	: USINT;
+END_VAR
+
+VAR
+	message : STRING;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.reset();
+
+THIS^.assertorContainer.assertor.assert.strings.anyString.isEqualTo(
+	stringToCheck 	:= inputStruct.WStringToTest,
+	expected		:= inputStruct.EqualToWString,
+	ignoreCases     := inputStruct.IgnoreCases,
+	message			:= ''	 	
+);
+   
+message	:= CONCAT( 'Test Number ', TO_STRING(testNumber));
+message	:= CONCAT( message, ' during function UTF16.isEqualTo ');
+message	:= CONCAT( Message , ' has failed ');
+
+THIS^.AssertEquals_BOOL(
+	Expected 	:= inputStruct.expectedResult,
+	Actual 		:= THIS^.assertorContainer.wasAssertionWrong,
+	Message 	:= message
+);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testUtf16IsNotEmpty" Id="{8f253903-a43a-4961-81a1-0ec659194759}" FolderPath="isNotEmpty\">
+      <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+{warning 'header is generated please add your documentation'}
+METHOD testUtf16IsNotEmpty : BOOL
+VAR_INPUT
+	inputStruct	: isEmptyDataStr;
+	testNumber 	: USINT;
+END_VAR
+
+VAR
+	message : STRING;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.reset();
+
+THIS^.assertorContainer.assertor.assert.strings.anyString.isNotEmpty(
+	stringToCheck 	:= inputStruct.WStringToTest,
+	message			:= ''
+);
+
+message	:= CONCAT( 'Test Number ', TO_STRING(testNumber));
+message	:= CONCAT( message, ' during function UTF16.isNotEmpty ');
+message	:= CONCAT( Message , ' has failed ');
+
+THIS^.AssertEquals_BOOL(
+	Expected 	:= inputStruct.expectedResult,
+	Actual 		:= THIS^.assertorContainer.wasAssertionWrong,
+	Message 	:= message
+);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testUtf16IsNotEqualTo" Id="{87540caf-b339-4568-886e-66d16808b29f}" FolderPath="isNotEqualTo\">
+      <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+{warning 'header is generated please add your documentation'}
+METHOD testUtf16IsNotEqualTo : BOOL
+VAR_INPUT
+	inputStruct	: isEqualToDataStr;
+	testNumber 	: USINT;
+END_VAR
+
+VAR
+	message : STRING;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.reset();
+
+THIS^.assertorContainer.assertor.assert.strings.anyString.isNotEqualTo(
+	stringToCheck 	:= inputStruct.WStringToTest,
+	unexpected		:= inputStruct.EqualToWString,
+	ignoreCases     := inputStruct.IgnoreCases,
+	message			:= ''	 	
+);
+   
+message	:= CONCAT( 'Test Number ', TO_STRING(testNumber));
+message	:= CONCAT( message, ' during function UTF16.isNotEqualTo ');
+message	:= CONCAT( Message , ' has failed ');
+
+THIS^.AssertEquals_BOOL(
+	Expected 	:= inputStruct.expectedResult,
+	Actual 		:= THIS^.assertorContainer.wasAssertionWrong,
+	Message 	:= message
+);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testUtf16StartsWith" Id="{9324069b-dd77-44fd-8a32-89ad628489c5}" FolderPath="startsWith\">
+      <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+{warning 'header is generated please add your documentation'}
+METHOD testUtf16StartsWith : BOOL
+VAR_INPUT
+	inputStruct	: containsDataStr;
+	testNumber 	: USINT;
+END_VAR
+
+VAR
+	message : STRING;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.reset();
+
+THIS^.assertorContainer.assertor.assert.strings.utf16.startsWith(
+	stringToCheck	:= inputStruct.WStringToTest,
+	start			:= inputStruct.WStringToContain,
+	ignoreCases		:= inputStruct.IgnoreCases,
+	trim			:= inputStruct.Trim,
+	message			:= ''
+);
+
+message	:= CONCAT( 'Test Number ', TO_STRING(testNumber));
+message	:= CONCAT( message, ' during function UTF16.startsWith ');
+message	:= CONCAT( Message , ' has failed ');
+
+THIS^.AssertEquals_BOOL(
+	Expected 	:= inputStruct.expectedResult,
+	Actual 		:= THIS^.assertorContainer.wasAssertionWrong,
+	Message 	:= message
+);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testUtf16StringContains" Id="{b44ec857-bbed-48b4-92c6-7868702c1646}" FolderPath="contains\">
+      <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+{warning 'header is generated please add your documentation'}
+METHOD testUtf16StringContains : BOOL
+VAR_INPUT
+	inputStruct	: containsDataStr;
+	testNumber :USINT;
+END_VAR
+
+VAR
+	message : STRING;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.reset();
+
+THIS^.assertorContainer.assertor.assert.strings.utf16.contains(
+	stringToCheck 	:= inputStruct.WStringToTest,
+	searchString	:= inputStruct.WStringToContain, 
+	ignoreCases		:= inputStruct.IgnoreCases,
+	message         := ''
+);
+
+message	:= CONCAT( 'Test Number ', TO_STRING(testNumber));
+message	:= CONCAT( message, ' during function UTF16.contains ');
+message	:= CONCAT( Message , ' has failed ');
+
+THIS^.AssertEquals_BOOL(
+	Expected 	:= inputStruct.expectedResult,
+	Actual 		:= THIS^.assertorContainer.wasAssertionWrong,
+	Message 	:= message
+);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testUtf16StringContainsNo" Id="{e82994f3-0f6d-40a0-b47c-5d7f344d79f4}" FolderPath="containsNo\">
+      <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+{warning 'header is generated please add your documentation'}
+METHOD testUtf16StringContainsNo : BOOL
+VAR_INPUT
+	inputStruct	: containsDataStr;
+	testNumber 	: USINT;
+END_VAR
+
+VAR
+	message : STRING;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.reset();
+
+THIS^.assertorContainer.assertor.assert.strings.utf16.containsNo(
+	stringToCheck 	:= inputStruct.WStringToTest,
+	searchString	:= inputStruct.WStringToContain, 
+	ignoreCases		:= inputStruct.IgnoreCases,
+	message         := ''
+);
+
+message	:= CONCAT( 'Test Number ', TO_STRING(testNumber));
+message	:= CONCAT( message, ' during function UTF16.containsNo ');
+message	:= CONCAT( Message , ' has failed ');
+
+THIS^.AssertEquals_BOOL(
+	Expected 	:= inputStruct.expectedResult,
+	Actual 		:= THIS^.assertorContainer.wasAssertionWrong,
+	Message 	:= message
+);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testUtf16StringLengthBetween" Id="{715641ec-876e-471f-b535-347afb0424b7}" FolderPath="isLengthBetween\">
+      <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+{warning 'header is generated please add your documentation'}
+METHOD testUtf16StringLengthBetween
+VAR_INPUT
+	inputStruct : IsLengthBetweenBasicData;
+	testNumber	: USINT;
+END_VAR
+
+VAR
+	message: STRING;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.reset();
+
+THIS^.assertorContainer.assertor.assert.strings.utf16.lenghtIsBetween( 
+	stringToCheck	:=	inputStruct.wstringToTest, 
+	maxLenght		:=	inputStruct.maxLength,
+	minLenght   	:=  inputStruct.minLength,
+	message			:=	''          
+);
+
+
+message	:= CONCAT( 'Test Number ', TO_STRING(testNumber));
+message	:= CONCAT( message, ' during function UTF16.isLengthBetween ');
+message	:= CONCAT( Message , ' has failed ');
+	
+THIS^.AssertEquals_BOOL(
+	Expected 	:= inputStruct.expectedResult,
+	Actual 		:= THIS^.assertorContainer.wasAssertionWrong,
+	Message 	:= message
+);
+	]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testUtf16StringlengthIs" Id="{040791d6-e31e-4fae-a77f-1b1be34964e8}" FolderPath="isLenghtExact\">
+      <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+{warning 'header is generated please add your documentation'}
+METHOD testUtf16StringlengthIs
+VAR_INPUT
+	inputStruct	:IsLengthBasicData;
+	testNumber :USINT;
+END_VAR
+
+VAR
+	message: STRING;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[
+THIS^.reset();
+
+IF (inputStruct.funcType = FunctionType.EXACT) THEN
+	THIS^.assertorContainer.assertor.assert.strings.utf16.lenghtIsExact( 
+		stringToCheck	:=	inputStruct.wstringToTest, 
+		expectedLength	:=	TO_USINT(inputStruct.expectedLength),
+		message			:=	''          
+	);
+ELSIF (inputStruct.funcType = FunctionType.MAXIMUM) THEN
+	THIS^.assertorContainer.assertor.assert.strings.utf16.lenghtIsMax( 
+		stringToCheck	:=	inputStruct.wstringToTest, 
+		maxLength		:=	TO_USINT(inputStruct.expectedLength),
+		message			:=	''         
+	);
+ELSIF (inputStruct.funcType = FunctionType.MINIMUM) THEN
+	THIS^.assertorContainer.assertor.assert.strings.utf16.lenghtIsMin( 
+		stringToCheck	:=	inputStruct.wstringToTest, 
+		minLength		:=	TO_USINT(inputStruct.expectedLength),
+		message			:=	' '         
+	);
+END_IF;
+
+message	:= CONCAT( ' Test Number ', TO_STRING(testNumber));
+message	:= CONCAT( message, ' during function UFT16String.isLength ');
+message	:= CONCAT( message , TO_STRING(inputStruct.funcType));
+message	:= CONCAT( Message , ' has failed ');
+	
+THIS^.AssertEquals_BOOL(
+	Expected 	:= inputStruct.expectedResult,
+	Actual 		:= THIS^.assertorContainer.wasAssertionWrong,
+	Message 	:= message
+);
+	]]></ST>
+      </Implementation>
+    </Method>
+    <LineIds Name="StringAssertionTests">
+      <LineId Id="128" Count="4" />
+      <LineId Id="136" Count="1" />
+      <LineId Id="121" Count="0" />
+      <LineId Id="154" Count="0" />
+      <LineId Id="153" Count="0" />
+      <LineId Id="168" Count="1" />
+      <LineId Id="176" Count="1" />
+      <LineId Id="197" Count="0" />
+      <LineId Id="217" Count="1" />
+    </LineIds>
+    <LineIds Name="StringAssertionTests.FB_init">
+      <LineId Id="9" Count="8" />
+      <LineId Id="8" Count="0" />
+      <LineId Id="18" Count="0" />
+    </LineIds>
+    <LineIds Name="StringAssertionTests.reset">
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="StringAssertionTests.runTestContains">
+      <LineId Id="8" Count="14" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="StringAssertionTests.runTestContainsNo">
+      <LineId Id="9" Count="14" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="StringAssertionTests.runTestEndsWith">
+      <LineId Id="9" Count="0" />
+      <LineId Id="26" Count="0" />
+      <LineId Id="10" Count="13" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="StringAssertionTests.runTestIsEmpty">
+      <LineId Id="9" Count="0" />
+      <LineId Id="26" Count="0" />
+      <LineId Id="10" Count="13" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="StringAssertionTests.runTestIsEqualTo">
+      <LineId Id="9" Count="0" />
+      <LineId Id="26" Count="0" />
+      <LineId Id="10" Count="13" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="StringAssertionTests.runTestIsLength">
+      <LineId Id="96" Count="0" />
+      <LineId Id="95" Count="0" />
+      <LineId Id="99" Count="0" />
+      <LineId Id="108" Count="0" />
+      <LineId Id="100" Count="0" />
+      <LineId Id="107" Count="0" />
+      <LineId Id="109" Count="0" />
+      <LineId Id="106" Count="0" />
+      <LineId Id="110" Count="0" />
+      <LineId Id="105" Count="0" />
+      <LineId Id="111" Count="1" />
+      <LineId Id="101" Count="0" />
+      <LineId Id="98" Count="0" />
+      <LineId Id="114" Count="0" />
+      <LineId Id="113" Count="0" />
+    </LineIds>
+    <LineIds Name="StringAssertionTests.runTestIsNotEmpty">
+      <LineId Id="9" Count="0" />
+      <LineId Id="26" Count="0" />
+      <LineId Id="10" Count="13" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="StringAssertionTests.runTestIsNotEqualTo">
+      <LineId Id="9" Count="0" />
+      <LineId Id="26" Count="0" />
+      <LineId Id="10" Count="13" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="StringAssertionTests.runTestLengthIsBetween">
+      <LineId Id="8" Count="14" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="StringAssertionTests.runTestStartsWith">
+      <LineId Id="9" Count="14" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="StringAssertionTests.testAnyString_isEmpty">
+      <LineId Id="97" Count="0" />
+      <LineId Id="99" Count="0" />
+      <LineId Id="118" Count="0" />
+      <LineId Id="98" Count="0" />
+      <LineId Id="6" Count="0" />
+      <LineId Id="96" Count="0" />
+      <LineId Id="64" Count="0" />
+      <LineId Id="8" Count="0" />
+      <LineId Id="13" Count="0" />
+      <LineId Id="65" Count="2" />
+      <LineId Id="14" Count="2" />
+      <LineId Id="5" Count="0" />
+      <LineId Id="70" Count="0" />
+      <LineId Id="189" Count="0" />
+      <LineId Id="92" Count="0" />
+      <LineId Id="188" Count="0" />
+      <LineId Id="91" Count="0" />
+      <LineId Id="71" Count="9" />
+      <LineId Id="69" Count="0" />
+      <LineId Id="46" Count="0" />
+      <LineId Id="102" Count="0" />
+      <LineId Id="94" Count="0" />
+      <LineId Id="190" Count="0" />
+      <LineId Id="93" Count="0" />
+      <LineId Id="101" Count="0" />
+      <LineId Id="82" Count="8" />
+      <LineId Id="34" Count="0" />
+      <LineId Id="19" Count="0" />
+      <LineId Id="104" Count="1" />
+      <LineId Id="191" Count="0" />
+      <LineId Id="106" Count="11" />
+      <LineId Id="103" Count="0" />
+      <LineId Id="121" Count="1" />
+      <LineId Id="192" Count="0" />
+      <LineId Id="123" Count="1" />
+      <LineId Id="139" Count="0" />
+      <LineId Id="126" Count="8" />
+      <LineId Id="120" Count="0" />
+      <LineId Id="156" Count="1" />
+      <LineId Id="193" Count="0" />
+      <LineId Id="158" Count="11" />
+      <LineId Id="155" Count="0" />
+      <LineId Id="171" Count="0" />
+      <LineId Id="170" Count="0" />
+      <LineId Id="195" Count="12" />
+      <LineId Id="187" Count="0" />
+      <LineId Id="215" Count="1" />
+      <LineId Id="18" Count="0" />
+    </LineIds>
+    <LineIds Name="StringAssertionTests.testAnyString_isEqualTo">
+      <LineId Id="11" Count="3" />
+      <LineId Id="32" Count="0" />
+      <LineId Id="17" Count="2" />
+      <LineId Id="31" Count="0" />
+      <LineId Id="27" Count="3" />
+      <LineId Id="23" Count="3" />
+      <LineId Id="5" Count="0" />
+      <LineId Id="114" Count="2" />
+      <LineId Id="131" Count="0" />
+      <LineId Id="117" Count="0" />
+      <LineId Id="129" Count="1" />
+      <LineId Id="118" Count="10" />
+      <LineId Id="113" Count="0" />
+      <LineId Id="34" Count="2" />
+      <LineId Id="50" Count="1" />
+      <LineId Id="49" Count="0" />
+      <LineId Id="37" Count="11" />
+      <LineId Id="33" Count="0" />
+      <LineId Id="112" Count="0" />
+      <LineId Id="93" Count="17" />
+      <LineId Id="92" Count="0" />
+      <LineId Id="55" Count="17" />
+      <LineId Id="54" Count="0" />
+      <LineId Id="74" Count="17" />
+      <LineId Id="73" Count="0" />
+      <LineId Id="53" Count="0" />
+      <LineId Id="140" Count="4" />
+      <LineId Id="158" Count="0" />
+      <LineId Id="145" Count="11" />
+      <LineId Id="52" Count="0" />
+      <LineId Id="179" Count="0" />
+      <LineId Id="160" Count="5" />
+      <LineId Id="167" Count="11" />
+      <LineId Id="159" Count="0" />
+      <LineId Id="222" Count="0" />
+      <LineId Id="183" Count="5" />
+      <LineId Id="190" Count="11" />
+      <LineId Id="180" Count="0" />
+      <LineId Id="232" Count="17" />
+      <LineId Id="221" Count="0" />
+      <LineId Id="252" Count="19" />
+      <LineId Id="203" Count="0" />
+      <LineId Id="272" Count="16" />
+      <LineId Id="202" Count="0" />
+    </LineIds>
+    <LineIds Name="StringAssertionTests.testAnyString_isNotEmpty">
+      <LineId Id="28" Count="0" />
+      <LineId Id="6" Count="3" />
+      <LineId Id="30" Count="91" />
+      <LineId Id="21" Count="0" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="StringAssertionTests.testAnyString_isNotEqualTo">
+      <LineId Id="14" Count="17" />
+      <LineId Id="210" Count="0" />
+      <LineId Id="32" Count="12" />
+      <LineId Id="211" Count="0" />
+      <LineId Id="45" Count="3" />
+      <LineId Id="50" Count="2" />
+      <LineId Id="212" Count="0" />
+      <LineId Id="53" Count="36" />
+      <LineId Id="213" Count="0" />
+      <LineId Id="90" Count="57" />
+      <LineId Id="214" Count="0" />
+      <LineId Id="148" Count="39" />
+      <LineId Id="216" Count="0" />
+      <LineId Id="215" Count="0" />
+      <LineId Id="217" Count="16" />
+      <LineId Id="200" Count="0" />
+      <LineId Id="237" Count="17" />
+      <LineId Id="236" Count="0" />
+      <LineId Id="199" Count="0" />
+      <LineId Id="188" Count="1" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="StringAssertionTests.testAnyString_lengthIsExact">
+      <LineId Id="6" Count="3" />
+      <LineId Id="28" Count="0" />
+      <LineId Id="10" Count="0" />
+      <LineId Id="50" Count="0" />
+      <LineId Id="11" Count="0" />
+      <LineId Id="16" Count="0" />
+      <LineId Id="127" Count="0" />
+      <LineId Id="22" Count="1" />
+      <LineId Id="128" Count="1" />
+      <LineId Id="18" Count="2" />
+      <LineId Id="130" Count="0" />
+      <LineId Id="34" Count="0" />
+      <LineId Id="5" Count="0" />
+      <LineId Id="32" Count="0" />
+      <LineId Id="35" Count="0" />
+      <LineId Id="51" Count="0" />
+      <LineId Id="36" Count="2" />
+      <LineId Id="48" Count="1" />
+      <LineId Id="39" Count="7" />
+      <LineId Id="33" Count="0" />
+      <LineId Id="53" Count="15" />
+      <LineId Id="52" Count="0" />
+      <LineId Id="71" Count="15" />
+      <LineId Id="70" Count="0" />
+      <LineId Id="88" Count="15" />
+      <LineId Id="87" Count="0" />
+      <LineId Id="105" Count="15" />
+      <LineId Id="104" Count="0" />
+      <LineId Id="138" Count="1" />
+      <LineId Id="137" Count="0" />
+      <LineId Id="69" Count="0" />
+      <LineId Id="47" Count="0" />
+      <LineId Id="31" Count="0" />
+      <LineId Id="30" Count="0" />
+      <LineId Id="29" Count="0" />
+    </LineIds>
+    <LineIds Name="StringAssertionTests.testAnyStringContains">
+      <LineId Id="5" Count="0" />
+      <LineId Id="105" Count="0" />
+      <LineId Id="14" Count="1" />
+      <LineId Id="91" Count="4" />
+      <LineId Id="61" Count="0" />
+      <LineId Id="36" Count="0" />
+      <LineId Id="78" Count="4" />
+      <LineId Id="55" Count="1" />
+      <LineId Id="13" Count="0" />
+      <LineId Id="84" Count="2" />
+      <LineId Id="83" Count="0" />
+      <LineId Id="64" Count="4" />
+      <LineId Id="63" Count="0" />
+    </LineIds>
+    <LineIds Name="StringAssertionTests.testAnyStringContainsNo">
+      <LineId Id="5" Count="0" />
+      <LineId Id="14" Count="1" />
+      <LineId Id="34" Count="0" />
+      <LineId Id="57" Count="4" />
+      <LineId Id="69" Count="0" />
+      <LineId Id="36" Count="0" />
+      <LineId Id="78" Count="4" />
+      <LineId Id="55" Count="1" />
+      <LineId Id="13" Count="0" />
+      <LineId Id="84" Count="2" />
+      <LineId Id="83" Count="0" />
+      <LineId Id="64" Count="4" />
+      <LineId Id="63" Count="0" />
+      <LineId Id="97" Count="0" />
+      <LineId Id="96" Count="0" />
+    </LineIds>
+    <LineIds Name="StringAssertionTests.testAnyStringEndsWith">
+      <LineId Id="5" Count="0" />
+      <LineId Id="14" Count="1" />
+      <LineId Id="34" Count="0" />
+      <LineId Id="107" Count="4" />
+      <LineId Id="61" Count="0" />
+      <LineId Id="69" Count="0" />
+      <LineId Id="36" Count="0" />
+      <LineId Id="112" Count="5" />
+      <LineId Id="55" Count="0" />
+      <LineId Id="127" Count="0" />
+      <LineId Id="13" Count="0" />
+      <LineId Id="84" Count="2" />
+      <LineId Id="83" Count="0" />
+      <LineId Id="64" Count="4" />
+      <LineId Id="63" Count="0" />
+    </LineIds>
+    <LineIds Name="StringAssertionTests.testAnyStringIsEmpty">
+      <LineId Id="5" Count="0" />
+      <LineId Id="14" Count="1" />
+      <LineId Id="34" Count="0" />
+      <LineId Id="146" Count="1" />
+      <LineId Id="61" Count="0" />
+      <LineId Id="69" Count="0" />
+      <LineId Id="36" Count="0" />
+      <LineId Id="152" Count="0" />
+      <LineId Id="149" Count="0" />
+      <LineId Id="153" Count="0" />
+      <LineId Id="55" Count="0" />
+      <LineId Id="127" Count="0" />
+      <LineId Id="13" Count="0" />
+      <LineId Id="84" Count="2" />
+      <LineId Id="83" Count="0" />
+      <LineId Id="64" Count="4" />
+      <LineId Id="63" Count="0" />
+    </LineIds>
+    <LineIds Name="StringAssertionTests.testAnyStringIsEqualTo">
+      <LineId Id="5" Count="0" />
+      <LineId Id="14" Count="1" />
+      <LineId Id="34" Count="0" />
+      <LineId Id="163" Count="0" />
+      <LineId Id="165" Count="2" />
+      <LineId Id="61" Count="0" />
+      <LineId Id="69" Count="0" />
+      <LineId Id="36" Count="0" />
+      <LineId Id="168" Count="3" />
+      <LineId Id="149" Count="0" />
+      <LineId Id="55" Count="0" />
+      <LineId Id="127" Count="0" />
+      <LineId Id="13" Count="0" />
+      <LineId Id="84" Count="2" />
+      <LineId Id="83" Count="0" />
+      <LineId Id="64" Count="4" />
+      <LineId Id="63" Count="0" />
+    </LineIds>
+    <LineIds Name="StringAssertionTests.testAnyStringIsNotEmpty">
+      <LineId Id="5" Count="0" />
+      <LineId Id="14" Count="1" />
+      <LineId Id="34" Count="0" />
+      <LineId Id="146" Count="1" />
+      <LineId Id="61" Count="0" />
+      <LineId Id="69" Count="0" />
+      <LineId Id="36" Count="0" />
+      <LineId Id="152" Count="0" />
+      <LineId Id="149" Count="0" />
+      <LineId Id="153" Count="0" />
+      <LineId Id="55" Count="0" />
+      <LineId Id="127" Count="0" />
+      <LineId Id="13" Count="0" />
+      <LineId Id="84" Count="2" />
+      <LineId Id="83" Count="0" />
+      <LineId Id="64" Count="4" />
+      <LineId Id="63" Count="0" />
+    </LineIds>
+    <LineIds Name="StringAssertionTests.testAnyStringIsNotEqualTo">
+      <LineId Id="5" Count="0" />
+      <LineId Id="14" Count="1" />
+      <LineId Id="34" Count="0" />
+      <LineId Id="163" Count="0" />
+      <LineId Id="165" Count="2" />
+      <LineId Id="61" Count="0" />
+      <LineId Id="69" Count="0" />
+      <LineId Id="36" Count="0" />
+      <LineId Id="168" Count="3" />
+      <LineId Id="149" Count="0" />
+      <LineId Id="55" Count="0" />
+      <LineId Id="127" Count="0" />
+      <LineId Id="13" Count="0" />
+      <LineId Id="84" Count="2" />
+      <LineId Id="83" Count="0" />
+      <LineId Id="64" Count="4" />
+      <LineId Id="63" Count="0" />
+    </LineIds>
+    <LineIds Name="StringAssertionTests.testAnyStringLengthBetween">
+      <LineId Id="144" Count="1" />
+      <LineId Id="160" Count="0" />
+      <LineId Id="158" Count="0" />
+      <LineId Id="146" Count="2" />
+      <LineId Id="292" Count="0" />
+      <LineId Id="149" Count="1" />
+      <LineId Id="214" Count="0" />
+      <LineId Id="151" Count="0" />
+      <LineId Id="242" Count="0" />
+      <LineId Id="294" Count="3" />
+      <LineId Id="215" Count="0" />
+      <LineId Id="177" Count="0" />
+      <LineId Id="268" Count="0" />
+      <LineId Id="273" Count="1" />
+      <LineId Id="272" Count="0" />
+      <LineId Id="269" Count="0" />
+      <LineId Id="171" Count="0" />
+      <LineId Id="173" Count="3" />
+      <LineId Id="170" Count="0" />
+      <LineId Id="29" Count="0" />
+    </LineIds>
+    <LineIds Name="StringAssertionTests.testAnyStringLengthIs">
+      <LineId Id="141" Count="0" />
+      <LineId Id="144" Count="1" />
+      <LineId Id="160" Count="0" />
+      <LineId Id="158" Count="0" />
+      <LineId Id="196" Count="0" />
+      <LineId Id="146" Count="4" />
+      <LineId Id="197" Count="0" />
+      <LineId Id="203" Count="0" />
+      <LineId Id="201" Count="1" />
+      <LineId Id="204" Count="2" />
+      <LineId Id="212" Count="0" />
+      <LineId Id="210" Count="1" />
+      <LineId Id="208" Count="0" />
+      <LineId Id="213" Count="1" />
+      <LineId Id="207" Count="0" />
+      <LineId Id="151" Count="0" />
+      <LineId Id="242" Count="0" />
+      <LineId Id="247" Count="3" />
+      <LineId Id="221" Count="1" />
+      <LineId Id="251" Count="3" />
+      <LineId Id="227" Count="1" />
+      <LineId Id="255" Count="3" />
+      <LineId Id="233" Count="0" />
+      <LineId Id="215" Count="0" />
+      <LineId Id="169" Count="0" />
+      <LineId Id="177" Count="0" />
+      <LineId Id="268" Count="0" />
+      <LineId Id="273" Count="2" />
+      <LineId Id="272" Count="0" />
+      <LineId Id="269" Count="0" />
+      <LineId Id="171" Count="0" />
+      <LineId Id="173" Count="3" />
+      <LineId Id="170" Count="0" />
+      <LineId Id="29" Count="0" />
+    </LineIds>
+    <LineIds Name="StringAssertionTests.testAnyStringStartsWith">
+      <LineId Id="5" Count="0" />
+      <LineId Id="14" Count="1" />
+      <LineId Id="34" Count="0" />
+      <LineId Id="107" Count="4" />
+      <LineId Id="61" Count="0" />
+      <LineId Id="69" Count="0" />
+      <LineId Id="36" Count="0" />
+      <LineId Id="112" Count="5" />
+      <LineId Id="55" Count="1" />
+      <LineId Id="13" Count="0" />
+      <LineId Id="84" Count="2" />
+      <LineId Id="83" Count="0" />
+      <LineId Id="64" Count="4" />
+      <LineId Id="63" Count="0" />
+    </LineIds>
+    <LineIds Name="StringAssertionTests.testAsciiEndsWith">
+      <LineId Id="5" Count="0" />
+      <LineId Id="14" Count="0" />
+      <LineId Id="117" Count="6" />
+      <LineId Id="55" Count="0" />
+      <LineId Id="84" Count="2" />
+      <LineId Id="83" Count="0" />
+      <LineId Id="64" Count="4" />
+      <LineId Id="63" Count="0" />
+    </LineIds>
+    <LineIds Name="StringAssertionTests.testAsciiIsEmpty">
+      <LineId Id="5" Count="0" />
+      <LineId Id="14" Count="0" />
+      <LineId Id="142" Count="2" />
+      <LineId Id="123" Count="0" />
+      <LineId Id="84" Count="2" />
+      <LineId Id="83" Count="0" />
+      <LineId Id="64" Count="4" />
+      <LineId Id="63" Count="0" />
+    </LineIds>
+    <LineIds Name="StringAssertionTests.testAsciiIsEqualTo">
+      <LineId Id="5" Count="0" />
+      <LineId Id="14" Count="0" />
+      <LineId Id="154" Count="4" />
+      <LineId Id="123" Count="0" />
+      <LineId Id="84" Count="2" />
+      <LineId Id="83" Count="0" />
+      <LineId Id="64" Count="4" />
+      <LineId Id="63" Count="0" />
+    </LineIds>
+    <LineIds Name="StringAssertionTests.testAsciiIsNotEmpty">
+      <LineId Id="5" Count="0" />
+      <LineId Id="14" Count="0" />
+      <LineId Id="142" Count="2" />
+      <LineId Id="123" Count="0" />
+      <LineId Id="84" Count="2" />
+      <LineId Id="83" Count="0" />
+      <LineId Id="64" Count="4" />
+      <LineId Id="63" Count="0" />
+    </LineIds>
+    <LineIds Name="StringAssertionTests.testAsciiIsNotEqualTo">
+      <LineId Id="5" Count="0" />
+      <LineId Id="14" Count="0" />
+      <LineId Id="154" Count="4" />
+      <LineId Id="123" Count="0" />
+      <LineId Id="84" Count="2" />
+      <LineId Id="83" Count="0" />
+      <LineId Id="64" Count="4" />
+      <LineId Id="63" Count="0" />
+    </LineIds>
+    <LineIds Name="StringAssertionTests.testAsciiStartsWith">
+      <LineId Id="5" Count="0" />
+      <LineId Id="14" Count="0" />
+      <LineId Id="117" Count="6" />
+      <LineId Id="55" Count="0" />
+      <LineId Id="84" Count="2" />
+      <LineId Id="83" Count="0" />
+      <LineId Id="64" Count="4" />
+      <LineId Id="63" Count="0" />
+    </LineIds>
+    <LineIds Name="StringAssertionTests.testAsciiStringContains">
+      <LineId Id="5" Count="0" />
+      <LineId Id="14" Count="0" />
+      <LineId Id="69" Count="0" />
+      <LineId Id="79" Count="2" />
+      <LineId Id="98" Count="0" />
+      <LineId Id="55" Count="0" />
+      <LineId Id="84" Count="2" />
+      <LineId Id="83" Count="0" />
+      <LineId Id="64" Count="4" />
+      <LineId Id="63" Count="0" />
+    </LineIds>
+    <LineIds Name="StringAssertionTests.testAsciiStringContainsNo">
+      <LineId Id="5" Count="0" />
+      <LineId Id="14" Count="0" />
+      <LineId Id="69" Count="0" />
+      <LineId Id="79" Count="2" />
+      <LineId Id="98" Count="0" />
+      <LineId Id="55" Count="0" />
+      <LineId Id="84" Count="2" />
+      <LineId Id="83" Count="0" />
+      <LineId Id="64" Count="4" />
+      <LineId Id="63" Count="0" />
+    </LineIds>
+    <LineIds Name="StringAssertionTests.testAsciiStringLengthBetween">
+      <LineId Id="232" Count="0" />
+      <LineId Id="259" Count="0" />
+      <LineId Id="243" Count="4" />
+      <LineId Id="268" Count="0" />
+      <LineId Id="249" Count="9" />
+      <LineId Id="29" Count="0" />
+    </LineIds>
+    <LineIds Name="StringAssertionTests.testAsciiStringlengthIs">
+      <LineId Id="144" Count="1" />
+      <LineId Id="190" Count="0" />
+      <LineId Id="151" Count="0" />
+      <LineId Id="165" Count="4" />
+      <LineId Id="191" Count="0" />
+      <LineId Id="193" Count="3" />
+      <LineId Id="192" Count="0" />
+      <LineId Id="197" Count="0" />
+      <LineId Id="199" Count="3" />
+      <LineId Id="198" Count="0" />
+      <LineId Id="203" Count="0" />
+      <LineId Id="210" Count="3" />
+      <LineId Id="209" Count="0" />
+      <LineId Id="172" Count="0" />
+      <LineId Id="171" Count="0" />
+      <LineId Id="173" Count="3" />
+      <LineId Id="170" Count="0" />
+      <LineId Id="29" Count="0" />
+    </LineIds>
+    <LineIds Name="StringAssertionTests.testUtf16EndsWith">
+      <LineId Id="5" Count="0" />
+      <LineId Id="14" Count="0" />
+      <LineId Id="126" Count="5" />
+      <LineId Id="55" Count="0" />
+      <LineId Id="84" Count="2" />
+      <LineId Id="83" Count="0" />
+      <LineId Id="64" Count="4" />
+      <LineId Id="63" Count="0" />
+    </LineIds>
+    <LineIds Name="StringAssertionTests.testUtf16IsEmpty">
+      <LineId Id="5" Count="0" />
+      <LineId Id="14" Count="0" />
+      <LineId Id="150" Count="2" />
+      <LineId Id="55" Count="0" />
+      <LineId Id="84" Count="2" />
+      <LineId Id="83" Count="0" />
+      <LineId Id="64" Count="4" />
+      <LineId Id="63" Count="0" />
+    </LineIds>
+    <LineIds Name="StringAssertionTests.testUtf16IsEqualTo">
+      <LineId Id="5" Count="0" />
+      <LineId Id="14" Count="0" />
+      <LineId Id="162" Count="4" />
+      <LineId Id="55" Count="0" />
+      <LineId Id="84" Count="2" />
+      <LineId Id="83" Count="0" />
+      <LineId Id="64" Count="4" />
+      <LineId Id="63" Count="0" />
+    </LineIds>
+    <LineIds Name="StringAssertionTests.testUtf16IsNotEmpty">
+      <LineId Id="5" Count="0" />
+      <LineId Id="14" Count="0" />
+      <LineId Id="150" Count="2" />
+      <LineId Id="55" Count="0" />
+      <LineId Id="84" Count="2" />
+      <LineId Id="83" Count="0" />
+      <LineId Id="64" Count="4" />
+      <LineId Id="63" Count="0" />
+    </LineIds>
+    <LineIds Name="StringAssertionTests.testUtf16IsNotEqualTo">
+      <LineId Id="5" Count="0" />
+      <LineId Id="14" Count="0" />
+      <LineId Id="162" Count="4" />
+      <LineId Id="55" Count="0" />
+      <LineId Id="84" Count="2" />
+      <LineId Id="83" Count="0" />
+      <LineId Id="64" Count="4" />
+      <LineId Id="63" Count="0" />
+    </LineIds>
+    <LineIds Name="StringAssertionTests.testUtf16StartsWith">
+      <LineId Id="5" Count="0" />
+      <LineId Id="14" Count="0" />
+      <LineId Id="126" Count="5" />
+      <LineId Id="55" Count="0" />
+      <LineId Id="84" Count="2" />
+      <LineId Id="83" Count="0" />
+      <LineId Id="64" Count="4" />
+      <LineId Id="63" Count="0" />
+    </LineIds>
+    <LineIds Name="StringAssertionTests.testUtf16StringContains">
+      <LineId Id="5" Count="0" />
+      <LineId Id="14" Count="0" />
+      <LineId Id="69" Count="0" />
+      <LineId Id="79" Count="2" />
+      <LineId Id="98" Count="0" />
+      <LineId Id="55" Count="0" />
+      <LineId Id="84" Count="2" />
+      <LineId Id="83" Count="0" />
+      <LineId Id="64" Count="4" />
+      <LineId Id="63" Count="0" />
+    </LineIds>
+    <LineIds Name="StringAssertionTests.testUtf16StringContainsNo">
+      <LineId Id="5" Count="0" />
+      <LineId Id="14" Count="0" />
+      <LineId Id="69" Count="0" />
+      <LineId Id="79" Count="2" />
+      <LineId Id="98" Count="0" />
+      <LineId Id="55" Count="0" />
+      <LineId Id="84" Count="2" />
+      <LineId Id="83" Count="0" />
+      <LineId Id="64" Count="4" />
+      <LineId Id="63" Count="0" />
+    </LineIds>
+    <LineIds Name="StringAssertionTests.testUtf16StringLengthBetween">
+      <LineId Id="227" Count="17" />
+      <LineId Id="176" Count="0" />
+      <LineId Id="170" Count="0" />
+    </LineIds>
+    <LineIds Name="StringAssertionTests.testUtf16StringlengthIs">
+      <LineId Id="144" Count="1" />
+      <LineId Id="183" Count="0" />
+      <LineId Id="151" Count="0" />
+      <LineId Id="165" Count="4" />
+      <LineId Id="172" Count="0" />
+      <LineId Id="190" Count="0" />
+      <LineId Id="187" Count="2" />
+      <LineId Id="185" Count="0" />
+      <LineId Id="192" Count="0" />
+      <LineId Id="194" Count="3" />
+      <LineId Id="193" Count="0" />
+      <LineId Id="198" Count="0" />
+      <LineId Id="205" Count="3" />
+      <LineId Id="204" Count="0" />
+      <LineId Id="184" Count="0" />
+      <LineId Id="171" Count="0" />
+      <LineId Id="173" Count="3" />
+      <LineId Id="170" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

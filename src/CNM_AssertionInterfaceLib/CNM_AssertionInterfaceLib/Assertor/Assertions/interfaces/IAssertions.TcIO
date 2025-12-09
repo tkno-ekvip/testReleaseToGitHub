@@ -1,0 +1,320 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <Itf Name="IAssertions" Id="{427da63f-e095-410b-bff2-845e71818990}">
+    <Declaration><![CDATA[(*
+
+short summary
+=================
+| This interface provides assert statements the most common data:
+| For ``STRUCT``, ``ARRAY``, ``FUNCTION BLOCK``, ``ENUM``  use :ref:`IAssertions.binary`
+| For ``BYTE``, ``WORD``, ``DWORD``, ``LWORD``, ``__XWORD`` use :ref:`IAssertions.bitNumber`
+| For ``BOOL`` use :ref:`IAssertions.boolean`
+| For ``DT``, ``TOD``, ``DATE`` use :ref:`IAssertions.dateAndTime`
+| For ``REAL``, ``LREAL`` use :ref:`IAssertions.float`
+| For ``SINT``, ``INT``, ``DINT``, ``LINT``, ``__XINT`` use :ref:`IAssertions.integer`
+| For ``CNM_AbsrtractObject.IObject`` use :ref:`IAssertions.object`
+| For ``POINTER`` use :ref:`IAssertions.pointers`
+| For ``STRING``, ``WSTRING`` use :ref:`IAssertions.strings`
+| For ``TIME``, ``LTIME`` use :ref:`IAssertions.times`
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+properties
+==================
+
+*)
+
+INTERFACE IAssertions EXTENDS __SYSTEM.IQueryInterface
+]]></Declaration>
+    <Property Name="binary" Id="{b30ca841-fd5a-4e61-84f4-1b5f689ac46b}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+Returns the interface :ref:`IBinaryAssertions`
+with assert statements for binary data 
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+PROPERTY binary :IBinaryAssertions
+]]></Declaration>
+      <Get Name="Get" Id="{9a4cfbba-3c50-4da4-863c-b30441a83d2a}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Property Name="bitNumber" Id="{13875d1c-ee6c-4001-8a89-cd6d04c94637}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+Returns the interface :ref:`IBitNumberAssertions`
+with assert statements for bit numbers
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+PROPERTY bitNumber :IBitNumberAssertions
+]]></Declaration>
+      <Get Name="Get" Id="{5258e333-f5e9-4588-a307-5c2e9b505efd}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Property Name="boolean" Id="{2a1f42a5-ede2-4655-a2d4-bba7d366ed86}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+Returns the interface :ref:`IBooleanAssertion`
+with assert statements for booleans
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+PROPERTY boolean :IBooleanAssertion
+]]></Declaration>
+      <Get Name="Get" Id="{dc7e39ca-a04c-4a62-b15e-ce35d62453fc}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Property Name="dateAndTime" Id="{0c6e273b-f02d-4f2e-bbc4-0df1233e09a3}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+Returns the interface :ref:`IDateAndTimeAssertions`
+with assert statements for date and time data types
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+PROPERTY dateAndTime :IDateAndTimeAssertions
+]]></Declaration>
+      <Get Name="Get" Id="{609c4c16-354d-4006-b3b1-dcc1ffabf6e4}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Property Name="float" Id="{220fb76d-b3d9-409b-b7d4-39f241a497ea}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+Returns the interface :ref:`IFloatAssertions`
+with assert statements for floatings
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+PROPERTY float :IFloatAssertions
+]]></Declaration>
+      <Get Name="Get" Id="{3b2b8244-cbdd-4190-8db8-4aa9442a06d9}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Property Name="integer" Id="{142230ce-6d2b-422f-8c01-9e56b2a5c85f}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+Returns the interface :ref:`IIntergerAssertions`
+with assert statements for integers
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+PROPERTY integer :IIntergerAssertions
+]]></Declaration>
+      <Get Name="Get" Id="{fa3a36fa-0756-476d-8e48-bf0be94f461d}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Property Name="object" Id="{c2ef1417-019b-4df1-b24f-13567fe5e724}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+Returns the interface :ref:`IObjectAssertions`
+with assert statements for ``CNM_AbstractObject.IObject``
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+PROPERTY object :IObjectAssertions
+]]></Declaration>
+      <Get Name="Get" Id="{3207646f-ef41-42a9-b45f-593d2578890a}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Property Name="pointers" Id="{743af199-9c7c-4876-bb47-b873642143bb}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+Returns the interface :ref:`IPointerAssertions`
+with assert statements for pointers
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+PROPERTY pointers :IPointerAssertions
+]]></Declaration>
+      <Get Name="Get" Id="{e567c4da-b1fc-4b9a-aeb8-99b53d566e3d}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Property Name="strings" Id="{7ddce655-1bd4-4db5-8614-a04798994f02}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+Returns the interface :ref:`IStringAssertions`
+with assert statements for windows-1252 and UTF-16 strings
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+PROPERTY strings :IStringAssertions
+]]></Declaration>
+      <Get Name="Get" Id="{2073c9c2-34f7-4e78-a32e-6fc1a391d122}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Property Name="times" Id="{b561536d-14d1-485c-bc23-70745033b559}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+Returns the interface :ref:`ITimeAssertions`
+with assert statements for time data types
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+PROPERTY times :ITimeAssertions
+]]></Declaration>
+      <Get Name="Get" Id="{6ff482ac-2218-4d9a-b8ca-c9b6dc9d2a99}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+  </Itf>
+</TcPlcObject>

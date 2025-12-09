@@ -1,0 +1,4270 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="ByteAssertionTests" Id="{9466f570-522a-45ca-9701-984d5251dfaf}" SpecialFunc="None">
+    <Declaration><![CDATA[(*
+
+short summary
+==================
+This class tests all methods of byte assertions
+with various combinations of inputs and checks expected 
+outputs are satisfied or not
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+methods and properties
+======================
+
+*)
+
+FUNCTION_BLOCK ByteAssertionTests EXTENDS AbstractAssertorTest
+VAR_INPUT
+END_VAR
+VAR CONSTANT
+	(* number of the lsb *)
+	FIRST_BIT				:USINT := 0;
+	(* number of the msb *)
+	LAST_BIT				:USINT := 7;
+	(* just the value zero *)
+	ZERO					:SINT := 0;
+	(* no single bit is set, it's just the value zero *)
+	NO_BIT_SET				:BYTE := 16#00;
+	(* just the lsb is set, it's just the value one *)
+	LSB_ONLY				:BYTE := 16#01;
+	(* all bits are set *)
+	ALL_BITS_SET			:BYTE := 16#FF;
+	(* the msb is set only *)
+	MSB_ONLY				:BYTE := 16#80;
+	(* prefix to unify the test names *)
+	TEST_NAME_PREFIX		:STRING := 'assert.bitNumber.short.';
+	(* number how many times the product will be rotated right *)
+	NUMBER_OF_RORS			:USINT := 1;
+	(* multiplicand for the ``multiplier`` *)
+	MULTIPLICAND			:USINT := 16#11;
+	(* first of all multipliers the test iterates *)
+	FIRST_MULTIPLIER		:USINT := 0;
+	(* first of all multipliers the test iterates *)
+	LAST_MULTIPLIER			:USINT := 15;
+	(* constant for the modulo operator to check if valueToTest is even (lsb is unset) or odd (lsb is set) *)
+	DEVISOR_FOR_EVEN_ODD	:USINT := 2;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[THIS^.runAndMaskIsEqualToTests();
+THIS^.runAndMaskIsNotEqualToTests();
+THIS^.runBitXIsEqualToTests();
+THIS^.runBitXIsNotEqualToTests();
+THIS^.runBitXIsSetTests();
+THIS^.runBitXIsUnsetTests();
+THIS^.runLsbIsEqualToTests();
+THIS^.runLsbIsNotEqualToTests();
+THIS^.runLsbIsSetTests();
+THIS^.runLsbIsUnsetTests();
+THIS^.runMsbIsEqualToTests();
+THIS^.runMsbIsNotEqualToTests();
+THIS^.runMsbIsSetTests();
+THIS^.runMsbIsUnsetTests();
+THIS^.runOrMaskIsEqualToTests();
+THIS^.runOrMaskIsNotEqualToTests();
+THIS^.runValueIsMaxTests();
+THIS^.runValueIsMinTests();
+THIS^.runValueIsEqualToTests();
+THIS^.runValueIsGreaterTests();
+THIS^.runValueIsLessThanTests();
+THIS^.runValueIsInRangeOfTests();
+THIS^.runValueIsNotEqualToTests();
+THIS^.runXorMaskIsEqualToTests();
+THIS^.runXorMaskIsNotEqualToTests();
+]]></ST>
+    </Implementation>
+    <Folder Name="andMaskIsEqualTo" Id="{9299e10c-598c-4dfc-a82a-38bffe1905bb}" />
+    <Folder Name="andMaskIsNotEqualTo" Id="{6813aa98-0322-40ac-bbba-da63e672f2bf}" />
+    <Folder Name="bitXIsEqual" Id="{dd18ba00-801c-4844-b764-3d935e075fdb}" />
+    <Folder Name="bitXIsNotEqual" Id="{a099ae9d-f7a9-44f4-a31e-c36219339c8c}" />
+    <Folder Name="bitXIsSet" Id="{0f49b7f4-4735-42d3-9910-d8da13cff310}" />
+    <Folder Name="bitXIsUnset" Id="{08898ffb-eccb-49f1-861f-59516be8d8b4}" />
+    <Folder Name="internal" Id="{1f981928-591f-4d50-978f-ed92220d2848}" />
+    <Folder Name="lsbIsEqualTo" Id="{de125836-d885-4163-bd8e-76ca179cd51e}" />
+    <Folder Name="lsbIsNotEqual" Id="{71ea8ac6-dddc-4711-b805-17856a38f98e}" />
+    <Folder Name="lsbIsSet" Id="{1d79302e-9aa2-4794-9a2c-8cb59193886d}" />
+    <Folder Name="lsbIsUnset" Id="{c0da4316-8288-4c78-b651-89fb514cab6c}" />
+    <Folder Name="msbIsEqualTo" Id="{1f5a42d9-5f87-4b45-a60e-f7b9b4d95afd}" />
+    <Folder Name="msbIsNotEqualTo" Id="{7081c700-9156-4ee6-b8fc-ad4fe9da0e40}" />
+    <Folder Name="msbIsSet" Id="{ec9eb2fb-5792-4038-a852-1c6ace2a4822}" />
+    <Folder Name="msbIsUnset" Id="{0dba45fb-911d-4bd6-af1d-7eda0d1835dd}" />
+    <Folder Name="orMaskIsEqualTo" Id="{e1190eb0-4591-4424-9a8f-04ff6c35abf4}" />
+    <Folder Name="orMaskIsNotEqualTo" Id="{8a69eaf4-afd2-4c79-ba20-e4e422748999}" />
+    <Folder Name="valueIsEqual" Id="{33de9a7f-35f5-4499-8c00-a1b305dab46b}" />
+    <Folder Name="valueIsGreaterThan" Id="{0c2b1fdc-613a-4e30-aef9-1e790de06ad3}" />
+    <Folder Name="valueIsInRangeOf" Id="{4fbe7324-197c-40b0-8d0f-c3e0551f4b09}" />
+    <Folder Name="valueIsLessThan" Id="{c82b44e1-4f28-4b4d-8453-1a4fc9fc39c7}" />
+    <Folder Name="valueIsMax" Id="{1adaff7f-975f-4c36-9b23-abc9cf7afc9c}" />
+    <Folder Name="valueIsMin" Id="{779ea660-95df-4d0d-9fad-f26c7952e91f}" />
+    <Folder Name="valueIsNotEqual" Id="{852d155d-f1e1-49c7-b202-c51e38dd32ab}" />
+    <Folder Name="xorMaskIsEqualTo" Id="{cc05ec2a-a4ae-45d4-a3c3-526fddec7a98}" />
+    <Folder Name="xorMaskIsNotEqualTo" Id="{6952c511-70ef-497e-a7e4-963b139da537}" />
+    <Method Name="getTestNameFor" Id="{fe04ed6b-f393-4270-9b75-51bd64791eb1}" FolderPath="internal\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method is a helper function to create a unified test name
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+METHOD PROTECTED getTestNameFor :Tc2_System.T_MaxString
+VAR_INPUT
+	(* name of the method to test, to create a unified test name *)
+	nameOfMethodToTest	:Tc2_System.T_MaxString;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[getTestNameFor := Tc2_Standard.CONCAT(THIS^.TEST_NAME_PREFIX, nameOfMethodToTest);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="runAndMaskIsEqualToTests" Id="{8da173c6-e68f-42dc-a1c4-97401ccfefc3}" FolderPath="andMaskIsEqualTo\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.bitNumber.short.andMaskIsEqualTo``
+method of CNM_AssertionInterfaceLib library with various inputs
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+METHOD runAndMaskIsEqualToTests
+VAR
+	(* shift to iterate through the bit numbers *)
+	shift				:USINT;
+	(* mask with the bit iteration *)
+	mask				:BYTE;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[RETURN (NOT TcUnit.TEST_ORDERED(THIS^.getTestNameFor('AndMaskIsEqualTo')));
+
+FOR shift:= THIS^.FIRST_BIT TO THIS^.LAST_BIT DO
+	mask := SHL(THIS^.LSB_ONLY, shift);
+	THIS^.testAndMaskIsEqualTo(
+		valueToTest := THIS^.ALL_BITS_SET,
+		mask  := mask,
+		expected := mask
+	);
+	THIS^.testAndMaskIsEqualTo(
+		valueToTest := THIS^.ALL_BITS_SET,
+		mask  := mask,
+		expected := (NOT mask)
+	);
+	THIS^.testAndMaskIsEqualTo(
+		valueToTest := mask,
+		mask  := (NOT mask),
+		expected := THIS^.NO_BIT_SET
+	);
+	THIS^.testAndMaskIsEqualTo(
+		valueToTest := mask,
+		mask  := (NOT mask),
+		expected := (NOT mask)
+	);	
+	THIS^.testAndMaskIsEqualTo(
+		valueToTest := mask,
+		mask  := mask,
+		expected := mask
+	);	
+END_FOR
+
+THIS^.testAndMaskIsEqualTo(
+	valueToTest := THIS^.NO_BIT_SET,
+	mask  := THIS^.NO_BIT_SET,
+	expected := THIS^.NO_BIT_SET
+);
+THIS^.testAndMaskIsEqualTo(
+	valueToTest := THIS^.NO_BIT_SET,
+	mask  := THIS^.NO_BIT_SET,
+	expected := THIS^.LSB_ONLY
+);
+
+THIS^.testAndMaskIsEqualTo(
+	valueToTest := THIS^.ALL_BITS_SET,
+	mask  := THIS^.ALL_BITS_SET,
+	expected := THIS^.ALL_BITS_SET
+);
+THIS^.testAndMaskIsEqualTo(
+	valueToTest := THIS^.ALL_BITS_SET,
+	mask  := THIS^.ALL_BITS_SET,
+	expected := THIS^.NO_BIT_SET
+);
+
+TcUnit.TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="runAndMaskIsNotEqualToTests" Id="{6cdfb6fd-03d5-451a-9d90-feb03c57fa81}" FolderPath="andMaskIsNotEqualTo\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.bitNumber.short.andMaskIsNotEqualTo``
+method of CNM_AssertionInterfaceLib library with various inputs
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+METHOD runAndMaskIsNotEqualToTests
+VAR
+	(* shift to iterate through the bit numbers *)
+	shift	:USINT;
+	(* mask with the bit iteration *)
+	mask	:BYTE;
+END_VAR
+
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[RETURN (NOT TcUnit.TEST_ORDERED(THIS^.getTestNameFor('AndMaskIsNotEqualTo')));
+
+FOR shift:= THIS^.FIRST_BIT TO THIS^.LAST_BIT DO
+	mask := SHL(THIS^.LSB_ONLY, shift);
+	THIS^.testAndMaskIsNotEqualTo(
+		valueToTest := THIS^.ALL_BITS_SET,
+		mask  := mask,
+		unexpected := (NOT mask)
+	);
+	THIS^.testAndMaskIsNotEqualTo(
+		valueToTest := THIS^.ALL_BITS_SET,
+		mask  := mask,
+		unexpected := mask
+	);
+	THIS^.testAndMaskIsNotEqualTo(
+		valueToTest := mask,
+		mask  := (NOT mask),
+		unexpected := (NOT mask)
+	);	
+	THIS^.testAndMaskIsNotEqualTo(
+		valueToTest := mask,
+		mask  := (NOT mask),
+		unexpected := THIS^.NO_BIT_SET
+	);
+	THIS^.testAndMaskIsNotEqualTo(
+		valueToTest := mask,
+		mask  := mask,
+		unexpected := mask
+	);	
+END_FOR
+
+THIS^.testAndMaskIsNotEqualTo(
+	valueToTest := THIS^.NO_BIT_SET,
+	mask  := THIS^.NO_BIT_SET,
+	unexpected := THIS^.LSB_ONLY
+);
+THIS^.testAndMaskIsNotEqualTo(
+	valueToTest := THIS^.NO_BIT_SET,
+	mask  := THIS^.NO_BIT_SET,
+	unexpected := THIS^.NO_BIT_SET
+);
+
+THIS^.testAndMaskIsNotEqualTo(
+	valueToTest := THIS^.ALL_BITS_SET,
+	mask  := THIS^.ALL_BITS_SET,
+	unexpected := THIS^.NO_BIT_SET
+);
+THIS^.testAndMaskIsNotEqualTo(
+	valueToTest := THIS^.ALL_BITS_SET,
+	mask  := THIS^.ALL_BITS_SET,
+	unexpected := THIS^.ALL_BITS_SET
+);
+
+
+TcUnit.TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="runBitXIsEqualToTests" Id="{efb971e6-f98f-4855-8d9b-c7deb88587df}" FolderPath="bitXIsEqual\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.bitNumber.short.bitXIsEqualTo``
+method of CNM_AssertionInterfaceLib library with various inputs
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+METHOD runBitXIsEqualToTests
+VAR
+	(* this is the number of the bit to test *)
+	bitNumberToTest	:CNM_AssertionInterfaceLib.BitNumberByte;
+	(* it's just part of the test data *)
+	valueToTest		:BYTE;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[RETURN (NOT TcUnit.TEST_ORDERED(THIS^.getTestNameFor('bitXIsEqualTo')));
+
+FOR bitNumberToTest := THIS^.FIRST_BIT TO THIS^.LAST_BIT DO
+
+	valueToTest := SHL(THIS^.LSB_ONLY,bitNumberToTest);
+	THIS^.testBitXIsEqualTo(
+		valueToTest			:=valueToTest,
+		bitNumberToCheck	:=bitNumberToTest,
+		bitIsSet			:=TRUE
+	);
+	THIS^.testBitXIsEqualTo(
+		valueToTest			:=valueToTest,
+		bitNumberToCheck	:=bitNumberToTest,
+		bitIsSet			:=FALSE
+	);
+
+	valueToTest := (NOT valueToTest);
+	THIS^.testBitXIsEqualTo(
+		valueToTest			:=valueToTest,
+		bitNumberToCheck	:=bitNumberToTest,
+		bitIsSet			:=FALSE
+	);
+	THIS^.testBitXIsEqualTo(
+		valueToTest			:=valueToTest,
+		bitNumberToCheck	:=bitNumberToTest,
+		bitIsSet			:=TRUE
+	);	
+END_FOR
+
+TcUnit.TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="runBitXIsNotEqualToTests" Id="{991df775-8f8c-46ba-abf9-1910b0e96b18}" FolderPath="bitXIsNotEqual\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.bitNumber.short.bitXIsNotEqualTo``
+method of CNM_AssertionInterfaceLib library with various inputs
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+METHOD runBitXIsNotEqualToTests
+VAR
+	(* this is the number of the bit to test *)
+	bitNumberToTest	:CNM_AssertionInterfaceLib.BitNumberByte;
+	(* it's just part of the test data *)
+	valueToTest		:BYTE;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[RETURN (NOT TcUnit.TEST_ORDERED(THIS^.getTestNameFor('bitXIsNotEqualTo')));
+
+FOR bitNumberToTest := THIS^.FIRST_BIT TO THIS^.LAST_BIT DO
+	valueToTest := SHL(THIS^.LSB_ONLY,bitNumberToTest);
+	THIS^.testBitXIsNotEqualTo(
+		valueToTest			:=valueToTest,
+		bitNumberToCheck	:=bitNumberToTest,
+		bitIsSet			:=TRUE
+	);
+	THIS^.testBitXIsNotEqualTo(
+		valueToTest			:=valueToTest,
+		bitNumberToCheck	:=bitNumberToTest,
+		bitIsSet			:=FALSE
+	);
+
+	valueToTest := (NOT valueToTest);
+	THIS^.testBitXIsNotEqualTo(
+		valueToTest			:=valueToTest,
+		bitNumberToCheck	:=bitNumberToTest,
+		bitIsSet			:=TRUE
+	);
+	THIS^.testBitXIsNotEqualTo(
+		valueToTest			:=valueToTest,
+		bitNumberToCheck	:=bitNumberToTest,
+		bitIsSet			:=FALSE
+	);	
+END_FOR
+
+TcUnit.TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="runBitXIsSetTests" Id="{683830da-04ac-4096-93c6-cd0eb2ec3404}" FolderPath="bitXIsSet\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.bitNumber.short.bitXIsSet`` 
+of CNM_AssertionInterfaceLib library with various inputs
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+METHOD runBitXIsSetTests
+VAR
+	(* this is the number of the bit to test *)
+	bitNumberToTest	:CNM_AssertionInterfaceLib.BitNumberByte;
+	(* it's just part of the test data *)
+	valueToTest		:BYTE;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[RETURN (NOT TcUnit.TEST_ORDERED(THIS^.getTestNameFor('bitXIsSet')));
+
+FOR bitNumberToTest := THIS^.FIRST_BIT TO THIS^.LAST_BIT DO
+	valueToTest := SHL(THIS^.LSB_ONLY,bitNumberToTest);
+	THIS^.testBitXIsSet(
+		valueToTest := valueToTest,
+		bitNumberToCheck := bitNumberToTest
+	);
+	THIS^.testBitXIsSet(
+		valueToTest := (NOT valueToTest),
+		bitNumberToCheck := bitNumberToTest
+	);
+	THIS^.testBitXIsSet(
+		valueToTest := THIS^.NO_BIT_SET,
+		bitNumberToCheck := bitNumberToTest
+	);
+	THIS^.testBitXIsSet(
+		valueToTest := THIS^.ALL_BITS_SET,
+		bitNumberToCheck := bitNumberToTest
+	);
+END_FOR
+
+TcUnit.TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="runBitXIsUnsetTests" Id="{1e8d859f-a00c-4014-9c12-c2f7f842a41b}" FolderPath="bitXIsUnset\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.bitNumber.short.bitXIsUnset``
+of CNM_AssertionInterfaceLib library with various inputs
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+METHOD runBitXIsUnsetTests
+VAR
+	(* this is the number of the bit to test *)
+	bitNumberToTest	:CNM_AssertionInterfaceLib.BitNumberByte;
+	(* it's just part of the test data *)
+	valueToTest		:BYTE;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[RETURN (NOT TcUnit.TEST_ORDERED(THIS^.getTestNameFor('bitXIsUnset')));
+
+FOR bitNumberToTest := THIS^.FIRST_BIT TO THIS^.LAST_BIT DO
+	valueToTest := SHL(THIS^.LSB_ONLY,bitNumberToTest);
+	THIS^.testBitXIsUnset(
+		valueToTest := valueToTest,
+		bitNumberToCheck := bitNumberToTest
+	);
+	THIS^.testBitXIsUnset(
+		valueToTest := (NOT valueToTest),
+		bitNumberToCheck := bitNumberToTest
+	);
+	THIS^.testBitXIsUnset(
+		valueToTest := THIS^.NO_BIT_SET,
+		bitNumberToCheck := bitNumberToTest
+	);
+	THIS^.testBitXIsUnset(
+		valueToTest :=THIS^.ALL_BITS_SET,
+		bitNumberToCheck := bitNumberToTest
+	);
+END_FOR
+
+TcUnit.TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="runLsbIsEqualToTests" Id="{1ee96a29-ec5e-43c1-89e5-4868a0ed1bce}" FolderPath="lsbIsEqualTo\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.bitNumber.short.lsbIsEqualTo``
+method of CNM_AssertionInterfaceLib library with various inputs
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+METHOD runLsbIsEqualToTests
+VAR
+	(* it's just part of the test data *)
+	valueToTest	:BYTE;
+	(* multiplier to get various bit patterns *)
+	multiplier	:USINT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[RETURN (NOT TcUnit.TEST_ORDERED(THIS^.getTestNameFor('lsbIsEqualTo')));
+
+FOR multiplier := THIS^.FIRST_MULTIPLIER TO THIS^.LAST_MULTIPLIER DO
+	valueToTest := (THIS^.MULTIPLICAND * multiplier);
+
+	THIS^.testLsbIsEqualTo(
+		valueToTest := valueToTest,
+		expectedValue := TRUE
+	);	
+	THIS^.testLsbIsEqualTo(
+		valueToTest := valueToTest,
+		expectedValue := FALSE
+	);
+
+END_FOR
+
+THIS^.testLsbIsEqualTo(
+	valueToTest := THIS^.LSB_ONLY,
+	expectedValue := TRUE
+);	
+THIS^.testLsbIsEqualTo(
+	valueToTest := THIS^.LSB_ONLY,
+	expectedValue := FALSE
+);
+THIS^.testLsbIsEqualTo(
+	valueToTest := THIS^.MSB_ONLY,
+	expectedValue := TRUE
+);	
+THIS^.testLsbIsEqualTo(
+	valueToTest := THIS^.MSB_ONLY,
+	expectedValue := FALSE
+);
+
+TcUnit.TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="runLsbIsNotEqualToTests" Id="{de238c14-4336-4645-b84f-6690b63c1ea7}" FolderPath="lsbIsNotEqual\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.bitNumber.short.lsbIsNotEqualTo``
+method of CNM_AssertionInterfaceLib library with various inputs
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+METHOD runLsbIsNotEqualToTests
+VAR
+	(* it's just part of the test data *)
+	valueToTest	:BYTE;
+	(* multiplier to get various bit patterns *)
+	multiplier	:USINT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[RETURN (NOT TcUnit.TEST_ORDERED(THIS^.getTestNameFor('lsbIsNotEqualTo')));
+
+FOR multiplier := THIS^.FIRST_MULTIPLIER TO THIS^.LAST_MULTIPLIER DO
+	valueToTest := (THIS^.MULTIPLICAND * multiplier);
+
+	THIS^.testLsbIsNotEqualTo(
+		valueToTest := valueToTest,
+		unexpectedValue := TRUE
+	);	
+	THIS^.testLsbIsNotEqualTo(
+		valueToTest := valueToTest,
+		unexpectedValue := FALSE
+	);
+
+END_FOR
+
+THIS^.testLsbIsNotEqualTo(
+	valueToTest := THIS^.LSB_ONLY,
+	unexpectedValue := TRUE
+);	
+THIS^.testLsbIsNotEqualTo(
+	valueToTest := THIS^.LSB_ONLY,
+	unexpectedValue := FALSE
+);
+THIS^.testLsbIsNotEqualTo(
+	valueToTest := THIS^.MSB_ONLY,
+	unexpectedValue := TRUE
+);	
+THIS^.testLsbIsNotEqualTo(
+	valueToTest := THIS^.MSB_ONLY,
+	unexpectedValue := FALSE
+);
+
+TcUnit.TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="runLsbIsSetTests" Id="{c8e8f65b-306d-444e-8a85-ffaaddca12b5}" FolderPath="lsbIsSet\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.bitNumber.short.lsbIsSet``
+of CNM_AssertionInterfaceLib library with various inputs
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+METHOD runLsbIsSetTests
+VAR
+	(* it's just part of the test data *)
+	valueToTest	:BYTE;
+	(* multiplier to get various bit patterns *)
+	multiplier	:USINT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[RETURN (NOT TcUnit.TEST_ORDERED(THIS^.getTestNameFor('lsbIsSet')));
+
+FOR multiplier := THIS^.FIRST_MULTIPLIER TO THIS^.LAST_MULTIPLIER DO
+	valueToTest := (THIS^.MULTIPLICAND * multiplier);
+	THIS^.testLsbIsSet(
+		valueToTest := valueToTest
+	);
+END_FOR
+
+THIS^.testLsbIsSet(
+	valueToTest := THIS^.MSB_ONLY
+);	
+THIS^.testLsbIsSet(
+	valueToTest := THIS^.MSB_ONLY
+);
+
+TcUnit.TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="runLsbIsUnsetTests" Id="{cbf2bac3-a807-49c0-9907-55baf3ff6602}" FolderPath="lsbIsUnset\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.bitNumber.short.lsbIsUnset``
+of CNM_AssertionInterfaceLib library with various inputs
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+METHOD runLsbIsUnsetTests
+VAR
+	(* it's just part of the test data *)
+	valueToTest	:BYTE;
+	(* multiplier to get various bit patterns *)
+	multiplier	:USINT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[RETURN (NOT TcUnit.TEST_ORDERED(THIS^.getTestNameFor('lsbIsUnset')));
+
+FOR multiplier := THIS^.FIRST_MULTIPLIER TO THIS^.LAST_MULTIPLIER DO
+	valueToTest := (THIS^.MULTIPLICAND * multiplier);
+	THIS^.testLsbIsUnset(
+		valueToTest := valueToTest
+	);
+END_FOR
+
+THIS^.testLsbIsUnset(
+	valueToTest := THIS^.LSB_ONLY
+);	
+THIS^.testLsbIsUnset(
+	valueToTest := THIS^.MSB_ONLY
+);
+
+TcUnit.TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="runMsbIsEqualToTests" Id="{c74dd704-6040-4a55-9a4a-87da52594ec4}" FolderPath="msbIsEqualTo\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.bitNumber.short.msbIsEqualTo``
+method of CNM_AssertionInterfaceLib library with various inputs
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+METHOD runMsbIsEqualToTests
+VAR
+	(* it's just part of the test data *)
+	valueToTest	:BYTE;
+	(* multiplier to get various bit patterns *)
+	multiplier	:USINT;
+END_VAR
+VAR CONSTANT
+	(* number how many times the product will be rotated right *)
+	NUMBER_OF_RORS :USINT := 1;
+	(* multiplicand for the ``multiplier`` *)
+	MULTIPLICAND :USINT := 17;
+	(* first of all multipliers the test iterates *)
+	FIRST_MULTIPLIER :USINT := 0;
+	(* first of all multipliers the test iterates *)
+	LAST_MULTIPLIER :USINT := 15;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[RETURN (NOT TcUnit.TEST_ORDERED(THIS^.getTestNameFor('msbIsEqualTo')));
+
+FOR multiplier := THIS^.FIRST_MULTIPLIER TO THIS^.LAST_MULTIPLIER DO
+	valueToTest := ROR(THIS^.MULTIPLICAND * multiplier, THIS^.NUMBER_OF_RORS);
+
+	THIS^.testMsbIsEqualTo(
+		valueToTest := valueToTest,
+		expectedValue := TRUE
+	);	
+	THIS^.testMsbIsEqualTo(
+		valueToTest := valueToTest,
+		expectedValue := FALSE
+	);
+END_FOR
+
+THIS^.testMsbIsEqualTo(
+	valueToTest := THIS^.LSB_ONLY,
+	expectedValue := TRUE
+);	
+THIS^.testMsbIsEqualTo(
+	valueToTest := THIS^.LSB_ONLY,
+	expectedValue := FALSE
+);
+THIS^.testMsbIsEqualTo(
+	valueToTest := THIS^.MSB_ONLY,
+	expectedValue := TRUE
+);	
+THIS^.testMsbIsEqualTo(
+	valueToTest := THIS^.MSB_ONLY,
+	expectedValue := FALSE
+);
+
+TcUnit.TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="runMsbIsNotEqualToTests" Id="{6cf1a170-9a1e-4360-a75d-0e8956e09988}" FolderPath="msbIsNotEqualTo\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.bitNumber.short.msbIsNotEqualTo``
+method of CNM_AssertionInterfaceLib library with various inputs
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+METHOD runMsbIsNotEqualToTests
+VAR
+	(* it's just part of the test data *)
+	valueToTest	:BYTE;
+	(* multiplier to get various bit patterns *)
+	multiplier	:USINT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[RETURN (NOT TcUnit.TEST_ORDERED(THIS^.getTestNameFor('msbIsNotEqualTo')));
+
+FOR multiplier := THIS^.FIRST_MULTIPLIER TO THIS^.LAST_MULTIPLIER DO
+	valueToTest := ROR(THIS^.MULTIPLICAND * multiplier, THIS^.NUMBER_OF_RORS);
+	THIS^.testMsbIsNotEqualTo(
+		valueToTest := valueToTest,
+		unexpectedValue := TRUE
+	);	
+	THIS^.testMsbIsNotEqualTo(
+		valueToTest := valueToTest,
+		unexpectedValue := FALSE
+	);
+END_FOR
+
+THIS^.testMsbIsNotEqualTo(
+	valueToTest := THIS^.LSB_ONLY,
+	unexpectedValue := TRUE
+);	
+THIS^.testMsbIsNotEqualTo(
+	valueToTest := THIS^.LSB_ONLY,
+	unexpectedValue := FALSE
+);
+THIS^.testMsbIsNotEqualTo(
+	valueToTest := THIS^.MSB_ONLY,
+	unexpectedValue := TRUE
+);	
+THIS^.testMsbIsNotEqualTo(
+	valueToTest := THIS^.MSB_ONLY,
+	unexpectedValue := FALSE
+);
+
+TcUnit.TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="runMsbIsSetTests" Id="{242ff409-9601-4b65-a159-eef03b64b438}" FolderPath="msbIsSet\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.bitNumber.short.msbIsSet``
+of CNM_AssertionInterfaceLib library with various inputs
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+METHOD runMsbIsSetTests
+VAR
+	(* it's just part of the test data *)
+	valueToTest	:BYTE;
+	(* multiplier to get various bit patterns *)
+	multiplier	:USINT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[RETURN (NOT TcUnit.TEST_ORDERED(THIS^.getTestNameFor('msbIsUnset')));
+
+FOR multiplier := THIS^.FIRST_MULTIPLIER TO THIS^.LAST_MULTIPLIER DO
+	valueToTest := ROR(THIS^.MULTIPLICAND * multiplier, THIS^.NUMBER_OF_RORS);
+	THIS^.testMsbIsSet(
+		valueToTest := valueToTest
+	);
+END_FOR
+
+THIS^.testMsbIsSet(
+	valueToTest := THIS^.LSB_ONLY
+);	
+THIS^.testMsbIsSet(
+	valueToTest := THIS^.MSB_ONLY
+);
+
+TcUnit.TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="runMsbIsUnsetTests" Id="{6740d51a-41b2-4073-93db-844ed456b4bf}" FolderPath="msbIsUnset\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.bitNumber.short.msbIsUnset``
+of CNM_AssertionInterfaceLib library with various inputs
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+METHOD runMsbIsUnsetTests
+VAR
+	(* it's just part of the test data *)
+	valueToTest	:BYTE;
+	(* multiplier to get various bit patterns *)
+	multiplier	:USINT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[RETURN (NOT TcUnit.TEST_ORDERED(THIS^.getTestNameFor('msbIsSet')));
+
+FOR multiplier := THIS^.FIRST_MULTIPLIER TO THIS^.LAST_MULTIPLIER DO
+	valueToTest := ROR(THIS^.MULTIPLICAND * multiplier, THIS^.NUMBER_OF_RORS);
+	THIS^.testMsbIsSet(
+		valueToTest := valueToTest
+	);
+END_FOR
+
+THIS^.testMsbIsSet(
+	valueToTest := THIS^.LSB_ONLY
+);	
+THIS^.testMsbIsSet(
+	valueToTest := THIS^.MSB_ONLY
+);
+
+TcUnit.TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="runOrMaskIsEqualToTests" Id="{9309b48c-93be-4c30-84ea-ca84b94dfb8e}" FolderPath="orMaskIsEqualTo\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.bitNumber.short.orMaskIsEqualTo``
+method of CNM_AssertionInterfaceLib library with various inputs
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+METHOD runOrMaskIsEqualToTests
+VAR
+	(* shift to iterate through the bit numbers *)
+	shift				:USINT;
+	(* it's just part of the test data *)
+	valueToTest		:BYTE;
+	(* mask with the bit iteration *)
+	mask				:BYTE;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[RETURN (NOT TcUnit.TEST_ORDERED(THIS^.getTestNameFor('orMaskIsEqualTo')));
+
+FOR shift:= THIS^.FIRST_BIT TO THIS^.LAST_BIT DO
+	mask := SHL(THIS^.LSB_ONLY, shift);
+	valueToTest := SHR(THIS^.MSB_ONLY, shift);
+	THIS^.testOrMaskIsEqualTo(
+		valueToTest := valueToTest,
+		mask  := mask,
+		expected := (mask OR valueToTest)
+	);
+	THIS^.testOrMaskIsEqualTo(
+		valueToTest := valueToTest,
+		mask  := mask,
+		expected := (NOT (mask OR valueToTest))
+	);
+	THIS^.testAndMaskIsEqualTo(
+		valueToTest := mask,
+		mask  := (NOT mask),
+		expected := THIS^.NO_BIT_SET
+	);
+	THIS^.testAndMaskIsEqualTo(
+		valueToTest := mask,
+		mask  := (NOT mask),
+		expected := THIS^.ALL_BITS_SET
+	);	
+END_FOR
+
+THIS^.testAndMaskIsEqualTo(
+	valueToTest := THIS^.NO_BIT_SET,
+	mask  := THIS^.NO_BIT_SET,
+	expected := THIS^.NO_BIT_SET
+);
+THIS^.testAndMaskIsEqualTo(
+	valueToTest := THIS^.NO_BIT_SET,
+	mask  := THIS^.NO_BIT_SET,
+	expected := THIS^.ALL_BITS_SET
+);	
+
+THIS^.testAndMaskIsEqualTo(
+	valueToTest := THIS^.ALL_BITS_SET,
+	mask  := THIS^.ALL_BITS_SET,
+	expected := THIS^.ALL_BITS_SET
+);
+THIS^.testAndMaskIsEqualTo(
+	valueToTest := THIS^.ALL_BITS_SET,
+	mask  := THIS^.ALL_BITS_SET,
+	expected := THIS^.NO_BIT_SET
+);	
+
+TcUnit.TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="runOrMaskIsNotEqualToTests" Id="{f09f24ed-67d1-42ba-887d-8ea746a033c9}" FolderPath="orMaskIsNotEqualTo\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.bitNumber.short.orMaskIsNotEqualTo``
+method of CNM_AssertionInterfaceLib library with various inputs
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+METHOD runOrMaskIsNotEqualToTests
+VAR
+	(* shift to iterate through the bit numbers *)
+	shift				:USINT;
+	(* it's just part of the test data *)
+	valueToTest		:BYTE;
+	(* mask with the bit iteration *)
+	mask				:BYTE;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[RETURN (NOT TcUnit.TEST_ORDERED(THIS^.getTestNameFor('orMaskIsNotEqualTo')));
+
+FOR shift:= THIS^.FIRST_BIT TO THIS^.LAST_BIT DO
+	mask := SHL(THIS^.LSB_ONLY, shift);
+	valueToTest := SHR(THIS^.MSB_ONLY, shift);
+	THIS^.testOrMaskIsNotEqualTo(
+		valueToTest := valueToTest,
+		mask  := mask,
+		unexpected := (mask OR valueToTest)
+	);
+	THIS^.testOrMaskIsNotEqualTo(
+		valueToTest := valueToTest,
+		mask  := mask,
+		unexpected := (NOT (mask OR valueToTest))
+	);
+	THIS^.testOrMaskIsNotEqualTo(
+		valueToTest := mask,
+		mask  := (NOT mask),
+		unexpected := THIS^.NO_BIT_SET
+	);
+	THIS^.testOrMaskIsNotEqualTo(
+		valueToTest := mask,
+		mask  := (NOT mask),
+		unexpected := THIS^.ALL_BITS_SET
+	);	
+END_FOR
+
+THIS^.testOrMaskIsNotEqualTo(
+	valueToTest := THIS^.NO_BIT_SET,
+	mask  := THIS^.NO_BIT_SET,
+	unexpected := THIS^.NO_BIT_SET
+);
+THIS^.testOrMaskIsNotEqualTo(
+	valueToTest := THIS^.NO_BIT_SET,
+	mask  := THIS^.NO_BIT_SET,
+	unexpected := THIS^.ALL_BITS_SET
+);	
+
+THIS^.testOrMaskIsNotEqualTo(
+	valueToTest := THIS^.ALL_BITS_SET,
+	mask  := THIS^.ALL_BITS_SET,
+	unexpected := THIS^.ALL_BITS_SET
+);
+THIS^.testOrMaskIsNotEqualTo(
+	valueToTest := THIS^.ALL_BITS_SET,
+	mask  := THIS^.ALL_BITS_SET,
+	unexpected := THIS^.NO_BIT_SET
+);	
+
+TcUnit.TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="runValueIsEqualToTests" Id="{491c14f7-b8ca-421e-a616-ed06818befdf}" FolderPath="valueIsEqual\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.bitNumber.short.valueIsEqualTo``
+method of CNM_AssertionInterfaceLib library with various inputs
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+METHOD runValueIsEqualToTests
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[RETURN (NOT TcUnit.TEST_ORDERED(THIS^.getTestNameFor('valueIsEqualTo')));
+
+THIS^.testValueIsEqualTo(
+	valueToTest := THIS^.NO_BIT_SET,
+	expected := THIS^.ALL_BITS_SET
+);
+THIS^.testValueIsEqualTo(
+	valueToTest := THIS^.NO_BIT_SET,
+	expected := THIS^.NO_BIT_SET
+);
+THIS^.testValueIsEqualTo(
+	valueToTest := THIS^.ALL_BITS_SET,
+	expected := THIS^.ALL_BITS_SET
+);
+THIS^.testValueIsEqualTo(
+	valueToTest := THIS^.ALL_BITS_SET,
+	expected := THIS^.NO_BIT_SET
+);
+THIS^.testValueIsEqualTo(
+	valueToTest := THIS^.LSB_ONLY,
+	expected := THIS^.LSB_ONLY
+);
+THIS^.testValueIsEqualTo(
+	valueToTest := THIS^.LSB_ONLY,
+	expected := THIS^.MSB_ONLY
+);
+THIS^.testValueIsEqualTo(
+	valueToTest := THIS^.MSB_ONLY,
+	expected := THIS^.MSB_ONLY
+);
+THIS^.testValueIsEqualTo(
+	valueToTest := THIS^.MSB_ONLY,
+	expected := THIS^.LSB_ONLY
+);
+
+TcUnit.TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="runValueIsGreaterTests" Id="{df41b866-819a-46e0-b488-670ea76aca4b}" FolderPath="valueIsGreaterThan\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.bitNumber.short.valueIsGreaterThan``
+method of CNM_AssertionInterfaceLib library with various inputs
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+METHOD runValueIsGreaterTests
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[RETURN (NOT TcUnit.TEST_ORDERED(THIS^.getTestNameFor('valueIsGreaterThan')));
+
+THIS^.testValueIsGreater(
+	valueToTest := THIS^.NO_BIT_SET,
+	less := THIS^.ALL_BITS_SET
+);
+THIS^.testValueIsGreater(
+	valueToTest := THIS^.NO_BIT_SET,
+	less := THIS^.NO_BIT_SET
+);
+THIS^.testValueIsGreater(
+	valueToTest := THIS^.ALL_BITS_SET,
+	less := THIS^.ALL_BITS_SET
+);
+THIS^.testValueIsGreater(
+	valueToTest := THIS^.ALL_BITS_SET,
+	less := THIS^.NO_BIT_SET
+);
+THIS^.testValueIsGreater(
+	valueToTest := THIS^.LSB_ONLY,
+	less := THIS^.LSB_ONLY
+);
+THIS^.testValueIsGreater(
+	valueToTest := THIS^.LSB_ONLY,
+	less := THIS^.NO_BIT_SET
+);
+THIS^.testValueIsGreater(
+	valueToTest := THIS^.LSB_ONLY,
+	less := (THIS^.LSB_ONLY+THIS^.LSB_ONLY)
+);
+THIS^.testValueIsGreater(
+	valueToTest := THIS^.MSB_ONLY,
+	less := THIS^.MSB_ONLY
+);
+THIS^.testValueIsGreater(
+	valueToTest := THIS^.MSB_ONLY,
+	less := (NOT THIS^.MSB_ONLY)
+);
+THIS^.testValueIsGreater(
+	valueToTest := THIS^.MSB_ONLY,
+	less := THIS^.ALL_BITS_SET
+);
+TcUnit.TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="runValueIsInRangeOfTests" Id="{fd738062-791f-4fbf-ada8-99e797bd3550}" FolderPath="valueIsInRangeOf\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.bitNumber.short.valueIsInRangeOf``
+method of CNM_AssertionInterfaceLib library with various inputs
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+METHOD runValueIsInRangeOfTests
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[RETURN (NOT TcUnit.TEST_ORDERED(THIS^.getTestNameFor('valueIsInRangeOf')));
+
+THIS^.testValueIsInRangeOf(
+	lower := THIS^.NO_BIT_SET,
+	valueToTest := THIS^.LSB_ONLY,
+	upper := THIS^.ALL_BITS_SET
+);
+THIS^.testValueIsInRangeOf(
+	lower := THIS^.NO_BIT_SET,
+	valueToTest := THIS^.NO_BIT_SET,
+	upper := THIS^.NO_BIT_SET
+);
+THIS^.testValueIsInRangeOf(
+	lower := THIS^.ALL_BITS_SET,
+	valueToTest := THIS^.ALL_BITS_SET,
+	upper := THIS^.ALL_BITS_SET
+);
+THIS^.testValueIsInRangeOf(
+	lower := THIS^.ALL_BITS_SET,
+	valueToTest := THIS^.LSB_ONLY,
+	upper := THIS^.NO_BIT_SET
+);
+THIS^.testValueIsInRangeOf(
+	lower := THIS^.ALL_BITS_SET,
+	valueToTest := THIS^.NO_BIT_SET,
+	upper := THIS^.NO_BIT_SET
+);
+
+TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="runValueIsLessThanTests" Id="{cfbb389f-3a14-461a-9f3b-5240a595236d}" FolderPath="valueIsLessThan\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.bitNumber.short.valueIsLessThan``
+method of CNM_AssertionInterfaceLib library with various inputs
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+METHOD runValueIsLessThanTests
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[RETURN (NOT TcUnit.TEST_ORDERED(THIS^.getTestNameFor('valueIsLessThan')));
+
+THIS^.testValueIsLessThan(
+	valueToTest := THIS^.NO_BIT_SET,
+	greater := THIS^.ALL_BITS_SET
+);
+THIS^.testValueIsLessThan(
+	valueToTest := THIS^.NO_BIT_SET,
+	greater := THIS^.NO_BIT_SET
+);
+THIS^.testValueIsLessThan(
+	valueToTest := THIS^.ALL_BITS_SET,
+	greater := THIS^.ALL_BITS_SET
+);
+THIS^.testValueIsLessThan(
+	valueToTest := THIS^.ALL_BITS_SET,
+	greater := THIS^.NO_BIT_SET
+);
+THIS^.testValueIsLessThan(
+	valueToTest := THIS^.LSB_ONLY,
+	greater := THIS^.LSB_ONLY
+);
+THIS^.testValueIsLessThan(
+	valueToTest := THIS^.LSB_ONLY,
+	greater := THIS^.NO_BIT_SET
+);
+THIS^.testValueIsLessThan(
+	valueToTest := THIS^.MSB_ONLY,
+	greater := (THIS^.MSB_ONLY+THIS^.LSB_ONLY)
+);
+THIS^.testValueIsLessThan(
+	valueToTest := THIS^.MSB_ONLY,
+	greater := THIS^.MSB_ONLY
+);
+THIS^.testValueIsLessThan(
+	valueToTest := THIS^.MSB_ONLY,
+	greater := (NOT THIS^.MSB_ONLY)
+);
+THIS^.testValueIsLessThan(
+	valueToTest := THIS^.MSB_ONLY,
+	greater := THIS^.ALL_BITS_SET
+);
+
+TcUnit.TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="runValueIsMaxTests" Id="{7239af86-05b2-4e29-87d3-70125e915391}" FolderPath="valueIsMax\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.bitNumber.short.valueIsMax``
+method of CNM_AssertionInterfaceLib library with various inputs
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+METHOD runValueIsMaxTests
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[RETURN (NOT TcUnit.TEST_ORDERED(THIS^.getTestNameFor('valueIsMax')));
+
+THIS^.testValueIsMax(
+	valueToTest := THIS^.NO_BIT_SET,
+	maximum := THIS^.LSB_ONLY
+);
+THIS^.testValueIsMax(
+	valueToTest := THIS^.LSB_ONLY,
+	maximum := THIS^.NO_BIT_SET
+);
+THIS^.testValueIsMax(
+	valueToTest := THIS^.NO_BIT_SET,
+	maximum := THIS^.NO_BIT_SET
+);
+THIS^.testValueIsMax(
+	valueToTest := THIS^.ALL_BITS_SET,
+	maximum := ALL_BITS_SET
+);
+THIS^.testValueIsMax(
+	valueToTest := (THIS^.ALL_BITS_SET-THIS^.LSB_ONLY),
+	maximum := THIS^.ALL_BITS_SET
+);
+THIS^.testValueIsMax(
+	valueToTest := THIS^.ALL_BITS_SET,
+	maximum := (THIS^.ALL_BITS_SET-THIS^.LSB_ONLY)
+);
+THIS^.testValueIsMax(
+	valueToTest := THIS^.MSB_ONLY,
+	maximum := (THIS^.MSB_ONLY+THIS^.LSB_ONLY)
+);
+THIS^.testValueIsMax(
+	valueToTest := (THIS^.MSB_ONLY+THIS^.LSB_ONLY),
+	maximum := THIS^.MSB_ONLY
+);
+THIS^.testValueIsMax(
+	valueToTest := THIS^.MSB_ONLY,
+	maximum := (NOT THIS^.MSB_ONLY)
+);
+THIS^.testValueIsMax(
+	valueToTest := (NOT THIS^.MSB_ONLY),
+	maximum := THIS^.MSB_ONLY
+);
+THIS^.testValueIsMax(
+	valueToTest := THIS^.MSB_ONLY,
+	maximum := THIS^.MSB_ONLY
+);
+
+TcUnit.TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="runValueIsMinTests" Id="{a6cfd1dd-5b3f-48e8-b623-175d5ae5259f}" FolderPath="valueIsMin\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.bitNumber.short.valueIsMin``
+method of CNM_AssertionInterfaceLib library with various inputs
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+METHOD runValueIsMinTests
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[RETURN (NOT TcUnit.TEST_ORDERED(THIS^.getTestNameFor('valueIsMin')));
+
+THIS^.testValueIsMin(
+	valueToTest := THIS^.NO_BIT_SET,
+	minimum := THIS^.LSB_ONLY
+);
+THIS^.testValueIsMin(
+	valueToTest := THIS^.LSB_ONLY,
+	minimum := THIS^.NO_BIT_SET
+);
+THIS^.testValueIsMin(
+	valueToTest := THIS^.NO_BIT_SET,
+	minimum := THIS^.NO_BIT_SET
+);
+THIS^.testValueIsMin(
+	valueToTest := THIS^.ALL_BITS_SET,
+	minimum := ALL_BITS_SET
+);
+THIS^.testValueIsMin(
+	valueToTest := (THIS^.ALL_BITS_SET-THIS^.LSB_ONLY),
+	minimum := THIS^.ALL_BITS_SET
+);
+THIS^.testValueIsMin(
+	valueToTest := THIS^.ALL_BITS_SET,
+	minimum := (THIS^.ALL_BITS_SET-THIS^.LSB_ONLY)
+);
+THIS^.testValueIsMin(
+	valueToTest := THIS^.MSB_ONLY,
+	minimum := (THIS^.MSB_ONLY+THIS^.LSB_ONLY)
+);
+THIS^.testValueIsMin(
+	valueToTest := (THIS^.MSB_ONLY+THIS^.LSB_ONLY),
+	minimum := THIS^.MSB_ONLY
+);
+THIS^.testValueIsMin(
+	valueToTest := THIS^.MSB_ONLY,
+	minimum := (NOT THIS^.MSB_ONLY)
+);
+THIS^.testValueIsMin(
+	valueToTest := (NOT THIS^.MSB_ONLY),
+	minimum := THIS^.MSB_ONLY
+);
+THIS^.testValueIsMin(
+	valueToTest := THIS^.MSB_ONLY,
+	minimum := THIS^.MSB_ONLY
+);
+
+TcUnit.TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="runValueIsNotEqualToTests" Id="{4bfb7829-7125-48f2-b5c6-920fd3da5c6a}" FolderPath="valueIsNotEqual\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.bitNumber.short.valueIsNotEqualTo``
+method of CNM_AssertionInterfaceLib library with various inputs
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+METHOD runValueIsNotEqualToTests
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[RETURN (NOT TcUnit.TEST_ORDERED(THIS^.getTestNameFor('valueIsNotEqualTo')));
+
+THIS^.testValueIsNotEqualTo(
+	valueToTest := THIS^.NO_BIT_SET,
+	unexpected := THIS^.ALL_BITS_SET
+);
+THIS^.testValueIsNotEqualTo(
+	valueToTest := THIS^.NO_BIT_SET,
+	unexpected := THIS^.NO_BIT_SET
+);
+THIS^.testValueIsNotEqualTo(
+	valueToTest := THIS^.ALL_BITS_SET,
+	unexpected := THIS^.ALL_BITS_SET
+);
+THIS^.testValueIsNotEqualTo(
+	valueToTest := THIS^.ALL_BITS_SET,
+	unexpected := THIS^.NO_BIT_SET
+);
+THIS^.testValueIsNotEqualTo(
+	valueToTest := THIS^.LSB_ONLY,
+	unexpected := THIS^.LSB_ONLY
+);
+THIS^.testValueIsNotEqualTo(
+	valueToTest := THIS^.LSB_ONLY,
+	unexpected := THIS^.MSB_ONLY
+);
+THIS^.testValueIsNotEqualTo(
+	valueToTest := THIS^.MSB_ONLY,
+	unexpected := THIS^.MSB_ONLY
+);
+THIS^.testValueIsNotEqualTo(
+	valueToTest := THIS^.MSB_ONLY,
+	unexpected := THIS^.LSB_ONLY
+);
+
+TcUnit.TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="runXorMaskIsEqualToTests" Id="{97a08bbc-5e03-42df-a3d5-999034dc772c}" FolderPath="xorMaskIsEqualTo\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.bitNumber.short.xorMaskIsEqualTo``
+method of CNM_AssertionInterfaceLib library with various inputs
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+METHOD runXorMaskIsEqualToTests
+VAR
+	(* shift to iterate through the bit numbers *)
+	shift				:USINT;
+	(* it's just part of the test data *)
+	valueToTest		:BYTE;
+	(* mask with the bit iteration *)
+	mask				:BYTE;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[RETURN (NOT TcUnit.TEST_ORDERED(THIS^.getTestNameFor('xorMaskIsEqualTo')));
+
+FOR shift:= THIS^.FIRST_BIT TO THIS^.LAST_BIT DO
+	mask := SHL(THIS^.LSB_ONLY, shift);
+	valueToTest := (NOT mask);
+	THIS^.testOrMaskIsEqualTo(
+		valueToTest := valueToTest,
+		mask  := mask,
+		expected := THIS^.ALL_BITS_SET
+	);
+	THIS^.testOrMaskIsEqualTo(
+		valueToTest := valueToTest,
+		mask  := mask,
+		expected := THIS^.NO_BIT_SET
+	);
+	THIS^.testAndMaskIsEqualTo(
+		valueToTest := mask,
+		mask  := mask,
+		expected := THIS^.NO_BIT_SET
+	);
+	THIS^.testAndMaskIsEqualTo(
+		valueToTest := mask,
+		mask  := mask,
+		expected := mask
+	);	
+END_FOR
+
+THIS^.testAndMaskIsEqualTo(
+	valueToTest := THIS^.NO_BIT_SET,
+	mask  := THIS^.NO_BIT_SET,
+	expected := THIS^.NO_BIT_SET
+);
+THIS^.testAndMaskIsEqualTo(
+	valueToTest := THIS^.NO_BIT_SET,
+	mask  := THIS^.NO_BIT_SET,
+	expected := THIS^.ALL_BITS_SET
+);	
+
+THIS^.testAndMaskIsEqualTo(
+	valueToTest := THIS^.ALL_BITS_SET,
+	mask  := THIS^.ALL_BITS_SET,
+	expected := THIS^.ALL_BITS_SET
+);
+THIS^.testAndMaskIsEqualTo(
+	valueToTest := THIS^.ALL_BITS_SET,
+	mask  := THIS^.ALL_BITS_SET,
+	expected := THIS^.NO_BIT_SET
+);	
+
+TcUnit.TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="runXorMaskIsNotEqualToTests" Id="{3110fd44-f4dc-4bf2-aa64-bc5ef21f340d}" FolderPath="xorMaskIsNotEqualTo\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.bitNumber.short.xorMaskIsNotEqualTo``
+method of CNM_AssertionInterfaceLib library with various inputs
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+METHOD runXorMaskIsNotEqualToTests
+VAR
+	(* shift to iterate through the bit numbers *)
+	shift				:USINT;
+	(* it's just part of the test data *)
+	valueToTest			:BYTE;
+	(* mask with the bit iteration *)
+	mask				:BYTE;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[RETURN (NOT TcUnit.TEST_ORDERED(THIS^.getTestNameFor('xorMaskIsNotEqualTo')));
+
+FOR shift:= THIS^.FIRST_BIT TO THIS^.LAST_BIT DO
+	mask := SHL(THIS^.LSB_ONLY, shift);
+	valueToTest := (NOT mask);
+	THIS^.testXorMaskIsNotEqualTo(
+		valueToTest := valueToTest,
+		mask  := mask,
+		unexpected := THIS^.ALL_BITS_SET
+	);
+	THIS^.testXorMaskIsNotEqualTo(
+		valueToTest := valueToTest,
+		mask  := mask,
+		unexpected := THIS^.NO_BIT_SET
+	);
+	THIS^.testXorMaskIsNotEqualTo(
+		valueToTest := mask,
+		mask  := mask,
+		unexpected := THIS^.NO_BIT_SET
+	);
+	THIS^.testXorMaskIsNotEqualTo(
+		valueToTest := mask,
+		mask  := mask,
+		unexpected := mask
+	);	
+END_FOR
+
+THIS^.testXorMaskIsNotEqualTo(
+	valueToTest := THIS^.NO_BIT_SET,
+	mask  := THIS^.NO_BIT_SET,
+	unexpected := THIS^.NO_BIT_SET
+);
+THIS^.testXorMaskIsNotEqualTo(
+	valueToTest := THIS^.NO_BIT_SET,
+	mask  := THIS^.NO_BIT_SET,
+	unexpected := THIS^.ALL_BITS_SET
+);	
+
+THIS^.testXorMaskIsNotEqualTo(
+	valueToTest := THIS^.ALL_BITS_SET,
+	mask  := THIS^.ALL_BITS_SET,
+	unexpected := THIS^.ALL_BITS_SET
+);
+THIS^.testXorMaskIsNotEqualTo(
+	valueToTest := THIS^.ALL_BITS_SET,
+	mask  := THIS^.ALL_BITS_SET,
+	unexpected := THIS^.NO_BIT_SET
+);	
+
+THIS^.testXorMaskIsNotEqualTo(
+	valueToTest := THIS^.ALL_BITS_SET,
+	mask  := THIS^.NO_BIT_SET,
+	unexpected := THIS^.ALL_BITS_SET
+);
+THIS^.testXorMaskIsNotEqualTo(
+	valueToTest := THIS^.ALL_BITS_SET,
+	mask  := THIS^.NO_BIT_SET,
+	unexpected := THIS^.NO_BIT_SET
+);
+
+TcUnit.TEST_FINISHED();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testAndMaskIsEqualTo" Id="{e608ade0-6c16-4643-96d9-0cf7f47557d8}" FolderPath="andMaskIsEqualTo\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.bitNumber.short.andMaskIsEqualTo``
+method of CNM_AssertionInterfaceLib library, 
+it provides the possibility to handover test data via parameter 
+
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+METHOD testAndMaskIsEqualTo 
+VAR_INPUT
+	(* for the test it's the parameter ``currentValue`` *)
+	valueToTest	:BYTE;
+	(* it's the mask for the currentValue *)
+	mask		:BYTE;
+	(* for the test it's the parameter ``expectedValue`` *)
+	expected	:BYTE;
+END_VAR
+VAR
+	(* just the expectation if the assertion to test must be worng or true *)
+	assertionIsWrong		:BOOL;
+	(* result of the bit operation to determine the value of ``assertionIsWrong`` *)
+	result					:BYTE;
+	(* contains the format string for the test message *)
+	message					:Tc2_System.T_MaxString;
+	(* TwinCAT printf with the test message *)
+	messageStringBuilder	:Tc2_Utilities.FB_FormatString;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.assertorContainer.resetAssertor();
+
+result := (valueToTest AND mask);
+assertionIsWrong := (result <> expected);
+message := SEL(
+	assertionIsWrong,
+	'currentValue: 16#%.2X AND mask: 16#%.2X is 16#%.2X expectedValue: 16#%.2X assertion must be TRUE', 
+	'currentValue: 16#%.2X AND mask: 16#%.2X is 16#%.2X expectedValue: 16#%.2X assertion must be FALSE'
+);
+messageStringBuilder(
+	sFormat := message,
+	arg1 := THIS^.AnyToArg(valueToTest),
+	arg2 := THIS^.AnyToArg(mask),
+	arg3 := THIS^.AnyToArg(result),
+	arg4 := THIS^.AnyToArg(expected)
+);
+
+THIS^.assertorContainer.assertor.assert.bitNumber.short.andMaskIsEqualTo(
+	currentValue	:= valueToTest,
+	mask 			:= mask,
+	expectedValue	:= expected,
+	message			:= ''
+   );
+
+THIS^.AssertEquals_BOOL(
+	Expected 	:= assertionIsWrong,
+	Actual 		:= THIS^.assertorContainer.wasAssertionWrong,
+	Message 	:= messageStringBuilder.sOut
+);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testAndMaskIsNotEqualTo" Id="{8f82fae3-63b5-4c50-987a-2c83845c7240}" FolderPath="andMaskIsNotEqualTo\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.bitNumber.short.andMaskIsNotEqualTo``
+method of CNM_AssertionInterfaceLib library, 
+it provides the possibility to handover test data via parameter 
+
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+METHOD testAndMaskIsNotEqualTo 
+VAR_INPUT
+	(* for the test it's the parameter ``currentValue`` *)
+	valueToTest	:BYTE;
+	(* it's the mask for the currentValue *)
+	mask		:BYTE;
+	(* for the test it's the parameter ``unexpectedValue`` *)
+	unexpected	:BYTE;
+END_VAR
+VAR
+	(* just the expectation if the assertion to test must be worng or true *)
+	assertionIsWrong		:BOOL;
+	(* result of the bit operation to determine the value of ``assertionIsWrong`` *)
+	result					:BYTE;
+	(* contains the format string for the test message *)
+	message					:Tc2_System.T_MaxString;
+	(* TwinCAT printf with the test message *)
+	messageStringBuilder	:Tc2_Utilities.FB_FormatString;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.assertorContainer.resetAssertor();
+
+result := (valueToTest AND mask);
+assertionIsWrong := (result = unexpected);
+message := SEL(
+	assertionIsWrong,
+	'currentValue: 16#%.2X AND mask: 16#%.2X is 16#%.2X unexpectedValue: 16#%.2X assertion must be TRUE', 
+	'currentValue: 16#%.2X AND mask: 16#%.2X is 16#%.2X unexpectedValue: 16#%.2X assertion must be FLASE'
+);
+messageStringBuilder(
+	sFormat := message,
+	arg1 := THIS^.AnyToArg(valueToTest),
+	arg2 := THIS^.AnyToArg(mask),
+	arg3 := THIS^.AnyToArg(result),
+	arg4 := THIS^.AnyToArg(unexpected)
+);
+
+
+THIS^.assertorContainer.assertor.assert.bitNumber.short.andMaskIsNotEqualTo(
+	currentValue	:= valueToTest,
+	mask 			:= mask,
+	unexpectedValue	:= unexpected,
+	message			:= ''
+   );
+
+THIS^.AssertEquals_BOOL(
+	Expected 	:= assertionIsWrong,
+	Actual 		:= THIS^.assertorContainer.wasAssertionWrong,
+	Message 	:= messageStringBuilder.sOut
+);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testBitXIsEqualTo" Id="{32e01991-fb79-48ea-b48f-a522159cb0b3}" FolderPath="bitXIsEqual\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.bitNumber.short.bitXIsEqualTo``
+method of CNM_AssertionInterfaceLib library, 
+it provides the possibility to handover test data via parameter 
+
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+METHOD testBitXIsEqualTo
+VAR_INPUT
+	(* for the test it's the parameter ``currentValue`` *)
+	valueToTest			:BYTE;
+	(* the bit number to check in this test, it's the parameter ``number``*)
+	bitNumberToCheck	:CNM_AssertionInterfaceLib.BitNumberByte;
+	(* this is the expected value of the bit ``bitNumberToCheck``, it's the parameter ``expectedValue`` *)
+	bitIsSet			:BOOL;
+END_VAR
+VAR
+	(* just the expectation if the assertion to test must be worng or true *)
+	assertionIsWrong		:BOOL;
+	(* bit with the number of ``bitNumberToCheck`` filtered from ``valueToTest`` *)
+	specificBitOnly			:BYTE;
+	(* the bit number ``bitNumberToCheck`` is set to the value of ``bitIsSet`` only *)
+	testBitOnly				:BYTE;
+	(* contains the format string for the test message *)
+	message					:Tc2_System.T_MaxString;
+	(* TwinCAT printf with the test message *)
+	messageStringBuilder	:Tc2_Utilities.FB_FormatString;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.assertorContainer.resetAssertor();
+
+specificBitOnly := (valueToTest AND SHL(THIS^.LSB_ONLY,bitNumberToCheck));
+testBitOnly		:= SHL(TO_BYTE(bitIsSet),bitNumberToCheck);
+assertionIsWrong := (specificBitOnly <> testBitOnly);
+
+message := 'Bit number %d in currentValue: 16#%.2X ';
+message := SEL(
+	(specificBitOnly > THIS^.NO_BIT_SET),
+	Tc2_Standard.CONCAT(message, 'is unset '),
+	Tc2_Standard.CONCAT(message, 'is set ')
+);
+message := SEL(
+	(testBitOnly > THIS^.NO_BIT_SET),
+	Tc2_Standard.CONCAT(message, 'expectedValue: is unset (FALSE) '),
+	Tc2_Standard.CONCAT(message, 'expectedValue: is set (TRUE)  ')
+);
+message := SEL(
+	assertionIsWrong,
+	Tc2_Standard.CONCAT(message, 'assertion must be TRUE'),
+	Tc2_Standard.CONCAT(message, 'assertion must be FALSE')
+);
+messageStringBuilder(
+	sFormat := message,
+	arg1 := THIS^.AnyToArg(bitNumberToCheck),
+	arg2 := THIS^.AnyToArg(valueToTest)
+);
+
+
+THIS^.assertorContainer.assertor.assert.bitNumber.short.bitXIsEqualTo(
+	currentValue 	:= valueToTest,
+	number			:= bitNumberToCheck,
+	expectedValue	:= bitIsSet,
+	message			:= ''  
+); 
+
+THIS^.AssertEquals_BOOL(
+	Expected 	:= assertionIsWrong,
+	Actual 		:= THIS^.assertorContainer.wasAssertionWrong,
+	Message 	:= messageStringBuilder.sOut
+);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testBitXIsNotEqualTo" Id="{915da978-ed1d-4a30-91be-1cc3715e6ae1}" FolderPath="bitXIsNotEqual\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.bitNumber.short.bitXIsNotEqualTo``
+method of CNM_AssertionInterfaceLib library, 
+it provides the possibility to handover test data via parameter 
+
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+METHOD testBitXIsNotEqualTo
+VAR_INPUT
+	(* for the test it's the parameter ``currentValue`` *)
+	valueToTest			:BYTE;
+	(* the bit number to check in this test, it's the parameter ``number``*)
+	bitNumberToCheck	:CNM_AssertionInterfaceLib.BitNumberByte;
+	(* this is the unexpected value of the bit ``bitNumberToCheck``, it's the parameter ``unexpectedValue`` *)
+	bitIsSet			:BOOL;
+END_VAR
+VAR
+	(* just the expectation if the assertion to test must be worng or true *)
+	assertionIsWrong		:BOOL;
+	(* bit with the number of ``bitNumberToCheck`` filtered from ``valueToTest`` *)
+	specificBitOnly			:BYTE;
+	(* the bit number ``bitNumberToCheck`` is set to the value of ``bitIsSet`` only *)
+	testBitOnly				:BYTE;
+	(* contains the format string for the test message *)
+	message					:Tc2_System.T_MaxString;
+	(* TwinCAT printf with the test message *)
+	messageStringBuilder	:Tc2_Utilities.FB_FormatString;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.assertorContainer.resetAssertor();
+
+specificBitOnly := (valueToTest AND SHL(THIS^.LSB_ONLY,bitNumberToCheck));
+testBitOnly		:= SHL(TO_BYTE(bitIsSet),bitNumberToCheck);
+assertionIsWrong := (specificBitOnly = testBitOnly);
+
+message := 'Bit number %d in currentValue: 16#%.2X ';
+message := SEL(
+	(specificBitOnly > THIS^.NO_BIT_SET),
+	Tc2_Standard.CONCAT(message, 'is unset '),
+	Tc2_Standard.CONCAT(message, 'is set ')
+);
+message := SEL(
+	(testBitOnly > THIS^.NO_BIT_SET),
+	Tc2_Standard.CONCAT(message, 'unexpectedValue: is unset (FALSE) '),
+	Tc2_Standard.CONCAT(message, 'unexpectedValue: is set (TRUE)  ')
+);
+message := SEL(
+	assertionIsWrong,
+	Tc2_Standard.CONCAT(message, 'assertion must be TRUE'),
+	Tc2_Standard.CONCAT(message, 'assertion must be FALSE')
+);
+messageStringBuilder(
+	sFormat := message,
+	arg1 := THIS^.AnyToArg(bitNumberToCheck),
+	arg2 := THIS^.AnyToArg(valueToTest)
+);
+
+THIS^.assertorContainer.assertor.assert.bitNumber.short.bitXIsNotEqualTo(
+	currentValue 	:= valueToTest,
+	number			:= bitNumberToCheck,
+	unexpectedValue	:= bitIsSet,
+	message			:= ''  
+); 
+
+THIS^.AssertEquals_BOOL(
+	Expected 	:= assertionIsWrong,
+	Actual 		:= THIS^.assertorContainer.wasAssertionWrong,
+	Message 	:= messageStringBuilder.sOut
+);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testBitXIsSet" Id="{1a5df777-22a0-4839-9cc0-54ba774fbdd8}" FolderPath="bitXIsSet\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.bitNumber.short.bitXIsSet``
+of CNM_AssertionInterfaceLib library, 
+it provides the possibility to handover test data via parameter 
+
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+METHOD testBitXIsSet
+VAR_INPUT
+	(* for the test it's the parameter ``currentValue`` *)
+	valueToTest			:BYTE;
+	(* the bit number to check in this test, it's the parameter ``number``*)
+	bitNumberToCheck	:CNM_AssertionInterfaceLib.BitNumberByte;
+END_VAR
+VAR
+	(* just the expectation if the assertion to test must be worng or true *)
+	assertionIsWrong		:BOOL;
+	(* contains the format string for the test message *)
+	message					:Tc2_System.T_MaxString;
+	(* TwinCAT printf with the test message *)
+	messageStringBuilder	:Tc2_Utilities.FB_FormatString;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.assertorContainer.resetAssertor();
+
+assertionIsWrong := ((valueToTest AND SHL(THIS^.LSB_ONLY,bitNumberToCheck)) = THIS^.NO_BIT_SET);
+
+message := SEL(
+	assertionIsWrong,
+	'Bit number %d in currentValue: 16#%.2X is set assertion must be TRUE',
+	'Bit number %d in currentValue: 16#%.2X is unset assertion must be FALSE'
+);
+
+messageStringBuilder(
+	sFormat := message,
+	arg1 := THIS^.AnyToArg(bitNumberToCheck),
+	arg2 := THIS^.AnyToArg(valueToTest)
+);
+
+THIS^.assertorContainer.assertor.assert.bitNumber.short.bitXIsSet(
+	currentValue := valueToTest,
+	number := bitNumberToCheck,
+	message := ''
+);
+
+THIS^.AssertEquals_BOOL(
+	Expected 	:= assertionIsWrong,
+	Actual 		:= THIS^.assertorContainer.wasAssertionWrong,
+	Message 	:= messageStringBuilder.sOut
+);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testBitXIsUnset" Id="{6e938eb5-00e6-4112-b8d1-3657dbd30642}" FolderPath="bitXIsUnset\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.bitNumber.short.bitXIsUnset``
+of CNM_AssertionInterfaceLib library, 
+it provides the possibility to handover test data via parameter 
+
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+METHOD testBitXIsUnset
+VAR_INPUT
+	(* for the test it's the parameter ``currentValue`` *)
+	valueToTest			:BYTE;
+	(* the bit number to check in this test, it's the parameter ``number``*)
+	bitNumberToCheck	:CNM_AssertionInterfaceLib.BitNumberByte;
+END_VAR
+VAR
+	(* just the expectation if the assertion to test must be worng or true *)
+	assertionIsWrong		:BOOL;
+	(* contains the format string for the test message *)
+	message					:Tc2_System.T_MaxString;
+	(* TwinCAT printf with the test message *)
+	messageStringBuilder	:Tc2_Utilities.FB_FormatString;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.assertorContainer.resetAssertor();
+
+assertionIsWrong := ((valueToTest AND SHL(THIS^.LSB_ONLY,bitNumberToCheck)) > THIS^.NO_BIT_SET);
+
+message := SEL(
+	assertionIsWrong,
+	'Bit number %d in currentValue: 16#%.2X is unset assertion must be TRUE',
+	'Bit number %d in currentValue: 16#%.2X is set assertion must be FALSE'
+);
+
+messageStringBuilder(
+	sFormat := message,
+	arg1 := THIS^.AnyToArg(bitNumberToCheck),
+	arg2 := THIS^.AnyToArg(valueToTest)
+);
+
+THIS^.assertorContainer.assertor.assert.bitNumber.short.bitXIsUnset(
+	currentValue := valueToTest,
+	number := bitNumberToCheck,
+	message := ''
+);
+
+THIS^.AssertEquals_BOOL(
+	Expected 	:= assertionIsWrong,
+	Actual 		:= THIS^.assertorContainer.wasAssertionWrong,
+	Message 	:= messageStringBuilder.sOut
+);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testLsbIsEqualTo" Id="{0bf6f700-e893-4ba7-9a33-c22f06784fc4}" FolderPath="lsbIsEqualTo\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.bitNumber.short.lsbIsEqualTo``
+method of CNM_AssertionInterfaceLib library, 
+it provides the possibility to handover test data via parameter 
+
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+METHOD testLsbIsEqualTo
+VAR_INPUT
+	(* for the test it's the parameter ``currentValue`` *)
+	valueToTest		:BYTE;
+	(* for the test it's the parameter ``expectedValue`` *)
+	expectedValue	:BOOL;
+END_VAR
+VAR
+	(* just the expectation if the assertion to test must be worng or true *)
+	assertionIsWrong		:BOOL;
+	(* contains the format string for the test message *)
+	message					:Tc2_System.T_MaxString;
+	(* TwinCAT printf with the test message *)
+	messageStringBuilder	:Tc2_Utilities.FB_FormatString;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.assertorContainer.resetAssertor();
+
+assertionIsWrong := (valueToTest.FIRST_BIT <> expectedValue);
+message := SEL(
+	expectedValue,
+	'currentValue: %d expectedValue is an unset (FALSE) assertion must be ',
+	'currentValue: %d expectedValue is a set (TRUE) assertion must be '
+);
+message := SEL(
+	assertionIsWrong,
+	Tc2_Standard.CONCAT(message, 'TRUE'),
+	Tc2_Standard.CONCAT(message, 'FALSE')
+);
+
+messageStringBuilder(
+	sFormat := message,
+	arg1 := THIS^.AnyToArg(valueToTest)
+);
+
+THIS^.assertorContainer.assertor.assert.bitNumber.short.lsbIsEqualTo(
+	currentValue 	:= valueToTest,
+	expectedValue	:= expectedValue,
+	message			:= ''  
+); 
+
+THIS^.AssertEquals_BOOL(
+	Expected 	:= assertionIsWrong,
+	Actual 		:= THIS^.assertorContainer.wasAssertionWrong,
+	Message 	:= messageStringBuilder.sOut
+);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testLsbIsNotEqualTo" Id="{1d9b3ad3-f7fd-481f-be2d-31197c672b6b}" FolderPath="lsbIsNotEqual\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.bitNumber.short.lsbIsNotEqualTo``
+method of CNM_AssertionInterfaceLib library, 
+it provides the possibility to handover test data via parameter 
+
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+METHOD testLsbIsNotEqualTo
+VAR_INPUT
+	(* for the test it's the parameter ``currentValue`` *)
+	valueToTest	:BYTE;
+	(* for the test it's the parameter ``unexpectedValue`` *)
+	unexpectedValue :BOOL;
+END_VAR
+VAR
+	(* just the expectation if the assertion to test must be worng or true *)
+	assertionIsWrong		:BOOL;
+	(* contains the format string for the test message *)
+	message					:Tc2_System.T_MaxString;
+	(* TwinCAT printf with the test message *)
+	messageStringBuilder	:Tc2_Utilities.FB_FormatString;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.assertorContainer.resetAssertor();
+
+assertionIsWrong := (valueToTest.FIRST_BIT = unexpectedValue);
+message := SEL(
+	unexpectedValue,
+	'currentValue: %d unexpectedValue is an unset (FALSE), assertion must be ',
+	'currentValue: %d unexpectedValue is a set (TRUE) assertion must be '
+);
+message := SEL(
+	assertionIsWrong,
+	Tc2_Standard.CONCAT(message, 'TRUE'),
+	Tc2_Standard.CONCAT(message, 'FALSE')
+);
+
+messageStringBuilder(
+	sFormat := message,
+	arg1 := THIS^.AnyToArg(valueToTest)
+);
+
+THIS^.assertorContainer.assertor.assert.bitNumber.short.lsbIsNotEqualTo(
+	currentValue 	:= valueToTest,
+	unexpectedValue	:= unexpectedValue,
+	message			:= ''  
+); 
+
+THIS^.AssertEquals_BOOL(
+	Expected 	:= assertionIsWrong,
+	Actual 		:= THIS^.assertorContainer.wasAssertionWrong,
+	Message 	:= messageStringBuilder.sOut
+);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testLsbIsSet" Id="{911e7d3a-a10b-412e-b875-6bb7c768a31c}" FolderPath="lsbIsSet\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.bitNumber.short.lsbIsSet``
+of CNM_AssertionInterfaceLib library, 
+it provides the possibility to handover test data via parameter 
+
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+METHOD testLsbIsSet
+VAR_INPUT
+	(* for the test it's the parameter ``currentValue`` *)
+	valueToTest	:BYTE;
+END_VAR
+VAR
+	(* just the expectation if the assertion to test must be worng or true *)
+	assertionIsWrong		:BOOL;
+	(* contains the format string for the test message *)
+	message					:Tc2_System.T_MaxString;
+	(* TwinCAT printf with the test message *)
+	messageStringBuilder	:Tc2_Utilities.FB_FormatString;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.assertorContainer.resetAssertor();
+
+assertionIsWrong := (NOT valueToTest.FIRST_BIT);
+
+message := SEL(
+	assertionIsWrong,
+	'currentValue is %d assertion must be TRUE',
+	'currentValue is %d assertion must be FALSE'
+);
+
+messageStringBuilder(
+	sFormat := message,
+	arg1 := THIS^.AnyToArg(valueToTest)
+);
+
+THIS^.assertorContainer.assertor.assert.bitNumber.short.lsbIsSet(
+	currentValue 	:= valueToTest,
+	message			:= ''  
+); 
+
+THIS^.AssertEquals_BOOL(
+	Expected 	:= assertionIsWrong,
+	Actual 		:= THIS^.assertorContainer.wasAssertionWrong,
+	Message 	:= messageStringBuilder.sOut
+);
+
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testLsbIsUnset" Id="{0c5d7dba-f3a3-42a7-8cbb-cdf2cb394892}" FolderPath="lsbIsUnset\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.bitNumber.short.lsbIsUnset``
+and ``assert.bitNumber.short.lsbIsUnset``
+of CNM_AssertionInterfaceLib library, 
+it provides the possibility to handover test data via parameter 
+
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+METHOD testLsbIsUnset
+VAR_INPUT
+	(* for the test it's the parameter ``currentValue`` *)
+	valueToTest	:BYTE;
+END_VAR
+VAR
+	(* just the expectation if the assertion to test must be worng or true *)
+	assertionIsWrong		:BOOL;
+	(* contains the format string for the test message *)
+	message					:Tc2_System.T_MaxString;
+	(* TwinCAT printf with the test message *)
+	messageStringBuilder	:Tc2_Utilities.FB_FormatString;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.assertorContainer.resetAssertor();
+
+assertionIsWrong := (valueToTest.FIRST_BIT);
+
+message := SEL(
+	assertionIsWrong,
+	'currentValue is %d assertion must be TRUE',
+	'currentValue is %d assertion must be FALSE'
+);
+
+messageStringBuilder(
+	sFormat := message,
+	arg1 := THIS^.AnyToArg(valueToTest)
+);
+
+THIS^.assertorContainer.assertor.assert.bitNumber.short.lsbIsUnset(
+	currentValue 	:= valueToTest,
+	message			:= ''  
+); 
+
+THIS^.AssertEquals_BOOL(
+	Expected 	:= assertionIsWrong,
+	Actual 		:= THIS^.assertorContainer.wasAssertionWrong,
+	Message 	:= messageStringBuilder.sOut
+);
+
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testMsbIsEqualTo" Id="{070a6791-882c-4489-9fe7-766d00164a60}" FolderPath="msbIsEqualTo\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.bitNumber.short.msbIsEqualTo``
+method of CNM_AssertionInterfaceLib library, 
+it provides the possibility to handover test data via parameter 
+
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+METHOD testMsbIsEqualTo
+VAR_INPUT
+	(* for the test it's the parameter ``currentValue`` *)
+	valueToTest		:BYTE;
+	(* for the test it's the parameter ``expectedValue`` *)
+	expectedValue	:BOOL;
+END_VAR
+VAR
+	(* just the expectation if the assertion to test must be worng or true *)
+	assertionIsWrong		:BOOL;
+	(* contains the format string for the test message *)
+	message					:Tc2_System.T_MaxString;
+	(* TwinCAT printf with the test message *)
+	messageStringBuilder	:Tc2_Utilities.FB_FormatString;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.assertorContainer.resetAssertor();
+
+assertionIsWrong := (valueToTest.LAST_BIT <> expectedValue);
+
+message := SEL(
+	expectedValue,
+	'currentValue: 16#%.2X expectedValue is an unset (FALSE) assertion must be ',
+	'currentValue: 16#%.2X expectedValue is a set (TRUE) assertion must be '
+);
+message := SEL(
+	assertionIsWrong,
+	Tc2_Standard.CONCAT(message, 'TRUE'),
+	Tc2_Standard.CONCAT(message, 'FALSE')
+);
+
+messageStringBuilder(
+	sFormat := message,
+	arg1 := THIS^.AnyToArg(valueToTest)
+);
+
+THIS^.assertorContainer.assertor.assert.bitNumber.short.msbIsEqualTo(
+	currentValue 	:= valueToTest,
+	expectedValue	:= expectedValue,
+	message			:= ''  
+); 
+
+THIS^.AssertEquals_BOOL(
+	Expected 	:= assertionIsWrong,
+	Actual 		:= THIS^.assertorContainer.wasAssertionWrong,
+	Message 	:= messageStringBuilder.sOut
+);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testMsbIsNotEqualTo" Id="{279ebc55-62c3-4b00-9a2b-449fc470df73}" FolderPath="msbIsNotEqualTo\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.bitNumber.short.msbIsNotEqualTo``
+method of CNM_AssertionInterfaceLib library, 
+it provides the possibility to handover test data via parameter 
+
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+METHOD testMsbIsNotEqualTo
+VAR_INPUT
+	(* for the test it's the parameter ``currentValue`` *)
+	valueToTest	:BYTE;
+	(* for the test it's the parameter ``unexpectedValue`` *)
+	unexpectedValue :BOOL;
+END_VAR
+VAR
+	(* just the expectation if the assertion to test must be worng or true *)
+	assertionIsWrong		:BOOL;
+	(* contains the format string for the test message *)
+	message					:Tc2_System.T_MaxString;
+	(* TwinCAT printf with the test message *)
+	messageStringBuilder	:Tc2_Utilities.FB_FormatString;
+END_VAR
+
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.assertorContainer.resetAssertor();
+
+assertionIsWrong := (valueToTest.LAST_BIT = unexpectedValue);
+
+message := SEL(
+	unexpectedValue,
+	'currentValue: 16#%.2X unexpectedValue is an unset (FALSE) assertion must be ',
+	'currentValue: 16#%.2X unexpectedValue is a set (TRUE) assertion must be '
+);
+message := SEL(
+	assertionIsWrong,
+	Tc2_Standard.CONCAT(message, 'TRUE'),
+	Tc2_Standard.CONCAT(message, 'FALSE')
+);
+
+messageStringBuilder(
+	sFormat := message,
+	arg1 := THIS^.AnyToArg(valueToTest)
+);
+
+THIS^.assertorContainer.assertor.assert.bitNumber.short.msbIsNotEqualTo(
+	currentValue 	:= valueToTest,
+	unexpectedValue	:= unexpectedValue,
+	message			:= ''  
+); 
+
+THIS^.AssertEquals_BOOL(
+	Expected 	:= assertionIsWrong,
+	Actual 		:= THIS^.assertorContainer.wasAssertionWrong,
+	Message 	:= messageStringBuilder.sOut
+);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testMsbIsSet" Id="{f471606a-e6fb-478b-b89e-0a41bf5fe9c3}" FolderPath="msbIsSet\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.bitNumber.short.msbIsSet``
+of CNM_AssertionInterfaceLib library, 
+it provides the possibility to handover test data via parameter 
+
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+METHOD testMsbIsSet
+VAR_INPUT
+	(* for the test it's the parameter ``currentValue`` *)
+	valueToTest	:BYTE;
+END_VAR
+VAR
+	(* just the expectation if the assertion to test must be worng or true *)
+	assertionIsWrong		:BOOL;
+	(* contains the format string for the test message *)
+	message					:Tc2_System.T_MaxString;
+	(* TwinCAT printf with the test message *)
+	messageStringBuilder	:Tc2_Utilities.FB_FormatString;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.assertorContainer.resetAssertor();
+
+assertionIsWrong := (NOT valueToTest.LAST_BIT);
+
+message := SEL(
+	assertionIsWrong,
+	'currentValue is 16#%.2X assertion must be TRUE',
+	'currentValue is 16#%.2X assertion must be FALSE'
+);
+
+messageStringBuilder(
+	sFormat := message,
+	arg1 := THIS^.AnyToArg(valueToTest)
+);
+
+THIS^.assertorContainer.assertor.assert.bitNumber.short.msbIsSet(
+	currentValue 	:= valueToTest,
+	message			:= ''  
+); 
+
+THIS^.AssertEquals_BOOL(
+	Expected 	:= assertionIsWrong,
+	Actual 		:= THIS^.assertorContainer.wasAssertionWrong,
+	Message 	:= messageStringBuilder.sOut
+);
+
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testMsbIsUnset" Id="{db19ac21-7526-4e70-a317-d6fa0c3ad965}" FolderPath="msbIsUnset\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.bitNumber.short.msbIsUnset``
+of CNM_AssertionInterfaceLib library, 
+it provides the possibility to handover test data via parameter 
+
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+METHOD testMsbIsUnset
+VAR_INPUT
+	(* for the test it's the parameter ``currentValue`` *)
+	valueToTest	:BYTE;
+END_VAR
+VAR
+	(* just the expectation if the assertion to test must be worng or true *)
+	assertionIsWrong		:BOOL;
+	(* contains the format string for the test message *)
+	message					:Tc2_System.T_MaxString;
+	(* TwinCAT printf with the test message *)
+	messageStringBuilder	:Tc2_Utilities.FB_FormatString;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.assertorContainer.resetAssertor();
+
+assertionIsWrong := (valueToTest.LAST_BIT);
+
+message := SEL(
+	assertionIsWrong,
+	'currentValue is 16#%.2X assertion must be TRUE',
+	'currentValue is 16#%.2X assertion must be FALSE'
+);
+
+messageStringBuilder(
+	sFormat := message,
+	arg1 := THIS^.AnyToArg(valueToTest)
+);
+
+THIS^.assertorContainer.assertor.assert.bitNumber.short.msbIsUnset(
+	currentValue 	:= valueToTest,
+	message			:= ''  
+); 
+
+THIS^.AssertEquals_BOOL(
+	Expected 	:= assertionIsWrong,
+	Actual 		:= THIS^.assertorContainer.wasAssertionWrong,
+	Message 	:= messageStringBuilder.sOut
+);
+
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testOrMaskIsEqualTo" Id="{c2f8c865-a91b-411c-82ac-11698f9f6f81}" FolderPath="orMaskIsEqualTo\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.bitNumber.short.orMaskIsEqualTo``
+method of CNM_AssertionInterfaceLib library, 
+it provides the possibility to handover test data via parameter 
+
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+METHOD testOrMaskIsEqualTo 
+VAR_INPUT
+	(* for the test it's the parameter ``currentValue`` *)
+	valueToTest	:BYTE;
+	(* it's the mask for the currentValue *)
+	mask		:BYTE;
+	(* for the test it's the parameter ``expectedValue`` *)
+	expected	:BYTE;
+END_VAR
+VAR
+	(* just the expectation if the assertion to test must be worng or true *)
+	assertionIsWrong		:BOOL;
+	(* result of the bit operation to determine the value of ``assertionIsWrong`` *)
+	result					:BYTE;
+	(* contains the format string for the test message *)
+	message					:Tc2_System.T_MaxString;
+	(* TwinCAT printf with the test message *)
+	messageStringBuilder	:Tc2_Utilities.FB_FormatString;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.assertorContainer.resetAssertor();
+
+result := (valueToTest OR mask);
+assertionIsWrong := (result <> expected);
+message := SEL(
+	assertionIsWrong,
+	'currentValue: 16#%.2X OR mask: 16#%.2X is 16#%.2X expectedValue: 16#%.2X assertion must be TRUE', 
+	'currentValue: 16#%.2X OR mask: 16#%.2X is 16#%.2X expectedValue: 16#%.2X assertion must be FALSE'
+);
+messageStringBuilder(
+	sFormat := message,
+	arg1 := THIS^.AnyToArg(valueToTest),
+	arg2 := THIS^.AnyToArg(mask),
+	arg3 := THIS^.AnyToArg(result),
+	arg4 := THIS^.AnyToArg(expected)
+);
+
+THIS^.assertorContainer.assertor.assert.bitNumber.short.orMaskIsEqualTo(
+	currentValue	:= valueToTest,
+	mask 			:= mask,
+	expectedValue	:= expected,
+	message			:= ''
+   );
+
+THIS^.AssertEquals_BOOL(
+	Expected 	:= assertionIsWrong,
+	Actual 		:= THIS^.assertorContainer.wasAssertionWrong,
+	Message 	:= messageStringBuilder.sOut
+);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testOrMaskIsNotEqualTo" Id="{e6a1c168-01a3-4f75-86e6-b7e80a314ff9}" FolderPath="orMaskIsNotEqualTo\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.bitNumber.short.orMaskIsNotEqualTo``
+method of CNM_AssertionInterfaceLib library, 
+it provides the possibility to handover test data via parameter 
+
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+METHOD testOrMaskIsNotEqualTo 
+VAR_INPUT
+	(* for the test it's the parameter ``currentValue`` *)
+	valueToTest	:BYTE;
+	(* it's the mask for the currentValue *)
+	mask		:BYTE;
+	(* for the test it's the parameter ``unexpectedValue`` *)
+	unexpected	:BYTE;
+END_VAR
+VAR
+	(* just the expectation if the assertion to test must be worng or true *)
+	assertionIsWrong		:BOOL;
+	(* result of the bit operation to determine the value of ``assertionIsWrong`` *)
+	result					:BYTE;
+	(* contains the format string for the test message *)
+	message					:Tc2_System.T_MaxString;
+	(* TwinCAT printf with the test message *)
+	messageStringBuilder	:Tc2_Utilities.FB_FormatString;
+END_VAR
+
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.assertorContainer.resetAssertor();
+
+result := (valueToTest OR mask);
+assertionIsWrong := (result = unexpected);
+message := SEL(
+	assertionIsWrong,
+	'currentValue: 16#%.2X OR mask: 16#%.2X is 16#%.2X unexpectedValue: 16#%.2X assertion must be TRUE', 
+	'currentValue: 16#%.2X OR mask: 16#%.2X is 16#%.2X unexpectedValue: 16#%.2X assertion must be FALSE'
+);
+messageStringBuilder(
+	sFormat := message,
+	arg1 := THIS^.AnyToArg(valueToTest),
+	arg2 := THIS^.AnyToArg(mask),
+	arg3 := THIS^.AnyToArg(result),
+	arg4 := THIS^.AnyToArg(unexpected)
+);
+
+THIS^.assertorContainer.assertor.assert.bitNumber.short.orMaskIsNotEqualTo(
+	currentValue	:= valueToTest,
+	mask 			:= mask,
+	unexpectedValue	:= unexpected,
+	message			:= ''
+   );
+
+THIS^.AssertEquals_BOOL(
+	Expected 	:= assertionIsWrong,
+	Actual 		:= THIS^.assertorContainer.wasAssertionWrong,
+	Message 	:= messageStringBuilder.sOut
+);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testValueIsEqualTo" Id="{20a8fb16-b51f-484a-b117-90bb17b48d43}" FolderPath="valueIsEqual\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.bitNumber.short.valueIsEqualTo``
+method of CNM_AssertionInterfaceLib library, 
+it provides the possibility to handover test data via parameter 
+
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+METHOD testValueIsEqualTo
+VAR_INPUT
+	(* for the test it's the parameter ``currentValue`` *)
+	valueToTest	:BYTE;
+	(* for the test it's the parameter ``expectedValue`` *)
+	expected	:BYTE;
+END_VAR
+VAR
+	(* just the expectation if the assertion to test must be worng or true *)
+	assertionIsWrong		:BOOL;
+	(* contains the format string for the test message *)
+	message					:Tc2_System.T_MaxString;
+	(* TwinCAT printf with the test message *)
+	messageStringBuilder	:Tc2_Utilities.FB_FormatString;
+END_VAR
+
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.assertorContainer.resetAssertor();
+
+assertionIsWrong := (valueToTest <> expected);
+message := SEL(
+	assertionIsWrong,
+	'currentValue is %d expectedValue is %d assertion must be TRUE', 
+	'currentValue is %d expectedValue is %d assertion must be FALSE'
+);
+messageStringBuilder(
+	sFormat := message,
+	arg1 := THIS^.AnyToArg(valueToTest),
+	arg2 := THIS^.AnyToArg(expected)
+);
+
+THIS^.assertorContainer.assertor.assert.bitNumber.short.valueIsEqualTo(
+	currentValue := valueToTest,
+	expectedValue := expected,
+	message := ''
+);
+
+THIS^.AssertEquals_BOOL(
+	Expected 	:= assertionIsWrong,
+	Actual 		:= THIS^.assertorContainer.wasAssertionWrong,
+	Message 	:= messageStringBuilder.sOut
+);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testValueIsGreater" Id="{2ea52523-64d4-4872-88a9-2edb844688ee}" FolderPath="valueIsGreaterThan\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.bitNumber.short.valueIsGreaterThan``
+method of CNM_AssertionInterfaceLib library, 
+it provides the possibility to handover test data via parameter 
+
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+METHOD testValueIsGreater
+VAR_INPUT
+	(* for the test it's the parameter ``currentValue`` *)
+	valueToTest	:BYTE;
+	(* for the test it's the parameter ``lessValue`` *)
+	less		:BYTE;
+END_VAR
+VAR
+	(* just the expectation if the assertion to test must be worng or true *)
+	assertionIsWrong		:BOOL;
+	(* contains the format string for the test message *)
+	message					:Tc2_System.T_MaxString;
+	(* TwinCAT printf with the test message *)
+	messageStringBuilder	:Tc2_Utilities.FB_FormatString;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.assertorContainer.resetAssertor();
+
+assertionIsWrong := (valueToTest <= less);
+message := SEL(
+	assertionIsWrong,
+	'currentValue is %d lessValue is %d assertion must be TRUE', 
+	'currentValue is %d lessValue is %d assertion must be FALSE'
+);
+messageStringBuilder(
+	sFormat := message,
+	arg1 := THIS^.AnyToArg(valueToTest),
+	arg2 := THIS^.AnyToArg(less)
+);
+
+THIS^.assertorContainer.assertor.assert.bitNumber.short.valueIsGreaterThan(
+	currentValue := valueToTest,
+	lessValue := less,
+	message := ''
+);
+
+THIS^.AssertEquals_BOOL(
+	Expected 	:= assertionIsWrong,
+	Actual 		:= THIS^.assertorContainer.wasAssertionWrong,
+	Message 	:= messageStringBuilder.sOut
+);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testValueIsInRangeOf" Id="{f215d29d-a46b-4223-b3a4-502895561b57}" FolderPath="valueIsInRangeOf\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.bitNumber.short.valueIsInRangeOf``
+method of CNM_AssertionInterfaceLib library, 
+it provides the possibility to handover test data via parameter 
+
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+METHOD testValueIsInRangeOf
+VAR_INPUT
+	(* for the test it's the parameter ``lowerLimit`` *)
+	lower		:BYTE;
+	(* for the test it's the parameter ``currentValue`` *)
+	valueToTest	:BYTE;
+	(* for the test it's the parameter ``upperLimit`` *)
+	upper		:BYTE;
+END_VAR          
+VAR
+	(* just the expectation if the assertion to test must be worng or true *)
+	assertionIsWrong		:BOOL;
+	(* contains the format string for the test message *)
+	message					:Tc2_System.T_MaxString;
+	(* TwinCAT printf with the test message *)
+	messageStringBuilder	:Tc2_Utilities.FB_FormatString;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.assertorContainer.resetAssertor();
+
+assertionIsWrong := ((valueToTest < lower) OR (valueToTest > upper)); 
+
+message := SEL(
+	assertionIsWrong,
+	'lowerLimit is %d currentValue is %d upperLimit is %d assertion must be TRUE', 
+	'lowerLimit is %d currentValue is %d upperLimit is %d assertion must be FALSE'
+);
+
+messageStringBuilder(
+	sFormat := message,
+	arg1 := THIS^.AnyToArg(lower),
+	arg2 := THIS^.AnyToArg(valueToTest),
+	arg3 := THIS^.AnyToArg(upper)
+);
+
+THIS^.assertorContainer.assertor.assert.bitNumber.short.valueIsInRangeOf(
+	lowerLimit := lower,
+	currentValue := valueToTest,
+	upperLimit := upper,
+	message := ''
+);
+
+THIS^.AssertEquals_BOOL(
+	Expected 	:= assertionIsWrong,
+	Actual 		:= THIS^.assertorContainer.wasAssertionWrong,
+	Message 	:= messageStringBuilder.sOut
+);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testValueIsLessThan" Id="{53989062-e0cd-4d32-89c8-3ac9e11fb48b}" FolderPath="valueIsLessThan\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.bitNumber.short.valueIsLessThan``
+method of CNM_AssertionInterfaceLib library, 
+it provides the possibility to handover test data via parameter 
+
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+METHOD testValueIsLessThan
+VAR_INPUT
+	(* for the test it's the parameter ``currentValue`` *)
+	valueToTest	:BYTE;
+	(* for the test it's the parameter ``greaterValue`` *)
+	greater		:BYTE;
+END_VAR
+VAR
+	(* just the expectation if the assertion to test must be worng or true *)
+	assertionIsWrong		:BOOL;
+	(* contains the format string for the test message *)
+	message					:Tc2_System.T_MaxString;
+	(* TwinCAT printf with the test message *)
+	messageStringBuilder	:Tc2_Utilities.FB_FormatString;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.assertorContainer.resetAssertor();
+
+assertionIsWrong := (valueToTest >= greater);
+message := SEL(
+	assertionIsWrong,
+	'currentValue is %d greaterValue is %d assertion must be TRUE',
+	'currentValue is %d greaterValue is %d assertion must be FALSE'
+);
+messageStringBuilder(
+	sFormat := message,
+	arg1 := THIS^.AnyToArg(valueToTest),
+	arg2 := THIS^.AnyToArg(greater)
+);
+
+THIS^.assertorContainer.assertor.assert.bitNumber.short.valueIsLessThan(
+	currentValue := valueToTest,
+	greaterValue := greater,
+	message := ''
+);
+
+THIS^.AssertEquals_BOOL(
+	Expected 	:= assertionIsWrong,
+	Actual 		:= THIS^.assertorContainer.wasAssertionWrong,
+	Message 	:= messageStringBuilder.sOut
+);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testValueIsMax" Id="{8a3ff529-64e4-4029-be9f-7f1f0276853c}" FolderPath="valueIsMax\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.bitNumber.short.valueIsMax``
+method of CNM_AssertionInterfaceLib library, 
+it provides the possibility to handover test data via parameter 
+
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+METHOD testValueIsMax 
+VAR_INPUT
+	(* for the test it's the parameter ``currentValue`` *)
+	valueToTest	:BYTE;
+	(* for the test it's the parameter ``maximumValue`` *)
+	maximum		:BYTE;
+END_VAR
+VAR
+	(* just the expectation if the assertion to test must be worng or true *)
+	assertionIsWrong		:BOOL;
+	(* contains the format string for the test message *)
+	message					:Tc2_System.T_MaxString;
+	(* TwinCAT printf with the test message *)
+	messageStringBuilder	:Tc2_Utilities.FB_FormatString;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.assertorContainer.resetAssertor();
+
+assertionIsWrong := (valueToTest > maximum);
+message := SEL(
+	assertionIsWrong,
+	'currentValue is %d maximumValue is %d assertion must be TRUE',
+	'currentValue is %d maximumValue is %d assertion must be FALSE'
+);
+messageStringBuilder(
+	sFormat := message,
+	arg1 := THIS^.AnyToArg(valueToTest),
+	arg2 := THIS^.AnyToArg(maximum)
+);
+
+THIS^.assertorContainer.assertor.assert.bitNumber.short.valueIsMax(
+	currentValue := valueToTest,
+	maximumValue := maximum,
+	message := ''
+);
+
+THIS^.AssertEquals_BOOL(
+	Expected 	:= assertionIsWrong,
+	Actual 		:= THIS^.assertorContainer.wasAssertionWrong,
+	Message 	:= messageStringBuilder.sOut
+);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testValueIsMin" Id="{339ea599-ef23-43b4-a6e8-026403f373fc}" FolderPath="valueIsMin\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.bitNumber.short.valueIsMin``
+method of CNM_AssertionInterfaceLib library, 
+it provides the possibility to handover test data via parameter 
+
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+METHOD testValueIsMin 
+VAR_INPUT
+	(* for the test it's the parameter ``currentValue`` *)
+	valueToTest	:BYTE;
+	(* for the test it's the parameter ``minimumValue`` *)
+	minimum		:BYTE;
+END_VAR
+VAR
+	(* just the expectation if the assertion to test must be worng or true *)
+	assertionIsWrong		:BOOL;
+	(* contains the format string for the test message *)
+	message					:Tc2_System.T_MaxString;
+	(* TwinCAT printf with the test message *)
+	messageStringBuilder	:Tc2_Utilities.FB_FormatString;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.assertorContainer.resetAssertor();
+
+assertionIsWrong := (valueToTest < minimum);
+message := SEL(
+	assertionIsWrong,
+	'currentValue is %d minimumValue is %d assertion must be TRUE',
+	'currentValue is %d minimumValue is %d assertion must be FALSE'
+);
+messageStringBuilder(
+	sFormat := message,
+	arg1 := THIS^.AnyToArg(valueToTest),
+	arg2 := THIS^.AnyToArg(minimum)
+);
+
+THIS^.assertorContainer.assertor.assert.bitNumber.short.valueIsMin(
+	currentValue := valueToTest,
+	minimumValue := minimum,
+	message := ''
+);
+
+THIS^.AssertEquals_BOOL(
+	Expected 	:= assertionIsWrong,
+	Actual 		:= THIS^.assertorContainer.wasAssertionWrong,
+	Message 	:= messageStringBuilder.sOut
+);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testValueIsNotEqualTo" Id="{4500478c-9091-41b7-aa42-dc564628beff}" FolderPath="valueIsNotEqual\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.bitNumber.short.valueIsNotEqualTo``
+method of CNM_AssertionInterfaceLib library, 
+it provides the possibility to handover test data via parameter 
+
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+METHOD testValueIsNotEqualTo
+VAR_INPUT
+	(* for the test it's the parameter ``currentValue`` *)
+	valueToTest	:BYTE;
+	(* for the test it's the parameter ``unexpectedValue`` *)
+	unexpected	:BYTE;
+END_VAR
+VAR
+	(* just the expectation if the assertion to test must be worng or true *)
+	assertionIsWrong		:BOOL;
+	(* contains the format string for the test message *)
+	message					:Tc2_System.T_MaxString;
+	(* TwinCAT printf with the test message *)
+	messageStringBuilder	:Tc2_Utilities.FB_FormatString;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.assertorContainer.resetAssertor();
+
+assertionIsWrong := (valueToTest = unexpected);
+message := SEL(
+	assertionIsWrong,
+	'currentValue is %d unexpectedValue is %d assertion must be TRUE', 
+	'currentValue is %d unexpectedValue is %d assertion must be FALSE'
+);
+messageStringBuilder(
+	sFormat := message,
+	arg1 := THIS^.AnyToArg(valueToTest),
+	arg2 := THIS^.AnyToArg(unexpected)
+);
+
+THIS^.assertorContainer.assertor.assert.bitNumber.short.valueIsNotEqualTo(
+	currentValue := valueToTest,
+	unexpectedValue := unexpected,
+	message := ''
+);
+
+THIS^.AssertEquals_BOOL(
+	Expected 	:= assertionIsWrong,
+	Actual 		:= THIS^.assertorContainer.wasAssertionWrong,
+	Message 	:= messageStringBuilder.sOut
+);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testXorMaskIsEqualTo" Id="{54960848-0579-4d3b-b307-311f90f7bb13}" FolderPath="xorMaskIsEqualTo\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.bitNumber.short.xorMaskIsEqualTo``
+method of CNM_AssertionInterfaceLib library, 
+it provides the possibility to handover test data via parameter 
+
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+METHOD testXorMaskIsEqualTo 
+VAR_INPUT
+	(* for the test it's the parameter ``currentValue`` *)
+	valueToTest	:BYTE;
+	(* it's the mask for the currentValue *)
+	mask		:BYTE;
+	(* for the test it's the parameter ``expectedValue`` *)
+	expected	:BYTE;
+END_VAR
+VAR
+	(* just the expectation if the assertion to test must be worng or true *)
+	assertionIsWrong		:BOOL;
+	(* result of the bit operation to determine the value of ``assertionIsWrong`` *)
+	result					:BYTE;
+	(* contains the format string for the test message *)
+	message					:Tc2_System.T_MaxString;
+	(* TwinCAT printf with the test message *)
+	messageStringBuilder	:Tc2_Utilities.FB_FormatString;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.assertorContainer.resetAssertor();
+
+result := (valueToTest XOR mask);
+assertionIsWrong := (result <> expected);
+message := SEL(
+	assertionIsWrong,
+	'currentValue: 16#%.2X XOR mask: 16#%.2X is 16#%.2X expectedValue: 16#%.2X assertion must be TRUE', 
+	'currentValue: 16#%.2X XOR mask: 16#%.2X is 16#%.2X expectedValue: 16#%.2X assertion must be FALSE'
+);
+messageStringBuilder(
+	sFormat := message,
+	arg1 := THIS^.AnyToArg(valueToTest),
+	arg2 := THIS^.AnyToArg(mask),
+	arg3 := THIS^.AnyToArg(result),
+	arg4 := THIS^.AnyToArg(expected)
+);
+
+THIS^.assertorContainer.assertor.assert.bitNumber.short.xorMaskIsEqualTo(
+	currentValue	:= valueToTest,
+	mask 			:= mask,
+	expectedValue	:= expected,
+	message			:= ''
+   );
+
+THIS^.AssertEquals_BOOL(
+	Expected 	:= assertionIsWrong,
+	Actual 		:= THIS^.assertorContainer.wasAssertionWrong,
+	Message 	:= messageStringBuilder.sOut
+);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="testXorMaskIsNotEqualTo" Id="{5c295f8f-67e2-4564-9de6-4844d8b8ee47}" FolderPath="xorMaskIsNotEqualTo\">
+      <Declaration><![CDATA[(*
+
+short summary
+==================
+This test method tests ``assert.bitNumber.short.xorMaskIsNotEqualTo``
+method of CNM_AssertionInterfaceLib library, 
+it provides the possibility to handover test data via parameter 
+
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+METHOD testXorMaskIsNotEqualTo 
+VAR_INPUT
+	(* for the test it's the parameter ``currentValue`` *)
+	valueToTest	:BYTE;
+	(* it's the mask for the currentValue *)
+	mask		:BYTE;
+	(* for the test it's the parameter ``unexpectedValue`` *)
+	unexpected	:BYTE;
+END_VAR
+VAR
+	(* just the expectation if the assertion to test must be worng or true *)
+	assertionIsWrong		:BOOL;
+	(* result of the bit operation to determine the value of ``assertionIsWrong`` *)
+	result					:BYTE;
+	(* contains the format string for the test message *)
+	message					:Tc2_System.T_MaxString;
+	(* TwinCAT printf with the test message *)
+	messageStringBuilder	:Tc2_Utilities.FB_FormatString;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.assertorContainer.resetAssertor();
+
+result := (valueToTest XOR mask);
+assertionIsWrong := (result = unexpected);
+message := SEL(
+	assertionIsWrong,
+	'currentValue: 16#%.2X XOR mask: 16#%.2X is 16#%.2X unexpectedValue: 16#%.2X assertion must be TRUE', 
+	'currentValue: 16#%.2X XOR mask: 16#%.2X is 16#%.2X unexpectedValue: 16#%.2X assertion must be FALSE'
+);
+messageStringBuilder(
+	sFormat := message,
+	arg1 := THIS^.AnyToArg(valueToTest),
+	arg2 := THIS^.AnyToArg(mask),
+	arg3 := THIS^.AnyToArg(result),
+	arg4 := THIS^.AnyToArg(unexpected)
+);
+
+THIS^.assertorContainer.assertor.assert.bitNumber.short.xorMaskIsNotEqualTo(
+	currentValue	:= valueToTest,
+	mask 			:= mask,
+	unexpectedValue	:= unexpected,
+	message			:= ''
+   );
+
+THIS^.AssertEquals_BOOL(
+	Expected 	:= assertionIsWrong,
+	Actual 		:= THIS^.assertorContainer.wasAssertionWrong,
+	Message 	:= messageStringBuilder.sOut
+);
+]]></ST>
+      </Implementation>
+    </Method>
+    <LineIds Name="ByteAssertionTests">
+      <LineId Id="591" Count="4" />
+      <LineId Id="611" Count="0" />
+      <LineId Id="596" Count="2" />
+      <LineId Id="612" Count="0" />
+      <LineId Id="599" Count="2" />
+      <LineId Id="613" Count="0" />
+      <LineId Id="602" Count="8" />
+      <LineId Id="614" Count="1" />
+      <LineId Id="59" Count="0" />
+    </LineIds>
+    <LineIds Name="ByteAssertionTests.getTestNameFor">
+      <LineId Id="5" Count="0" />
+      <LineId Id="7" Count="0" />
+    </LineIds>
+    <LineIds Name="ByteAssertionTests.runAndMaskIsEqualToTests">
+      <LineId Id="3" Count="2" />
+      <LineId Id="69" Count="5" />
+      <LineId Id="78" Count="14" />
+      <LineId Id="197" Count="4" />
+      <LineId Id="7" Count="0" />
+      <LineId Id="138" Count="0" />
+      <LineId Id="144" Count="3" />
+      <LineId Id="139" Count="0" />
+      <LineId Id="150" Count="3" />
+      <LineId Id="149" Count="0" />
+      <LineId Id="155" Count="0" />
+      <LineId Id="157" Count="9" />
+      <LineId Id="8" Count="0" />
+      <LineId Id="2" Count="0" />
+      <LineId Id="40" Count="0" />
+    </LineIds>
+    <LineIds Name="ByteAssertionTests.runAndMaskIsNotEqualToTests">
+      <LineId Id="3" Count="0" />
+      <LineId Id="69" Count="2" />
+      <LineId Id="77" Count="4" />
+      <LineId Id="115" Count="4" />
+      <LineId Id="87" Count="4" />
+      <LineId Id="120" Count="4" />
+      <LineId Id="159" Count="4" />
+      <LineId Id="92" Count="12" />
+      <LineId Id="110" Count="4" />
+      <LineId Id="125" Count="4" />
+      <LineId Id="7" Count="1" />
+      <LineId Id="2" Count="0" />
+      <LineId Id="37" Count="0" />
+    </LineIds>
+    <LineIds Name="ByteAssertionTests.runBitXIsEqualToTests">
+      <LineId Id="117" Count="0" />
+      <LineId Id="4" Count="0" />
+      <LineId Id="7" Count="0" />
+      <LineId Id="123" Count="0" />
+      <LineId Id="77" Count="0" />
+      <LineId Id="65" Count="3" />
+      <LineId Id="63" Count="0" />
+      <LineId Id="91" Count="3" />
+      <LineId Id="97" Count="0" />
+      <LineId Id="118" Count="0" />
+      <LineId Id="85" Count="0" />
+      <LineId Id="104" Count="3" />
+      <LineId Id="110" Count="4" />
+      <LineId Id="103" Count="0" />
+      <LineId Id="8" Count="0" />
+      <LineId Id="64" Count="0" />
+      <LineId Id="2" Count="0" />
+      <LineId Id="37" Count="0" />
+    </LineIds>
+    <LineIds Name="ByteAssertionTests.runBitXIsNotEqualToTests">
+      <LineId Id="3" Count="0" />
+      <LineId Id="68" Count="1" />
+      <LineId Id="71" Count="0" />
+      <LineId Id="77" Count="2" />
+      <LineId Id="82" Count="4" />
+      <LineId Id="89" Count="3" />
+      <LineId Id="98" Count="2" />
+      <LineId Id="103" Count="4" />
+      <LineId Id="110" Count="4" />
+      <LineId Id="37" Count="0" />
+    </LineIds>
+    <LineIds Name="ByteAssertionTests.runBitXIsSetTests">
+      <LineId Id="64" Count="2" />
+      <LineId Id="70" Count="0" />
+      <LineId Id="79" Count="3" />
+      <LineId Id="84" Count="2" />
+      <LineId Id="83" Count="0" />
+      <LineId Id="88" Count="2" />
+      <LineId Id="87" Count="0" />
+      <LineId Id="92" Count="2" />
+      <LineId Id="91" Count="0" />
+      <LineId Id="71" Count="2" />
+      <LineId Id="37" Count="0" />
+    </LineIds>
+    <LineIds Name="ByteAssertionTests.runBitXIsUnsetTests">
+      <LineId Id="90" Count="21" />
+      <LineId Id="2" Count="0" />
+      <LineId Id="37" Count="0" />
+    </LineIds>
+    <LineIds Name="ByteAssertionTests.runLsbIsEqualToTests">
+      <LineId Id="127" Count="33" />
+      <LineId Id="34" Count="0" />
+    </LineIds>
+    <LineIds Name="ByteAssertionTests.runLsbIsNotEqualToTests">
+      <LineId Id="63" Count="1" />
+      <LineId Id="106" Count="30" />
+      <LineId Id="72" Count="0" />
+      <LineId Id="37" Count="0" />
+    </LineIds>
+    <LineIds Name="ByteAssertionTests.runLsbIsSetTests">
+      <LineId Id="64" Count="0" />
+      <LineId Id="83" Count="2" />
+      <LineId Id="87" Count="1" />
+      <LineId Id="90" Count="0" />
+      <LineId Id="96" Count="3" />
+      <LineId Id="101" Count="0" />
+      <LineId Id="106" Count="1" />
+      <LineId Id="109" Count="0" />
+      <LineId Id="114" Count="0" />
+      <LineId Id="73" Count="0" />
+      <LineId Id="37" Count="0" />
+    </LineIds>
+    <LineIds Name="ByteAssertionTests.runLsbIsUnsetTests">
+      <LineId Id="64" Count="0" />
+      <LineId Id="83" Count="2" />
+      <LineId Id="87" Count="1" />
+      <LineId Id="90" Count="0" />
+      <LineId Id="96" Count="3" />
+      <LineId Id="101" Count="0" />
+      <LineId Id="106" Count="1" />
+      <LineId Id="109" Count="0" />
+      <LineId Id="114" Count="0" />
+      <LineId Id="73" Count="0" />
+      <LineId Id="37" Count="0" />
+    </LineIds>
+    <LineIds Name="ByteAssertionTests.runMsbIsEqualToTests">
+      <LineId Id="3" Count="0" />
+      <LineId Id="71" Count="11" />
+      <LineId Id="84" Count="19" />
+      <LineId Id="37" Count="0" />
+    </LineIds>
+    <LineIds Name="ByteAssertionTests.runMsbIsNotEqualToTests">
+      <LineId Id="63" Count="1" />
+      <LineId Id="82" Count="1" />
+      <LineId Id="85" Count="7" />
+      <LineId Id="94" Count="18" />
+      <LineId Id="70" Count="0" />
+      <LineId Id="37" Count="0" />
+    </LineIds>
+    <LineIds Name="ByteAssertionTests.runMsbIsSetTests">
+      <LineId Id="64" Count="1" />
+      <LineId Id="83" Count="13" />
+      <LineId Id="73" Count="0" />
+      <LineId Id="37" Count="0" />
+    </LineIds>
+    <LineIds Name="ByteAssertionTests.runMsbIsUnsetTests">
+      <LineId Id="64" Count="1" />
+      <LineId Id="83" Count="13" />
+      <LineId Id="73" Count="0" />
+      <LineId Id="37" Count="0" />
+    </LineIds>
+    <LineIds Name="ByteAssertionTests.runOrMaskIsEqualToTests">
+      <LineId Id="3" Count="0" />
+      <LineId Id="68" Count="2" />
+      <LineId Id="115" Count="0" />
+      <LineId Id="71" Count="20" />
+      <LineId Id="116" Count="0" />
+      <LineId Id="118" Count="8" />
+      <LineId Id="117" Count="0" />
+      <LineId Id="127" Count="0" />
+      <LineId Id="129" Count="8" />
+      <LineId Id="128" Count="0" />
+      <LineId Id="114" Count="0" />
+      <LineId Id="2" Count="0" />
+      <LineId Id="37" Count="0" />
+    </LineIds>
+    <LineIds Name="ByteAssertionTests.runOrMaskIsNotEqualToTests">
+      <LineId Id="3" Count="1" />
+      <LineId Id="68" Count="23" />
+      <LineId Id="93" Count="0" />
+      <LineId Id="95" Count="20" />
+      <LineId Id="92" Count="0" />
+      <LineId Id="2" Count="0" />
+      <LineId Id="37" Count="0" />
+    </LineIds>
+    <LineIds Name="ByteAssertionTests.runValueIsEqualToTests">
+      <LineId Id="101" Count="35" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="ByteAssertionTests.runValueIsGreaterTests">
+      <LineId Id="3" Count="1" />
+      <LineId Id="67" Count="23" />
+      <LineId Id="102" Count="2" />
+      <LineId Id="101" Count="0" />
+      <LineId Id="91" Count="7" />
+      <LineId Id="105" Count="2" />
+      <LineId Id="99" Count="1" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="ByteAssertionTests.runValueIsInRangeOfTests">
+      <LineId Id="3" Count="0" />
+      <LineId Id="67" Count="1" />
+      <LineId Id="70" Count="17" />
+      <LineId Id="69" Count="0" />
+      <LineId Id="88" Count="3" />
+      <LineId Id="11" Count="2" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="ByteAssertionTests.runValueIsLessThanTests">
+      <LineId Id="3" Count="1" />
+      <LineId Id="67" Count="40" />
+      <LineId Id="13" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="ByteAssertionTests.runValueIsMaxTests">
+      <LineId Id="3" Count="0" />
+      <LineId Id="64" Count="4" />
+      <LineId Id="73" Count="3" />
+      <LineId Id="107" Count="2" />
+      <LineId Id="106" Count="0" />
+      <LineId Id="77" Count="7" />
+      <LineId Id="111" Count="2" />
+      <LineId Id="110" Count="0" />
+      <LineId Id="89" Count="11" />
+      <LineId Id="114" Count="2" />
+      <LineId Id="101" Count="0" />
+      <LineId Id="117" Count="0" />
+      <LineId Id="102" Count="3" />
+      <LineId Id="2" Count="0" />
+      <LineId Id="37" Count="0" />
+    </LineIds>
+    <LineIds Name="ByteAssertionTests.runValueIsMinTests">
+      <LineId Id="3" Count="0" />
+      <LineId Id="63" Count="36" />
+      <LineId Id="106" Count="3" />
+      <LineId Id="100" Count="5" />
+      <LineId Id="37" Count="0" />
+    </LineIds>
+    <LineIds Name="ByteAssertionTests.runValueIsNotEqualToTests">
+      <LineId Id="98" Count="35" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="ByteAssertionTests.runXorMaskIsEqualToTests">
+      <LineId Id="3" Count="1" />
+      <LineId Id="63" Count="47" />
+      <LineId Id="37" Count="0" />
+    </LineIds>
+    <LineIds Name="ByteAssertionTests.runXorMaskIsNotEqualToTests">
+      <LineId Id="116" Count="47" />
+      <LineId Id="166" Count="0" />
+      <LineId Id="168" Count="8" />
+      <LineId Id="167" Count="0" />
+      <LineId Id="164" Count="1" />
+      <LineId Id="34" Count="0" />
+    </LineIds>
+    <LineIds Name="ByteAssertionTests.testAndMaskIsEqualTo">
+      <LineId Id="3" Count="0" />
+      <LineId Id="69" Count="0" />
+      <LineId Id="119" Count="1" />
+      <LineId Id="67" Count="0" />
+      <LineId Id="72" Count="3" />
+      <LineId Id="68" Count="0" />
+      <LineId Id="71" Count="0" />
+      <LineId Id="76" Count="2" />
+      <LineId Id="166" Count="0" />
+      <LineId Id="79" Count="0" />
+      <LineId Id="6" Count="0" />
+      <LineId Id="8" Count="6" />
+      <LineId Id="20" Count="3" />
+      <LineId Id="2" Count="0" />
+      <LineId Id="80" Count="0" />
+    </LineIds>
+    <LineIds Name="ByteAssertionTests.testAndMaskIsNotEqualTo">
+      <LineId Id="73" Count="2" />
+      <LineId Id="138" Count="0" />
+      <LineId Id="76" Count="4" />
+      <LineId Id="191" Count="5" />
+      <LineId Id="190" Count="0" />
+      <LineId Id="86" Count="13" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="ByteAssertionTests.testBitXIsEqualTo">
+      <LineId Id="128" Count="0" />
+      <LineId Id="197" Count="1" />
+      <LineId Id="189" Count="1" />
+      <LineId Id="214" Count="0" />
+      <LineId Id="191" Count="0" />
+      <LineId Id="202" Count="3" />
+      <LineId Id="201" Count="0" />
+      <LineId Id="210" Count="3" />
+      <LineId Id="209" Count="0" />
+      <LineId Id="192" Count="4" />
+      <LineId Id="217" Count="3" />
+      <LineId Id="215" Count="1" />
+      <LineId Id="129" Count="6" />
+      <LineId Id="141" Count="5" />
+      <LineId Id="33" Count="0" />
+    </LineIds>
+    <LineIds Name="ByteAssertionTests.testBitXIsNotEqualTo">
+      <LineId Id="65" Count="0" />
+      <LineId Id="119" Count="0" />
+      <LineId Id="123" Count="24" />
+      <LineId Id="66" Count="1" />
+      <LineId Id="78" Count="0" />
+      <LineId Id="69" Count="8" />
+      <LineId Id="2" Count="0" />
+      <LineId Id="148" Count="0" />
+    </LineIds>
+    <LineIds Name="ByteAssertionTests.testBitXIsSet">
+      <LineId Id="3" Count="0" />
+      <LineId Id="77" Count="0" />
+      <LineId Id="2" Count="0" />
+      <LineId Id="89" Count="0" />
+      <LineId Id="84" Count="4" />
+      <LineId Id="91" Count="0" />
+      <LineId Id="90" Count="0" />
+      <LineId Id="92" Count="3" />
+      <LineId Id="97" Count="0" />
+      <LineId Id="96" Count="0" />
+      <LineId Id="98" Count="3" />
+      <LineId Id="103" Count="4" />
+      <LineId Id="102" Count="0" />
+      <LineId Id="108" Count="0" />
+    </LineIds>
+    <LineIds Name="ByteAssertionTests.testBitXIsUnset">
+      <LineId Id="122" Count="26" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="ByteAssertionTests.testLsbIsEqualTo">
+      <LineId Id="4" Count="0" />
+      <LineId Id="59" Count="0" />
+      <LineId Id="52" Count="0" />
+      <LineId Id="62" Count="4" />
+      <LineId Id="53" Count="0" />
+      <LineId Id="60" Count="1" />
+      <LineId Id="67" Count="1" />
+      <LineId Id="70" Count="4" />
+      <LineId Id="5" Count="5" />
+      <LineId Id="16" Count="4" />
+      <LineId Id="2" Count="0" />
+      <LineId Id="69" Count="0" />
+    </LineIds>
+    <LineIds Name="ByteAssertionTests.testLsbIsNotEqualTo">
+      <LineId Id="69" Count="28" />
+      <LineId Id="2" Count="0" />
+      <LineId Id="98" Count="0" />
+    </LineIds>
+    <LineIds Name="ByteAssertionTests.testLsbIsSet">
+      <LineId Id="90" Count="2" />
+      <LineId Id="97" Count="11" />
+      <LineId Id="119" Count="1" />
+      <LineId Id="109" Count="0" />
+      <LineId Id="113" Count="5" />
+      <LineId Id="39" Count="1" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="ByteAssertionTests.testLsbIsUnset">
+      <LineId Id="90" Count="2" />
+      <LineId Id="97" Count="11" />
+      <LineId Id="119" Count="1" />
+      <LineId Id="109" Count="0" />
+      <LineId Id="113" Count="5" />
+      <LineId Id="39" Count="1" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="ByteAssertionTests.testMsbIsEqualTo">
+      <LineId Id="69" Count="2" />
+      <LineId Id="99" Count="0" />
+      <LineId Id="72" Count="25" />
+      <LineId Id="2" Count="0" />
+      <LineId Id="98" Count="0" />
+    </LineIds>
+    <LineIds Name="ByteAssertionTests.testMsbIsNotEqualTo">
+      <LineId Id="66" Count="2" />
+      <LineId Id="97" Count="0" />
+      <LineId Id="69" Count="25" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="ByteAssertionTests.testMsbIsSet">
+      <LineId Id="88" Count="23" />
+      <LineId Id="38" Count="1" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="ByteAssertionTests.testMsbIsUnset">
+      <LineId Id="88" Count="23" />
+      <LineId Id="38" Count="1" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="ByteAssertionTests.testOrMaskIsEqualTo">
+      <LineId Id="84" Count="0" />
+      <LineId Id="111" Count="0" />
+      <LineId Id="85" Count="6" />
+      <LineId Id="157" Count="5" />
+      <LineId Id="97" Count="13" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="ByteAssertionTests.testOrMaskIsNotEqualTo">
+      <LineId Id="94" Count="8" />
+      <LineId Id="168" Count="5" />
+      <LineId Id="108" Count="13" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="ByteAssertionTests.testValueIsEqualTo">
+      <LineId Id="108" Count="0" />
+      <LineId Id="110" Count="10" />
+      <LineId Id="122" Count="2" />
+      <LineId Id="128" Count="0" />
+      <LineId Id="136" Count="1" />
+      <LineId Id="129" Count="6" />
+      <LineId Id="61" Count="0" />
+    </LineIds>
+    <LineIds Name="ByteAssertionTests.testValueIsGreater">
+      <LineId Id="69" Count="23" />
+      <LineId Id="2" Count="0" />
+      <LineId Id="93" Count="0" />
+    </LineIds>
+    <LineIds Name="ByteAssertionTests.testValueIsInRangeOf">
+      <LineId Id="2" Count="0" />
+      <LineId Id="81" Count="1" />
+      <LineId Id="89" Count="0" />
+      <LineId Id="85" Count="3" />
+      <LineId Id="83" Count="0" />
+      <LineId Id="90" Count="5" />
+      <LineId Id="84" Count="0" />
+      <LineId Id="69" Count="0" />
+      <LineId Id="68" Count="0" />
+      <LineId Id="70" Count="4" />
+      <LineId Id="97" Count="4" />
+      <LineId Id="96" Count="0" />
+      <LineId Id="102" Count="0" />
+    </LineIds>
+    <LineIds Name="ByteAssertionTests.testValueIsLessThan">
+      <LineId Id="70" Count="23" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="ByteAssertionTests.testValueIsMax">
+      <LineId Id="70" Count="23" />
+      <LineId Id="2" Count="0" />
+      <LineId Id="94" Count="0" />
+    </LineIds>
+    <LineIds Name="ByteAssertionTests.testValueIsMin">
+      <LineId Id="69" Count="23" />
+      <LineId Id="2" Count="0" />
+      <LineId Id="93" Count="0" />
+    </LineIds>
+    <LineIds Name="ByteAssertionTests.testValueIsNotEqualTo">
+      <LineId Id="70" Count="24" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="ByteAssertionTests.testXorMaskIsEqualTo">
+      <LineId Id="84" Count="8" />
+      <LineId Id="157" Count="5" />
+      <LineId Id="98" Count="13" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="ByteAssertionTests.testXorMaskIsNotEqualTo">
+      <LineId Id="103" Count="8" />
+      <LineId Id="175" Count="5" />
+      <LineId Id="117" Count="12" />
+      <LineId Id="2" Count="0" />
+      <LineId Id="63" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

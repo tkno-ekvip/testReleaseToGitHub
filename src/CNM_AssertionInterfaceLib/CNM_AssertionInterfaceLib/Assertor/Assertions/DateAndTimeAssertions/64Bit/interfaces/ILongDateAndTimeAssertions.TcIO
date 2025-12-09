@@ -1,0 +1,111 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.8">
+  <Itf Name="ILongDateAndTimeAssertions" Id="{601e1489-ef8b-41a6-b23a-b519279a23e4}">
+    <Declaration><![CDATA[(*
+
+short summary
+=================
+| This interface provides assert statements for date and time types with 64 bit length
+| For date and time (``LDT``) use :ref:`ISimpleDateAndTimeAssertions.dateAndTime`
+| For date (``LDATE``) use  :ref:`ISimpleDateAndTimeAssertions.dateOnly`
+| For time of day (``LTOD``) use  :ref:`ISimpleDateAndTimeAssertions.timeOfDay`
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+methods
+==================
+
+*)
+
+INTERFACE ILongDateAndTimeAssertions EXTENDS __SYSTEM.IQueryInterface
+]]></Declaration>
+    <Property Name="dateAndTime" Id="{57ef4bc0-712c-45b1-8d51-48857f0c9074}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+Returns the interface :ref:`I64BitDtAssertions` with assert statements for 64 bit date and time ``LDT``
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+PROPERTY dateAndTime :I64BitDtAssertions]]></Declaration>
+      <Get Name="Get" Id="{144daf99-6278-407b-9253-ddfbf48e401a}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Property Name="dateOnly" Id="{d785b125-0936-4eca-9f2b-e19464be966f}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+Returns the interface :ref:`I64BitDateAssertions` with assert statements for 64 bit date ``LDATE``
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+PROPERTY dateOnly :I64BitDateAssertions]]></Declaration>
+      <Get Name="Get" Id="{e851350c-8917-4927-8226-02eafa4ace3d}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Property Name="timeOfDay" Id="{1394d846-3b0c-4e71-a9d0-e33641467e0e}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+Returns the interface :ref:`I64BitTodAssertions` with assert statements for 32 bit time of day ``LTOD``
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+PROPERTY timeOfDay :I64BitTodAssertions]]></Declaration>
+      <Get Name="Get" Id="{ec1b77ad-3aa9-4fcb-a7fc-124f375f7522}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+  </Itf>
+</TcPlcObject>

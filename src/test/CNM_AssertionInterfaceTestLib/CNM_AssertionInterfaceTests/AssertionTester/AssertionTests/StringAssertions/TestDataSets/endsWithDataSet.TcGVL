@@ -1,0 +1,227 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <GVL Name="endsWithDataSet" Id="{506e9454-bae8-4f1d-a9fd-a7c8e95c7414}">
+    <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+{warning 'header is generated please add your documentation'}
+{attribute 'qualified_only'}
+VAR_GLOBAL CONSTANT
+	SIZE_OF_ENDSWITH_DATASET:USINT := 18;
+END_VAR
+
+VAR_GLOBAL
+	endsWithDataSetCommon : ARRAY[0..SIZE_OF_ENDSWITH_DATASET] OF containsDataStr := [
+		
+		// Test number 0
+		(	StringToTest		:= 'HellO',
+		  	WStringToTest 		:= "HellO",
+			StringToContain 	:= 'lo',
+			WStringToContain	:= "lo",
+			IgnoreCases			:= TRUE,
+			Trim 				:= FALSE,
+			ExpectedResult  	:= FALSE,
+			typeToTest      	:= TypeToTest.TEST_STRING	),
+		
+		// Test number 1	
+		(	StringToTest		:= 'HellO',
+		  	WStringToTest 		:= "HellO",
+			StringToContain 	:= 'lo',
+			WStringToContain	:= "lo",
+			IgnoreCases			:= TRUE,
+			Trim 				:= FALSE,
+			ExpectedResult  	:= FALSE,
+			typeToTest      	:= TypeToTest.TEST_WSTRING	),
+		
+		// Test number 2	
+		(	StringToTest		:= 'Hello',
+		  	WStringToTest 		:= "Hello",
+			StringToContain 	:= 'LO',
+			WStringToContain	:= "LO",
+			IgnoreCases			:= FALSE,
+			Trim 				:= FALSE,
+			ExpectedResult  	:= TRUE,
+			typeToTest      	:= TypeToTest.TEST_STRING	),
+
+		// Test number 3			
+		(	StringToTest		:= 'Hello',
+		  	WStringToTest 		:= "Hello",
+			StringToContain 	:= 'LO',
+			WStringToContain	:= "LO",
+			IgnoreCases			:= FALSE,
+			Trim 				:= FALSE,
+			ExpectedResult  	:= TRUE,
+			typeToTest      	:= TypeToTest.TEST_WSTRING	),
+			
+		// Test number 4	
+		(	StringToTest		:= 'Hello ',
+		  	WStringToTest 		:= "Hello ",
+			StringToContain 	:= 'lo',
+			WStringToContain	:= "lo",
+			IgnoreCases			:= FALSE,
+			Trim 				:= TRUE,
+			ExpectedResult  	:= FALSE,
+			typeToTest      	:= TypeToTest.TEST_STRING	),
+
+		// Test number 5			
+		(	StringToTest		:= 'Hello ',
+		  	WStringToTest 		:= "Hello ",
+			StringToContain 	:= 'lo',
+			WStringToContain	:= "lo",
+			IgnoreCases			:= FALSE,
+			Trim 				:= TRUE,
+			ExpectedResult  	:= FALSE,
+			typeToTest      	:= TypeToTest.TEST_WSTRING	),
+			
+		// Test number 6	
+		(	StringToTest		:= 'Kind and evil',
+		  	WStringToTest 		:= "Добро и зло",
+			StringToContain 	:= 'evil',
+			WStringToContain	:= "зло",
+			IgnoreCases			:= FALSE,
+			Trim 				:= FALSE,
+			ExpectedResult  	:= FALSE,
+			typeToTest      	:= TypeToTest.TEST_STRING	),
+
+		// Test number 7			
+		(	StringToTest		:= 'Kind and evil',
+		  	WStringToTest 		:= "Добро и зло",
+			StringToContain 	:= 'evil',
+			WStringToContain	:= "зло",
+			IgnoreCases			:= FALSE,
+			Trim 				:= FALSE,
+			ExpectedResult  	:= FALSE,
+			typeToTest      	:= TypeToTest.TEST_WSTRING	),
+			
+		// Test number 8	
+		(	StringToTest		:= 'Kind and evil',
+		  	WStringToTest 		:= "Добро и зло",
+			StringToContain 	:= 'evi',
+			WStringToContain	:= "зл",
+			IgnoreCases			:= FALSE,
+			Trim 				:= FALSE,
+			ExpectedResult  	:= TRUE,
+			typeToTest      	:= TypeToTest.TEST_STRING	),
+
+		// Test number 9			
+		(	StringToTest		:= 'Kind and evil',
+		  	WStringToTest 		:= "Добро и зло",
+			StringToContain 	:= 'evi',
+			WStringToContain	:= "зл",
+			IgnoreCases			:= FALSE,
+			Trim 				:= FALSE,
+			ExpectedResult  	:= TRUE,
+			typeToTest      	:= TypeToTest.TEST_WSTRING	),
+			
+		// Test number 10	
+		(	StringToTest		:= 'Kind and evil',
+		  	WStringToTest 		:= "Добро и зло",
+			StringToContain 	:= 'evil',
+			WStringToContain	:= "Зло",
+			IgnoreCases			:= TRUE,
+			Trim 				:= FALSE,
+			ExpectedResult  	:= FALSE,
+			typeToTest      	:= TypeToTest.TEST_STRING	),
+
+		// Test number 11			
+		(	StringToTest		:= 'Kind and evil',
+		  	WStringToTest 		:= "Добро и зло",
+			StringToContain 	:= 'evil',
+			WStringToContain	:= "Зло",
+			IgnoreCases			:= TRUE,
+			Trim 				:= FALSE,
+			ExpectedResult  	:= FALSE,
+			typeToTest      	:= TypeToTest.TEST_WSTRING	),
+			
+		// Test number 12	
+		(	StringToTest		:= ' Kind and evil ',
+		  	WStringToTest 		:= " Добро и зло ",
+			StringToContain 	:= 'evil',
+			WStringToContain	:= "зло",
+			IgnoreCases			:= TRUE,
+			Trim 				:= TRUE,
+			ExpectedResult  	:= FALSE,
+			typeToTest      	:= TypeToTest.TEST_STRING	),
+
+		// Test number 13			
+		(	StringToTest		:= ' Kind and evil ',
+		  	WStringToTest 		:= " Добро и зло ",
+			StringToContain 	:= 'evil',
+			WStringToContain	:= "зло",
+			IgnoreCases			:= TRUE,
+			Trim 				:= TRUE,
+			ExpectedResult  	:= FALSE,
+			typeToTest      	:= TypeToTest.TEST_WSTRING	),
+			
+		// Test number 14			
+		(	StringToTest		:= '',
+		  	WStringToTest 		:= " 🧛 ",
+			StringToContain 	:= '',
+			WStringToContain	:= "🧛",
+			IgnoreCases			:= TRUE,
+			Trim 				:= TRUE,
+			ExpectedResult  	:= FALSE,
+			typeToTest      	:= TypeToTest.TEST_WSTRING	),
+			
+		// Test number 15			
+		(	StringToTest		:= '',
+		  	WStringToTest 		:= " 🧛 ",
+			StringToContain 	:= '',
+			WStringToContain	:= "🧛",
+			IgnoreCases			:= TRUE,
+			Trim 				:= FALSE,
+			ExpectedResult  	:= TRUE,
+			typeToTest      	:= TypeToTest.TEST_WSTRING	),
+
+		// Test number 16			
+		(	StringToTest		:= '',
+		  	WStringToTest 		:= "🧛",
+			StringToContain 	:= '',
+			WStringToContain	:= "🧛",
+			IgnoreCases			:= FALSE,
+			Trim 				:= FALSE,
+			ExpectedResult  	:= FALSE,
+			typeToTest      	:= TypeToTest.TEST_WSTRING	),
+			
+		// Test number 17			
+		(	StringToTest		:= ' hello world ',
+		  	WStringToTest 		:= " hello world ",
+			StringToContain 	:= '  ',
+			WStringToContain	:= "  ",
+			IgnoreCases			:= TRUE,
+			Trim 				:= FALSE,
+			ExpectedResult  	:= TRUE,
+			typeToTest      	:= TypeToTest.TEST_WSTRING	),
+
+		// Test number 18			
+		(	StringToTest		:= ' hello world ',
+		  	WStringToTest 		:= " hello world ",
+			StringToContain 	:= '  ',
+			WStringToContain	:= "  ",
+			IgnoreCases			:= TRUE,
+			Trim 				:= FALSE,
+			ExpectedResult  	:= TRUE,
+			typeToTest      	:= TypeToTest.TEST_STRING	)
+			
+					
+
+	];
+END_VAR]]></Declaration>
+  </GVL>
+</TcPlcObject>

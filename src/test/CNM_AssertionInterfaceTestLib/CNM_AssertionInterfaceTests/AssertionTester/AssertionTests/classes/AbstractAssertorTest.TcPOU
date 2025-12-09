@@ -1,0 +1,360 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="AbstractAssertorTest" Id="{216f80eb-9475-4c73-b0e7-c7b972951a89}" SpecialFunc="None">
+    <Declaration><![CDATA[(*
+
+short summary
+=============
+This provides the possibility for tests to attach an :ref:`ICanAssertWithResult` during the runtime.
+All assertion tests are based on it. The late attachment of this class is used by :ref:`AssertionTester.FB_init`.
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+properties and methods
+=======================
+
+*)
+
+FUNCTION_BLOCK INTERNAL ABSTRACT AbstractAssertorTest EXTENDS TcUnit.FB_TestSuite IMPLEMENTS IAttachAssertorContainer
+VAR
+	(* container with the concrete assertor which need to be tested *)
+	assertorContainer :IAssertorContainer;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Folder Name="T_Arg" Id="{0f9dc358-f7cb-45b4-be7c-82343813bce9}" />
+    <Method Name="AnyToArg" Id="{a16c4792-41f0-4f84-8cf2-ddee34526c7d}" FolderPath="T_Arg\">
+      <Declaration><![CDATA[(*
+
+summary
+==================
+helper function to get ``Tc2_Utilities.T_Arg`` for the message formatting
+
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+METHOD PROTECTED AnyToArg :Tc2_Utilities.T_Arg
+VAR_INPUT
+	(* just the data which shoud be casted to ``Tc2_Utilities.T_Arg`` *)
+	in	:ANY;
+END_VAR
+VAR
+	(* just to store the ``ANY`` without changes *)
+	data	:__SYSTEM.AnyType;	
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[data.diSize := in.diSize;
+data.pValue := in.pValue;
+data.TypeClass := in.TypeClass;
+THIS^.dereferenceAnys(in := data, out => data);
+AnyToArg := THIS^.AnyTypeToArg(data);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="AnyTypeToArg" Id="{b62c2439-95c8-4b41-a0b5-874508b595ec}" FolderPath="T_Arg\">
+      <Declaration><![CDATA[(*
+
+summary
+==================
+helper function to get ``Tc2_Utilities.T_Arg`` for the message formatting
+
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+{warning 'header is generated please add your documentation'}
+
+
+METHOD PROTECTED AnyTypeToArg :Tc2_Utilities.T_Arg
+VAR_INPUT
+	in :__SYSTEM.AnyType;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[AnyTypeToArg.cbLen := TO_UDINT(in.diSize);
+AnyTypeToArg.pData := in.pValue;
+AnyTypeToArg.eType := THIS^.typeClassToArgType(in.TypeClass, AnyTypeToArg.cbLen);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="attachAssertorContainer" Id="{a74d6ae9-5aa8-446a-ad56-88e6cd7c3209}">
+      <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+{warning 'header is generated please add your documentation'}
+
+PROPERTY attachAssertorContainer : IAssertorContainer
+]]></Declaration>
+      <Set Name="Set" Id="{c15f0567-adff-46b3-b1de-a3fa9b5141b7}">
+        <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+{warning 'header is generated please add your documentation'}
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[THIS^.assertorContainer := attachAssertorContainer;
+]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="dereferenceAnys" Id="{e376c7eb-2976-44c2-ab30-b669a36e1097}" FolderPath="T_Arg\">
+      <Declaration><![CDATA[
+{warning 'header is generated please add your documentation'}
+
+METHOD PROTECTED dereferenceAnys
+VAR_INPUT
+	in :__SYSTEM.AnyType;
+END_VAR
+VAR_OUTPUT
+	out :__SYSTEM.AnyType;	
+END_VAR
+VAR
+	p :POINTER TO __SYSTEM.AnyType;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[CASE in.TypeClass OF
+__SYSTEM.TYPE_CLASS.TYPE_ANY,  
+__SYSTEM.TYPE_CLASS.TYPE_ANYBIT, 
+__SYSTEM.TYPE_CLASS.TYPE_ANYDATE,
+__SYSTEM.TYPE_CLASS.TYPE_ANYINT,
+__SYSTEM.TYPE_CLASS.TYPE_ANYNUM,
+__SYSTEM.TYPE_CLASS.TYPE_ANYREAL:
+	p := in.pValue;
+	p := p^.pValue;
+	THIS^.dereferenceAnys(p^, out => out);
+ELSE
+	out := in;
+END_CASE]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="FB_init" Id="{27eb1f1e-8668-40bb-8d4e-f749c23f4bb1}">
+      <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==========
+
+*)
+
+{warning 'header is generated please add your documentation'}
+METHOD FB_init :BOOL
+VAR_INPUT
+    bInitRetains	:BOOL; // if TRUE, the retain variables are initialized (warm start / cold start)
+    bInCopyCode		:BOOL;  // if TRUE, the instance afterwards gets moved into the copy code (online change)
+	classToBeTested :IAssertorContainer;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.assertorContainer := classToBeTested;
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="typeClassToArgType" Id="{1c5572c6-da61-47bd-9668-e57d7edd1615}" FolderPath="T_Arg\">
+      <Declaration><![CDATA[
+{warning 'header is generated please add your documentation'}
+
+METHOD PROTECTED typeClassToArgType : Tc2_Utilities.E_ArgType
+VAR_INPUT
+	class 	:__SYSTEM.TYPE_CLASS;
+	size	:UDINT;
+END_VAR
+VAR CONSTANT
+	LENGTH_1_BYTE	:UINT := 1;
+	LENGTH_2_BYTE	:UINT := 2;
+	LENGTH_4_BYTE	:UINT := 4;
+	LENGTH_8_BYTE	:UINT := 8;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[CASE class OF
+__SYSTEM.TYPE_CLASS.TYPE_BOOL, __SYSTEM.TYPE_CLASS.TYPE_BYTE,
+__SYSTEM.TYPE_CLASS.TYPE_BIT:
+	typeClassToArgType := Tc2_Utilities.E_ArgType.ARGTYPE_BYTE;
+__SYSTEM.TYPE_CLASS.TYPE_WORD:
+	typeClassToArgType := Tc2_Utilities.E_ArgType.ARGTYPE_WORD;
+__SYSTEM.TYPE_CLASS.TYPE_DWORD:
+	typeClassToArgType := Tc2_Utilities.E_ArgType.ARGTYPE_DWORD;
+__SYSTEM.TYPE_CLASS.TYPE_LWORD:
+	typeClassToArgType := Tc2_Utilities.E_ArgType.ARGTYPE_LWORD;
+__SYSTEM.TYPE_CLASS.TYPE_USINT:
+	typeClassToArgType := Tc2_Utilities.E_ArgType.ARGTYPE_USINT;
+__SYSTEM.TYPE_CLASS.TYPE_SINT:
+	typeClassToArgType := Tc2_Utilities.E_ArgType.ARGTYPE_SINT;
+__SYSTEM.TYPE_CLASS.TYPE_UINT:
+	typeClassToArgType := Tc2_Utilities.E_ArgType.ARGTYPE_UINT;
+__SYSTEM.TYPE_CLASS.TYPE_INT:
+	typeClassToArgType := Tc2_Utilities.E_ArgType.ARGTYPE_INT;
+__SYSTEM.TYPE_CLASS.TYPE_UDINT, __SYSTEM.TYPE_CLASS.TYPE_TIME,
+__SYSTEM.TYPE_CLASS.TYPE_DATE, __SYSTEM.TYPE_CLASS.TYPE_DATEANDTIME,
+__SYSTEM.TYPE_CLASS.TYPE_TIMEOFDAY:
+	typeClassToArgType := Tc2_Utilities.E_ArgType.ARGTYPE_UDINT;
+__SYSTEM.TYPE_CLASS.TYPE_DINT:
+	typeClassToArgType := Tc2_Utilities.E_ArgType.ARGTYPE_DINT;
+__SYSTEM.TYPE_CLASS.TYPE_ULINT, __SYSTEM.TYPE_CLASS.TYPE_LTIME:
+		typeClassToArgType := Tc2_Utilities.E_ArgType.ARGTYPE_ULARGE;
+__SYSTEM.TYPE_CLASS.TYPE_LINT:
+	typeClassToArgType := Tc2_Utilities.E_ArgType.ARGTYPE_LARGE;
+__SYSTEM.TYPE_CLASS.TYPE_REAL:
+	typeClassToArgType := Tc2_Utilities.E_ArgType.ARGTYPE_REAL;
+__SYSTEM.TYPE_CLASS.TYPE_LREAL:
+	typeClassToArgType := Tc2_Utilities.E_ArgType.ARGTYPE_LREAL;
+__SYSTEM.TYPE_CLASS.TYPE_STRING:
+	typeClassToArgType := SEL(
+		(size <= SIZEOF(T_MaxString)),
+		Tc2_Utilities.E_ArgType.ARGTYPE_UNKNOWN,
+		Tc2_Utilities.E_ArgType.ARGTYPE_STRING
+	);
+__SYSTEM.TYPE_CLASS.TYPE_POINTER, __SYSTEM.TYPE_CLASS.TYPE_REFERENCE:
+	typeClassToArgType := SEL(
+		(SIZEOF(__XWORD) = SIZEOF(LWORD)),
+		Tc2_Utilities.E_ArgType.ARGTYPE_DWORD,
+		Tc2_Utilities.E_ArgType.ARGTYPE_LWORD
+	);	
+__SYSTEM.TYPE_CLASS.TYPE_SUBRANGE, __SYSTEM.TYPE_CLASS.TYPE_ENUM:
+	CASE size OF
+	LENGTH_1_BYTE: typeClassToArgType := Tc2_Utilities.E_ArgType.ARGTYPE_USINT;
+	LENGTH_2_BYTE: typeClassToArgType := Tc2_Utilities.E_ArgType.ARGTYPE_UINT;
+	LENGTH_4_BYTE: typeClassToArgType := Tc2_Utilities.E_ArgType.ARGTYPE_UDINT;
+	LENGTH_8_BYTE: typeClassToArgType := Tc2_Utilities.E_ArgType.ARGTYPE_ULARGE;
+	ELSE typeClassToArgType := Tc2_Utilities.E_ArgType.ARGTYPE_UNKNOWN;
+	END_CASE
+ELSE
+	typeClassToArgType := Tc2_Utilities.E_ArgType.ARGTYPE_UNKNOWN;
+END_CASE
+]]></ST>
+      </Implementation>
+    </Method>
+    <LineIds Name="AbstractAssertorTest">
+      <LineId Id="9" Count="0" />
+    </LineIds>
+    <LineIds Name="AbstractAssertorTest.AnyToArg">
+      <LineId Id="187" Count="0" />
+      <LineId Id="194" Count="2" />
+      <LineId Id="5" Count="0" />
+      <LineId Id="197" Count="0" />
+    </LineIds>
+    <LineIds Name="AbstractAssertorTest.AnyTypeToArg">
+      <LineId Id="5" Count="0" />
+      <LineId Id="7" Count="0" />
+      <LineId Id="9" Count="0" />
+      <LineId Id="8" Count="0" />
+    </LineIds>
+    <LineIds Name="AbstractAssertorTest.attachAssertorContainer.Set">
+      <LineId Id="2" Count="0" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="AbstractAssertorTest.dereferenceAnys">
+      <LineId Id="7" Count="6" />
+      <LineId Id="18" Count="0" />
+      <LineId Id="23" Count="0" />
+      <LineId Id="17" Count="0" />
+      <LineId Id="14" Count="0" />
+      <LineId Id="19" Count="0" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="AbstractAssertorTest.FB_init">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="AbstractAssertorTest.typeClassToArgType">
+      <LineId Id="8" Count="0" />
+      <LineId Id="10" Count="0" />
+      <LineId Id="117" Count="0" />
+      <LineId Id="11" Count="34" />
+      <LineId Id="49" Count="13" />
+      <LineId Id="105" Count="0" />
+      <LineId Id="109" Count="0" />
+      <LineId Id="5" Count="0" />
+      <LineId Id="118" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

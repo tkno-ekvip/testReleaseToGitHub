@@ -1,0 +1,1002 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="AnyStringAssertions" Id="{fb248394-cb20-4e0b-96e4-b40ac93ae790}" SpecialFunc="None">
+    <Declaration><![CDATA[(*
+
+short summary
+=================
+Class provides assert statements
+for 8-bit windows-1252 and UTF-16 strings with an undifined length.
+
+.. attention:: 
+	All strings are handled as null terminated byte/word streams.
+	For windows-1252 is end of the string 16#00
+	For UTF-16 is end of the string 16#00_00
+
+.. attention:: 
+	The interface :ref:`IAnyStringAssertions` uses ``ANY_STRING``, 
+	for this it's not possible to use literals/constants,
+	because for ``ANY`` types generates the compiler ``__SYSTEM.AnyType``
+	and ``__SYSTEM.AnyType`` contains a pointer  
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+methods and properties
+=======================
+
+*)
+
+{attribute 'reflection'}
+FUNCTION_BLOCK INTERNAL AnyStringAssertions EXTENDS AbstactAssertion IMPLEMENTS IAnyStringAssertions
+VAR
+	(* class to handle the windows-1252 string assertions *)  
+	win1252Assertions	:Windows1252StringPointerAssertions();
+	(* class to handle the windows-1252 string assertions *)  
+	utf16Assertions		:Utf16StringPointerAssertions();	
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Property Name="className" Id="{fcc2d213-734a-4988-a56c-58e116884246}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This abstract property returns the class name of the concrete object, 
+It's for debugging purpose
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+PROPERTY className :CNM_AbstractObject.ClassName]]></Declaration>
+      <Get Name="Get" Id="{65e2fc47-ed60-4e11-b462-d54a00eb1b07}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[className := 'CNM_AssertionInterfaceLib.AnyStringAssertions';
+]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="contains" Id="{bf0ab0d6-fe3a-4edc-a46b-d453067bd3cc}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current string ``stringToCheck`` contains the search string
+
+.. attention:: 
+	All strings are handled as null terminated byte/word streams.
+	For windows-1252 is end of the string 16#00
+	For UTF-16 is end of the string 16#00_00
+
+.. attention:: 
+	Method uses ``ANY_STRING`` and for this it's not possible
+	to use literals/constants, because for ``ANY`` types the
+	compiler generates``__SYSTEM.AnyType`` and 
+	``__SYSTEM.AnyType`` contains a pointer  
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD contains
+VAR_INPUT
+	(* current string to check *)
+	stringToCheck	:ANY_STRING;
+	(* string must be found in ``stringToCheck`` *)
+	searchString	:ANY_STRING;
+	(* ``TRUE`` means ignore cases; ``FALSE`` means cases must be equal too *)
+	ignoreCases		:BOOL;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (stringToCheck.TypeClass <> searchString.TypeClass) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('contains'));
+	RETURN;
+END_IF
+
+IF (stringToCheck.TypeClass = __SYSTEM.TYPE_CLASS.TYPE_STRING) THEN
+	THIS^.win1252Assertions.win1252Contains(
+		stringToCheck := stringToCheck.pValue,
+		searchString := searchString.pValue,
+		ignoreCases := ignoreCases,
+		message := message
+	);
+ELSIF (stringToCheck.TypeClass = __SYSTEM.TYPE_CLASS.TYPE_WSTRING) THEN
+	THIS^.utf16Assertions.utf16Contains(
+		stringToCheck := stringToCheck.pValue,
+		searchString := searchString.pValue,
+		ignoreCases := ignoreCases,
+		message := message
+	);	
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="containsNo" Id="{8225714f-42b0-45a3-bb95-a08686884681}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current string ``stringToCheck`` not contains the search string
+
+.. attention:: 
+	All strings are handled as null terminated byte/word streams.
+	For windows-1252 is end of the string 16#00
+	For UTF-16 is end of the string 16#00_00
+
+.. attention:: 
+	Method uses ``ANY_STRING`` and for this it's not possible
+	to use literals/constants, because for ``ANY`` types the
+	compiler generates``__SYSTEM.AnyType`` and 
+	``__SYSTEM.AnyType`` contains a pointer  
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD containsNo
+VAR_INPUT
+	(* current string to check *)
+	stringToCheck	:ANY_STRING;
+	(* string that must not be found in ``stringToCheck`` *)
+	searchString	:ANY_STRING;
+	(* ``TRUE`` means ignore cases; ``FALSE`` means cases must be equal too *)
+	ignoreCases		:BOOL;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (stringToCheck.TypeClass <> searchString.TypeClass) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('containsNo'));
+	RETURN;
+END_IF
+
+IF (stringToCheck.TypeClass = __SYSTEM.TYPE_CLASS.TYPE_STRING) THEN
+	THIS^.win1252Assertions.win1252ContainsNo(
+		stringToCheck := stringToCheck.pValue,
+		searchString := searchString.pValue,
+		ignoreCases := ignoreCases,
+		message := message
+	);
+ELSIF (stringToCheck.TypeClass = __SYSTEM.TYPE_CLASS.TYPE_WSTRING) THEN
+	THIS^.utf16Assertions.utf16ContainsNo(
+		stringToCheck := stringToCheck.pValue,
+		searchString := searchString.pValue,
+		ignoreCases := ignoreCases,
+		message := message
+	);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="endsWith" Id="{2caa6531-5c1e-4058-bb14-79e815fd424d}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current string ``stringToCheck`` ends with ``end``
+
+.. attention:: 
+	All strings are handled as null terminated byte/word streams.
+	For windows-1252 is end of the string 16#00
+	For UTF-16 is end of the string 16#00_00
+
+.. attention:: 
+	Method uses ``ANY_STRING`` and for this it's not possible
+	to use literals/constants, because for ``ANY`` types the
+	compiler generates``__SYSTEM.AnyType`` and 
+	``__SYSTEM.AnyType`` contains a pointer  
+
+.. attention:: 
+	end of the string is **ALWAYS** the right side of the string 
+	even for writings which written from right to left like Hebrew or Arabic
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD endsWith
+VAR_INPUT
+	(* current string to check *)
+	stringToCheck	:ANY_STRING;
+	(* expected end of ``stringToCheck`` *)
+	end				:ANY_STRING;
+	(* ``TRUE`` means ignore cases; ``FALSE`` means cases must be equal too *)
+	ignoreCases		:BOOL;
+	(* ``TRUE`` means truncation of spaces on the right side of ``stringToCheck``*)
+	trim			:BOOL;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (stringToCheck.TypeClass <> end.TypeClass) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('endsWith'));
+	RETURN;
+END_IF
+
+IF (stringToCheck.TypeClass = __SYSTEM.TYPE_CLASS.TYPE_STRING) THEN
+	THIS^.win1252Assertions.win1252EndsWith(
+		stringToCheck := stringToCheck.pValue,
+		end := end.pValue,
+		ignoreCases := ignoreCases,
+		trim := trim,
+		message := message
+	);
+ELSIF (stringToCheck.TypeClass = __SYSTEM.TYPE_CLASS.TYPE_WSTRING) THEN
+	THIS^.utf16Assertions.utf16EndsWith(
+		stringToCheck := stringToCheck.pValue,
+		end := end.pValue,
+		ignoreCases := ignoreCases,
+		trim := trim,
+		message := message
+	);	
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="isEmpty" Id="{200f5764-869a-419f-9fc7-791ed622a0f2}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current string ``stringToCheck`` is empty
+
+.. attention:: 
+	All strings are handled as null terminated byte/word streams.
+	For windows-1252 is end of the string 16#00
+	For UTF-16 is end of the string 16#00_00
+
+.. attention:: 
+	Method uses ``ANY_STRING`` and for this it's not possible
+	to use literals/constants, because for ``ANY`` types the
+	compiler generates``__SYSTEM.AnyType`` and 
+	``__SYSTEM.AnyType`` contains a pointer  
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD isEmpty
+VAR_INPUT
+	(* current string to check *)
+	stringToCheck	:ANY_STRING;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+VAR CONSTANT
+	(* strings are null terminated *)
+	END_OF_WINDOWS_1252_STRING	:BYTE := 16#00;
+	(* strings are null terminated *)
+	END_OF_UTF16_STRING	:WORD := 16#0000;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (stringToCheck.TypeClass = __SYSTEM.TYPE_CLASS.TYPE_STRING) THEN
+	IF (stringToCheck.pValue^ <> END_OF_WINDOWS_1252_STRING) THEN
+		THIS^.assertionWasWrong(message, THIS^.getDebugInfo('isEmpty'));
+	END_IF
+ELSIF (stringToCheck.TypeClass = __SYSTEM.TYPE_CLASS.TYPE_WSTRING) THEN
+	IF (stringToCheck.pValue^ <> END_OF_UTF16_STRING) THEN
+		THIS^.assertionWasWrong(message, THIS^.getDebugInfo('isEmpty'));
+	END_IF
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="isEqualTo" Id="{d4d26bf4-0744-4ca1-8927-f44aea35a280}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current string ``stringToCheck`` is equal to ``expected``
+
+.. attention:: 
+	All strings are handled as null terminated byte/word streams.
+	For windows-1252 is end of the string 16#00
+	For UTF-16 is end of the string 16#00_00
+
+.. attention:: 
+	Method uses ``ANY_STRING`` and for this it's not possible
+	to use literals/constants, because for ``ANY`` types the
+	compiler generates``__SYSTEM.AnyType`` and 
+	``__SYSTEM.AnyType`` contains a pointer  
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD isEqualTo
+VAR_INPUT
+	(* current string to check *)
+	stringToCheck	:ANY_STRING;
+	(* ``stringToCheck`` must be equal to expected *)
+	expected		:ANY_STRING;
+	(* ``TRUE`` means ignore cases; ``FALSE`` means cases must be equal too *)
+	ignoreCases		:BOOL;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (stringToCheck.TypeClass <> expected.TypeClass) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('isEqualTo'));
+	RETURN;
+END_IF
+
+IF (stringToCheck.TypeClass = __SYSTEM.TYPE_CLASS.TYPE_STRING) THEN
+	THIS^.win1252Assertions.win1252IsEqualTo(
+		stringToCheck := stringToCheck.pValue,
+		expected := expected.pValue,
+		ignoreCases := ignoreCases,
+		message := message
+	);
+ELSIF (stringToCheck.TypeClass = __SYSTEM.TYPE_CLASS.TYPE_WSTRING) THEN
+	THIS^.utf16Assertions.utf16IsEqualTo(
+		stringToCheck := stringToCheck.pValue,
+		expected := expected.pValue,
+		ignoreCases := ignoreCases,
+		message := message
+	);	
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="isNotEmpty" Id="{835874ca-5f9b-4d9b-b2b8-1067b6d4b0ec}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current string ``stringToCheck`` is not empty
+
+.. attention:: 
+	All strings are handled as null terminated byte/word streams.
+	For windows-1252 is end of the string 16#00
+	For UTF-16 is end of the string 16#00_00
+
+.. attention:: 
+	Method uses ``ANY_STRING`` and for this it's not possible
+	to use literals/constants, because for ``ANY`` types the
+	compiler generates``__SYSTEM.AnyType`` and 
+	``__SYSTEM.AnyType`` contains a pointer  
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD isNotEmpty
+VAR_INPUT
+	(* current string to check *)
+	stringToCheck	:ANY_STRING;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+VAR CONSTANT
+	(* strings are null terminated *)
+	END_OF_WINDOWS_1252_STRING	:BYTE := 16#00;
+	(* strings are null terminated *)
+	END_OF_UTF16_STRING	:WORD := 16#0000;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (stringToCheck.TypeClass = __SYSTEM.TYPE_CLASS.TYPE_STRING) THEN
+	IF (stringToCheck.pValue^ = END_OF_WINDOWS_1252_STRING) THEN
+		THIS^.assertionWasWrong(message, THIS^.getDebugInfo('isNotEmpty'));
+	END_IF
+ELSIF (stringToCheck.TypeClass = __SYSTEM.TYPE_CLASS.TYPE_WSTRING) THEN
+	IF (stringToCheck.pValue^ = END_OF_UTF16_STRING) THEN
+		THIS^.assertionWasWrong(message, THIS^.getDebugInfo('isNotEmpty'));
+	END_IF
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="isNotEqualTo" Id="{559d8201-64ec-4b0d-8552-16733b596597}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current string ``stringToCheck`` is not equal to ``unexpected``
+
+.. attention:: 
+	All strings are handled as null terminated byte/word streams.
+	For windows-1252 is end of the string 16#00
+	For UTF-16 is end of the string 16#00_00
+
+.. attention:: 
+	Method uses ``ANY_STRING`` and for this it's not possible
+	to use literals/constants, because for ``ANY`` types the
+	compiler generates``__SYSTEM.AnyType`` and 
+	``__SYSTEM.AnyType`` contains a pointer  
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD isNotEqualTo
+VAR_INPUT
+	(* current string to check *)
+	stringToCheck	:ANY_STRING;
+	(* ``stringToCheck`` must be not equal to expected *)
+	unexpected		:ANY_STRING;
+	(* ``TRUE`` means ignore cases; ``FALSE`` means cases must be equal too *)
+	ignoreCases		:BOOL;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (stringToCheck.TypeClass <> unexpected.TypeClass) THEN
+	RETURN;
+END_IF
+
+IF (stringToCheck.TypeClass = __SYSTEM.TYPE_CLASS.TYPE_STRING) THEN
+	THIS^.win1252Assertions.win1252IsNotEqualTo(
+		stringToCheck := stringToCheck.pValue,
+		unexpected := unexpected.pValue,
+		ignoreCases := ignoreCases,
+		message := message
+	);
+ELSIF (stringToCheck.TypeClass = __SYSTEM.TYPE_CLASS.TYPE_WSTRING) THEN
+	THIS^.utf16Assertions.utf16IsNotEqualTo(
+		stringToCheck := stringToCheck.pValue,
+		unexpected := unexpected.pValue,
+		ignoreCases := ignoreCases,
+		message := message
+	);	
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="lenghtIsBetween" Id="{85ae0d0b-fcee-4e49-a9cb-1428d7808523}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current string ``stringToCheck`` is length
+is between ``minLenght`` and ``maxLenght``
+
+.. attention:: 
+	All strings are handled as null terminated byte/word streams.
+	For windows-1252 is end of the string 16#00
+	For UTF-16 is end of the string 16#00_00
+
+.. attention:: 
+	Method uses ``ANY_STRING`` and for this it's not possible
+	to use literals/constants, because for ``ANY`` types the
+	compiler generates``__SYSTEM.AnyType`` and 
+	``__SYSTEM.AnyType`` contains a pointer  
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD lenghtIsBetween
+VAR_INPUT
+	(* current string to check *)
+	stringToCheck	:ANY_STRING;
+	(* lower limit of the string length *)
+	minLenght		:UDINT;
+	(* upper limit of the string length *)
+	maxLenght		:UDINT;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (stringToCheck.TypeClass = __SYSTEM.TYPE_CLASS.TYPE_STRING) THEN
+	THIS^.win1252Assertions.win1252LengthIsBetween(
+		stringToCheck	:= stringToCheck.pValue,
+		minLenght		:= minLenght,
+		maxLenght		:= maxLenght,
+		message			:= message
+	);
+ELSIF (stringToCheck.TypeClass = __SYSTEM.TYPE_CLASS.TYPE_WSTRING) THEN
+	THIS^.utf16Assertions.utf16LengthIsBetween(
+		stringToCheck	:= stringToCheck.pValue,
+		minLenght		:= minLenght,
+		maxLenght		:= maxLenght,
+		message			:= message
+	);	
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="lenghtIsExact" Id="{86be1f58-2b02-4c78-b0cb-0df1dfc206a7}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current string ``stringToCheck`` is length
+is equal to ``expectedLength``
+
+.. attention:: 
+	All strings are handled as null terminated byte/word streams.
+	For windows-1252 is end of the string 16#00
+	For UTF-16 is end of the string 16#00_00
+
+.. attention:: 
+	Method uses ``ANY_STRING`` and for this it's not possible
+	to use literals/constants, because for ``ANY`` types the
+	compiler generates``__SYSTEM.AnyType`` and 
+	``__SYSTEM.AnyType`` contains a pointer  
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD lenghtIsExact
+VAR_INPUT
+	(* current string to check *)
+	stringToCheck	:ANY_STRING;
+	(* expected length of ``stringToCheck`` *)
+	expectedLength	:UDINT;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (stringToCheck.TypeClass = __SYSTEM.TYPE_CLASS.TYPE_STRING) THEN
+	THIS^.win1252Assertions.win1252LenghtIsExact(
+		stringToCheck	:= stringToCheck.pValue,
+		expectedLength	:= expectedLength,
+		message			:= message
+	);
+ELSIF (stringToCheck.TypeClass = __SYSTEM.TYPE_CLASS.TYPE_WSTRING) THEN
+	THIS^.utf16Assertions.utf16LenghtIsExact(
+		stringToCheck	:= stringToCheck.pValue,
+		expectedLength	:= expectedLength,
+		message			:= message
+	);	
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="lenghtIsMax" Id="{aaf05057-5f7a-4682-9d17-e178e35c37eb}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current string ``stringToCheck`` is length
+is equal or less than to ``maxLength``
+
+.. attention:: 
+	All strings are handled as null terminated byte/word streams.
+	For windows-1252 is end of the string 16#00
+	For UTF-16 is end of the string 16#00_00
+
+.. attention:: 
+	Method uses ``ANY_STRING`` and for this it's not possible
+	to use literals/constants, because for ``ANY`` types the
+	compiler generates``__SYSTEM.AnyType`` and 
+	``__SYSTEM.AnyType`` contains a pointer  
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD lenghtIsMax
+VAR_INPUT
+	(* current string to check *)
+	stringToCheck	:ANY_STRING;
+	(* upper limit of the length of ``stringToCheck`` *)
+	maxLength		:UDINT;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (stringToCheck.TypeClass = __SYSTEM.TYPE_CLASS.TYPE_STRING) THEN
+	THIS^.win1252Assertions.win1252LenghtIsMax(
+		stringToCheck	:= stringToCheck.pValue,
+		maxLength		:= maxLength,
+		message			:= message
+	);
+ELSIF (stringToCheck.TypeClass = __SYSTEM.TYPE_CLASS.TYPE_WSTRING) THEN
+	THIS^.utf16Assertions.utf16LenghtIsMax(
+		stringToCheck	:= stringToCheck.pValue,
+		maxLength		:= maxLength,
+		message			:= message
+	);	
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="lenghtIsMin" Id="{db33c3ef-31df-4fde-a320-0a6fd13a6db6}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current string ``stringToCheck`` is length
+is equal or grater than to ``minLength``
+
+.. attention:: 
+	All strings are handled as null terminated byte/word streams.
+	For windows-1252 is end of the string 16#00
+	For UTF-16 is end of the string 16#00_00
+
+.. attention:: 
+	Method uses ``ANY_STRING`` and for this it's not possible
+	to use literals/constants, because for ``ANY`` types the
+	compiler generates``__SYSTEM.AnyType`` and 
+	``__SYSTEM.AnyType`` contains a pointer  
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD lenghtIsMin
+VAR_INPUT
+	(* current string to check *)
+	stringToCheck	:ANY_STRING;
+	(* lower limit of the length of ``stringToCheck`` *)
+	minLength		:UDINT;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (stringToCheck.TypeClass = __SYSTEM.TYPE_CLASS.TYPE_STRING) THEN
+	THIS^.win1252Assertions.win1252LenghtIsMin(
+		stringToCheck	:= stringToCheck.pValue,
+		minLength		:= minLength,
+		message			:= message
+	);
+ELSIF (stringToCheck.TypeClass = __SYSTEM.TYPE_CLASS.TYPE_WSTRING) THEN
+	THIS^.utf16Assertions.utf16LenghtIsMin(
+		stringToCheck	:= stringToCheck.pValue,
+		minLength		:= minLength,
+		message			:= message
+	);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="setCallBack" Id="{e8e733fa-1cf4-4c00-a65d-918e41c02968}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This methods is the setter for the callback class if an assertion was false
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD setCallBack
+VAR_INPUT
+	(* the class that must be informed if an assertion is false *)
+	callBack	:IAssertCallback;  
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SUPER^.setCallBack(callBack);
+THIS^.win1252Assertions.setCallBack(callBack);
+THIS^.utf16Assertions.setCallBack(callBack);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="startsWith" Id="{11d9b96d-e584-4359-aa8c-6388497efbf5}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current string ``stringToCheck`` starts with ``start``
+
+.. attention:: 
+	All strings are handled as null terminated byte/word streams.
+	For windows-1252 is end of the string 16#00
+	For UTF-16 is end of the string 16#00_00
+
+.. attention:: 
+	Method uses ``ANY_STRING`` and for this it's not possible
+	to use literals/constants, because for ``ANY`` types the
+	compiler generates``__SYSTEM.AnyType`` and 
+	``__SYSTEM.AnyType`` contains a pointer  
+
+.. attention:: 
+	start of the string is **ALWAYS** the left side of the string 
+	even for writings which written from right to left like Hebrew or Arabic
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD startsWith
+VAR_INPUT
+	(* current string to check *)
+	stringToCheck	:ANY_STRING;
+	(* expected start of ``stringToCheck`` *)
+	start			:ANY_STRING;
+	(* ``TRUE`` means ignore cases; ``FALSE`` means cases must be equal too *)
+	ignoreCases		:BOOL;
+	(* ``TRUE`` means truncation of spaces on the left side of ``stringToCheck``*)
+	trim			:BOOL;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (stringToCheck.TypeClass <> start.TypeClass) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('startsWith'));
+	RETURN;
+END_IF
+
+IF (stringToCheck.TypeClass = __SYSTEM.TYPE_CLASS.TYPE_STRING) THEN
+	THIS^.win1252Assertions.win1252StartsWith(
+		stringToCheck := stringToCheck.pValue,
+		start := start.pValue,
+		ignoreCases := ignoreCases,
+		trim := trim,
+		message := message
+	);
+ELSIF (stringToCheck.TypeClass = __SYSTEM.TYPE_CLASS.TYPE_WSTRING) THEN
+	THIS^.utf16Assertions.utf16StartsWith(
+		stringToCheck := stringToCheck.pValue,
+		start := start.pValue,
+		ignoreCases := ignoreCases,
+		trim := trim,
+		message := message
+	);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <LineIds Name="AnyStringAssertions">
+      <LineId Id="9" Count="0" />
+    </LineIds>
+    <LineIds Name="AnyStringAssertions.className.Get">
+      <LineId Id="2" Count="0" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="AnyStringAssertions.contains">
+      <LineId Id="204" Count="19" />
+      <LineId Id="81" Count="0" />
+    </LineIds>
+    <LineIds Name="AnyStringAssertions.containsNo">
+      <LineId Id="204" Count="19" />
+      <LineId Id="36" Count="0" />
+    </LineIds>
+    <LineIds Name="AnyStringAssertions.endsWith">
+      <LineId Id="221" Count="21" />
+      <LineId Id="169" Count="0" />
+    </LineIds>
+    <LineIds Name="AnyStringAssertions.isEmpty">
+      <LineId Id="202" Count="8" />
+      <LineId Id="100" Count="0" />
+    </LineIds>
+    <LineIds Name="AnyStringAssertions.isEqualTo">
+      <LineId Id="148" Count="19" />
+      <LineId Id="102" Count="0" />
+    </LineIds>
+    <LineIds Name="AnyStringAssertions.isNotEmpty">
+      <LineId Id="172" Count="8" />
+      <LineId Id="71" Count="0" />
+    </LineIds>
+    <LineIds Name="AnyStringAssertions.isNotEqualTo">
+      <LineId Id="136" Count="18" />
+      <LineId Id="36" Count="0" />
+    </LineIds>
+    <LineIds Name="AnyStringAssertions.lenghtIsBetween">
+      <LineId Id="157" Count="13" />
+      <LineId Id="37" Count="0" />
+    </LineIds>
+    <LineIds Name="AnyStringAssertions.lenghtIsExact">
+      <LineId Id="136" Count="12" />
+      <LineId Id="91" Count="0" />
+    </LineIds>
+    <LineIds Name="AnyStringAssertions.lenghtIsMax">
+      <LineId Id="139" Count="12" />
+      <LineId Id="81" Count="0" />
+    </LineIds>
+    <LineIds Name="AnyStringAssertions.lenghtIsMin">
+      <LineId Id="129" Count="12" />
+      <LineId Id="35" Count="0" />
+    </LineIds>
+    <LineIds Name="AnyStringAssertions.setCallBack">
+      <LineId Id="30" Count="0" />
+      <LineId Id="32" Count="1" />
+      <LineId Id="31" Count="0" />
+    </LineIds>
+    <LineIds Name="AnyStringAssertions.startsWith">
+      <LineId Id="155" Count="21" />
+      <LineId Id="38" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

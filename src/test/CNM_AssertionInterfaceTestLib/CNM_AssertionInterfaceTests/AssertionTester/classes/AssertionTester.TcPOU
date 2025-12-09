@@ -1,0 +1,242 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="AssertionTester" Id="{062a13c0-32f4-400a-837d-0e73b4c206ee}" SpecialFunc="None">
+    <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+methods and properties
+======================
+
+*)
+
+{warning 'header is generated please add your documentation'}
+FUNCTION_BLOCK AssertionTester EXTENDS CNM_AbstractObject.Object IMPLEMENTS IAttachAssertorContainer
+VAR	
+	pointerTests 			:PointerAssertionsTests(classToBeTested := 0);
+	uxintAssertions			:UxintAssertionTests(classToBeTested := 0);
+	usintAssertions			:UsintAssertionTests(classToBeTested := 0);
+	uintAssertions			:UintAssertionTests(classToBeTested := 0);
+	udintAssertions			:UdintAssertionTests(classToBeTested := 0);
+	ulintAssertions			:UlintAssertionTests(classToBeTested := 0);	
+	xintAssertions			:XintAssertionTests(classToBeTested := 0);
+	sintAssertions			:SintAssertionTests(classToBeTested := 0);
+	intAssertions			:IntAssertionTests(classToBeTested := 0);
+	dintAssertions			:DintAssertionTests(classToBeTested := 0);
+	lintAssertions			:LintAssertionTests(classToBeTested := 0);
+	lrealAssertions		 	:LRealAssertionTests(classToBeTested := 0);
+	realAssertions			:RealAssertionTests(classToBeTested := 0);
+	bitNumberAssertiosByte	:ByteAssertionTests(classToBeTested := 0);
+	bitNumberAssertionsWord :WordAssertionTests(classToBeTested := 0);
+	bitNumberAssertionDword	:DWordAssertionTests(classToBeTested := 0);
+	bitNumberAssertionLWord :LWordAssertionTests(classToBeTested := 0);
+	bitNumberAssertionXWord :XWordAssertionTests(classToBeTested := 0);
+	binaryTests				:BinaryAssertionsTests(classToBeTested := 0);
+	dateAndTimeAssertions 	:DTAssertionTests(classToBeTested := 0);
+	timeTests				:TimeAssertionsTests(classToBeTested := 0);
+	stringTests				:StringAssertionTests(classToBeTested := 0);
+	objectTests				:ObjectAssertionsTests(classToBeTested := 0);
+	dateAssertions			:DateAssertionTests(classToBeTested := 0);
+	timeOfDayAssertions 	:TODAssertionTests(classToBeTested := 0);
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Property Name="attachAssertorContainer" Id="{b2bc5940-b411-4963-89b7-9f29b7800efd}">
+      <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+{warning 'header is generated please add your documentation'}
+PROPERTY attachAssertorContainer : IAssertorContainer]]></Declaration>
+      <Set Name="Set" Id="{e2fd7566-6860-4b16-b058-8285801ebad1}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[THIS^.timeTests.attachAssertorContainer					:= attachAssertorContainer;
+THIS^.stringTests.attachAssertorContainer 				:= attachAssertorContainer;
+THIS^.objectTests.attachAssertorContainer 				:= attachAssertorContainer;
+THIS^.pointerTests.attachAssertorContainer 				:= attachAssertorContainer;
+THIS^.binaryTests.attachAssertorContainer 				:= attachAssertorContainer;
+THIS^.lrealAssertions.attachAssertorContainer 			:= attachAssertorContainer;
+THIS^.realAssertions.attachAssertorContainer 			:= attachAssertorContainer;
+THIS^.dateAssertions.attachAssertorContainer 			:= attachAssertorContainer;
+THIS^.dateAndTimeAssertions.attachAssertorContainer		:= attachAssertorContainer;
+THIS^.timeOfDayAssertions.attachAssertorContainer		:= attachAssertorContainer;
+THIS^.usintAssertions.attachAssertorContainer			:= attachAssertorContainer;
+THIS^.uintAssertions.attachAssertorContainer			:= attachAssertorContainer;
+THIS^.udintAssertions.attachAssertorContainer			:= attachAssertorContainer;
+THIS^.ulintAssertions.attachAssertorContainer			:= attachAssertorContainer;
+THIS^.uxintAssertions.attachAssertorContainer			:= attachAssertorContainer;
+THIS^.sintAssertions.attachAssertorContainer			:= attachAssertorContainer;
+THIS^.intAssertions.attachAssertorContainer				:= attachAssertorContainer;
+THIS^.dintAssertions.attachAssertorContainer			:= attachAssertorContainer;
+THIS^.lintAssertions.attachAssertorContainer			:= attachAssertorContainer;
+THIS^.xintAssertions.attachAssertorContainer			:= attachAssertorContainer;
+THIS^.bitNumberAssertiosByte.attachAssertorContainer	:= attachAssertorContainer;
+THIS^.bitNumberAssertionsWord.attachAssertorContainer	:= attachAssertorContainer;
+THIS^.bitNumberAssertionDword.attachAssertorContainer	:= attachAssertorContainer;
+THIS^.bitNumberAssertionLWord.attachAssertorContainer	:= attachAssertorContainer;
+THIS^.bitNumberAssertionXWord.attachAssertorContainer	:= attachAssertorContainer;
+]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="className" Id="{5957afeb-394c-4474-bbac-a3ea99270db1}">
+      <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+{warning 'header is generated please add your documentation'}
+PROPERTY className :CNM_AbstractObject.ClassName]]></Declaration>
+      <Get Name="Get" Id="{6e0df682-d4b6-418d-b9d3-d8540a0dfc49}">
+        <Declaration><![CDATA[(*
+
+short summary
+=============
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+{warning 'header is generated please add your documentation'}
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[className := 'AssertionTester';
+]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="FB_init" Id="{f7a3097f-bc3d-4201-9704-b6443797c814}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+The constructor ``FB_init`` is needed to create an unique hash code.
+The hash code is a pseudo random number create with a xorshift_ algorithm.
+It can be overwritten on derivations, because it will be called implicit, ``SUPER^.FB_init()`` is not required.
+For more information check: `Behavoir with derived function blocks`_
+
+.. _Behavoir with derived function blocks: https://infosys.beckhoff.com/content/1033/tc3_plc_intro/5482088715.html?id=6983869892358031022
+.. _xorshift: https://en.wikipedia.org/wiki/Xorshift
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD FB_init
+VAR_INPUT
+	(* if TRUE, the retain variables are initialized (warm start / cold start)*)
+	bInitRetains	:BOOL;
+	(* if TRUE, the instance afterwards gets moved into the copy code (online change) *)
+	bInCopyCode		:BOOL;
+	(* assertor class to test *)
+	classToBeTested :IAssertorContainer;
+END_VAR
+VAR
+	{attribute 'hide'}
+	newHashstate3		:Hashcode;
+END_VAR
+VAR CONSTANT
+	{attribute 'hide'}
+	NUMBER_OF_LEFT_SHIFTS		:UINT	:= 17;
+	{attribute 'hide'}
+	NUMBER_OF_LEFT_ROTATIONS	:UINT   := 45;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.attachAssertorContainer := classToBeTested;
+]]></ST>
+      </Implementation>
+    </Method>
+    <LineIds Name="AssertionTester">
+      <LineId Id="9" Count="0" />
+    </LineIds>
+    <LineIds Name="AssertionTester.attachAssertorContainer.Set">
+      <LineId Id="5" Count="9" />
+      <LineId Id="32" Count="4" />
+      <LineId Id="15" Count="0" />
+      <LineId Id="23" Count="2" />
+      <LineId Id="28" Count="0" />
+      <LineId Id="16" Count="4" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="AssertionTester.className.Get">
+      <LineId Id="2" Count="0" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="AssertionTester.FB_init">
+      <LineId Id="47" Count="0" />
+      <LineId Id="65" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

@@ -1,0 +1,41 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="LRealTestParameter" Id="{09e17c94-a6a2-4086-b2dc-493a21089e39}">
+    <Declaration><![CDATA[(*
+
+short summary
+=================
+this is just a helper type, the TwinCAT function LREAL_TO_STRING
+throws an exception with the value 2.225073858507201e-308. 
+since there is no big integer arithmetic at TwinCAT 
+it's not in the scope of the test library to implement a doubleToString.
+This data type contains just a LREAL value and it's string representation.
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+type members
+======================
+
+*)
+
+TYPE LRealTestParameter :
+STRUCT
+	(* just the value to test *)
+	value		:LREAL;
+	(* string representation of ``value`` *)
+	asString	:Tc2_System.T_MaxString;
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

@@ -1,0 +1,37 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.11">
+  <DUT Name="BitNumberXWord" Id="{ce4a3e5e-da34-4e13-9e2d-e089539fb970}">
+    <Declaration><![CDATA[(*
+
+short summary
+=================
+| BitNumberXWord is
+| for 32 bit machines an alias of ``USINT(0..31)``
+| for 64 bit machines an alias of ``USINT(0..63)``
+| This data type exists so that no one can provoke an overflow of the bit numbers.
+| It's used as parameter of 
+| :ref:`IXWordAssertions.bitXIsEqualTo` 
+| :ref:`IXWordAssertions.bitXIsNotEqualTo` 
+| :ref:`IXWordAssertions.bitXIsSet` 
+| :ref:`IXWordAssertions.bitXIsUnset` 
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+TYPE
+	BitNumberXWord :USINT(0..((SIZEOF(__XWORD)*8)-1));
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

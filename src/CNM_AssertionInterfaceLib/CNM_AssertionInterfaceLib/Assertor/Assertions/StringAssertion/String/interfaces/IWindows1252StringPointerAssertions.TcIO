@@ -1,0 +1,446 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <Itf Name="IWindows1252StringPointerAssertions" Id="{56ae7968-51b5-48b8-afbd-1dec8b8aa1a4}">
+    <Declaration><![CDATA[(*
+
+short summary
+=================
+This interface provides assert statements for windows-1252 strings
+
+.. attention:: 
+	All strings are handled as null terminated byte streams.
+	For windows-1252 is end of the string 16#00
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+methods
+==================
+
+*)
+
+INTERFACE IWindows1252StringPointerAssertions EXTENDS IAssertCallBackSetter
+]]></Declaration>
+    <Method Name="win1252Contains" Id="{eb4d87c0-4574-49a5-8820-a1c71b9041fe}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method for windows-1252 strings checks if the current string ``stringToCheck`` contains the search string ``searchString``
+
+.. attention:: 
+	All strings are handled as null terminated byte streams.
+	For windows-1252 is end of the string 16#00
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD win1252Contains
+VAR_INPUT
+	(* current string to check *)
+	stringToCheck	:POINTER TO BYTE;
+	(* string must be found in ``stringToCheck`` *)
+	searchString	:POINTER TO BYTE;
+	(* ``TRUE`` means ignore cases; ``FALSE`` means cases must be equal too *)
+	ignoreCases		:BOOL;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="win1252ContainsNo" Id="{6d410475-5fe1-4b83-ab6e-c4be3466b9c8}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method for windows-1252 strings checks if the current string ``stringToCheck`` contains not the search string ``searchString``
+
+.. attention:: 
+	All strings are handled as null terminated byte streams.
+	For windows-1252 is end of the string 16#00
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD win1252ContainsNo
+VAR_INPUT
+	(* current string to check *)
+	stringToCheck	:POINTER TO BYTE;
+	(* string must be found in ``stringToCheck`` *)
+	searchString	:POINTER TO BYTE;
+	(* ``TRUE`` means ignore cases; ``FALSE`` means cases must be equal too *)
+	ignoreCases		:BOOL;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="win1252EndsWith" Id="{ec6e379b-95f6-41b8-9a73-c406b284a802}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method for windows-1252 strings checks if the current string ``stringToCheck`` ends with the string ``end``
+
+.. attention:: 
+	All strings are handled as null terminated byte streams.
+	For windows-1252 is end of the string 16#00
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD win1252EndsWith
+VAR_INPUT
+	(* current string to check *)
+	stringToCheck	:POINTER TO BYTE;
+	(* string must be the end of ``stringToCheck`` *)
+	end				:POINTER TO BYTE;
+	(* ``TRUE`` means ignore cases; ``FALSE`` means cases must be equal too *)
+	ignoreCases		:BOOL;
+	(* ``TRUE`` means truncation of spaces on the right side of ``stringToCheck``*)
+	trim			:BOOL;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="win1252IsEqualTo" Id="{3685f117-1d86-41aa-9459-cf1961640d51}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method for windows-1252 strings checks if the current string ``stringToCheck`` is equal to the ``expected`` string
+
+.. attention:: 
+	All strings are handled as null terminated byte streams.
+	For windows-1252 is end of the string 16#00
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD win1252IsEqualTo
+VAR_INPUT
+	(* current string to check *)
+	stringToCheck	:POINTER TO BYTE;
+	(* ``stringToCheck`` must be equal to expected *)
+	expected		:POINTER TO BYTE;
+	(* ``TRUE`` means ignore cases; ``FALSE`` means cases must be equal too *)
+	ignoreCases		:BOOL;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="win1252IsNotEqualTo" Id="{3d1d0843-3e32-4ed1-879b-74365103e435}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method for windows-1252 strings checks if the current string ``stringToCheck`` is not equal to the ``unexpected`` string
+
+.. attention:: 
+	All strings are handled as null terminated byte streams.
+	For windows-1252 is end of the string 16#00
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD win1252IsNotEqualTo
+VAR_INPUT
+	(* current string to check *)
+	stringToCheck	:POINTER TO BYTE;
+	(* ``stringToCheck`` must be not equal to expected *)
+	unexpected		:POINTER TO BYTE;
+	(* ``TRUE`` means ignore cases; ``FALSE`` means cases must be equal too *)
+	ignoreCases		:BOOL;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="win1252LenghtIsExact" Id="{23e774d0-5077-44cd-a01d-b01a4745a09c}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current string ``stringToCheck`` is length
+is equal to ``expectedLength``
+
+.. attention:: 
+	All strings are handled as null terminated byte streams.
+	For windows-1252 is end of the string 16#00
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD win1252LenghtIsExact
+VAR_INPUT
+	(* current string to check *)
+	stringToCheck	:POINTER TO BYTE;
+	(* expected length of ``stringToCheck`` *)
+	expectedLength	:UDINT;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="win1252LenghtIsMax" Id="{321d1aaf-9f8b-45fe-9ee3-988c593bda65}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current string ``stringToCheck`` is length
+is equal or less than to ``maxLength``
+
+.. attention:: 
+	All strings are handled as null terminated byte streams.
+	For windows-1252 is end of the string 16#00
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD win1252LenghtIsMax
+VAR_INPUT
+	(* current string to check *)
+	stringToCheck	:POINTER TO BYTE;
+	(* upper limit of the length of ``stringToCheck`` *)
+	maxLength		:UDINT;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="win1252LenghtIsMin" Id="{466a7405-1916-433b-81c7-134c89f49a57}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current string ``stringToCheck`` is length
+is equal or grater than to ``minLength``
+
+.. attention:: 
+	All strings are handled as null terminated byte streams.
+	For windows-1252 is end of the string 16#00
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD win1252LenghtIsMin
+VAR_INPUT
+	(* current string to check *)
+	stringToCheck	:POINTER TO BYTE;
+	(* lower limit of the length of ``stringToCheck`` *)
+	minLength		:UDINT;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="win1252LengthIsBetween" Id="{d54112e0-fef3-45bb-9716-c2f4931cca3f}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current string ``stringToCheck`` is length
+is equal or grater than ``minLength`` and equal or less than ``maxLength``
+
+.. attention:: 
+	All strings are handled as null terminated byte streams.
+	For windows-1252 is end of the string 16#00
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD win1252LengthIsBetween
+VAR_INPUT
+	(* current string to check *)
+	stringToCheck	:POINTER TO BYTE;
+	(* lower limit of the string length *)
+	minLenght		:UDINT;
+	(* upper limit of the string length *)
+	maxLenght		:UDINT;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="win1252StartsWith" Id="{7b6176fc-ea4a-4e0c-92f7-e9cc3cb053d5}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current string ``stringToCheck`` starts with ``start``
+
+.. attention:: 
+	All strings are handled as null terminated byte streams.
+	For windows-1252 is end of the string 16#00
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD win1252StartsWith
+VAR_INPUT
+	(* current string to check *)
+	stringToCheck	:POINTER TO BYTE;
+	(* expected start of ``stringToCheck`` *)
+	start			:POINTER TO BYTE;
+	(* ``TRUE`` means ignore cases; ``FALSE`` means cases must be equal too *)
+	ignoreCases		:BOOL;
+	(* ``TRUE`` means truncation of spaces on the left side of ``stringToCheck``*)
+	trim			:BOOL;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+    </Method>
+  </Itf>
+</TcPlcObject>

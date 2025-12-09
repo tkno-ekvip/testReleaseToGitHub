@@ -1,0 +1,1846 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="LrealAssertions" Id="{03d8a686-2e9a-47ad-bd98-d9eed882b018}" SpecialFunc="None">
+    <Declaration><![CDATA[(*
+
+short summary
+=================
+This class provides assert statements for 64 bit floatings (``LREAL``).
+It implements the interface :ref:`ILRealAssertions`
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+methods and properties
+=======================
+
+*)
+
+{attribute 'reflection'}
+FUNCTION_BLOCK INTERNAL LrealAssertions EXTENDS AbstactAssertion IMPLEMENTS ILRealAssertions
+VAR
+END_VAR
+VAR CONSTANT
+	(* mask for determining value as a special value *)
+	MASK_FOR_EXPONENT 	:LWORD := 16#7FF0_0000_0000_0000;
+	(* mask for determining a special value as NaN or infinite *)  
+	MASK_FOR_FRACTION	:LWORD := 16#000F_FFFF_FFFF_FFFF;
+	(* mask to get the sign bit of an infinite or zero value *)
+	MASK_FOR_SIGN_BIT	:LWORD := 16#8000_0000_0000_0000;
+	(* just to compare results or the memory of a float value *)
+	ZERO				:DWORD := 16#0000_0000_0000_0000;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Folder Name="internal" Id="{0f11d752-b09e-426d-a331-f31ba955883c}" />
+    <Property Name="className" Id="{352af12a-1b1a-4e70-9659-ec42304310df}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This abstract property returns the class name of the concrete object, 
+It's for debugging purpose
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+PROPERTY className :CNM_AbstractObject.ClassName]]></Declaration>
+      <Get Name="Get" Id="{e697379d-2b15-4337-b880-2f9894f945ef}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[className := 'CNM_AssertionInterfaceLib.LrealAssertions';
+]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="isValueInfinite" Id="{7494b899-797b-4393-867c-2dc7f558e7fa}" FolderPath="internal\">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This method checks if a value is infinite
+(infinty OR -inifinity), for details check `IEEE 754`_
+
+.. _IEEE 754: https://en.wikipedia.org/wiki/IEEE_754
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+:return: 
+``TRUE``: value is inifinty or -infinity
+``FALSE``: value is not inifinty and not -infinity
+
+*)
+
+METHOD PROTECTED isValueInfinite :BOOL
+VAR_INPUT
+	(* value to check *)
+	value			:LREAL;	
+END_VAR
+VAR
+	(* just to cast the value*)
+	lrealAsLword	:POINTER TO LWORD;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[lrealAsLword := ADR(value);
+isValueInfinite := (
+	THIS^.isValueSpecial(value)
+	AND ((lrealAsLword^ AND THIS^.MASK_FOR_FRACTION) = THIS^.ZERO)
+);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="isValueNaN" Id="{a1b0b38d-957e-40bf-acf4-21a1b8988b25}" FolderPath="internal\">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This method checks if a value is not a number
+(NaN), for details check `IEEE 754`_
+
+.. _IEEE 754: https://en.wikipedia.org/wiki/IEEE_754
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+:return: 
+``TRUE``: value is NaN
+``FALSE``: value is not NaN
+
+*)
+
+METHOD PROTECTED isValueNaN :BOOL
+VAR_INPUT
+	(* value to check *)
+	value			:LREAL;	
+END_VAR
+VAR
+	(* just to cast the value*)
+	lrealAsLword	:POINTER TO LWORD;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[lrealAsLword := ADR(value);
+isValueNaN := (
+	THIS^.isValueSpecial(value)
+	AND ((lrealAsLword^ AND THIS^.MASK_FOR_FRACTION) > THIS^.ZERO)
+);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="isValueNegativeInfinite" Id="{5bc6a989-3ddc-4238-bd02-dc24877b46ba}" FolderPath="internal\">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This method checks if a value is negative infinite
+(-inifinity), for details check `IEEE 754`_
+
+.. _IEEE 754: https://en.wikipedia.org/wiki/IEEE_754
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+:return: 
+``TRUE``: value is -infinity
+``FALSE``: value is not -infinity
+
+*)
+
+METHOD PROTECTED isValueNegativeInfinite : BOOL
+VAR_INPUT
+	(* value to check *)
+	value			:LREAL;	
+END_VAR
+VAR
+	(* just to cast the value*)
+	lrealAsLword	:POINTER TO LWORD;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[lrealAsLword := ADR(value);
+isValueNegativeInfinite := (
+	THIS^.isValueInfinite(value)
+	AND ((lrealAsLword^ AND THIS^.MASK_FOR_SIGN_BIT) = THIS^.MASK_FOR_SIGN_BIT)
+);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="isValuePositiveInfinite" Id="{8b178bd2-ce6b-4859-b17b-5bf664ad0af8}" FolderPath="internal\">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This method checks if a value is positive infinite
+(infinty), for details check `IEEE 754`_
+
+.. _IEEE 754: https://en.wikipedia.org/wiki/IEEE_754
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+:return: 
+``TRUE``: value is inifinty
+``FALSE``: value is not inifinty
+
+*)
+
+METHOD PROTECTED isValuePositiveInfinite :BOOL
+VAR_INPUT
+	(* value to check *)
+	value			:LREAL;	
+END_VAR
+VAR
+	(* just to cast the value*)
+	lrealAsLword	:POINTER TO LWORD;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[lrealAsLword := ADR(value);
+isValuePositiveInfinite := (
+	THIS^.isValueInfinite(value)
+	AND ((lrealAsLword^ AND THIS^.MASK_FOR_SIGN_BIT) = THIS^.ZERO)
+);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="isValueSpecial" Id="{7af0d2c0-d935-433b-a442-00db6fd62029}" FolderPath="internal\">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This method checks if a value is a special value
+(NaN OR infinty OR -inifinity), for details check `IEEE 754`_
+
+.. _IEEE 754: https://en.wikipedia.org/wiki/IEEE_754
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+:return: 
+``TRUE``: value is inifinty or -infinity or NaN
+``FALSE``: value is not inifinty and not -infinity and not NaN
+
+*)
+
+METHOD PROTECTED isValueSpecial :BOOL
+VAR_INPUT
+	(* value to check *)
+	value			:LREAL;	
+END_VAR
+VAR
+	(* just to cast the value*)
+	lrealAsLword	:POINTER TO LWORD;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[lrealAsLword := ADR(value);
+isValueSpecial := ((lrealAsLword^ AND THIS^.MASK_FOR_EXPONENT) = THIS^.MASK_FOR_EXPONENT);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="valueIsANumber" Id="{3fe11fc3-9595-4c2e-8b67-26124c93f06b}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current value is a number (NOT NaN)
+for details check `IEEE 754`_
+
+.. _IEEE 754: https://en.wikipedia.org/wiki/IEEE_754
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD valueIsANumber
+VAR_INPUT
+	(* current value to check *)
+	currentValue	:LREAL;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (THIS^.isValueNaN(currentValue)) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('valueIsANumber'));
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="valueIsEqualTo" Id="{c76bbb8e-180d-44c9-b3bd-1bf972d22726}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current value is equal to the expected value
+
+.. attention:: 
+	Nothing is equal to NaN, that means if ``currentValue`` OR ``expectedValue`` OR ``tolerance``
+	is NaN then is the assertion false. For details check `IEEE 754`_
+
+.. attention:: 
+	infinity is equal to infinity and -infinity is equal to -infinity, that means if
+	``currentValue`` AND ``expectedValue`` have the value infinity 
+	OR ``currentValue`` AND ``expectedValue`` have the value -infinity
+	the assertion is TRUE. For details check `IEEE 754`_
+
+.. attention:: 
+	If ``tolerance`` has the value infinity or -infinity and 
+	``currentValue`` is not NaN and ``expectedValue`` is not NaN
+	then is the assertion true. For details check `IEEE 754`_
+
+.. _IEEE 754: https://en.wikipedia.org/wiki/IEEE_754
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD valueIsEqualTo
+VAR_INPUT
+	(* current value to check *)
+	currentValue	:LREAL;
+	(* expected value to compare *)
+	expectedValue	:LREAL;
+	(* tolerance to compensate twiddling floats, it has no sign *)
+	tolerance		:LREAL;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (
+	THIS^.isValueNaN(currentValue)
+	OR THIS^.isValueNaN(expectedValue)
+	OR THIS^.isValueNaN(tolerance)
+) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('valueIsEqualTo'));
+ELSIF (THIS^.isValueInfinite(tolerance)) THEN
+	RETURN;
+ELSIF (
+	THIS^.isValueInfinite(currentValue)
+	OR THIS^.isValueInfinite(expectedValue)
+	OR THIS^.isValueInfinite(tolerance)
+) THEN
+	RETURN (THIS^.isValuePositiveInfinite(currentValue) AND THIS^.isValuePositiveInfinite(expectedValue));
+	RETURN (THIS^.isValueNegativeInfinite(currentValue) AND THIS^.isValueNegativeInfinite(expectedValue));
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('valueIsEqualTo'));	
+ELSIF (ABS(currentValue-expectedValue) > ABS(tolerance)) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('valueIsEqualTo'));
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="valueIsFinite" Id="{e6dd1e74-6b29-4559-b923-74b07003239d}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current value is finite
+(NOT (infinty OR -inifinity)), for details check `IEEE 754`_
+
+.. _IEEE 754: https://en.wikipedia.org/wiki/IEEE_754
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD valueIsFinite
+VAR_INPUT
+	(* current value to check *)
+	currentValue	:LREAL;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (THIS^.isValueInfinite(currentValue)) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('valueIsFinite'));
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="valueIsGreaterThan" Id="{0783972d-c711-4dfb-bdf6-21f4c93fca92}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current value is greater than the less value
+
+.. attention:: 
+	Any comparsion to NaN is ``FALSE`` that means if ``currentValue`` OR ``lessValue``
+	is NaN then is the assertion false.
+	For details check `IEEE 754`_ and the truth table below.
+
+.. attention:: 
+	Every number is smaller than infinity except -infinity, it's equal.
+	Every number is greater than -infinity except -infinity, it's equal.
+	For details check `IEEE 754`_ and the truth table below.
+
+.. _IEEE 754: https://en.wikipedia.org/wiki/IEEE_754
+
+truth table for special values
+===============================
++----------------------+-------------------+---------------+
+| **``currentValue``** | **``lessValue``** | **assertion** |
++======================+===================+===============+
+| NaN                  | Any value         | FASLE         |
++----------------------+-------------------+---------------+
+| Any value            | NaN               | FALSE         |
++----------------------+-------------------+---------------+
+| infinity             | NOT NaN           | TRUE          |
+|                      | NOT infinity      |               |
++----------------------+-------------------+---------------+
+| -infinty             | Any value         | FALSE         |
++----------------------+-------------------+---------------+
+| Any value            | infinity          | FALSE         |
++----------------------+-------------------+---------------+
+| NOT NaN              | -inifinity        | TRUE          |
+| NOT -infinity        |                   |               |
++----------------------+-------------------+---------------+
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD valueIsGreaterThan
+VAR_INPUT
+	(* current value to check *)
+	currentValue	:LREAL;
+	(* less than lower limit *)
+	lessValue		:LREAL;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (THIS^.isValueNaN(currentValue) OR THIS^.isValueNaN(lessValue)) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('valueIsGreaterThan'));
+ELSIF (THIS^.isValueNegativeInfinite(currentValue)) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('valueIsGreaterThan'));
+ELSIF (THIS^.isValuePositiveInfinite(lessValue)) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('valueIsGreaterThan'));
+ELSIF (THIS^.isValueNegativeInfinite(lessValue)) THEN
+	RETURN;
+ELSIF (THIS^.isValuePositiveInfinite(currentValue)) THEN
+	RETURN;
+ELSIF (currentValue <= lessValue) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('valueIsGreaterThan'));
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="valueIsInfinite" Id="{f1f766d4-a0c0-46b1-918d-a0f37b6dc729}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current value is infinite
+(infinty OR -inifinity), for details check `IEEE 754`_
+
+.. _IEEE 754: https://en.wikipedia.org/wiki/IEEE_754
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD valueIsInfinite
+VAR_INPUT
+	(* current value to check *)
+	currentValue	:LREAL;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (NOT THIS^.isValueInfinite(currentValue)) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('valueIsInfinite'));
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="valueIsInRangeOf" Id="{0844b75b-de4b-4b38-9819-276dae1053bb}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current value is inside a limit
+
+.. attention:: 
+	limits are included: ``valueIsInRangeOf(3.0, 3.0, 3.0)`` is a true assertion
+
+.. attention:: 
+	Any comparsion to NaN is ``FALSE`` that means 
+	if ``lowerLimit`` OR ``currentValue`` OR ``upperLimit``
+	is NaN then is the assertion false.
+	For details check `IEEE 754`_ and the truth table below.
+
+.. attention:: 
+	Every number is smaller than infinity except -infinity, it's equal.
+	Every number is greater than -infinity except -infinity, it's equal.
+	For details check `IEEE 754`_ and the truth table below.
+
+.. _IEEE 754: https://en.wikipedia.org/wiki/IEEE_754
+
+truth table for special values
+===============================
++--------------------+----------------------+--------------------+---------------+
+| **``lowerLimit``** | **``currentValue``** | **``upperLimit``** | **assertion** |
++====================+======================+====================+===============+
+| NaN                | Any value            | Any value          | FASLE         |
++--------------------+----------------------+--------------------+---------------+
+| Any value          | NaN                  | Any value          | FALSE         |
++--------------------+----------------------+--------------------+---------------+
+| Any value          | Any value            | NaN                | FALSE         |
++--------------------+----------------------+--------------------+---------------+
+| -infinity          | NOT NaN              | infinity           | TRUE          |
++--------------------+----------------------+--------------------+---------------+
+| infinity           | Any value            | -infinity          | FALSE         |
++--------------------+----------------------+--------------------+---------------+
+| NOT -infinity      | -infinity            | Any value          | FALSE         |
++--------------------+----------------------+--------------------+---------------+
+| Any value          | infinity             | NOT infinity       | FALSE         |
++--------------------+----------------------+--------------------+---------------+
+| -infinity          | -infinity            | -infinity          | TRUE          |
++--------------------+----------------------+--------------------+---------------+
+| infinity           | infinity             | infinity           | TRUE          |
++--------------------+----------------------+--------------------+---------------+
+| -infinity          | NOT -infinity        | -infinity          | FALSE         |
++--------------------+----------------------+--------------------+---------------+
+| infinity           | NOT infinity         | infinity           | FALSE         |
++--------------------+----------------------+--------------------+---------------+
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD valueIsInRangeOf
+VAR_INPUT
+	(* lower limit for the current value *)
+	lowerLimit		:LREAL;
+	(* current value to check *)
+	currentValue	:LREAL;
+	(* upper limit for the current value *)
+	upperLimit		:LREAL;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (THIS^.isValueNaN(lowerLimit) OR THIS^.isValueNaN(currentValue) OR THIS^.isValueNaN(upperLimit)) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('valueIsInRangeOf'));
+ELSIF (THIS^.isValueNegativeInfinite(upperLimit) AND THIS^.isValuePositiveInfinite(lowerLimit)) THEN	
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('valueIsInRangeOf'));
+ELSIF (THIS^.isValueNegativeInfinite(currentValue) AND (NOT THIS^.isValueNegativeInfinite(lowerLimit))) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('valueIsInRangeOf'));
+ELSIF (THIS^.isValuePositiveInfinite(currentValue) AND (NOT THIS^.isValuePositiveInfinite(upperLimit))) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('valueIsInRangeOf'));
+ELSIF (
+	THIS^.isValuePositiveInfinite(lowerLimit)
+	AND (NOT THIS^.isValuePositiveInfinite(currentValue))
+	AND THIS^.isValuePositiveInfinite(upperLimit)
+) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('valueIsInRangeOf'));
+ELSIF (
+	THIS^.isValueNegativeInfinite(lowerLimit)
+	AND (NOT THIS^.isValueNegativeInfinite(currentValue))
+	AND THIS^.isValueNegativeInfinite(upperLimit)
+) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('valueIsInRangeOf'));
+ELSIF (
+	THIS^.isValuePositiveInfinite(lowerLimit)
+	AND THIS^.isValuePositiveInfinite(currentValue)
+	AND THIS^.isValuePositiveInfinite(upperLimit)
+) THEN
+	RETURN;
+ELSIF (
+	THIS^.isValueNegativeInfinite(lowerLimit)
+	AND THIS^.isValueNegativeInfinite(currentValue)
+	AND THIS^.isValueNegativeInfinite(upperLimit)
+) THEN
+	RETURN;
+ELSIF (THIS^.isValueNegativeInfinite(lowerLimit) AND THIS^.isValuePositiveInfinite(upperLimit)) THEN
+	RETURN;
+ELSIF ((currentValue < lowerLimit) OR (currentValue > upperLimit)) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('valueIsInRangeOf'));
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="valueIsLessThan" Id="{a2922474-c670-4495-8ee3-42655e8be62f}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current value is greater than the less value
+
+.. attention::
+	Any comparsion to NaN is ``FALSE`` that means if ``currentValue`` OR ``greaterValue``
+	is NaN then is the assertion false.
+	For details check `IEEE 754`_ and the truth table below.
+
+.. attention::
+	Every number is smaller than infinity except -infinity, it's equal.
+	Every number is greater than -infinity except -infinity, it's equal.
+	For details check `IEEE 754`_ and the truth table below.
+
+.. _IEEE 754: https://en.wikipedia.org/wiki/IEEE_754
+
+truth table for special values
+===============================
++----------------------+----------------------+---------------+
+| **``currentValue``** | **``greaterValue``** | **assertion** |
++======================+======================+===============+
+| NaN                  | Any value            | FASLE         |
++----------------------+----------------------+---------------+
+| Any value            | NaN                  | FALSE         |
++----------------------+----------------------+---------------+
+| infinity             | Any value            | FALSE         |
++----------------------+----------------------+---------------+
+| -infinty             | NOT NaN              | TRUE          |
+|                      | NOT -infinity        |               |
++----------------------+----------------------+---------------+
+| NOT NaN              | infinity             | TRUE          |
+| NOT infinity         |                      |               |
++----------------------+----------------------+---------------+
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD valueIsLessThan
+VAR_INPUT
+	(* current value to check *)
+	currentValue	:LREAL;
+	(* greater than upper limit *)
+	greaterValue	:LREAL;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (THIS^.isValueNaN(currentValue) OR THIS^.isValueNaN(greaterValue)) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('valueIsLessThan'));
+ELSIF (THIS^.isValuePositiveInfinite(currentValue)) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('valueIsLessThan'));
+ELSIF (THIS^.isValueNegativeInfinite(greaterValue)) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('valueIsLessThan'));
+ELSIF (THIS^.isValuePositiveInfinite(greaterValue)) THEN
+	RETURN;
+ELSIF (THIS^.isValueNegativeInfinite(currentValue)) THEN
+	RETURN;
+ELSIF (currentValue >= greaterValue) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('valueIsLessThan'));
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="valueIsMax" Id="{b3b1e35e-ff59-44ce-8e2d-e4d2e9ffd4a7}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current value is less than or equal to the maximum value
+
+.. attention::
+	Any comparsion to NaN is ``FALSE`` that means if ``currentValue`` OR ``maximumValue``
+	is NaN then is the assertion false.
+	For details check `IEEE 754`_ and the truth table below.
+
+.. attention::
+	Every number is smaller than infinity except -infinity, it's equal.
+	Every number is greater than -infinity except -infinity, it's equal.
+	For details check `IEEE 754`_ and the truth table below.
+
+.. _IEEE 754: https://en.wikipedia.org/wiki/IEEE_754
+
+truth table for special values
+===============================
++----------------------+----------------------+---------------+
+| **``currentValue``** | **``maximumValue``** | **assertion** |
++======================+======================+===============+
+| NaN                  | Any value            | FASLE         |
++----------------------+----------------------+---------------+
+| Any value            | NaN                  | FALSE         |
++----------------------+----------------------+---------------+
+| NOT NaN              | infinity             | TRUE          |
++----------------------+----------------------+---------------+
+| -infinity            | NOT NaN              | TRUE          |
++----------------------+----------------------+---------------+
+| infinity             | NOT infinity         | FALSE         |
++----------------------+----------------------+---------------+
+| NOT -infinity        | -infinity            | FALSE         |
++----------------------+----------------------+---------------+
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD valueIsMax
+VAR_INPUT
+	(* current value to check *)
+	currentValue	:LREAL;
+	(* upper limit for the current value *)
+	maximumValue	:LREAL;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (THIS^.isValueNaN(currentValue) OR THIS^.isValueNaN(maximumValue)) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('valueIsMax'));
+ELSIF (
+	THIS^.isValueNegativeInfinite(maximumValue)
+	AND (NOT THIS^.isValueNegativeInfinite(currentValue))
+) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('valueIsMax'));
+ELSIF (
+	THIS^.isValuePositiveInfinite(currentValue)
+	AND (NOT THIS^.isValuePositiveInfinite(maximumValue))
+) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('valueIsMax'));
+ELSIF (THIS^.isValuePositiveInfinite(maximumValue)) THEN
+	RETURN;	
+ELSIF (THIS^.isValueNegativeInfinite(currentValue)) THEN
+	RETURN;
+ELSIF (currentValue > maximumValue) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('valueIsMax'));
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="valueIsMin" Id="{a1c71805-171c-448b-9b8d-64babd7b85ca}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current value is greater than or equal to the minimum value
+
+.. attention::
+	Any comparsion to NaN is ``FALSE`` that means if ``currentValue`` OR ``minimumValue``
+	is NaN then is the assertion false.
+	For details check `IEEE 754`_ and the truth table below.
+
+.. attention::
+	Every number is smaller than infinity except -infinity, it's equal.
+	Every number is greater than -infinity except -infinity, it's equal.
+	For details check `IEEE 754`_ and the truth table below.
+
+.. _IEEE 754: https://en.wikipedia.org/wiki/IEEE_754
+
+truth table for special values
+===============================
++----------------------+----------------------+---------------+
+| **``currentValue``** | **``minimumValue``** | **assertion** |
++======================+======================+===============+
+| NaN                  | Any value            | FASLE         |
++----------------------+----------------------+---------------+
+| Any value            | NaN                  | FALSE         |
++----------------------+----------------------+---------------+
+| infinity             | NOT NaN              | TRUE          |
++----------------------+----------------------+---------------+
+| NOT NaN              | -infinity            | TRUE          |
++----------------------+----------------------+---------------+
+| -infinity            | NOT -infinity        | FALSE         |
++----------------------+----------------------+---------------+
+| NOT infinity         | infinity             | FALSE         |
++----------------------+----------------------+---------------+
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD valueIsMin
+VAR_INPUT
+	(* current value to check *)
+	currentValue	:LREAL;
+	(* lower limit for the current value *)
+	minimumValue	:LREAL;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (THIS^.isValueNaN(currentValue) OR THIS^.isValueNaN(minimumValue)) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('valueIsMin'));
+ELSIF (
+	THIS^.isValueNegativeInfinite(currentValue)
+	AND (NOT THIS^.isValueNegativeInfinite(minimumValue))
+) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('valueIsMin'));
+ELSIF (
+	THIS^.isValuePositiveInfinite(minimumValue)
+	AND (NOT THIS^.isValuePositiveInfinite(currentValue))
+) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('valueIsMin'));
+ELSIF (THIS^.isValuePositiveInfinite(currentValue)) THEN
+	RETURN;	
+ELSIF (THIS^.isValueNegativeInfinite(minimumValue)) THEN
+	RETURN;
+ELSIF (currentValue < minimumValue) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('valueIsMin'));
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="valueIsNaN" Id="{1b7e518e-82a9-40c5-b375-5e6dbe7aca63}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current value is a not a number (NaN)
+for details check `IEEE 754`_
+
+.. _IEEE 754: https://en.wikipedia.org/wiki/IEEE_754
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD valueIsNaN
+VAR_INPUT
+	(* current value to check *)
+	currentValue	:LREAL;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (NOT THIS^.isValueNaN(currentValue)) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('valueIsNaN'));
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="valueIsNegative" Id="{e6f80b31-a606-40de-b9ff-47996d5babc5}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current value is negative
+
+.. attention::
+	Any comparsion to NaN is ``FALSE`` that means if ``currentValue``
+	is NaN then is the assertion false.
+	For details check `IEEE 754`_.
+
+.. attention::
+	``currentValue`` has the value infinity means the assertion is false.
+	``currentValue`` has the value -infinity means the assertion is true.
+	``currentValue`` has the +0.0 means the assertion is false.
+	``currentValue`` has the value -0.0 means the assertion is true.	
+	For details check `IEEE 754`_.
+
+.. _IEEE 754: https://en.wikipedia.org/wiki/IEEE_754
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD valueIsNegative
+VAR_INPUT
+	(* current value to check *)
+	currentValue	:LREAL;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+VAR
+	(* just to cast ``currentValue`` *)
+	currentValueAsDWord	:POINTER TO LWORD;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (THIS^.isValueNaN(currentValue)) THEN	
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('valueIsNegative'));
+ELSE
+	currentValueAsDWord := ADR(currentValue);
+	IF ((currentValueAsDWord^ AND THIS^.MASK_FOR_SIGN_BIT) = THIS^.ZERO) THEN
+		THIS^.assertionWasWrong(message, THIS^.getDebugInfo('valueIsNegative'));
+	END_IF
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="valueIsNegativeInfinite" Id="{4b621a3d-c82d-481d-ade6-1a085589b2af}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current value is negative infinite
+(-infinty), for details check `IEEE 754`_
+
+.. _IEEE 754: https://en.wikipedia.org/wiki/IEEE_754
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD valueIsNegativeInfinite
+VAR_INPUT
+	(* current value to check *)
+	currentValue	:LREAL;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (NOT THIS^.isValueNegativeInfinite(currentValue)) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('valueIsNegativeInfinite'));
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="valueIsNegativeZero" Id="{4981aea0-6715-4002-9473-014afd36df7a}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current value is +0.0
+for details check `IEEE 754`_
+
+.. _IEEE 754: https://en.wikipedia.org/wiki/IEEE_754
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD valueIsNegativeZero
+VAR_INPUT
+	(* current value to check *)
+	currentValue	:LREAL;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+VAR
+	(* just to cast ``currentValue`` *)
+	currentValueAsDWord	:POINTER TO LWORD;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[currentValueAsDWord := ADR(currentValue);
+IF (currentValueAsDWord^ <> THIS^.MASK_FOR_SIGN_BIT) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('valueIsNegativeZero'));
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="valueIsNormal" Id="{9c85cca9-192c-4cc8-8481-30c5bd67a4aa}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current value is a normal number
+(a finite non-zero/non-subnormal floating-point number)
+for details check `IEEE 754`_
+
+.. _IEEE 754: https://en.wikipedia.org/wiki/IEEE_754
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD valueIsNormal
+VAR_INPUT
+	(* current value to check *)
+	currentValue	:LREAL;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+VAR
+	(* just to cast ``currentValue`` *)
+	currentValueAsDWord	:POINTER TO LWORD;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (THIS^.isValueNaN(currentValue) OR THIS^.isValueInfinite(currentValue)) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('valueIsNormal'));
+ELSE
+	currentValueAsDWord := ADR(currentValue);
+	IF ((currentValueAsDWord^ AND THIS^.MASK_FOR_EXPONENT) = THIS^.ZERO) THEN
+		THIS^.assertionWasWrong(message, THIS^.getDebugInfo('valueIsNormal'));
+	END_IF
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="valueIsNotEqualTo" Id="{bc0901aa-bc7c-4d09-a43c-326413eb826f}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current value is not equal to the unexpected value
+
+.. attention:: 
+	Nothing is equal to NaN, that means if ``currentValue`` OR ``unexpectedValue`` OR ``tolerance``
+	is NaN then is the assertion true. For details check `IEEE 754`_
+
+.. attention:: 
+	infinity is equal to infinity and -infinity is equal to -infinity, that means if
+	``currentValue`` AND ``unexpectedValue`` have the value infinity 
+	OR ``currentValue`` AND ``unexpectedValue`` have the value -infinity
+	the assertion is false. For details check `IEEE 754`_
+
+.. attention:: 
+	If ``tolerance`` has the value infinity or -infinity and 
+	``currentValue`` is not NaN and ``unexpectedValue`` is not NaN
+	then is the assertion false. For details check `IEEE 754`_
+
+.. _IEEE 754: https://en.wikipedia.org/wiki/IEEE_754
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD valueIsNotEqualTo
+VAR_INPUT
+	(* current value to check *)
+	currentValue	:LREAL;
+	(* unexpected value to compare *)
+	unexpectedValue	:LREAL;
+	(* tolerance to compensate twiddling floats, it has no sign *)
+	tolerance		:LREAL;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (
+	THIS^.isValueNaN(currentValue)
+	OR THIS^.isValueNaN(unexpectedValue)
+	OR THIS^.isValueNaN(tolerance)
+) THEN
+	RETURN;
+ELSIF (THIS^.isValueInfinite(tolerance)) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('valueIsNotEqualTo'));
+ELSIF (
+	THIS^.isValueInfinite(currentValue)
+	OR THIS^.isValueInfinite(unexpectedValue)
+) THEN
+	RETURN (THIS^.isValuePositiveInfinite(currentValue) AND (NOT THIS^.isValuePositiveInfinite(unexpectedValue)));
+	RETURN (THIS^.isValueNegativeInfinite(currentValue) AND (NOT THIS^.isValueNegativeInfinite(unexpectedValue)));
+	RETURN (THIS^.isValuePositiveInfinite(unexpectedValue) AND (NOT THIS^.isValuePositiveInfinite(currentValue)));
+	RETURN (THIS^.isValueNegativeInfinite(unexpectedValue) AND (NOT THIS^.isValueNegativeInfinite(currentValue)));
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('valueIsNotEqualTo'));
+ELSIF (ABS(currentValue-unexpectedValue) <= ABS(tolerance)) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('valueIsNotEqualTo'));
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="valueIsNotNegativeInfinite" Id="{ba05de13-1a95-4b1e-a2b6-e230f6455255}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current value is not negative infinite
+NOT (-infinty), for details check `IEEE 754`_
+
+.. _IEEE 754: https://en.wikipedia.org/wiki/IEEE_754
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD valueIsNotNegativeInfinite
+VAR_INPUT
+	(* current value to check *)
+	currentValue	:LREAL;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (THIS^.isValueNegativeInfinite(currentValue)) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('valueIsNotNegativeInfinite'));
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="valueIsNotPositiveInfinite" Id="{0a5b3b67-152f-484c-994c-a291384b517b}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current value is not positive infinite
+NOT (infinty), for details check `IEEE 754`_
+
+.. _IEEE 754: https://en.wikipedia.org/wiki/IEEE_754
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD valueIsNotPositiveInfinite
+VAR_INPUT
+	(* current value to check *)
+	currentValue	:LREAL;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (THIS^.isValuePositiveInfinite(currentValue)) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('valueIsNotPositiveInfinite'));
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="valueIsNotSpecial" Id="{eedb5ca2-2f52-4fea-8af9-f2bc36e97534}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current value is a non special number
+(NOT (NaN OR infinty OR -inifinity)), for details check `IEEE 754`_
+
+.. _IEEE 754: https://en.wikipedia.org/wiki/IEEE_754
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD valueIsNotSpecial : BOOL
+VAR_INPUT
+	(* current value to check *)
+	currentValue	:LREAL;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (THIS^.isValueSpecial(currentValue)) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('valueIsNotSpecial'));
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="valueIsPositive" Id="{cf0a03eb-d43e-4a6f-b94d-3c696917eece}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current value is positve
+
+.. attention::
+	Any comparsion to NaN is ``FALSE`` that means if ``currentValue``
+	is NaN then is the assertion false.
+	For details check `IEEE 754`_.
+
+.. attention::
+	``currentValue`` has the value infinity means the assertion is true.
+	``currentValue`` has the value -infinity means the assertion is false.
+	``currentValue`` has the +0.0 means the assertion is true.
+	``currentValue`` has the value -0.0 means the assertion is false.	
+	For details check `IEEE 754`_.
+
+.. _IEEE 754: https://en.wikipedia.org/wiki/IEEE_754
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD valueIsPositive
+VAR_INPUT
+	(* current value to check *)
+	currentValue	:LREAL;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+VAR
+	(* just to cast ``currentValue`` *)
+	currentValueAsDWord	:POINTER TO LWORD;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (THIS^.isValueNaN(currentValue)) THEN	
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('valueIsPositive'));
+ELSE
+	currentValueAsDWord := ADR(currentValue);
+	IF ((currentValueAsDWord^ AND THIS^.MASK_FOR_SIGN_BIT) = THIS^.MASK_FOR_SIGN_BIT) THEN
+		THIS^.assertionWasWrong(message, THIS^.getDebugInfo('valueIsPositive'));
+	END_IF
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="valueIsPositiveInfinite" Id="{e4c14728-810b-4602-b96f-c16bc8f04d04}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current value is positive infinite
+(infinty), for details check `IEEE 754`_
+
+.. _IEEE 754: https://en.wikipedia.org/wiki/IEEE_754
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD valueIsPositiveInfinite
+VAR_INPUT
+	(* current value to check *)
+	currentValue	:LREAL;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (NOT THIS^.isValuePositiveInfinite(currentValue)) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('valueIsPositiveInfinite'));
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="valueIsPositiveZero" Id="{2329c170-6fdd-4955-baa6-50c48bfea18f}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current value is -0.0
+for details check `IEEE 754`_
+
+.. _IEEE 754: https://en.wikipedia.org/wiki/IEEE_754
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD valueIsPositiveZero
+VAR_INPUT
+	(* current value to check *)
+	currentValue	:LREAL;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+VAR
+	(* just to cast ``currentValue`` *)
+	currentValueAsDWord	:POINTER TO LWORD;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[currentValueAsDWord := ADR(currentValue);
+IF (currentValueAsDWord^ <> THIS^.ZERO) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('valueIsPositiveZero'));
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="valueIsSpecial" Id="{79d5c818-4fca-489d-8506-1a1a67cdf02d}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current value is a special
+(NaN OR infinty OR -inifinity), for details check `IEEE 754`_
+
+.. _IEEE 754: https://en.wikipedia.org/wiki/IEEE_754
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD valueIsSpecial
+VAR_INPUT
+	(* current value to check *)
+	currentValue	:LREAL;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (NOT THIS^.isValueSpecial(currentValue)) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('valueIsSpecial'));
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="valueIsSubnormal" Id="{6cf8917c-1e6f-44d5-82e4-1f1744adfc01}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This assertion method checks if the current value is a subnormal number
+for details check `IEEE 754`_
+
+.. _IEEE 754: https://en.wikipedia.org/wiki/IEEE_754
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2023 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+=================
+
+*)
+
+METHOD valueIsSubnormal
+VAR_INPUT
+	(* current value to check *)
+	currentValue	:LREAL;
+	(* message if the assertion is false *)
+	message			:AssertMessage;
+END_VAR
+VAR
+	(* just to cast ``currentValue`` *)
+	currentValueAsDWord	:POINTER TO LWORD;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF (THIS^.isValueNaN(currentValue)) THEN
+	THIS^.assertionWasWrong(message, THIS^.getDebugInfo('valueIsSubnormal'));
+ELSE
+	currentValueAsDWord := ADR(currentValue);
+	IF ((currentValueAsDWord^ AND THIS^.MASK_FOR_EXPONENT) <> THIS^.ZERO) THEN
+		THIS^.assertionWasWrong(message, THIS^.getDebugInfo('valueIsSubnormal'));
+	END_IF
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <LineIds Name="LrealAssertions">
+      <LineId Id="9" Count="0" />
+    </LineIds>
+    <LineIds Name="LrealAssertions.className.Get">
+      <LineId Id="5" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="LrealAssertions.isValueInfinite">
+      <LineId Id="15" Count="4" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="LrealAssertions.isValueNaN">
+      <LineId Id="5" Count="0" />
+      <LineId Id="13" Count="4" />
+    </LineIds>
+    <LineIds Name="LrealAssertions.isValueNegativeInfinite">
+      <LineId Id="14" Count="4" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="LrealAssertions.isValuePositiveInfinite">
+      <LineId Id="14" Count="4" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="LrealAssertions.isValueSpecial">
+      <LineId Id="5" Count="0" />
+      <LineId Id="12" Count="1" />
+    </LineIds>
+    <LineIds Name="LrealAssertions.valueIsANumber">
+      <LineId Id="40" Count="1" />
+      <LineId Id="35" Count="0" />
+      <LineId Id="42" Count="0" />
+    </LineIds>
+    <LineIds Name="LrealAssertions.valueIsEqualTo">
+      <LineId Id="77" Count="0" />
+      <LineId Id="79" Count="2" />
+      <LineId Id="78" Count="0" />
+      <LineId Id="82" Count="0" />
+      <LineId Id="113" Count="1" />
+      <LineId Id="84" Count="4" />
+      <LineId Id="90" Count="1" />
+      <LineId Id="89" Count="0" />
+      <LineId Id="39" Count="0" />
+      <LineId Id="41" Count="1" />
+      <LineId Id="40" Count="0" />
+    </LineIds>
+    <LineIds Name="LrealAssertions.valueIsFinite">
+      <LineId Id="36" Count="1" />
+      <LineId Id="35" Count="0" />
+      <LineId Id="38" Count="0" />
+    </LineIds>
+    <LineIds Name="LrealAssertions.valueIsGreaterThan">
+      <LineId Id="115" Count="5" />
+      <LineId Id="122" Count="1" />
+      <LineId Id="140" Count="1" />
+      <LineId Id="34" Count="0" />
+      <LineId Id="37" Count="1" />
+      <LineId Id="36" Count="0" />
+    </LineIds>
+    <LineIds Name="LrealAssertions.valueIsInfinite">
+      <LineId Id="36" Count="1" />
+      <LineId Id="35" Count="0" />
+      <LineId Id="38" Count="0" />
+    </LineIds>
+    <LineIds Name="LrealAssertions.valueIsInRangeOf">
+      <LineId Id="113" Count="0" />
+      <LineId Id="118" Count="1" />
+      <LineId Id="145" Count="5" />
+      <LineId Id="152" Count="1" />
+      <LineId Id="155" Count="0" />
+      <LineId Id="154" Count="0" />
+      <LineId Id="151" Count="0" />
+      <LineId Id="156" Count="19" />
+      <LineId Id="36" Count="0" />
+      <LineId Id="41" Count="0" />
+      <LineId Id="40" Count="0" />
+      <LineId Id="42" Count="0" />
+    </LineIds>
+    <LineIds Name="LrealAssertions.valueIsLessThan">
+      <LineId Id="136" Count="3" />
+      <LineId Id="141" Count="4" />
+      <LineId Id="149" Count="0" />
+      <LineId Id="35" Count="1" />
+      <LineId Id="34" Count="0" />
+      <LineId Id="37" Count="0" />
+    </LineIds>
+    <LineIds Name="LrealAssertions.valueIsMax">
+      <LineId Id="100" Count="0" />
+      <LineId Id="102" Count="0" />
+      <LineId Id="106" Count="5" />
+      <LineId Id="113" Count="3" />
+      <LineId Id="101" Count="0" />
+      <LineId Id="103" Count="2" />
+      <LineId Id="35" Count="2" />
+      <LineId Id="34" Count="0" />
+    </LineIds>
+    <LineIds Name="LrealAssertions.valueIsMin">
+      <LineId Id="100" Count="1" />
+      <LineId Id="105" Count="13" />
+      <LineId Id="35" Count="2" />
+      <LineId Id="34" Count="0" />
+    </LineIds>
+    <LineIds Name="LrealAssertions.valueIsNaN">
+      <LineId Id="36" Count="2" />
+      <LineId Id="35" Count="0" />
+    </LineIds>
+    <LineIds Name="LrealAssertions.valueIsNegative">
+      <LineId Id="83" Count="0" />
+      <LineId Id="86" Count="0" />
+      <LineId Id="32" Count="0" />
+      <LineId Id="89" Count="1" />
+      <LineId Id="35" Count="0" />
+      <LineId Id="91" Count="0" />
+      <LineId Id="34" Count="0" />
+      <LineId Id="36" Count="0" />
+    </LineIds>
+    <LineIds Name="LrealAssertions.valueIsNegativeInfinite">
+      <LineId Id="36" Count="2" />
+      <LineId Id="35" Count="0" />
+    </LineIds>
+    <LineIds Name="LrealAssertions.valueIsNegativeZero">
+      <LineId Id="35" Count="0" />
+      <LineId Id="39" Count="2" />
+    </LineIds>
+    <LineIds Name="LrealAssertions.valueIsNormal">
+      <LineId Id="35" Count="0" />
+      <LineId Id="39" Count="0" />
+      <LineId Id="41" Count="4" />
+      <LineId Id="40" Count="0" />
+      <LineId Id="47" Count="0" />
+    </LineIds>
+    <LineIds Name="LrealAssertions.valueIsNotEqualTo">
+      <LineId Id="92" Count="5" />
+      <LineId Id="109" Count="1" />
+      <LineId Id="98" Count="2" />
+      <LineId Id="102" Count="2" />
+      <LineId Id="111" Count="1" />
+      <LineId Id="106" Count="0" />
+      <LineId Id="37" Count="1" />
+      <LineId Id="36" Count="0" />
+      <LineId Id="39" Count="0" />
+    </LineIds>
+    <LineIds Name="LrealAssertions.valueIsNotNegativeInfinite">
+      <LineId Id="36" Count="2" />
+      <LineId Id="35" Count="0" />
+    </LineIds>
+    <LineIds Name="LrealAssertions.valueIsNotPositiveInfinite">
+      <LineId Id="36" Count="2" />
+      <LineId Id="35" Count="0" />
+    </LineIds>
+    <LineIds Name="LrealAssertions.valueIsNotSpecial">
+      <LineId Id="36" Count="2" />
+      <LineId Id="35" Count="0" />
+    </LineIds>
+    <LineIds Name="LrealAssertions.valueIsPositive">
+      <LineId Id="84" Count="7" />
+      <LineId Id="32" Count="0" />
+    </LineIds>
+    <LineIds Name="LrealAssertions.valueIsPositiveInfinite">
+      <LineId Id="36" Count="2" />
+      <LineId Id="35" Count="0" />
+    </LineIds>
+    <LineIds Name="LrealAssertions.valueIsPositiveZero">
+      <LineId Id="40" Count="2" />
+      <LineId Id="35" Count="0" />
+    </LineIds>
+    <LineIds Name="LrealAssertions.valueIsSpecial">
+      <LineId Id="36" Count="2" />
+      <LineId Id="35" Count="0" />
+    </LineIds>
+    <LineIds Name="LrealAssertions.valueIsSubnormal">
+      <LineId Id="40" Count="7" />
+      <LineId Id="35" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

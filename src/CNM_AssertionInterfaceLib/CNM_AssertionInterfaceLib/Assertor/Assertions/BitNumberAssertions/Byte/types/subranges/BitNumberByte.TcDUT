@@ -1,0 +1,35 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.11">
+  <DUT Name="BitNumberByte" Id="{d4ab4e5b-472a-456c-b912-c3376e36bd92}">
+    <Declaration><![CDATA[(*
+
+short summary
+=================
+| BitNumberByte is an alias of ``USINT(0..7)``.
+| This data type exists so that no one can provoke an overflow of the bit numbers.
+| It's used as parameter at 
+| :ref:`IByteAssertions.bitXIsEqualTo` 
+| :ref:`IByteAssertions.bitXIsNotEqualTo` 
+| :ref:`IByteAssertions.bitXIsSet` 
+| :ref:`IByteAssertions.bitXIsUnset` 
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+TYPE
+	BitNumberByte :USINT(0..7); 
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

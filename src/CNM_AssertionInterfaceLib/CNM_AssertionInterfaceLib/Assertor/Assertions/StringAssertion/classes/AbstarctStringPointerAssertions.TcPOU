@@ -1,0 +1,219 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.11">
+  <POU Name="AbstarctStringPointerAssertions" Id="{73587475-8030-4737-8f70-a83d620223f8}" SpecialFunc="None">
+    <Declaration><![CDATA[(*
+
+short summary
+=================
+Abstract class provides methods for checking whether, 
+based on the string lengths an assert statement with contains or contains not,
+makes sense
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+methods and properties
+=======================
+
+*)
+
+{attribute 'reflection'}
+FUNCTION_BLOCK INTERNAL ABSTRACT AbstarctStringPointerAssertions EXTENDS AbstactAssertion 
+VAR
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Folder Name="internal" Id="{c451058f-d9b9-438b-8307-927362331567}" />
+    <Property Name="className" Id="{cf97fa21-8e43-48df-9ecf-37ce2970f5f9}">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+This abstract property returns the class name of the concrete object, 
+It's for debugging purpose
+
+.. attention:: 
+	For derivations: **It is necessary that this property is overridden by the concrete class**
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+*)
+
+PROPERTY ABSTRACT className :CNM_AbstractObject.ClassName]]></Declaration>
+      <Get Name="Get" Id="{a330781f-8d64-4655-90e9-e64ffaad041c}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="isContainsCheckNecessary" Id="{76bdc379-d11a-4a4c-ad02-1c3eb9f2e9aa}" FolderPath="internal\">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+Methods for checking whether, based on the string lengths an assert statement with contains makes sense
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==================
+:return: ``FLASE`` means it's not necessary 
+to check the string content, ``TRUE`` means
+it's necessary to check the string content
+to know if the assertion is true or false
+
+*)
+
+METHOD PROTECTED isContainsCheckNecessary :BOOL
+VAR_INPUT
+	(* current string to check *)
+	stringToCheck	:POINTER TO BYTE;
+	(* string must be found in ``stringToCheck`` *)
+	searchString		:POINTER TO BYTE;
+	(* length of current string to check *)
+	lenghtStringToCheck	:UDINT;
+	(* length of ``searchString`` *)
+	lengthSearchString	:UDINT;
+	(* just additional text if assert is false *)	
+	additionalText		:Tc2_System.T_MaxString;
+	(* message if the assertion is false *)
+	message				:AssertMessage;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[isContainsCheckNecessary := FALSE;
+IF (lengthSearchString > lenghtStringToCheck) THEN
+	THIS^.assertionWasWrong(message, additionalText);
+	RETURN;
+ELSIF ((stringToCheck = 0) XOR (searchString = 0)) THEN
+	THIS^.assertionWasWrong(message, additionalText);
+	RETURN;
+ELSIF ((stringToCheck = 0) AND (searchString = 0)) THEN
+	RETURN; //assert is true
+ELSIF (lengthSearchString = 0) THEN
+	RETURN; //assert is true
+ELSIF ((lenghtStringToCheck <= 0) AND (lengthSearchString > 0)) THEN
+	THIS^.assertionWasWrong(message, additionalText);
+	RETURN;
+END_IF
+isContainsCheckNecessary := TRUE;
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="isContainsNoCheckNecessary" Id="{4ae9b0d6-ddf7-427c-bb77-c358d7afa704}" FolderPath="internal\">
+      <Declaration><![CDATA[(*
+
+short summary
+=================
+Methods for checking whether, based on the string lengths an assert statement with containsNo makes sense
+
+.. <legal notes>
+
+legal notes
+=================
+| SPDX-FileCopyrightText: © 2022 ekvip automation GmbH <info@ekvip.de>
+| SPDX-License-Identifier: Apache-2.0
+| For details check: Apache-2.0_
+
+.. _Apache-2.0: https://www.apache.org/licenses/LICENSE-2.0
+
+.. </legal notes>
+
+parameters
+==================
+:return: ``FLASE`` means it's not necessary 
+to check the string content, ``TRUE`` means
+it's necessary to check the string content
+to know if the assertion is true or false
+
+*)
+
+METHOD PROTECTED isContainsNoCheckNecessary :BOOL
+VAR_INPUT
+	(* current string to check *)
+	stringToCheck		:POINTER TO BYTE;
+	(* string must be found in ``stringToCheck`` *)
+	searchString		:POINTER TO BYTE;
+	(* length of current string to check *)
+	lenghtStringToCheck	:UDINT;
+	(* length of ``searchString`` *)
+	lengthSearchString	:UDINT;
+	(* just additional text if assert is false *)	
+	additionalText		:Tc2_System.T_MaxString;
+	(* message if the assertion is false *)
+	message				:AssertMessage;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[isContainsNoCheckNecessary := FALSE;
+IF (lengthSearchString > lenghtStringToCheck) THEN
+	RETURN; //assert is true
+ELSIF ((stringToCheck = 0) XOR (searchString = 0)) THEN
+	RETURN; //assert is true
+ELSIF ((stringToCheck = 0) AND (searchString = 0)) THEN
+	THIS^.assertionWasWrong(message, additionalText);
+	RETURN;
+ELSIF (lengthSearchString = 0) THEN
+	THIS^.assertionWasWrong(message, additionalText);
+	RETURN;
+ELSIF ((lenghtStringToCheck <= 0) AND (lengthSearchString > 0)) THEN
+	RETURN; //assert is true
+END_IF
+isContainsNoCheckNecessary := TRUE;
+]]></ST>
+      </Implementation>
+    </Method>
+    <LineIds Name="AbstarctStringPointerAssertions">
+      <LineId Id="9" Count="0" />
+    </LineIds>
+    <LineIds Name="AbstarctStringPointerAssertions.className.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="AbstarctStringPointerAssertions.isContainsCheckNecessary">
+      <LineId Id="80" Count="14" />
+      <LineId Id="64" Count="0" />
+      <LineId Id="110" Count="0" />
+    </LineIds>
+    <LineIds Name="AbstarctStringPointerAssertions.isContainsNoCheckNecessary">
+      <LineId Id="80" Count="0" />
+      <LineId Id="129" Count="11" />
+      <LineId Id="127" Count="0" />
+      <LineId Id="64" Count="0" />
+      <LineId Id="141" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>
