@@ -8,7 +8,7 @@
     <WriteProductVersion>true</WriteProductVersion>
     <GenerateTpy>false</GenerateTpy>
     <Name>CNM_AssertionInterfaceLib</Name>
-    <ProgramVersion>3.1.4026.8</ProgramVersion>
+    <ProgramVersion>3.1.4026.16</ProgramVersion>
     <Application>{c3e606a6-dba3-45c0-bba6-171c97c02731}</Application>
     <TypeSystem>{e1995fa1-d13f-4bf6-82a3-e506730068cd}</TypeSystem>
     <Implicit_Task_Info>{cf017178-8a44-4508-96d4-d477f47ed63a}</Implicit_Task_Info>
@@ -943,6 +943,9 @@ legal notes
     <Compile Include="Assertor\Assertions\BinaryAssertions\interfaces\IBinaryAssertions.TcIO">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Assertor\Assertions\BinaryAssertions\udfhgdshfksfkjshdkjfdhsfsdfsdfsfsdfsdfsdsdf.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Assertor\Assertions\BitNumberAssertions\Byte\classes\ByteAssertions.TcPOU">
       <SubType>Code</SubType>
     </Compile>
@@ -1306,8 +1309,8 @@ legal notes
   <ProjectExtensions>
     <PlcProjectOptions>
       <XmlArchive>
-  <Data>
-    <o xml:space="preserve" t="OptionKey">
+        <Data>
+          <o xml:space="preserve" t="OptionKey">
       <v n="Name">"&lt;ProjectRoot&gt;"</v>
       <d n="SubKeys" t="Hashtable" ckt="String" cvt="OptionKey">
         <v>{192FAD59-8248-4824-A8DE-9177C94C195A}</v>
@@ -1356,14 +1359,14 @@ legal notes
       </d>
       <d n="Values" t="Hashtable" />
     </o>
-  </Data>
-  <TypeList>
-    <Type n="Boolean">System.Boolean</Type>
-    <Type n="Hashtable">System.Collections.Hashtable</Type>
-    <Type n="OptionKey">{54dd0eac-a6d8-46f2-8c27-2f43c7e49861}</Type>
-    <Type n="String">System.String</Type>
-  </TypeList>
-</XmlArchive>
+        </Data>
+        <TypeList>
+          <Type n="Boolean">System.Boolean</Type>
+          <Type n="Hashtable">System.Collections.Hashtable</Type>
+          <Type n="OptionKey">{54dd0eac-a6d8-46f2-8c27-2f43c7e49861}</Type>
+          <Type n="String">System.String</Type>
+        </TypeList>
+      </XmlArchive>
     </PlcProjectOptions>
   </ProjectExtensions>
 </Project>
