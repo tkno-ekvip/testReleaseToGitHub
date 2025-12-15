@@ -811,7 +811,6 @@
     <Folder Include="AssertionTester\AssertionTests\IntegerAssertions" />
     <Folder Include="AssertionTester\AssertionTests\classes" />
     <Folder Include="AssertionTester\AssertionTests\IntegerAssertions\classes" />
-    <Folder Include="AssertionTester\AssertionTests\ObjectAssertions" />
     <Folder Include="AssertionTester\AssertionTests\PointerAssertions" />
     <Folder Include="AssertionTester\AssertionTests\StringAssertions" />
     <Folder Include="AssertionTester\AssertionTests\StringAssertions\InputStructs" />
@@ -909,21 +908,6 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="AssertionTester\AssertionTests\IntegerAssertions\classes\XintAssertionTests.TcPOU">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="AssertionTester\AssertionTests\ObjectAssertions\IInt.TcIO">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="AssertionTester\AssertionTests\ObjectAssertions\IntValue.TcPOU">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="AssertionTester\AssertionTests\ObjectAssertions\IReal.TcIO">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="AssertionTester\AssertionTests\ObjectAssertions\ObjectAssertionsTests.TcPOU">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="AssertionTester\AssertionTests\ObjectAssertions\RealValue.TcPOU">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="AssertionTester\AssertionTests\PointerAssertions\PointerAssertionsTests.TcPOU">
