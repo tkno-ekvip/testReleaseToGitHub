@@ -800,8 +800,6 @@
     <Folder Include="AssertionTester\AssertionResult\interfaces" />
     <Folder Include="AssertionTester\AssertionTests\BinaryAssertions" />
     <Folder Include="AssertionTester\AssertionTests\BinaryAssertions\classes" />
-    <Folder Include="AssertionTester\AssertionTests\BitNumberAssertions" />
-    <Folder Include="AssertionTester\AssertionTests\BitNumberAssertions\classes" />
     <Folder Include="AssertionTester\AssertionTests\DateTimeAssertions" />
     <Folder Include="AssertionTester\AssertionTests\DateTimeAssertions\classes" />
     <Folder Include="AssertionTester\AssertionTests\FloatAssertions" />
@@ -839,21 +837,6 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="AssertionTester\AssertionTests\BinaryAssertions\classes\gfdfdfdvdfvdfvdfvfdv.TcPOU">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="AssertionTester\AssertionTests\BitNumberAssertions\classes\ByteAssertionTests.TcPOU">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="AssertionTester\AssertionTests\BitNumberAssertions\classes\XWordAssertionTests.TcPOU">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="AssertionTester\AssertionTests\BitNumberAssertions\classes\LWordAssertionTests.TcPOU">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="AssertionTester\AssertionTests\BitNumberAssertions\classes\DWordAssertionTests.TcPOU">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="AssertionTester\AssertionTests\BitNumberAssertions\classes\WordAssertionTests.TcPOU">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="AssertionTester\AssertionTests\BitNumberAssertions\classes\XWordAssertionTests.TcPOU">
